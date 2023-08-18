@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration version="" formatVersion="0.4" vcversion="" toolset="">
+  <title></title>
+  <x86 disabled="no">
+    <libpq version="">
+      <include>default</include>
+      <lib>default</lib>
+      <bin>default</bin>
+    </libpq>
+    <setvcvars></setvcvars>
+    <build_macros></build_macros>
+    <runtime_folder></runtime_folder>
+  </x86>
+  <x64>
+    <libpq version="">
+      <include>default</include>
+      <lib>default</lib>
+      <bin>default</bin>
+    </libpq>
+    <setvcvars></setvcvars>
+    <build_macros></build_macros>
+    <runtime_folder></runtime_folder>
+  </x64>
+  <BuildResult>
+    <Date></Date>
+    <VisualStudioVersion></VisualStudioVersion>
+    <PlatformToolset></PlatformToolset>
+    <ToolsVersion></ToolsVersion>
+    <Platform></Platform>
+  </BuildResult>
+</Configuration>

@@ -1,0 +1,69 @@
+connected
+10 statements allocated...
+20 statements allocated...
+30 statements allocated...
+40 statements allocated...
+50 statements allocated...
+60 statements allocated...
+70 statements allocated...
+80 statements allocated...
+90 statements allocated...
+100 statements allocated...
+10 statements executed...
+20 statements executed...
+30 statements executed...
+40 statements executed...
+50 statements executed...
+60 statements executed...
+70 statements executed...
+80 statements executed...
+90 statements executed...
+100 statements executed...
+Result set:
+stmt no 1
+Result set:
+stmt no 11
+Result set:
+stmt no 21
+Result set:
+stmt no 31
+Result set:
+stmt no 41
+Result set:
+stmt no 51
+Result set:
+stmt no 61
+Result set:
+stmt no 71
+Result set:
+stmt no 81
+Result set:
+stmt no 91
+
+Testing interleaving operations on multiple prepared statements
+# of result cols: 1
+# of result cols: 2
+# of result cols: 3
+# of result cols: 4
+# of result cols: 5
+Result set:
+stmt no 0
+stmt no 0
+stmt no 0
+Result set:
+stmt no 1	col 0
+stmt no 1	col 0
+stmt no 1	col 0
+Result set:
+stmt no 2	col 0	col 1
+stmt no 2	col 0	col 1
+stmt no 2	col 0	col 1
+Result set:
+stmt no 3	col 0	col 1	col 2
+stmt no 3	col 0	col 1	col 2
+stmt no 3	col 0	col 1	col 2
+Result set:
+stmt no 4	col 0	col 1	col 2	col 3
+stmt no 4	col 0	col 1	col 2	col 3
+stmt no 4	col 0	col 1	col 2	col 3
+disconnecting

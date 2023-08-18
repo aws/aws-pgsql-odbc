@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>psqlODBC Configuration Options</title>
+  </HEAD>
+
+  <body bgcolor="#ffffff" text="#000000" link="#ff0000" vlink="#a00000" alink="#0000ff">
+
+<h1>psqlODBC Configuration Options</h1>
+
+<h2>Advanced Options 1/3 Dialog Box</h2>
+
+<ul>
+<li><b>DEFAULTS:</b> Press to this button restore the normal defaults for the
+settings described below.<br />&nbsp;</li>
+
+<li><b>Recognize Unique Indexes:</b>
+Check this option.<br />&nbsp;</li>
+
+<li><b>Use Declare/Fetch:</b> If
+true, the driver automatically uses declare cursor/fetch to handle
+SELECT statements and keeps 100 rows in a cache. This is mostly a
+great advantage, especially if you are only interested in reading and not
+updating. It results in the driver not sucking down lots of memory
+to buffer the entire result set. If set to false, cursors will not
+be used and the driver will retrieve the entire result set. For very
+large tables, this is very inefficient and may use up all the Windows memory/resources.
+However, it may handle updates better since the tables are not kept open,
+as they are when using cursors. This was the style of the old podbc32
+driver. However, the behavior of the memory allocation is much improved
+so even when not using cursors, performance should at least be better than
+the old podbc32.<br />&nbsp;</li>
+
+<li><b>CommLog (C:\psqlodbc_xxxx.log):</b>
+Log communications to/from the backend to that file. This is good
+for debugging problems.<br />&nbsp;</li>
+
+<li><b>Parse Statements:</b> Tell the driver how to gather the information
+  about result columns of queries, if the application requests that information
+  before executing the query. See also <em>ServerSide Prepare</em> options.<br>
+The driver checks this option first. If disabled then it checks the Server Side Prepare option.<br>
+<br>
+
+If this option is enabled,
+the driver will parse an SQL query statement to identify the columns and
+tables and gather statistics about them such as precision, nullability,
+aliases, etc. It then reports this information in SQLDescribeCol,
+SQLColAttributes, and SQLNumResultCols.<br><br>
+
+When this option is disabled (the default), the query is sent to the server
+to be parsed and described.
+
+If the parser can not deal with a column (because it is a function
+or expression, etc.), it will fall back to describing the statement in
+the server. The parser is fairly
+sophisticated and can handle many things such as column and table aliases,
+quoted identifiers, literals, joins, cross-products, etc. It can
+correctly identify a function or expression column, regardless of the complexity,
+but it does not attempt to determine the data type or precision of these
+columns.<br />&nbsp;</li>
+
+<li><b>Ignore Timeout:</b>
+Ignore SQL_ATTR_QUERY_TIMEOUT set using SQLSetStmtAttr(). Some tools issue SQLSetStmtAttr(.., SQL_ATTR_QUERY_TIMEOUT, ...) internally and sometimes it's difficult for users to change the value.
+<br />&nbsp;</li>
+
+<li><b>MyLog (C:\mylog_xxxx.log):</b>
+Log debug messages to that file. This is good
+for debugging problems with the driver.<br />&nbsp;</li>
+
+<li><b>Unknown Sizes: </b>This controls
+what SQLDescribeCol and SQLColAttributes will return as to precision for
+character data types (varchar, text, and unknown) in a result set when
+the precision is unknown. <b>This was more of a workaround for pre-6.4
+versions of PostgreSQL not being able to return the defined column width
+of the varchar data type</b>.<br><br>
+
+<ul>
+
+<li><i>Maximum</i>: Always
+return the maximum precision of the data type.</li>
+
+<li><i>Dont Know</i>: Return "Don't Know"
+value and let application decide.</li>
+
+<li><i>Longest</i>: Return
+the longest string length of the column of any row. Beware of this
+setting when using cursors because the cache size may not be a good representation
+of the longest column in the cache.</li>
+
+<br>
+
+<i>MS Access</i>: Seems to handle <i>Maximum</i> setting ok, as well as all the others.<br>
+<i>Borland</i>: If sizes are large and lots of columns, Borland may crash badly (it doesn't seem to handle memory allocation well)
+if using <i>Maximum</i> size.
+
+</ul><br>
+
+<li><b>Data Type Options:</b> affects how some data types are mapped:<br />&nbsp;</li>
+
+<ul>
+
+<li><i>Text as LongVarChar</i>:
+PostgreSQL TEXT type is mapped to SQLLongVarchar, otherwise SQLVarchar.</li>
+
+<li><i>Unknowns as LongVarChar</i>: Unknown types (arrays, etc) are mapped to SQLLongVarChar, otherwise SQLVarchar</li>
+
+<li><i>Bools as Char</i>: Bools are mapped to SQL_CHAR, otherwise to SQL_BIT.</li>
+
+</ul><br>
+
+<li><b>Max Varchar</b> The maximum
+precision of the Varchar and BPChar(char[x]) types. The default is 254
+which actually means 255 because of the null terminator. Note, if
+you set this value higher than 254, Access will not let you index on varchar
+columns!<br />&nbsp;</li>
+
+<li><b>Cache Size:</b>When using
+cursors, this is the row size of the tuple cache and the defualt is 100 rows.
+If not using cursors, this has no meaning.<br />&nbsp;</li>
+
+<li><b>Max LongVarChar:</b> The maximum
+precision of the LongVarChar type. The default is 4094 which actually
+means 4095 with the null terminator. You can even specify (-4) for
+this size, which is the odbc SQL_NO_TOTAL value.<br />&nbsp;</li>
+
+<li><b>SysTable Prefixes:</b> Additional prefixes of table names to regard
+as System Tables. Tables that begin with "pg_" are always treated as system
+tables, even without this option. Separate each prefix with a semicolon
+(;)<br />&nbsp;</li>
+
+<li><b>Batch Size:</b>Chunk size when executing batches with arrays of
+parameters. Setting 1 to this option forces one by one execution (the
+behavior before).
+<br />&nbsp;</li>
+</ul>
+
+<h2>Advanced Options 2/3 Dialog Box</h2>
+
+<ul>
+
+<li><b>ReadOnly:</b> Whether the
+datasource will allow updates.<br />&nbsp;</li>
+
+<li><b>Show System Tables:</b> The
+driver will treat system tables as regular tables in SQLTables. This
+is good for Access so you can see system tables.<br />&nbsp;</li>
+
+<li><b>LF <-> CR/LF conversion:</b> Convert Unix style line endings to
+DOS style.<br />&nbsp;</li>
+
+<li><b>Updateable Cursors:</b> Enable updateable cursor emulation in the
+driver.<br />&nbsp;</li>
+
+<li><b>Bytea as LO:</b> Allow the use of bytea columns for Large Objects.
+<br />&nbsp;</li>
+
+<li><b>Row Versioning:</b> Allows
+applications to detect whether data has been modified by other users while
+you are attempting to update a row. It also speeds the update process
+since every single column does not need to be specified in the where clause
+to update a row. The driver uses the "xmin" system field of PostgreSQL
+to allow for row versioning. Microsoft products seem to use this
+option well. See the <a "https://odbc.postgresql.org/faq.html">faq</a>
+for details on what you need to do to your database to allow for the row
+versioning feature to be used.<br />&nbsp;</li>
+
+<li><b>Display Optional Error Message:</b> Display optional(detail, hint, statement position etc) error messages.<br />&nbsp;</li>
+
+<li><b>True is -1:</b> Represent TRUE as -1 for compatibility with some applications.
+<br />&nbsp;</li>
+
+<li><b>Server side prepare:</b>If set, the driver uses server-side prepared
+  statements. See also <em>Parse Statement</em> option. Note that if a query
+  needs to be described before execution, e.g. because the application calls
+  SQLDescribeCol() or SQLNumResultCols() before SQLExecute(), the driver will
+  send a Parse request to the server even if this option is disabled. In that
+  case, the query that is sent to the server for parsing will have the
+  parameter markers replaced with the actual parameter values, or NULL literals
+  if the values are not known yet.
+<br />&nbsp;</li>
+
+<li><b>Int8 As:</b> Define what datatype to report int8 columns as.<br />&nbsp;</li>
+
+<li><b>Numeric As:</b> Specify the map from numeric items without precision to SQL data types. numeric(default), varchar, double  or memo(SQL_LONGVARCHAR) can be specified.<br />&nbsp;</li>
+
+<li><b>Extra Opts:</b> combination of the following bits.<br /><br>&nbsp;
+0x1: Force the output of short-length formatted connection string. Check this bit when you use MFC CDatabase class.<br />&nbsp;
+0x2: Fake MS SQL Server so that MS Access recognizes PostgreSQL's serial type as AutoNumber type.<br />&nbsp;
+0x4: Reply ANSI (not Unicode) char types for the inquiries from applications. Try to check this bit when your applications don't seem to be good at handling Unicode data.<br />&nbsp;</li>
+
+<!-- li><b>Protocol:</b> The libpq protocol version to use.<br /><br />
+This option controls two aspects of the connection, the libpq protocol version and the level of rollback on errors.
+For historical reasons the libpq protocol version is encoded as a PostgreSQL version number. The libpq protocol version used is the highest version, the given PostgreSQL server version supports.
+The level of rollback on errors is optional and is a dash separated suffix number as described below.<br /><br />
+
+<ul>
+<li><i>7.4+</i>: Use the 7.4(V3) protocol. This is currently the only supported libpq protocol and this part of the parameter is currently ignored.<br />&nbsp;</li>
+</ul></li -->
+
+<li><b>Level of rollback on errors:</b> Specifies what to rollback should an
+error occur.<br />&nbsp;
+
+<ul>
+<li><i>Nop(0):</i> Don't rollback anything and let the application handle the
+error.<br />&nbsp;</li>
+
+<li><i>Transaction(1):</i> Rollback the entire transaction.<br />&nbsp;</li>
+
+<li><i>Statement(2):</i> Rollback the statement.<br />&nbsp;</li>
+<br>
+<b>Setup note: This specification is set up with the PROTOCOL option parameter.</b><br><br>
+PROTOCOL=7.4-(0|1|2)<br>
+default value is Statement (it is Transaction for servers before 8.0).<br>
+<br>
+
+</ul></li>
+
+
+<li><b>OID Options:</b><br />&nbsp;
+
+<ul>
+<li><i>Show Column: </i> Includes the OID
+in SQLColumns. This is good for using as a unique identifier to update
+records if no good key exists OR if the key has many parts, which
+blows up the backend.<br />&nbsp;</li>
+
+<li><i>Fake Index: </i> This option
+fakes a unique index on OID. This is useful when there is not a real
+unique index on OID and for apps which can't ask what the unique identifier
+should be (i.e, Access 2.0).<br />&nbsp;</li>
+</ul></li>
+
+<li><b>Connect Settings:</b> The
+driver sends these commands to the backend upon a successful connection.&nbsp;
+It sends these settings AFTER it sends the driver "Connect Settings".
+Use a semi-colon (;) to separate commands. This can now handle any
+query, even if it returns results. The results will be thrown away
+however!<br />&nbsp;</li>
+
+<li><b>TCP KEEPALIVE setting(by sec):</b> Specifies TCP keepalives setting.<br />&nbsp;
+
+<ul>
+<li><i>disable:</i> Check when client-side TCP keepalives are not used.<br />&nbsp;</li>
+
+<li><i>idle time:</i> The number of seconds of inactivity after which TCP should send a keepalive message to the server.<br />&nbsp;</li>
+
+<li><i>interval:</i>  The number of seconds after which a TCP keepalive message that is not acknowledged by the server should be retransmitted.<br />&nbsp;</li></ul>
+<br>
+</ul>
+
+<h2>Advanced Options 3/3 Dialog Box</h2>
+
+<ul>
+
+<li><b>Allow connections urecoverable by MSDTC?:</b> How to test distributed transactions.
+<br />&nbsp;</li>
+
+<ul>
+<li><i>yes:</i> MSDTC is needless unless applications crash. So don't check the connectivity from MSDTC.<br />&nbsp;</li>
+
+<li><i>rejects sslmode verify-[ca|full]:</i> reject ssl connections with verify-ca or verify-full mode because in those cases msdtc could hardly establish the connection.<br />&nbsp;</li>
+
+<li><i>no:</i> First confirm the connectivity from MSDTC.<br />&nbsp;</li></ul>
+<br>
+
+<li><b>Libpq parameters:</b> Specify libpq connection parameters with conninfo
+style strings e.g.  <b>sslrootcert=c:\\myfolder\\myroot sslcert=C:\\myfolder\\mycert sslkey=C:\\myfolder\\mykey</b>.<br>
+Though host, port, dbname, user, password, sslmode, keepalives_idle or
+keepalive_interval parameters can be set using this(pqopt) option, the use
+is not recommended because they are ordinarily set by other options.
+When some settings for those parameters conflict with other ordinary options,
+connections are rejected.<br />&nbsp;</li>
+</ul>
+
+<h2>Global settings Dialog Box</h2>
+
+<p>This dialog allows you to specify pre-connection/default logging
+options</p>
+
+<ul>
+
+<li><b>CommLog (C:\psqlodbc_xxxx.log - Communications log):</b>
+Log communications to/from the backend to that file. This is good
+for debugging problems.<br />&nbsp;</li>
+
+<li><b>MyLog (C:\mylog_xxxx.log - Detailed debug output):</b>
+Log debug messages to that file. This is good
+for debugging problems with the driver.<br />&nbsp;</li>
+
+<li><b>MSDTCLog (C:\pgdtclog\mylog_xxxx.log - MSDTC debug output):</b>
+Log debug messages to that file. This is good
+for debugging problems with the MSDTC.<br />&nbsp;</li>
+
+<li><b>Specification of the holder for log outputs:</b>
+Adjustment of write permission.<br />&nbsp;</li>
+
+</ul>
+
+<h2>Manage DSN Dialog Box</h2>
+
+<p>This dialog allows you to select which PostgreSQL ODBC driver
+to use for this connection. Note that this may not work with third
+party drivers.</p>
+
+<h2>How to specify as a connection option</h2>
+
+<p>There is a method of specifying a connection option in a keyword strings.</p>
+<p>Example:VBA</p>
+<ul><li><b>
+myConn = "ODBC;DRIVER={PostgreSQL Unicode};" & serverConn & _<br>
+            "A0=0;A1=7.4;A2=0;A3=0;A4=0;A5=0;A6=;A7=100;A8=4096;A9=0;" & _<br>
+            "B0=254;B1=8190;B2=0;B3=0;B4=1;B5=1;B6=0;B7=1;B8=0;B9=1;BI=-5;" & _<br>
+            "C0=0;C2=dd_;C4=1;C5=1;C6=1;C7=1;C8=1;C9=0;CA=verify-full;D1=30;D4=40;" & _<br>
+	    "D5={sslrootcert=C:\\myfolder\\myroot sslcert=C:\\myfolder\\mycert sslkey=C:\\myfolder\\mykey}"
+</b></li>
+</ul>
+<p>Please refer to a <a href="config-opt.html">keyword list</a> for details. </p>
+
+</body>
+</html>
