@@ -42,6 +42,14 @@ static int	ds_options3_update(HWND hdlg, ConnInfo *ci);
 
 static struct {
 	int	ids;
+	const char* const	authtypestr;
+} authtype[] = {
+		  {IDS_AUTHTYPE_DATABASE, DATABASE_MODE}
+		, {IDS_AUTHTYPE_IAM, IAM_MODE}
+};
+
+static struct {
+	int	ids;
 	const char * const	modestr;
 } modetab[] = {
 		  {IDS_SSLREQUEST_DISABLE, SSLMODE_DISABLE}
@@ -105,13 +113,21 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	}
 
 	SendDlgItemMessage(hdlg, IDC_SSLMODE, CB_SETCURSEL, selidx, (WPARAM) 0);
+
+	// for authentication type
+	for (i = 0; i < sizeof(authtype)/sizeof(authtype[0]); i++)
+	{
+		LoadString(GetWindowInstance(hdlg), authtype[i].ids, buff, MEDIUM_REGISTRY_LEN);
+		SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_ADDSTRING, 0, (WPARAM)buff);
+	}
+	SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_SETCURSEL, 0, (WPARAM)0);
 }
 
 
 void
 GetDlgStuff(HWND hdlg, ConnInfo *ci)
 {
-	int	sslposition;
+	int	sslposition, authtypeposition;
 	char	medium_buf[MEDIUM_REGISTRY_LEN];
 
 	GetDlgItemText(hdlg, IDC_DESC, ci->desc, sizeof(ci->desc));
@@ -124,6 +140,8 @@ GetDlgStuff(HWND hdlg, ConnInfo *ci)
 	GetDlgItemText(hdlg, IDC_PORT, ci->port, sizeof(ci->port));
 	sslposition = (int)(DWORD)SendMessage(GetDlgItem(hdlg, IDC_SSLMODE), CB_GETCURSEL, 0L, 0L);
 	STRCPY_FIXED(ci->sslmode, modetab[sslposition].modestr);
+	authtypeposition = (int)(DWORD)SendMessage(GetDlgItem(hdlg, IDC_AUTHTYPE), CB_GETCURSEL, 0L, 0L);
+	STRCPY_FIXED(ci->authtype, authtype[authtypeposition].authtypestr);
 }
 
 static void

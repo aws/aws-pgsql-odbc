@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by psqlodbc.rc
 //
 #define IDS_BADDSN                      1
@@ -13,25 +13,41 @@
 #define IDS_ADVANCE_OPTION_DSN2         7
 #define IDS_ADVANCE_OPTION_CON2         8
 #define IDS_ADVANCE_CONNECTION          9
-#define IDS_ADVANCE_OPTION_DSN3		10
-#define IDS_ADVANCE_OPTION_CON3		11
+#define IDS_ADVANCE_OPTION_DSN3         10
+#define KEEPALIVE_X                     10
+#define DTC_GRP_X                       10
+#define IDS_ADVANCE_OPTION_CON3         11
+#define DTC_OPT_HEIGHT                  45
+#define DTC_GRP_Y                       60
+#define DTC_GRP_HEIGHT                  100
 #define DLG_OPTIONS_DRV                 102
 #define DLG_OPTIONS_DS                  103
-#define DLG_OPTIONS_GLOBAL		104
-#define DLG_OPTIONS_DS3			105
-#define IDC_DSNAME			400
-#define IDC_DSNAMETEXT			401
-#define IDC_DESC			404
-#define IDC_SERVER			407
-#define IDC_DATABASE			408
-#define IDC_SSLMODE			409
-#define IDS_SSLREQUEST_PREFER		410
-#define IDS_SSLREQUEST_ALLOW		411
-#define IDS_SSLREQUEST_REQUIRE		412
-#define IDS_SSLREQUEST_DISABLE		413
-#define IDC_NOTICE_USER			414
-#define IDS_SSLREQUEST_VERIFY_CA	415
-#define IDS_SSLREQUEST_VERIFY_FULL	416
+#define DLG_OPTIONS_GLOBAL              104
+#define DLG_OPTIONS_DS3                 105
+#define IDR_ACCELERATOR1                106
+#define MISC_Y                          145
+#define DTC_OPT_WIDTH                   180
+#define CONNSETTINGS_Y                  185
+#define LIBPQOPT_Y                      185
+#define DTC_GRP_WIDTH                   200
+#define KEEPALIVE_Y                     225
+#define ENDLINE_Y                       245
+#define IDC_DSNAME                      400
+#define IDC_DSNAMETEXT                  401
+#define IDC_DESC                        404
+#define IDC_SERVER                      407
+#define IDC_DATABASE                    408
+#define IDC_SSLMODE                     409
+#define IDS_SSLREQUEST_PREFER           410
+#define IDC_SSLMODE2                    410
+#define IDS_SSLREQUEST_ALLOW            411
+#define IDS_SSLREQUEST_REQUIRE          412
+#define IDS_SSLREQUEST_DISABLE          413
+#define IDC_NOTICE_USER                 414
+#define IDS_SSLREQUEST_VERIFY_CA        415
+#define IDS_SSLREQUEST_VERIFY_FULL      416
+#define IDS_AUTHTYPE_DATABASE           510
+#define IDS_AUTHTYPE_IAM                511
 #define DLG_CONFIG                      1001
 #define IDC_PORT                        1002
 #define DLG_DRIVER_CHANGE               1002
@@ -69,7 +85,7 @@
 #define IDC_OPTIONS                     1054
 #define DRV_OR_DSN                      1059
 #define DRV_DEBUG                       1060
-#define DS_OPTIONALERRORS		1061
+#define DS_OPTIONALERRORS               1061
 #define DS_LFCONVERSION                 1062
 #define DS_TRUEISMINUS1                 1063
 #define DS_UPDATABLECURSORS             1064
@@ -88,46 +104,47 @@
 #define IDC_DRIVERNAME                  1076
 #define IDC_MANAGEDSN                   1077
 #define IDC_DRIVER_LIST                 1078
-#define DS_NO_ROLLBACK			1080
-#define DS_TRANSACTION_ROLLBACK		1081
-#define DS_STATEMENT_ROLLBACK		1082
-#define DRV_DTCLOG			1083
-#define DS_EXTRA_OPTIONS		1084
-#define IDC_TEST			1085
-#define DS_LOGDIR			1086
-#define DS_GSSAUTHUSEGSSAPI		1087
-#define DS_DISABLE_KEEPALIVE		1088
-#define DS_KEEPALIVETIME		1089
-#define DS_KEEPALIVEINTERVAL		1090
-#define DS_DEFAULT_DTCLOG		1091
-#define DS_DTCLOG			1092
-#define DS_NO_DTCLOG			1093
-#define DS_DTC_NO_USE			1097
-#define DS_DTC_LINK_ONLY	     	1098
-#define DS_DTC_SIMPLE_PRECHECK		1099
-#define DS_DTC_CONFIRM_RM_CONNECTION	1100
-#define ID1STPAGE			1101
-#define ID2NDPAGE			1102
-#define ID3RDPAGE			1103
-#define DS_LIBPQOPT			1104
-#define DS_COMMLOG			1105
-#define DS_DEBUG			1106
-#define DS_NUMERIC_AS_DEFAULT		1107
-#define DS_NUMERIC_AS_NUMERIC		1108
-#define DS_NUMERIC_AS_VARCHAR		1109
-#define DS_NUMERIC_AS_DOUBLE		1110
-#define DS_NUMERIC_AS_LONGVARCHAR	1111
-#define DS_BATCH_SIZE			1112
-#define DS_IGNORETIMEOUT		1113
-#define DS_FETCH_REFCURSORS		1114
+#define DS_NO_ROLLBACK                  1080
+#define DS_TRANSACTION_ROLLBACK         1081
+#define DS_STATEMENT_ROLLBACK           1082
+#define DRV_DTCLOG                      1083
+#define DS_EXTRA_OPTIONS                1084
+#define IDC_TEST                        1085
+#define DS_LOGDIR                       1086
+#define DS_GSSAUTHUSEGSSAPI             1087
+#define DS_DISABLE_KEEPALIVE            1088
+#define DS_KEEPALIVETIME                1089
+#define DS_KEEPALIVEINTERVAL            1090
+#define DS_DEFAULT_DTCLOG               1091
+#define DS_DTCLOG                       1092
+#define DS_NO_DTCLOG                    1093
+#define DS_DTC_NO_USE                   1097
+#define DS_DTC_LINK_ONLY                1098
+#define DS_DTC_SIMPLE_PRECHECK          1099
+#define DS_DTC_CONFIRM_RM_CONNECTION    1100
+#define ID1STPAGE                       1101
+#define ID2NDPAGE                       1102
+#define ID3RDPAGE                       1103
+#define DS_LIBPQOPT                     1104
+#define DS_COMMLOG                      1105
+#define DS_DEBUG                        1106
+#define DS_NUMERIC_AS_DEFAULT           1107
+#define DS_NUMERIC_AS_NUMERIC           1108
+#define DS_NUMERIC_AS_VARCHAR           1109
+#define DS_NUMERIC_AS_DOUBLE            1110
+#define DS_NUMERIC_AS_LONGVARCHAR       1111
+#define DS_BATCH_SIZE                   1112
+#define DS_IGNORETIMEOUT                1113
+#define DS_FETCH_REFCURSORS             1114
+#define IDC_AUTHTYPE                    1115
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        106
-#define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         1115
+#define _APS_NEXT_RESOURCE_VALUE        109
+#define _APS_NEXT_COMMAND_VALUE         40002
+#define _APS_NEXT_CONTROL_VALUE         1116
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

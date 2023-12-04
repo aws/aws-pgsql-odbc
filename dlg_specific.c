@@ -311,12 +311,13 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	encode(ci->password, encoded_item, sizeof(encoded_item));
 	/* fundamental info */
 	nlen = MAX_CONNECT_STRING;
-	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;UID=%s;PWD=%s",
+	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;AUTHTYPE=%s;UID=%s;PWD=%s",
 			got_dsn ? "DSN" : "DRIVER",
 			got_dsn ? ci->dsn : ci->drivername,
 			ci->database,
 			ci->server,
 			ci->port,
+			ci->authtype,
 			ci->username,
 			encoded_item);
 	if (olen < 0 || olen >= nlen)
@@ -620,6 +621,8 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		STRCPY_FIXED(ci->database, value);
 	else if (stricmp(attribute, INI_SERVER) == 0 || stricmp(attribute, SPEC_SERVER) == 0)
 		STRCPY_FIXED(ci->server, value);
+	else if (stricmp(attribute, INI_AUTHTYPE) == 0)
+		STRCPY_FIXED(ci->authtype, value);
 	else if (stricmp(attribute, INI_USERNAME) == 0 || stricmp(attribute, INI_UID) == 0)
 		STRCPY_FIXED(ci->username, value);
 	else if (stricmp(attribute, INI_PASSWORD) == 0 || stricmp(attribute, "pwd") == 0)
@@ -816,6 +819,7 @@ getCiDefaults(ConnInfo *ci)
 {
 	MYLOG(0, "entering\n");
 
+	STRCPY_FIXED(ci->authtype, DEFAULT_AUTHTYPE);
 	ci->drivers.debug = DEFAULT_DEBUG;
 	ci->drivers.commlog = DEFAULT_COMMLOG;
 	ITOA_FIXED(ci->onlyread, DEFAULT_READONLY);
@@ -961,6 +965,9 @@ MYLOG(0, "drivername=%s\n", drivername);
 
 	if (SQLGetPrivateProfileString(DSN, INI_DATABASE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->database, temp);
+	
+	if (SQLGetPrivateProfileString(DSN, INI_AUTHTYPE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+		STRCPY_FIXED(ci->authtype, temp);
 
 	if (SQLGetPrivateProfileString(DSN, INI_USERNAME, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->username, temp);
@@ -1113,11 +1120,12 @@ MYLOG(0, "drivername=%s\n", drivername);
 	get_Ci_Drivers(DSN, ODBC_INI, &(ci->drivers));
 	STR_TO_NAME(ci->drivers.drivername, drivername);
 
-	MYLOG(DETAIL_LOG_LEVEL, "DSN info: DSN='%s',server='%s',port='%s',dbase='%s',user='%s',passwd='%s'\n",
+	MYLOG(DETAIL_LOG_LEVEL, "DSN info: DSN='%s',server='%s',port='%s',dbase='%s',authtype='%s',user='%s',passwd='%s'\n",
 		 DSN,
 		 ci->server,
 		 ci->port,
 		 ci->database,
+		 ci->authtype,
 		 ci->username,
 		 NAME_IS_VALID(ci->password) ? "xxxxx" : "");
 	MYLOG(DETAIL_LOG_LEVEL, "          onlyread='%s',showoid='%s',fakeoidindex='%s',showsystable='%s'\n",
@@ -1254,6 +1262,11 @@ writeDSNinfo(const ConnInfo *ci)
 								 INI_PORT,
 								 ci->port,
 								 ODBC_INI);
+
+	SQLWritePrivateProfileString(DSN,
+								 INI_AUTHTYPE,
+        							 ci->authtype,
+        							 ODBC_INI);
 
 	SQLWritePrivateProfileString(DSN,
 								 INI_USERNAME,
@@ -1782,6 +1795,7 @@ CC_conninfo_init(ConnInfo *conninfo, UInt4 option)
 		CC_conninfo_release(conninfo);
 	memset(conninfo, 0, sizeof(ConnInfo));
 
+	strncpy_null(conninfo->authtype, DEFAULT_AUTHTYPE, MEDIUM_SMALL_REGISTRY_LEN);
 	conninfo->allow_keyset = -1;
 	conninfo->lf_conversion = -1;
 	conninfo->true_is_minus1 = -1;
@@ -1870,6 +1884,7 @@ CC_copy_conninfo(ConnInfo *ci, const ConnInfo *sci)
 	CORR_STRCPY(drivername);
 	CORR_STRCPY(server);
 	CORR_STRCPY(database);
+	CORR_STRCPY(authtype);
 	CORR_STRCPY(username);
 	NAME_TO_NAME(ci->password, sci->password);
 	CORR_STRCPY(port);

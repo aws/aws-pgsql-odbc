@@ -17,7 +17,7 @@ function Find-MSBuild
 	$Toolsetv=$Toolset.Value
 
 	$WSDK71Set="Windows7.1SDK"
-	Write-Debug "VCVersion=$VCVersionv $env:VisualStudioVersion"
+	Write-Debug "VCVersion=$VisualStudioVersion $env:VisualStudioVersion"
 	[int]$toolsnum=0
 #
 #	Determine VisualStudioVersion
@@ -40,10 +40,12 @@ function Find-MSBuild
 	$refnum=""
 #	neither C++ nor SDK prompt
 	if ("$VisualStudioVersion" -eq "") {
-		if ((Find-VSDir 15) -ne "") {	# VC15 is installed (current official)
-			$VisualStudioVersion = "15.0"
+		if ((Find-VSDir 17) -ne "") {	# VC17 is installed
+			$VisualStudioVersion = "17.0"
 		} elseif ((Find-VSDir 16) -ne "") {	# VC16 is installed
 			$VisualStudioVersion = "16.0"
+		} elseif ((Find-VSDir 15) -ne "") {	# VC15 is installed (current official)
+			$VisualStudioVersion = "15.0"
 		} elseif ("${env:VS140COMNTOOLS}" -ne "") { # VC14 is installed
 			$VisualStudioVersion = "14.0"
 		} elseif ("${env:VS120COMNTOOLS}" -ne "") { # VC12 is installed
@@ -67,6 +69,7 @@ function Find-MSBuild
 	 "14.0"	{ $toolsout = 14 }
 	 "15.0"	{ $toolsout = 15 }
 	 "16.0"	{ $toolsout = 16 }
+	 "17.0"	{ $toolsout = 17 }
 	 default { throw "Selected Visual Stuidio is Version ${VisualStudioVersion}. Please use VC10 or later"}
 	}
 #
@@ -126,6 +129,7 @@ function Find-MSBuild
 			throw "MSBuild ToolsVersion ${toolsnum}.0 not Found"
 		}
 	}
+	Write-Debug "msbuildexe=$msbuildexe"
 #
 #	Determine PlatformToolset
 #
@@ -149,6 +153,7 @@ function Find-MSBuild
 		 "14.0"	{$Toolsetv="v140_xp"}
 		 "15.0"	{$Toolsetv="v141_xp"}
 		 "16.0"	{$Toolsetv="v142"}
+		 "17.0"	{$Toolsetv="v143"}
 		}
 	}
 #	avoid a bug of Windows7.1SDK PlatformToolset
@@ -159,13 +164,12 @@ function Find-MSBuild
 	$VCVersion.value=$VisualStudioVersion
 	$Toolset.value=$Toolsetv
 
-	if ("$MSToolsVersion" -eq "") {
-		if ([int]$toolsout -gt 15) {
-			$MSToolsVersion="Current"
-		} else {
-			$MSToolsVersion="${toolsout}.0"
-		}
+	if ([int]$toolsout -gt 15) {
+	    $MSToolsVersion="Current"
+	} else {
+	    $MSToolsVersion="${toolsout}.0"
 	}
+	Write-Debug "MSToolsVersion=$MSToolsVersion"
 	return $msbuildexe, $MSToolsVersion
 }
 
@@ -219,7 +223,7 @@ function Find-Dumpbin
 {
     [CmdletBinding()]
 
-    Param([int]$CurMaxVC = 16)
+    Param([int]$CurMaxVC = 17)
 
 	if ("$dumpbinexe" -ne "") {
 		if ("$addPath" -ne "") {
@@ -400,7 +404,7 @@ function find_vs_installation
 	return $vsdir
 }
 
-$vsarray = @{VC15 = "2017"; VC16 = "2019"}
+$vsarray = @{VC15 = "2017"; VC16 = "2019"; VC17 = "2022"}
 #	find VS dir for VC15 ~ VC16
 function find_default_msbuild_path
 {
@@ -410,15 +414,17 @@ function find_default_msbuild_path
           [string]$toolsver,
           [string]$vsdir)
 
+	Write-Debug "toolsver=$toolsver vsdir=$vsdir"
 	if ($vsdir -eq "")
 	{
 		$toolsnum = [int]$toolsver
-		if ($env:PROCESSOR_ARCHITECTURE -eq "x86") {
-			$pgmfs = "$env:ProgramFiles"
+		if ($env:PROCESSOR_ARCHITECTURE -eq "x86" -or $toolsnum -eq 17) {
+		    $pgmfs = "$env:ProgramFiles"
 		} else {
-			$pgmfs = "${env:ProgramFiles(x86)}"
+		    $pgmfs = "${env:ProgramFiles(x86)}"
 		}
 		$vsverdir = $vsarray["VC$toolsnum"]
+		Write-Debug "pgmfs=$pgmfs vsverdir=$vsverdir"
 		$lslist = @(Get-ChildItem "$pgmfs\Microsoft Visual Studio\$vsverdir\*\MSBuild\*\Bin\MSBuild.exe" -ErrorAction SilentlyContinue)
 	} else {
 		$lslist = @(Get-ChildItem "$vsdir\MSBuild\*\Bin\MSBuild.exe" -ErrorAction SilentlyContinue)
