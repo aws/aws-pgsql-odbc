@@ -58,7 +58,7 @@ Param(
 [string]$Target="Build",
 [string]$VCVersion,
 [ValidateSet("Win32", "x64", "both")]
-[string]$Platform="both",
+[string]$Platform="x64",
 [string]$Toolset,
 [ValidateSet("", "4.0", "12.0", "14.0")]
 [string]$MSToolsVersion,
@@ -112,7 +112,9 @@ $path_save = ${env:PATH}
 
 Import-Module ${scriptPath}\MSProgram-Get.psm1
 try {
-	$rtnArray=Find-MSBuild ([ref]$VCVersion) ($MSToolsVersion) ([ref]$Toolset) $configInfo
+	$DebugPreference = 'Continue'
+	Write-Debug "VCVersion=$VCVersion MSToolsVersion=$MSToolsVersion Toolset=$Toolset"
+	$rtnArray=Find-MSBuild ([ref]$VCVersion) ($MSToolsVersion) ([ref]$Toolset) $configInfo -Debug
 	$msbuildexe=$rtnArray[0]
 	$MSToolsV=$rtnArray[1]
 } catch [Exception] {

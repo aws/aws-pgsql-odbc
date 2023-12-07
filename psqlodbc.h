@@ -393,9 +393,10 @@ BOOL isSqlServr(void);
 
 /*	Registry length limits */
 #define LARGE_REGISTRY_LEN			4096		/* used for special cases */
-#define MEDIUM_REGISTRY_LEN			256 /* normal size for
+#define MEDIUM_REGISTRY_LEN			1024 /* normal size for
 										 * user,database,etc. */
 #define SMALL_REGISTRY_LEN			10	/* for 1/0 settings */
+#define MEDIUM_SMALL_REGISTRY_LEN		16  /* size between small and medium */
 
 
 /*	These prefixes denote system tables */
@@ -608,10 +609,11 @@ typedef struct
 	char		drivername[MEDIUM_REGISTRY_LEN];
 	char		server[MEDIUM_REGISTRY_LEN];
 	char		database[MEDIUM_REGISTRY_LEN];
+	char		authtype[MEDIUM_SMALL_REGISTRY_LEN];
 	char		username[MEDIUM_REGISTRY_LEN];
 	pgNAME		password;
 	char		port[SMALL_REGISTRY_LEN];
-	char		sslmode[16];
+	char		sslmode[MEDIUM_SMALL_REGISTRY_LEN];
 	char		onlyread[SMALL_REGISTRY_LEN];
 	char		fake_oid_index[SMALL_REGISTRY_LEN];
 	char		show_oid_column[SMALL_REGISTRY_LEN];

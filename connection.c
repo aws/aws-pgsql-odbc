@@ -1060,7 +1060,7 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		return 0;
 	}
 
-	MYLOG(0, "DSN = '%s', server = '%s', port = '%s', database = '%s', username = '%s', password='%s'\n", ci->dsn, ci->server, ci->port, ci->database, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "");
+	MYLOG(0, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s'\n", ci->dsn, ci->server, ci->port, ci->database, ci->authtype, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "");
 
 	return 1;
 }

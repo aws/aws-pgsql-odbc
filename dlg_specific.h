@@ -52,6 +52,7 @@ extern "C" {
 						 * Postmaster is listening */
 #define INI_DATABASE			"Database"	/* Database Name */
 #define ABBR_DATABASE			"DX"	/* Database Name */
+#define INI_AUTHTYPE			"AuthenticationType"  /* Authentication type */
 #define INI_UID				"UID"		/* Default User Name */
 #define INI_USERNAME			"Username"	/* Default User Name */
 #define INI_PASSWORD			"Password"	/* Default Password */
@@ -182,6 +183,9 @@ extern "C" {
 */
 #define ABBR_XAOPT			"D4"
 
+#define DATABASE_MODE			"database"
+#define IAM_MODE			"iam"
+
 #define	SSLMODE_DISABLE		"disable"
 #define	SSLMODE_ALLOW		"allow"
 #define	SSLMODE_PREFER		"prefer"
@@ -278,6 +282,7 @@ extern "C" {
 #define DEFAULT_BATCH_SIZE		100
 #define DEFAULT_IGNORETIMEOUT		0
 #define DEFAULT_FETCHREFCURSORS		0
+#define DEFAULT_AUTHTYPE		DATABASE_MODE
 
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 #define DEFAULT_XAOPT			1

@@ -433,3 +433,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# AWS SDK
+aws_sdk/
