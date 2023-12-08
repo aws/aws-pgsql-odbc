@@ -97,7 +97,7 @@ ADD_DEFINES = $(ADD_DEFINES) /D "_MEMORY_DEBUG_" /GS
 ADD_DEFINES = $(ADD_DEFINES) /D "DBMS_NAME=\"PostgreSQL ANSI($(TARGET_CPU))\""
 !ELSE
 ADD_DEFINES = $(ADD_DEFINES) /D "DBMS_NAME=\"PostgreSQL Unicode($(TARGET_CPU))\"" /D "UNICODE_SUPPORT"
-RSC_DEFINES = $(RSC_DEFINES) /D "UNICODE_SUPPORT"
+RSC_DEFINES = $(RSC_DEFINES) /D "UNICODE_SUPPORT" /I $(MSVC_INC) /I $(SDK_INC)
 !ENDIF
 
 !IF "$(PORT_CHECK)" == "yes"
@@ -106,6 +106,9 @@ ADD_DEFINES = $(ADD_DEFINES) /Wp64
 
 !IF "$(PG_INC)" != ""
 INC_OPT = $(INC_OPT) /I "$(PG_INC)" /I "$(PG_INC)\internal"
+!ENDIF
+!IF "$(AWS_INC)" != ""
+INC_OPT = $(INC_OPT) /I "$(AWS_INC)"
 !ENDIF
 !IF "$(ADD_INC)" != ""
 INC_OPT = $(INC_OPT) /I "$(ADD_INC)"
@@ -197,15 +200,27 @@ CPP_PROJ=$(CPP_PROJ) /Gm /ZI /Od /D "_DEBUG" /RTC1
    $(CPP_PROJ) /c $<
 <<
 
+# List of source files in wrapper
+WRAPPER_SRC_FILES = wrapper\RDSClient_wrapper.cpp
+
+# Specify object files corresponding to source files
+WRAPPER_OBJ_FILES = $(INTDIR)\RDSClient_wrapper.obj
+
+# Specify build rule
+$(WRAPPER_OBJ_FILES): $(WRAPPER_SRC_FILES)
+   $(CPP) @<<
+   $(CPP_PROJ) /c $**
+<<
+
 RSC=rc.exe
 RSC_PROJ=/l 0x809 /fo"$(INTDIR)\psqlodbc.res"
 !IF  "$(CFG)" == "Debug"
-RSC_PROJ=$(RSC_PROJ) /d "_DEBUG"
+RSC_PROJ=$(RSC_PROJ) /d "_DEBUG" /I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.38.33130\atlmfc\include" /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um"
 !ENDIF
 
 LINK32=link.exe
 LIB32=lib.exe
-LINK32_FLAGS=libpq.lib kernel32.lib user32.lib gdi32.lib advapi32.lib odbc32.lib odbccp32.lib wsock32.lib ws2_32.lib secur32.lib XOleHlp.lib winmm.lib msvcrt.lib $(CUSTOMLINKLIBS) /nologo /dll /def:"$(DEF_FILE)"
+LINK32_FLAGS=libpq.lib kernel32.lib user32.lib gdi32.lib advapi32.lib odbc32.lib odbccp32.lib wsock32.lib ws2_32.lib secur32.lib XOleHlp.lib winmm.lib msvcrt.lib legacy_stdio_definitions.lib aws-c-auth.lib aws-c-common.lib aws-c-event-stream.lib aws-c-io.lib aws-c-s3.lib aws-checksums.lib aws-cpp-sdk-rds.lib aws-c-cal.lib aws-c-compression.lib aws-c-http.lib aws-c-mqtt.lib aws-c-sdkutils.lib aws-crt-cpp.lib aws-cpp-sdk-core.lib bcrypt.lib Crypt32.lib wininet.lib version.lib winhttp.lib ncrypt.lib userenv.lib Shlwapi.lib $(CUSTOMLINKLIBS) /nologo /dll /def:"$(DEF_FILE)"
 !IF "$(MSDTC)" != "no"
 LINK32_FLAGS=$(LINK32_FLAGS) "$(OUTDIR)\$(DTCLIB).lib"
 !ENDIF
@@ -224,6 +239,9 @@ LINK32_FLAGS=$(LINK32_FLAGS) /debug /pdbtype:sept
 LINK32_FLAGS=$(LINK32_FLAGS) $(VC07_DELAY_LOAD)
 !IF "$(PG_LIB)" != ""
 LINK32_FLAGS=$(LINK32_FLAGS) /libpath:"$(PG_LIB)"
+!ENDIF
+!IF "$(AWS_LIB)" != ""
+LINK32_FLAGS=$(LINK32_FLAGS) /libpath:"$(AWS_LIB)"
 !ENDIF
 
 LINK32_OBJS= \
@@ -266,38 +284,39 @@ LINK32_OBJS= \
 !IF "$(MEMORY_DEBUG)" == "yes"
 	"$(INTDIR)\inouealc.obj" \
 !ENDIF
-	"$(INTDIR)\psqlodbc.res"
+	"$(INTDIR)\psqlodbc.res" \
+	"$(INTDIR)\RDSClient_wrapper.obj"
 
 DTCDEF_FILE= "$(DTCLIB).def"
 LIB32_DTCLIBFLAGS=/nologo /def:"$(DTCDEF_FILE)"
 
-LINK32_DTCFLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib uuid.lib wsock32.lib XOleHlp.lib $(OUTDIR)\$(MAINLIB).lib $(CUSTOMLINKLIBS) Delayimp.lib /DelayLoad:XOLEHLP.DLL /nologo /dll
+LINK32_DTCFLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib uuid.lib wsock32.lib XOleHlp.lib legacy_stdio_definitions.lib $(OUTDIR)\$(MAINLIB).lib $(CUSTOMLINKLIBS) Delayimp.lib /DelayLoad:XOLEHLP.DLL /nologo /dll
 LINK32_DTCOBJS= \
 	"$(INTDIR)\msdtc_enlist.obj" "$(INTDIR)\xalibname.obj"
 
 XADEF_FILE= "$(XALIB).def"
-LINK32_XAFLAGS=/nodefaultlib:libcmt.lib kernel32.lib user32.lib gdi32.lib advapi32.lib odbc32.lib odbccp32.lib wsock32.lib XOleHlp.lib winmm.lib msvcrt.lib $(CUSTOMLINKLIBS) /nologo /dll /def:"$(XADEF_FILE)"
+LINK32_XAFLAGS=/nodefaultlib:libcmt.lib kernel32.lib user32.lib gdi32.lib advapi32.lib odbc32.lib odbccp32.lib wsock32.lib XOleHlp.lib winmm.lib msvcrt.lib legacy_stdio_definitions.lib $(CUSTOMLINKLIBS) /nologo /dll /def:"$(XADEF_FILE)"
 LINK32_XAOBJS= \
 	"$(INTDIR)\pgxalib.obj"
 
 "$(OUTDIR)\$(MAINDLL)" : $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
-  $(LINK32_FLAGS) $(LINK32_OBJS) /pdb:$*.pdb /implib:$*.lib /out:$@
+  $(LINK32_FLAGS) /debug $(LINK32_OBJS) /pdb:$*.pdb /implib:$*.lib /out:$@
 <<
 
 "$(OUTDIR)\$(DTCLIB).lib" : $(DTCDEF_FILE) $(LINK32_DTCOBJS)
     $(LIB32) @<<
-  $(LIB32_DTCLIBFLAGS) $(LINK32_DTCOBJS) /out:$@
+  $(LIB32_DTCLIBFLAGS) /debug $(LINK32_DTCOBJS) /out:$@
 <<
 
 "$(OUTDIR)\$(DTCDLL)" : $(DTCDEF_FILE) $(LINK32_DTCOBJS)
     $(LINK32) @<<
-  $(LINK32_DTCFLAGS) $(LINK32_DTCOBJS) $*.exp /pdb:$*.pdb /out:$@
+  $(LINK32_DTCFLAGS) /debug $(LINK32_DTCOBJS) $*.exp /pdb:$*.pdb /out:$@
 <<
 
 "$(OUTDIR)\$(XADLL)" : $(XADEF_FILE) $(LINK32_XAOBJS)
     $(LINK32) @<<
-  $(LINK32_XAFLAGS) $(LINK32_XAOBJS) /pdb:$*.pdb /implib:$*.lib /out:$@
+  $(LINK32_XAFLAGS) /debug $(LINK32_XAOBJS) /pdb:$*.pdb /implib:$*.lib /out:$@
 <<
 
 

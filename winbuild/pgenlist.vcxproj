@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <srcPath>.\..\</srcPath>
+    <ProjectDir>.\..\</ProjectDir>
+  </PropertyGroup>
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -22,6 +26,7 @@
     <ProjectGuid>{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>pgenlist</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -35,7 +40,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <GenerateImportLib>true</GenerateImportLib>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -50,7 +55,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <GenerateImportLib>true</GenerateImportLib>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -69,10 +74,9 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" >
-	<ANSI_VERSION>no</ANSI_VERSION>
+  <PropertyGroup Label="UserMacros">
+    <ANSI_VERSION>no</ANSI_VERSION>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(ANSI_VERSION)'=='yes'">
     <TargetName>pgenlista</TargetName>
     <TargetType>ANSI</TargetType>
@@ -83,21 +87,18 @@
     <TargetType>Unicode</TargetType>
     <DriverName>psqlodbc35w</DriverName>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Platform)'=='Win32'">
     <TARGET_CPU>x86</TARGET_CPU>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'!='Win32'">
     <TARGET_CPU>x64</TARGET_CPU>
   </PropertyGroup>
-
   <Import Project="psqlodbc.Cpp.props" />
   <PropertyGroup>
-	  <ObjbaseDir Condition="'$(ObjbaseDir)'==''">$(srcPath)</ObjbaseDir>
-	  <IntDir>$(ObjbaseDir)$(TARGET_CPU)_$(TargetType)_$(Configuration)\pgenlist\</IntDir>
-	  <OutDir>$(ObjbaseDir)$(TARGET_CPU)_$(TargetType)_$(Configuration)\</OutDir>
+    <ObjbaseDir Condition="'$(ObjbaseDir)'==''">$(srcPath)</ObjbaseDir>
+    <IntDir>$(ObjbaseDir)$(TARGET_CPU)_$(TargetType)_$(Configuration)\pgenlist\</IntDir>
+    <OutDir>$(ObjbaseDir)$(TARGET_CPU)_$(TargetType)_$(Configuration)\</OutDir>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
@@ -110,9 +111,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
-
   <!-- Import Project="psqlodbc.Cpp.props" / -->
-
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>_HANDLE_ENLIST_IN_DTC_;_CRT_SECURE_NO_DEPRECATE;WIN32;_DEBUG;_WINDOWS;_USRDLL;PGENLIST_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -207,7 +206,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(GenerateImportLib)'=='true'">
     <Link>
-      <ModuleDefinitionFile></ModuleDefinitionFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <AdditionalDependencies>$(TargetName).exp;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
