@@ -48,11 +48,11 @@ EXTRA_DIST = license.txt readme.txt readme_winbuild.txt \
 	docs/release-7.3.html \
 	docs/release.html \
 	docs/unix-compilation.html \
-	docs/win32-compilation.html \
+	docs/win32-compilation.md\
 	docs/msdtc_pgxalib_tracing_enable.reg \
 	docs/msdtc_pgxalib_tracing_disable.reg \
 	docs/msdtc_pgxalib_tracing_README.txt \
-	docs/editConfiguration.jpg \
+	docs/img/editConfiguration.jpg \
 \
 	installer/background.bmp \
 	installer/banner.bmp \

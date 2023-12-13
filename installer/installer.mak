@@ -29,7 +29,7 @@ MSM_OPTS = -dLIBPQBINDIR="$(LIBPQ_BIN)"
 # Merge module
 $(TARGET_CPU)\psqlodbc_$(TARGET_CPU).msm: psqlodbcm_cpu.wxs $(DRIVER_FILES)
 	echo Building Installer Merge Module
-	$(CANDLE) -nologo -dPlatform="$(TARGET_CPU)" -dVERSION=$(POSTGRESDRIVERVERSION) -dSUBLOC=$(SUBLOC) $(MSM_OPTS) -o $(TARGET_CPU)\psqlodbcm.wixobj psqlodbcm_cpu.wxs
+        $(CANDLE) -nologo -dLIBPQMEM0="libssl-3-x64.dll" -dLIBPQMEM1="libcrypto-3-x64.dll" -dLIBPQMEM2="libintl-9.dll" -dLIBPQMEM3="libwinpthread-1.dll" -dLIBPQMEM4="libiconv-2.dll" -dLIBPQMEM5="" -dLIBPQMEM6="" -dLIBPQMEM7="" -dLIBPQMEM8="" -dLIBPQMEM9="" -dPlatform="$(TARGET_CPU)" -dVERSION=$(PG_VER) -dLIBPQBINDIR=$(PG_BIN) -dLIBPQMSVCDLL="" -dLIBPQMSVCSYS="" -dPODBCMSVCDLL=$(VCRT_DLL) -dPODBCMSVPDLL=$(MSVCP_DLL) -dPODBCMSVCSYS="" -dPODBCMSVPSYS="" -dNoPDB="False" -dBINBASE=".." -o .\x64\psqlodbcm.wixobj psqlodbcm_cpu.wxs
 	$(LIGHT) -nologo -o $(TARGET_CPU)\psqlodbc_$(TARGET_CPU).msm $(TARGET_CPU)\psqlodbcm.wixobj
 
 $(TARGET_CPU)\psqlodbc_$(TARGET_CPU).msi: psqlodbc_cpu.wxs $(DRIVER_FILES)

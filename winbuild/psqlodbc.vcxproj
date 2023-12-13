@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <srcPath>.\..\</srcPath>
+    <ProjectDir>.\..\</ProjectDir>
+  </PropertyGroup>
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -23,6 +27,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>psqlodbc</RootNamespace>
     <ProjectName>psqlodbc</ProjectName>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -34,7 +39,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -47,7 +52,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -67,19 +72,25 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <!--			-->
-  <PropertyGroup Label="UserMacros" >
+  <PropertyGroup Label="UserMacros">
     <ANSI_VERSION>no</ANSI_VERSION>
     <!-- 		-->
-    <PG_INC></PG_INC>
-    <PG_LIB></PG_LIB>
+    <PG_INC>
+    </PG_INC>
+    <PG_LIB>
+    </PG_LIB>
     <!-- 		-->
     <MSDTC>yes</MSDTC>
     <MEMORY_DEBUG>no</MEMORY_DEBUG>
     <!-- work properties -->
-    <ADD_DEFINES></ADD_DEFINES>
-    <ADD_INC></ADD_INC>
-    <ADD_LIBPATH></ADD_LIBPATH>
-    <RSC_DEFINES></RSC_DEFINES>
+    <ADD_DEFINES>
+    </ADD_DEFINES>
+    <ADD_INC>
+    </ADD_INC>
+    <ADD_LIBPATH>
+    </ADD_LIBPATH>
+    <RSC_DEFINES>
+    </RSC_DEFINES>
     <DELAY_LOAD_DLLS>secur32.dll</DELAY_LOAD_DLLS>
   </PropertyGroup>
   <PropertyGroup Condition="'$(PG_INC)'!=''">
@@ -87,7 +98,6 @@
     <ADD_LIBPATH>$(ADD_LIBPATH);$(PG_LIB)</ADD_LIBPATH>
     <ADD_DEFINES>$(ADD_DEFINES)</ADD_DEFINES>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(ANSI_VERSION)'=='yes'">
     <TargetName>psqlodbc30a</TargetName>
     <TargetType>ANSI</TargetType>
@@ -102,51 +112,47 @@
     <ADD_DEFINES>UNICODE_SUPPORT;UNICODE_SUPPORTXX</ADD_DEFINES>
     <RSC_DEFINES>UNICODE_SUPPORT</RSC_DEFINES>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Platform)'=='Win32'">
     <TARGET_CPU>x86</TARGET_CPU>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'!='Win32'">
     <TARGET_CPU>x64</TARGET_CPU>
   </PropertyGroup>
-
   <Import Project="psqlodbc.Cpp.props" />
   <PropertyGroup>
     <ObjbaseDir Condition="'$(ObjbaseDir)'==''">$(srcPath)</ObjbaseDir>
     <IntDir>$(ObjbaseDir)$(TARGET_CPU)_$(TargetType)_$(Configuration)\</IntDir>
     <OutDir>$(ObjbaseDir)$(TARGET_CPU)_$(TargetType)_$(Configuration)\</OutDir>
   </PropertyGroup>
-
   <!-- Import Project="std_dbmsname.Cpp.props" /-->
-
   <PropertyGroup Condition="'$(MSDTC)'=='yes'">
     <ADD_DEFINES>$(ADD_DEFINES);_HANDLE_ENLIST_IN_DTC_</ADD_DEFINES>
     <DELAY_LOAD_DLLS>$(DELAY_LOAD_DLLS);$(DTCDLL).dll</DELAY_LOAD_DLLS>
   </PropertyGroup>
-
   <PropertyGroup>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <!-- MEMORY_DEBUG -->
-  <PropertyGroup Condition="'$(MEMORY_DEBUG)'=='yes'" >
+  <PropertyGroup Condition="'$(MEMORY_DEBUG)'=='yes'">
     <ADD_DEFINES>$(ADD_DEFINES);_MEMORY_DEBUG_</ADD_DEFINES>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files\PostgreSQL\15\include\internal;C:\Program Files\PostgreSQL\15\include</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);C:\Program Files\PostgreSQL\15\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);C:\Program Files\PostgreSQL\15\lib</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Program Files\PostgreSQL\15\include;C:\Program Files\PostgreSQL\15\include\internal</IncludePath>
   </PropertyGroup>
-
   <!-- Import Project="psqlodbc.Cpp.props" / -->
-
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;$(ADD_DEFINES);DYNAMIC_LOAD;WIN_MULTITHREAD_SUPPORT;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -169,15 +175,15 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;$(ADD_DEFINES);DYNAMIC_LOAD;WIN_MULTITHREAD_SUPPORT;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir)\aws_sdk\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>$(RSC_DEFINES);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <DelayLoadDLLs>$(DELAY_LOAD_DLLS);%(DelayLoadDLLs)</DelayLoadDLLs>
-      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libpq.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;wsock32.lib;ws2_32.lib;secur32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\aws_sdk\install\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libpq.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;wsock32.lib;ws2_32.lib;secur32.lib;winmm.lib;%(AdditionalDependencies);aws-c-auth.lib;aws-c-common.lib;aws-c-event-stream.lib;aws-c-io.lib;aws-c-s3.lib;aws-checksums.lib;aws-cpp-sdk-rds.lib;aws-c-cal.lib;aws-c-compression.lib;aws-c-http.lib;aws-c-mqtt.lib;aws-c-sdkutils.lib;aws-crt-cpp.lib;aws-cpp-sdk-core.lib;bcrypt.lib;Crypt32.lib;wininet.lib;version.lib;winhttp.lib;ncrypt.lib;userenv.lib;Shlwapi.lib</AdditionalDependencies>
       <ModuleDefinitionFile>$(MAINDEF)</ModuleDefinitionFile>
       <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
     </Link>
@@ -207,15 +213,15 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;$(ADD_DEFINES);DYNAMIC_LOAD;WIN_MULTITHREAD_SUPPORT;WIN32;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir)\aws_sdk\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>$(RSC_DEFINES);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <DelayLoadDLLs>$(DELAY_LOAD_DLLS);%(DelayLoadDLLs)</DelayLoadDLLs>
-      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libpq.lib;winmm.lib;wsock32.lib;ws2_32.lib;secur32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\aws_sdk\install\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libpq.lib;winmm.lib;wsock32.lib;ws2_32.lib;secur32.lib;%(AdditionalDependencies);aws-c-auth.lib;aws-c-common.lib;aws-c-event-stream.lib;aws-c-io.lib;aws-c-s3.lib;aws-checksums.lib;aws-cpp-sdk-rds.lib;aws-c-cal.lib;aws-c-compression.lib;aws-c-http.lib;aws-c-mqtt.lib;aws-c-sdkutils.lib;aws-crt-cpp.lib;aws-cpp-sdk-core.lib;bcrypt.lib;Crypt32.lib;wininet.lib;version.lib;winhttp.lib;ncrypt.lib;userenv.lib;Shlwapi.lib</AdditionalDependencies>
       <ModuleDefinitionFile>$(MAINDEF)</ModuleDefinitionFile>
       <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
     </Link>
@@ -228,6 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catfunc.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="$(srcPath)bind.c" />
@@ -263,6 +270,7 @@
     <ClCompile Include="$(srcPath)tuple.c" />
     <ClCompile Condition="'$(ANSI_VERSION)'=='no'" Include="$(srcPath)win_unicode.c" />
     <ClCompile Condition="'$(MSDTC)'=='yes'" Include="$(srcPath)xalibname.c" />
+    <ClCompile Include="..\wrapper\RDSClient_wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(srcPath)psqlodbc.rc" />

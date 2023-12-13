@@ -272,6 +272,9 @@ function buildInstaller([string]$CPUTYPE)
 		Write-Host ".`nBuilding psqlODBC/$SUBLOC merge module..."
 		$BINBASE = GetObjbase ".."
 		$INSTBASE = GetObjbase ".\$CPUTYPE" "installer\$CPUTYPE"
+
+		Write-Host "candle is candle -nologo $libpqRelArgs \"-dPlatform=$CPUTYPE\" \"-dVERSION=$VERSION\" \"-dSUBLOC=$SUBLOC\" \"-dLIBPQBINDIR=$LIBPQBINDIR\" \"-dLIBPQMSVCDLL=$LIBPQMSVCDLL\" \"-dLIBPQMSVCSYS=$LIBPQMSVCSYS\" \"-dPODBCMSVCDLL=$PODBCMSVCDLL\" \"-dPODBCMSVPDLL=$PODBCMSVPDLL\" \"-dPODBCMSVCSYS=$PODBCMSVCSYS\" \"-dPODBCMSVPSYS=$PODBCMSVPSYS\" \"-dNoPDB=$NoPDB\" \"-dBINBASE=$BINBASE\" -o $INSTBASE\psqlodbcm.wixobj psqlodbcm_cpu.wxs"
+
 		candle -nologo $libpqRelArgs "-dPlatform=$CPUTYPE" "-dVERSION=$VERSION" "-dSUBLOC=$SUBLOC" "-dLIBPQBINDIR=$LIBPQBINDIR" "-dLIBPQMSVCDLL=$LIBPQMSVCDLL" "-dLIBPQMSVCSYS=$LIBPQMSVCSYS" "-dPODBCMSVCDLL=$PODBCMSVCDLL" "-dPODBCMSVPDLL=$PODBCMSVPDLL" "-dPODBCMSVCSYS=$PODBCMSVCSYS" "-dPODBCMSVPSYS=$PODBCMSVPSYS" "-dNoPDB=$NoPDB" "-dBINBASE=$BINBASE" -o $INSTBASE\psqlodbcm.wixobj psqlodbcm_cpu.wxs
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to build merge module"

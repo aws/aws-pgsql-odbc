@@ -36,4 +36,4 @@ NMAKE BASED
 -----------
 
 Use the top-level file (win64.mak), per the documentation in
-docs/win32-compilation.html, to build installers using NMake.
+docs/win32-compilation.md, to build installers using NMake.

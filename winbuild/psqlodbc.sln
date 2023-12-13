@@ -5,6 +5,13 @@ VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "psqlodbc", "psqlodbc.vcxproj", "{79F872B5-9FAF-43DF-B441-9C860EAE52CF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pgenlist", "pgenlist.vcxproj", "{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{79F872B5-9FAF-43DF-B441-9C860EAE52CF} = {79F872B5-9FAF-43DF-B441-9C860EAE52CF}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5E0C3C72-A594-4804-80D6-71333E52E06C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +28,14 @@ Global
 		{79F872B5-9FAF-43DF-B441-9C860EAE52CF}.Release|x64.Build.0 = Release|x64
 		{79F872B5-9FAF-43DF-B441-9C860EAE52CF}.Release|x86.ActiveCfg = Release|Win32
 		{79F872B5-9FAF-43DF-B441-9C860EAE52CF}.Release|x86.Build.0 = Release|Win32
+		{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}.Debug|x64.ActiveCfg = Debug|x64
+		{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}.Debug|x64.Build.0 = Debug|x64
+		{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}.Debug|x86.ActiveCfg = Debug|Win32
+		{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}.Debug|x86.Build.0 = Debug|Win32
+		{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}.Release|x64.ActiveCfg = Release|x64
+		{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}.Release|x64.Build.0 = Release|x64
+		{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}.Release|x86.ActiveCfg = Release|Win32
+		{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
