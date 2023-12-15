@@ -30,6 +30,7 @@
 #include "connexp.h"
 #endif /* _HANDLE_ENLIST_IN_DTC_ */
 
+#include <commctrl.h>
 
 extern HINSTANCE s_hModule;
 static int	driver_optionsDraw(HWND, const ConnInfo *, int src, BOOL enable);
@@ -61,6 +62,29 @@ static struct {
 	};
 static int	dspcount_bylevel[] = {1, 4, 6};
 
+// window handle of region
+HWND regionDlg;
+// window handle of password
+HWND passwordDlg;
+
+// Function to handle notifications from the AuthType drop list
+LRESULT CALLBACK ListBoxProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData) {
+	if (message == WM_COMMAND) {
+		if (HIWORD(wParam) == CBN_SELCHANGE) {
+			// Get the selected index
+			int selidx = SendMessage(hdlg, CB_GETCURSEL, 0, 0);
+
+			MYLOG(0, "selected index is %d\n", selidx);
+
+			// Enable region only when authtype is IAM
+			EnableWindow(regionDlg, stricmp(authtype[selidx].authtypestr, IAM_MODE) == 0);
+			// Enable password only when authtype is DATABASE
+			EnableWindow(passwordDlg, stricmp(authtype[selidx].authtypestr, DATABASE_MODE) == 0);
+		}
+	}
+	return DefSubclassProc(hdlg, message, wParam, lParam);
+}
+
 void
 SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 {
@@ -79,6 +103,7 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	SetDlgItemText(hdlg, IDC_USER, ci->username);
 	SetDlgItemText(hdlg, IDC_PASSWORD, SAFE_NAME(ci->password));
 	SetDlgItemText(hdlg, IDC_PORT, ci->port);
+	SetDlgItemText(hdlg, IDC_REGION, ci->region);
 
 	dsplevel = 0;
 
@@ -114,15 +139,32 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 
 	SendDlgItemMessage(hdlg, IDC_SSLMODE, CB_SETCURSEL, selidx, (WPARAM) 0);
 
+	selidx = 0;
+	for (i = 0; i < sizeof(authtype) / sizeof(authtype[0]); i++)
+	{
+		if (!stricmp(ci->authtype, authtype[i].authtypestr))
+		{
+			selidx = i;
+			break;
+		}
+	}
 	// for authentication type
-	for (i = 0; i < sizeof(authtype)/sizeof(authtype[0]); i++)
+	for (i = 0; i < sizeof(authtype) / sizeof(authtype[0]); i++)
 	{
 		LoadString(GetWindowInstance(hdlg), authtype[i].ids, buff, MEDIUM_REGISTRY_LEN);
 		SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_ADDSTRING, 0, (WPARAM)buff);
 	}
-	SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_SETCURSEL, 0, (WPARAM)0);
-}
+	SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_SETCURSEL, selidx, (WPARAM)0);
 
+	// Set subclass procedure for the authtype drop list to handle notifications
+	SetWindowSubclass(GetDlgItem(hdlg, IDC_AUTHTYPE), ListBoxProc, 0, 0);
+
+    regionDlg = GetDlgItem(hdlg, IDC_REGION);
+    passwordDlg = GetDlgItem(hdlg, IDC_PASSWORD);
+
+	EnableWindow(regionDlg, stricmp(authtype[selidx].authtypestr, IAM_MODE) == 0);
+	EnableWindow(passwordDlg, stricmp(authtype[selidx].authtypestr, DATABASE_MODE) == 0);
+}
 
 void
 GetDlgStuff(HWND hdlg, ConnInfo *ci)
@@ -137,6 +179,7 @@ GetDlgStuff(HWND hdlg, ConnInfo *ci)
 	GetDlgItemText(hdlg, IDC_USER, ci->username, sizeof(ci->username));
 	GetDlgItemText(hdlg, IDC_PASSWORD, medium_buf, sizeof(medium_buf));
 	STR_TO_NAME(ci->password, medium_buf);
+	GetDlgItemText(hdlg, IDC_REGION, ci->region, sizeof(ci->region));
 	GetDlgItemText(hdlg, IDC_PORT, ci->port, sizeof(ci->port));
 	sslposition = (int)(DWORD)SendMessage(GetDlgItem(hdlg, IDC_SSLMODE), CB_GETCURSEL, 0L, 0L);
 	STRCPY_FIXED(ci->sslmode, modetab[sslposition].modestr);

@@ -52,6 +52,7 @@
 #define IDC_PORT                        1002
 #define DLG_DRIVER_CHANGE               1002
 #define IDC_USER                        1006
+#define IDC_REGION                      1007
 #define IDC_PASSWORD                    1009
 #define DS_READONLY                     1011
 #define DS_SHOWOIDCOLUMN                1012

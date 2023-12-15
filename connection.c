@@ -45,6 +45,8 @@
 
 #include "pgapifunc.h"
 
+#include "wrapper/RDSClient_wrapper.h"
+
 #define	SAFE_STR(s)	(NULL != (s) ? (s) : "(null)")
 
 #define STMT_INCREMENT 16		/* how many statement holders to allocate
@@ -1098,6 +1100,30 @@ LIBPQ_CC_connect(ConnectionClass *self, char *salt_para)
 }
 
 char
+GetIAMCredentials(ConnInfo* ci) {
+	if (!ci)
+		return 0;
+	
+	MYLOG(0, "auth type is %s\n", ci->authtype);
+	if (stricmp(ci->authtype, IAM_MODE) != 0) {
+		return 1;
+	}
+
+	MYLOG(0, "server is %s\n", ci->server);
+	MYLOG(0, "region is %s\n", ci->region);
+	MYLOG(0, "port is %s\n", ci->port);
+	MYLOG(0, "username is %s\n", ci->username);
+
+	RDSClientHandle rdsClient = CreateRDSClient();
+	char* token = GenerateConnectAuthToken(rdsClient, ci->server, ci->region, atoi(ci->port), ci->username);
+	STRN_TO_NAME(ci->password, token, strlen(token));
+	free(token);
+	MYLOG(0, "generated token length is %d\n", strlen(ci->password.name));
+	DestroyRDSClient(rdsClient);
+	return 1;
+}
+
+char
 CC_connect(ConnectionClass *self, char *salt_para)
 {
 	ConnInfo *ci = &(self->connInfo);
@@ -1106,6 +1132,10 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	const char	*errmsg = NULL;
 
 	MYLOG(0, "entering...sslmode=%s\n", self->connInfo.sslmode);
+
+	ret = GetIAMCredentials(ci);
+	if (ret <= 0)
+		return ret;
 
 	ret = LIBPQ_CC_connect(self, salt_para);
 	if (ret <= 0)
