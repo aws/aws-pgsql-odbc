@@ -231,6 +231,7 @@ Set `POSTGRESDRIVERVERSION` firstly
 `$env:POSTGRESDRIVERVERSION="09.07.0100"`
 
 Then build the msi installer.
+
 `C:\psqlodbc\> nmake /f win64.mak installer`  
   
 The resulting installer file goes to installer/x64 or installer/x86 directory.

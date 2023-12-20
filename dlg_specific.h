@@ -52,10 +52,11 @@ extern "C" {
 						 * Postmaster is listening */
 #define INI_DATABASE			"Database"	/* Database Name */
 #define ABBR_DATABASE			"DX"	/* Database Name */
-#define INI_AUTHTYPE			"AuthenticationType"  /* Authentication type */
+#define INI_AUTHTYPE			"AuthType"  /* Authentication type */
 #define INI_UID				"UID"		/* Default User Name */
 #define INI_USERNAME			"Username"	/* Default User Name */
 #define INI_PASSWORD			"Password"	/* Default Password */
+#define INI_REGION				"Region" /* Default region */
 
 #define	INI_ABBREVIATE			"CX"
 #define INI_DEBUG			"Debug"		/* Debug flag */
@@ -283,6 +284,7 @@ extern "C" {
 #define DEFAULT_IGNORETIMEOUT		0
 #define DEFAULT_FETCHREFCURSORS		0
 #define DEFAULT_AUTHTYPE		DATABASE_MODE
+#define DEFAULT_REGION			"us-east-1"
 
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 #define DEFAULT_XAOPT			1

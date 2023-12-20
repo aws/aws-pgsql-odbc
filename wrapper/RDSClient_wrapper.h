@@ -10,9 +10,9 @@ extern "C" {
 
 typedef void* RDSClientHandle;
 
-RDSClientHandle createRDSClient();
-void destroyRDSClient(RDSClientHandle handle);
-const char* GenerateConnectAuthToken(RDSClientHandle handle, const char* dbHostName, const char* dbRegion, unsigned port, const char* dbUserName);
+RDSClientHandle CreateRDSClient();
+void DestroyRDSClient(RDSClientHandle handle);
+char* GenerateConnectAuthToken(RDSClientHandle handle, const char* dbHostName, const char* dbRegion, unsigned port, const char* dbUserName);
 
 #ifdef __cplusplus
 }

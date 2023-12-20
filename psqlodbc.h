@@ -612,6 +612,7 @@ typedef struct
 	char		authtype[MEDIUM_SMALL_REGISTRY_LEN];
 	char		username[MEDIUM_REGISTRY_LEN];
 	pgNAME		password;
+	char		region[MEDIUM_REGISTRY_LEN];
 	char		port[SMALL_REGISTRY_LEN];
 	char		sslmode[MEDIUM_SMALL_REGISTRY_LEN];
 	char		onlyread[SMALL_REGISTRY_LEN];
