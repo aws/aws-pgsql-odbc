@@ -226,7 +226,15 @@ MYPRINTF(0, " newlen=" FORMAT_LEN, ilen);
 		if (olen)
 			*olen = len;
 	}
-MYPRINTF(0, " olen=%d utf8str=%s\n", len, utf8str ? utf8str : "");
+#ifdef	FORCE_PASSWORD_DISPLAY
+	MYPRINTF(0, " olen=%d utf8str=%s\n", len, utf8str ? utf8str : "");
+#else
+	char* hide_str = hide_password(utf8str, ';');
+	MYPRINTF(0, " olen=%d utf8str=%s\n", len, hide_str ? hide_str : "");
+	if (hide_str)
+		free(hide_str);
+#endif
+
 	return utf8str;
 }
 

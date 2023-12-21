@@ -47,6 +47,7 @@ static struct {
 } authtype[] = {
 		  {IDS_AUTHTYPE_DATABASE, DATABASE_MODE}
 		, {IDS_AUTHTYPE_IAM, IAM_MODE}
+		, {IDS_AUTHTYPE_ADFS, ADFS_MODE}
 };
 
 static struct {
@@ -66,6 +67,39 @@ static int	dspcount_bylevel[] = {1, 4, 6};
 HWND regionDlg;
 // window handle of password
 HWND passwordDlg;
+// window handle of token expiration
+HWND tokenExpirationDlg;
+
+// IDP window handles
+HWND idpEndpointDlg;
+HWND idpPortDlg;
+HWND idpUserNameDlg;
+HWND idpPasswordDlg;
+HWND idpRoleArnDlg;
+HWND idpArnDlg;
+HWND socketTimeoutDlg;
+HWND connTimeoutDlg;
+HWND relayingPartyIDDlg;
+
+void EnableWindows(int index) {
+	// Enable region and token expiration only when authtype is IAM or ADFS
+	EnableWindow(regionDlg, stricmp(authtype[index].authtypestr, IAM_MODE) == 0 || stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(tokenExpirationDlg, stricmp(authtype[index].authtypestr, IAM_MODE) == 0 || stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+
+	// Enable password only when authtype is DATABASE
+	EnableWindow(passwordDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) == 0);
+
+	// Enable IDP windows only when authtype is ADFS
+	EnableWindow(idpEndpointDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(idpPortDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(idpUserNameDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(idpPasswordDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(idpRoleArnDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(idpArnDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(socketTimeoutDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(connTimeoutDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	EnableWindow(relayingPartyIDDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+}
 
 // Function to handle notifications from the AuthType drop list
 LRESULT CALLBACK ListBoxProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData) {
@@ -76,10 +110,7 @@ LRESULT CALLBACK ListBoxProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPar
 
 			MYLOG(0, "selected index is %d\n", selidx);
 
-			// Enable region only when authtype is IAM
-			EnableWindow(regionDlg, stricmp(authtype[selidx].authtypestr, IAM_MODE) == 0);
-			// Enable password only when authtype is DATABASE
-			EnableWindow(passwordDlg, stricmp(authtype[selidx].authtypestr, DATABASE_MODE) == 0);
+			EnableWindows(selidx);
 		}
 	}
 	return DefSubclassProc(hdlg, message, wParam, lParam);
@@ -104,6 +135,17 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	SetDlgItemText(hdlg, IDC_PASSWORD, SAFE_NAME(ci->password));
 	SetDlgItemText(hdlg, IDC_PORT, ci->port);
 	SetDlgItemText(hdlg, IDC_REGION, ci->region);
+	SetDlgItemText(hdlg, IDC_TOKEN_EXPIRATION, ci->token_expiration);
+
+	SetDlgItemText(hdlg, IDC_IDP_ENDPOINT, ci->federation_cfg.idp_endpoint);
+	SetDlgItemText(hdlg, IDC_IDP_PORT, ci->federation_cfg.idp_port);
+	SetDlgItemText(hdlg, IDC_IDP_USER_NAME, ci->federation_cfg.idp_username);
+	SetDlgItemText(hdlg, IDC_IDP_PASSWORD, SAFE_NAME(ci->federation_cfg.idp_password));
+	SetDlgItemText(hdlg, IDC_ROLE_ARN, ci->federation_cfg.iam_role_arn);
+	SetDlgItemText(hdlg, IDC_IDP_ARN, ci->federation_cfg.iam_idp_arn);
+	SetDlgItemText(hdlg, IDC_SOCKET_TIMEOUT, ci->federation_cfg.http_client_socket_timeout);
+	SetDlgItemText(hdlg, IDC_CONN_TIMEOUT, ci->federation_cfg.http_client_connect_timeout);
+	SetDlgItemText(hdlg, IDC_RELAYING_PARTY_ID, ci->federation_cfg.relaying_party_id);
 
 	dsplevel = 0;
 
@@ -160,10 +202,21 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	SetWindowSubclass(GetDlgItem(hdlg, IDC_AUTHTYPE), ListBoxProc, 0, 0);
 
     regionDlg = GetDlgItem(hdlg, IDC_REGION);
-    passwordDlg = GetDlgItem(hdlg, IDC_PASSWORD);
+	tokenExpirationDlg = GetDlgItem(hdlg, IDC_TOKEN_EXPIRATION);
+	passwordDlg = GetDlgItem(hdlg, IDC_PASSWORD);
 
-	EnableWindow(regionDlg, stricmp(authtype[selidx].authtypestr, IAM_MODE) == 0);
-	EnableWindow(passwordDlg, stricmp(authtype[selidx].authtypestr, DATABASE_MODE) == 0);
+	idpEndpointDlg = GetDlgItem(hdlg, IDC_IDP_ENDPOINT);
+	idpPortDlg = GetDlgItem(hdlg, IDC_IDP_PORT);
+	idpUserNameDlg = GetDlgItem(hdlg, IDC_IDP_USER_NAME);
+	idpPasswordDlg = GetDlgItem(hdlg, IDC_IDP_PASSWORD);
+	idpRoleArnDlg = GetDlgItem(hdlg, IDC_ROLE_ARN);
+	idpArnDlg = GetDlgItem(hdlg, IDC_IDP_ARN);
+
+	socketTimeoutDlg = GetDlgItem(hdlg, IDC_SOCKET_TIMEOUT);
+	connTimeoutDlg = GetDlgItem(hdlg, IDC_CONN_TIMEOUT);
+	relayingPartyIDDlg = GetDlgItem(hdlg, IDC_RELAYING_PARTY_ID);
+
+	EnableWindows(selidx);
 }
 
 void
@@ -185,6 +238,19 @@ GetDlgStuff(HWND hdlg, ConnInfo *ci)
 	STRCPY_FIXED(ci->sslmode, modetab[sslposition].modestr);
 	authtypeposition = (int)(DWORD)SendMessage(GetDlgItem(hdlg, IDC_AUTHTYPE), CB_GETCURSEL, 0L, 0L);
 	STRCPY_FIXED(ci->authtype, authtype[authtypeposition].authtypestr);
+	GetDlgItemText(hdlg, IDC_TOKEN_EXPIRATION, ci->token_expiration, sizeof(ci->token_expiration));
+
+	GetDlgItemText(hdlg, IDC_IDP_ENDPOINT, ci->federation_cfg.idp_endpoint, sizeof(ci->federation_cfg.idp_endpoint));
+	GetDlgItemText(hdlg, IDC_IDP_PORT, ci->federation_cfg.idp_port, sizeof(ci->federation_cfg.idp_port));
+	GetDlgItemText(hdlg, IDC_IDP_USER_NAME, ci->federation_cfg.idp_username, sizeof(ci->federation_cfg.idp_username));
+	GetDlgItemText(hdlg, IDC_IDP_PASSWORD, medium_buf, sizeof(medium_buf));
+	STR_TO_NAME(ci->federation_cfg.idp_password, medium_buf);
+	GetDlgItemText(hdlg, IDC_ROLE_ARN, ci->federation_cfg.iam_role_arn, sizeof(ci->federation_cfg.iam_role_arn));
+	GetDlgItemText(hdlg, IDC_IDP_ARN, ci->federation_cfg.iam_idp_arn, sizeof(ci->federation_cfg.iam_idp_arn));
+
+	GetDlgItemText(hdlg, IDC_SOCKET_TIMEOUT, ci->federation_cfg.http_client_socket_timeout, sizeof(ci->federation_cfg.http_client_socket_timeout));
+	GetDlgItemText(hdlg, IDC_CONN_TIMEOUT, ci->federation_cfg.http_client_connect_timeout, sizeof(ci->federation_cfg.http_client_connect_timeout));
+	GetDlgItemText(hdlg, IDC_RELAYING_PARTY_ID, ci->federation_cfg.relaying_party_id, sizeof(ci->federation_cfg.relaying_party_id));
 }
 
 static void

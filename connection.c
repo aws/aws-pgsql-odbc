@@ -45,7 +45,7 @@
 
 #include "pgapifunc.h"
 
-#include "wrapper/RDSClient_wrapper.h"
+#include "wrapper/rds_api.h"
 
 #define	SAFE_STR(s)	(NULL != (s) ? (s) : "(null)")
 
@@ -56,7 +56,6 @@ static SQLRETURN CC_lookup_lo(ConnectionClass *self);
 static int  CC_close_eof_cursors(ConnectionClass *self);
 
 static void LIBPQ_update_transaction_status(ConnectionClass *self);
-
 
 static void CC_set_error_if_not_set(ConnectionClass *self, int errornumber, const char *errormsg, const char *func)
 {
@@ -1062,7 +1061,33 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		return 0;
 	}
 
-	MYLOG(0, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s'\n", ci->dsn, ci->server, ci->port, ci->database, ci->authtype, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "");
+#ifdef FORCE_PASSWORD_DISPLAY
+	MYLOG(0, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s', " \
+		"region = '%s', token_expiration = '%s', idp_endpoint = '%s', idp_port = '%s', idp_username = '%s', idp_password = '%s', " \
+		"idp_arn = '%s', idp_role_arn = '%s',  socket_timeout = '%s', conn_timeout = '%s'\n", ci->dsn, ci->server, ci->port,
+		ci->database, ci->authtype, ci->username, ci->password.name, ci->region, ci->token_expiration,
+		ci->federation_cfg.idp_endpoint,
+		ci->federation_cfg.idp_port,
+		ci->federation_cfg.idp_username,
+		ci->federation_cfg.idp_password.name,
+		ci->federation_cfg.iam_idp_arn,
+		ci->federation_cfg.iam_role_arn,
+		ci->federation_cfg.http_client_socket_timeout,
+		ci->federation_cfg.http_client_connect_timeout);
+#else
+	MYLOG(0, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s', " \
+		"region = '%s', token_expiration = '%s', idp_endpoint = '%s', idp_port = '%s', idp_username = '%s', idp_password = '%s', " \
+		"idp_arn = '%s', idp_role_arn = '%s',  socket_timeout = '%s', conn_timeout = '%s'\n", ci->dsn, ci->server, ci->port,
+		ci->database, ci->authtype, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "", ci->region, ci->token_expiration,
+		ci->federation_cfg.idp_endpoint,
+		ci->federation_cfg.idp_port,
+		ci->federation_cfg.idp_username,
+		NAME_IS_VALID(ci->federation_cfg.idp_password) ? "xxxxx" : "",
+		ci->federation_cfg.iam_idp_arn,
+		ci->federation_cfg.iam_role_arn,
+		ci->federation_cfg.http_client_socket_timeout,
+		ci->federation_cfg.http_client_connect_timeout);
+#endif
 
 	return 1;
 }
@@ -1099,28 +1124,60 @@ LIBPQ_CC_connect(ConnectionClass *self, char *salt_para)
 	return ret;
 }
 
-char
-GetIAMCredentials(ConnInfo* ci) {
-	if (!ci)
-		return 0;
+typedef enum {
+	TR_FAILURE,
+	TR_CACHED_TOKEN,
+	TR_GENERATED_TOKEN
+} TokenResult;
+
+// Get token for IAM or ADFS authentication mode.
+TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
+	if (!ci) {
+		MYLOG(0, "Null ConnInfo pointer\n");
+		return TR_FAILURE;
+	}
 	
 	MYLOG(0, "auth type is %s\n", ci->authtype);
-	if (stricmp(ci->authtype, IAM_MODE) != 0) {
-		return 1;
-	}
-
 	MYLOG(0, "server is %s\n", ci->server);
 	MYLOG(0, "region is %s\n", ci->region);
 	MYLOG(0, "port is %s\n", ci->port);
 	MYLOG(0, "username is %s\n", ci->username);
+	MYLOG(0, "useCache is %d\n", useCache);
 
-	RDSClientHandle rdsClient = CreateRDSClient();
-	char* token = GenerateConnectAuthToken(rdsClient, ci->server, ci->region, atoi(ci->port), ci->username);
-	STRN_TO_NAME(ci->password, token, strlen(token));
-	free(token);
-	MYLOG(0, "generated token length is %d\n", strlen(ci->password.name));
-	DestroyRDSClient(rdsClient);
-	return 1;
+	char* token;
+	if (useCache) {
+		token = GetCachedToken(ci->server, ci->region, ci->port, ci->username);
+		if (!token) {
+			token = GenerateConnectAuthToken(ci, ci->server, ci->region, atoi(ci->port), ci->username);
+			if (!token) {
+				MYLOG(0, "Failed to generate a RDS connect auth token\n");
+				return TR_FAILURE;
+			}
+			STRN_TO_NAME(ci->password, token, strlen(token));
+			// token memory is allocated in GenerateConnectAuthToken
+			free(token);
+			MYLOG(0, "generated token length is %zu\n", strlen(ci->password.name));
+		}
+		else {
+			STRN_TO_NAME(ci->password, token, strlen(token));
+			// token memory is allocated in GetCachedToken
+			free(token);
+			MYLOG(0, "cached token length is %zu\n", strlen(ci->password.name));
+			return TR_CACHED_TOKEN;
+		}
+	}
+	else {
+		token = GenerateConnectAuthToken(ci, ci->server, ci->region, atoi(ci->port), ci->username);
+		if (!token) {
+			MYLOG(0, "Failed to generate a RDS connect auth token\n");
+			return TR_FAILURE;
+		}
+		STRN_TO_NAME(ci->password, token, strlen(token));
+		// token memory is allocated in GenerateConnectAuthToken
+		free(token);
+		MYLOG(0, "generated token length is %zu\n", strlen(ci->password.name));
+	}
+	return TR_GENERATED_TOKEN;
 }
 
 char
@@ -1133,13 +1190,35 @@ CC_connect(ConnectionClass *self, char *salt_para)
 
 	MYLOG(0, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
-	ret = GetIAMCredentials(ci);
-	if (ret <= 0)
-		return ret;
+	if (stricmp(ci->authtype, IAM_MODE) == 0 || stricmp(ci->authtype, ADFS_MODE) == 0) {
+		TokenResult tr = GetTokenForIAM(ci, TRUE);
+		if (tr == TR_FAILURE)
+			return 0;
 
-	ret = LIBPQ_CC_connect(self, salt_para);
-	if (ret <= 0)
-		return ret;
+		ret = LIBPQ_CC_connect(self, salt_para);
+		if (ret <= 0) {
+			// The cached token fails to connect successfully.
+			// Recreate a token to try again.
+			if (tr == TR_CACHED_TOKEN) {
+				tr = GetTokenForIAM(ci, FALSE);
+				if (tr == TR_FAILURE)
+					return ret;
+
+				ret = LIBPQ_CC_connect(self, salt_para);
+				if (ret <= 0) {
+					return ret;
+				}
+			}
+		}
+
+		// cache generated token for IAM or ADFS mode
+		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci);
+	}
+	else {
+		ret = LIBPQ_CC_connect(self, salt_para);
+		if (ret <= 0)
+			return ret;
+	}
 
 	CC_set_translation(self);
 
@@ -2902,7 +2981,18 @@ LIBPQ_connect(ConnectionClass *self)
 
 		QLOG(0, "PQconnectdbParams:");
 		for (popt = opts, pval = vals; *popt; popt++, pval++)
+		{
+#ifdef FORCE_PASSWORD_DISPLAY
 			QPRINTF(0, " %s='%s'", *popt, *pval);
+#else
+			if (stricmp(*popt, "password") == 0 || stricmp(*popt, "password") == 0) {
+				QPRINTF(0, " %s='%s'", *popt, "xxxxxx");
+			}
+			else {
+				QPRINTF(0, " %s='%s'", *popt, *pval);
+			}
+#endif
+		}
 		QPRINTF(0, "\n"); 
 	}
 	pqconn = PQconnectdbParams(opts, vals, FALSE);

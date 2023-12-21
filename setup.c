@@ -477,7 +477,15 @@ test_connection(HANDLE hwnd, ConnInfo *ci, BOOL withDTC)
 	if (NAME_IS_VALID(ci->pqopt))
 		ci->pqopt_in_str = TRUE;
 	makeConnectString(out_conn, ci, sizeof(out_conn));
-MYLOG(0, "conn_string=%s\n", out_conn);
+#ifdef	FORCE_PASSWORD_DISPLAY
+	MYLOG(0, "conn_string=%s\n", out_conn);
+#else
+	char* hide_str = hide_password(out_conn, ';');
+	MYLOG(0, "conn_string=%s\n", hide_str);
+	if (hide_str)
+		free(hide_str);
+#endif /* FORCE_PASSWORD_DISPLAY */
+
 #ifdef	UNICODE_SUPPORT
 	MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, out_conn, -1, wout_conn, sizeof(wout_conn) / sizeof(wout_conn[0]));
 	conn_str = wout_conn;

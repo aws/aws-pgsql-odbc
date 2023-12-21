@@ -201,10 +201,10 @@ CPP_PROJ=$(CPP_PROJ) /Gm /ZI /Od /D "_DEBUG" /RTC1
 <<
 
 # List of source files in wrapper
-WRAPPER_SRC_FILES = wrapper\RDSClient_wrapper.cpp
+WRAPPER_SRC_FILES = wrapper\rds_api.cpp
 
 # Specify object files corresponding to source files
-WRAPPER_OBJ_FILES = $(INTDIR)\RDSClient_wrapper.obj
+WRAPPER_OBJ_FILES = $(INTDIR)\rds_api.obj
 
 # Specify build rule
 $(WRAPPER_OBJ_FILES): $(WRAPPER_SRC_FILES)
@@ -285,7 +285,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\inouealc.obj" \
 !ENDIF
 	"$(INTDIR)\psqlodbc.res" \
-	"$(INTDIR)\RDSClient_wrapper.obj"
+	"$(INTDIR)\rds_api.obj"
 
 DTCDEF_FILE= "$(DTCLIB).def"
 LIB32_DTCLIBFLAGS=/nologo /def:"$(DTCDEF_FILE)"
