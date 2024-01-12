@@ -57,6 +57,17 @@ extern "C" {
 #define INI_USERNAME			"Username"	/* Default User Name */
 #define INI_PASSWORD			"Password"	/* Default Password */
 #define INI_REGION				"Region" /* Default region */
+#define INI_TOKEN_EXPIRATION	"TokenExpiration"		/* Default token expiration */
+
+#define INI_IDP_ENDPOINT		"IDPEndpoint"	/* Default IDP endpoint */
+#define INI_IDP_PORT			"IDPPort"		/* Default IDP port */
+#define INI_IDP_USER_NAME		"IDPUserName"	/* Default IDP user name */
+#define INI_IDP_PASSWORD		"IDPPassword"	/* Default IDP user password */
+#define INI_ROLE_ARN			"IDPRoleArn"	/* Default IDP role ARN */
+#define INI_IDP_ARN				"IDPArn"	/* Default IDP ARN */
+#define INI_SOCKET_TIMEOUT		"SocketTimeout"		/* Default socket timeout */
+#define INI_CONN_TIMEOUT		"ConnTimeout"		/* Default connection timeout */
+#define INI_RELAYING_PARTY_ID	"RelayingPartyID"	/* Default relaying party id */
 
 #define	INI_ABBREVIATE			"CX"
 #define INI_DEBUG			"Debug"		/* Debug flag */
@@ -186,6 +197,7 @@ extern "C" {
 
 #define DATABASE_MODE			"database"
 #define IAM_MODE			"iam"
+#define ADFS_MODE			"adfs"
 
 #define	SSLMODE_DISABLE		"disable"
 #define	SSLMODE_ALLOW		"allow"
@@ -285,6 +297,10 @@ extern "C" {
 #define DEFAULT_FETCHREFCURSORS		0
 #define DEFAULT_AUTHTYPE		DATABASE_MODE
 #define DEFAULT_REGION			"us-east-1"
+#define DEFAULT_TOKEN_EXPIRATION	"900"
+#define DEFAULT_SOCKET_TIMEOUT		"3000"
+#define DEFAULT_CONN_TIMEOUT		"5000"
+#define DEFAULT_RELAYING_PARTY_ID	"urn:amazon:webservices"
 
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 #define DEFAULT_XAOPT			1

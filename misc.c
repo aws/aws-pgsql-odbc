@@ -312,3 +312,37 @@ quote_table(const pgNAME schema, const pgNAME table, char *buf, int buf_size)
 
 	return buf;
 }
+
+char* hide_password(const char* str, const char end_char)
+{
+	char* outstr, * pwdp;
+
+	if (!str)	return NULL;
+	outstr = strdup(str);
+	if (!outstr) return NULL;
+	if (pwdp = strstr(outstr, "PWD="), !pwdp)
+		pwdp = strstr(outstr, "pwd=");
+	if (pwdp)
+	{
+		char* p;
+
+		for (p = pwdp + 4; *p && *p != ';'; p++)
+			*p = 'x';
+	}
+
+	if (pwdp = strstr(outstr, "PASSWORD="), !pwdp)
+		pwdp = strstr(outstr, "password=");
+	if (!pwdp)
+		pwdp = strstr(outstr, "Password=");
+	if (!pwdp)
+		pwdp = strstr(outstr, "PassWord=");
+	if (pwdp)
+	{
+		char* p;
+
+		for (p = pwdp + 9; *p && *p != end_char; p++)
+			*p = 'x';
+	}
+
+	return outstr;
+}

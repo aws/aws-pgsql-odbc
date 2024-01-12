@@ -599,6 +599,22 @@ void		logs_on_off(int cnopen, int, int);
 
 #define	LENADDR_SHIFT(x, sft)	((x) ? (SQLLEN *)((char *)(x) + (sft)) : NULL)
 
+/*	Structure to hold all the federation attributes for a specific
+	authentication type. Now only support ADFS.
+*/
+typedef struct {
+	char    idp_endpoint[MEDIUM_REGISTRY_LEN];
+	char    idp_port[SMALL_REGISTRY_LEN];
+	char    relaying_party_id[MEDIUM_REGISTRY_LEN];
+	char    iam_role_arn[MEDIUM_REGISTRY_LEN];
+	char    iam_idp_arn[MEDIUM_REGISTRY_LEN];
+	char    idp_username[MEDIUM_REGISTRY_LEN];
+	pgNAME	idp_password;
+	char    http_client_socket_timeout[SMALL_REGISTRY_LEN];
+	char    http_client_connect_timeout[SMALL_REGISTRY_LEN];
+	char    ssl_insecure[SMALL_REGISTRY_LEN];  // For ADFS with IAM, this field is not used as it should be true always
+} FederationConfig;
+
 /*	Structure to hold all the connection attributes for a specific
 	connection (used for both registry and file, DSN and DRIVER)
 */
@@ -615,6 +631,7 @@ typedef struct
 	char		region[MEDIUM_REGISTRY_LEN];
 	char		port[SMALL_REGISTRY_LEN];
 	char		sslmode[MEDIUM_SMALL_REGISTRY_LEN];
+	char		token_expiration[SMALL_REGISTRY_LEN];
 	char		onlyread[SMALL_REGISTRY_LEN];
 	char		fake_oid_index[SMALL_REGISTRY_LEN];
 	char		show_oid_column[SMALL_REGISTRY_LEN];
@@ -622,6 +639,7 @@ typedef struct
 	char		show_system_tables[SMALL_REGISTRY_LEN];
 	char		translation_dll[MEDIUM_REGISTRY_LEN];
 	char		translation_option[SMALL_REGISTRY_LEN];
+	FederationConfig federation_cfg;
 	char		password_required;
 	char		conn_settings_in_str;
 	char		pqopt_in_str;
@@ -700,6 +718,11 @@ enum
 	ALLOW_BULK_OPERATIONS = (1L << 3), /* Bulk operations available */
 	SENSE_SELF_OPERATIONS = (1L << 4), /* Sense self update/delete/add */
 };
+
+// only open it for debug purpose
+//#define	FORCE_PASSWORD_DISPLAY
+
+char* hide_password(const char* str, const char end_char);
 
 #ifdef	__cplusplus
 }

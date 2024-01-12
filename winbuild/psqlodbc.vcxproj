@@ -175,7 +175,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;$(ADD_DEFINES);DYNAMIC_LOAD;WIN_MULTITHREAD_SUPPORT;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir)\aws_sdk\install\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir);$(ProjectDir)\aws_sdk\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>$(RSC_DEFINES);%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -183,7 +183,7 @@
     <Link>
       <DelayLoadDLLs>$(DELAY_LOAD_DLLS);%(DelayLoadDLLs)</DelayLoadDLLs>
       <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\aws_sdk\install\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libpq.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;wsock32.lib;ws2_32.lib;secur32.lib;winmm.lib;%(AdditionalDependencies);aws-c-auth.lib;aws-c-common.lib;aws-c-event-stream.lib;aws-c-io.lib;aws-c-s3.lib;aws-checksums.lib;aws-cpp-sdk-rds.lib;aws-c-cal.lib;aws-c-compression.lib;aws-c-http.lib;aws-c-mqtt.lib;aws-c-sdkutils.lib;aws-crt-cpp.lib;aws-cpp-sdk-core.lib;bcrypt.lib;Crypt32.lib;wininet.lib;version.lib;winhttp.lib;ncrypt.lib;userenv.lib;Shlwapi.lib;Comctl32.lib</AdditionalDependencies>
+      <AdditionalDependencies>libpq.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;wsock32.lib;ws2_32.lib;secur32.lib;winmm.lib;%(AdditionalDependencies);aws-c-auth.lib;aws-c-common.lib;aws-c-event-stream.lib;aws-c-io.lib;aws-c-s3.lib;aws-checksums.lib;aws-cpp-sdk-rds.lib;aws-c-cal.lib;aws-c-compression.lib;aws-c-http.lib;aws-c-mqtt.lib;aws-c-sdkutils.lib;aws-crt-cpp.lib;aws-cpp-sdk-core.lib;aws-cpp-sdk-sts.lib;bcrypt.lib;Crypt32.lib;wininet.lib;version.lib;winhttp.lib;ncrypt.lib;userenv.lib;Shlwapi.lib;Comctl32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>$(MAINDEF)</ModuleDefinitionFile>
       <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
     </Link>
@@ -213,7 +213,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;$(ADD_DEFINES);DYNAMIC_LOAD;WIN_MULTITHREAD_SUPPORT;WIN32;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir)\aws_sdk\install\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir);$(ProjectDir)\aws_sdk\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>$(RSC_DEFINES);%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -221,7 +221,7 @@
     <Link>
       <DelayLoadDLLs>$(DELAY_LOAD_DLLS);%(DelayLoadDLLs)</DelayLoadDLLs>
       <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\aws_sdk\install\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libpq.lib;winmm.lib;wsock32.lib;ws2_32.lib;secur32.lib;%(AdditionalDependencies);aws-c-auth.lib;aws-c-common.lib;aws-c-event-stream.lib;aws-c-io.lib;aws-c-s3.lib;aws-checksums.lib;aws-cpp-sdk-rds.lib;aws-c-cal.lib;aws-c-compression.lib;aws-c-http.lib;aws-c-mqtt.lib;aws-c-sdkutils.lib;aws-crt-cpp.lib;aws-cpp-sdk-core.lib;bcrypt.lib;Crypt32.lib;wininet.lib;version.lib;winhttp.lib;ncrypt.lib;userenv.lib;Shlwapi.lib;Comctl32.lib</AdditionalDependencies>
+      <AdditionalDependencies>libpq.lib;winmm.lib;wsock32.lib;ws2_32.lib;secur32.lib;%(AdditionalDependencies);aws-c-auth.lib;aws-c-common.lib;aws-c-event-stream.lib;aws-c-io.lib;aws-c-s3.lib;aws-checksums.lib;aws-cpp-sdk-rds.lib;aws-c-cal.lib;aws-c-compression.lib;aws-c-http.lib;aws-c-mqtt.lib;aws-c-sdkutils.lib;aws-crt-cpp.lib;aws-cpp-sdk-core.lib;aws-cpp-sdk-sts.lib;bcrypt.lib;Crypt32.lib;wininet.lib;version.lib;winhttp.lib;ncrypt.lib;userenv.lib;Shlwapi.lib;Comctl32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>$(MAINDEF)</ModuleDefinitionFile>
       <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
     </Link>
@@ -271,7 +271,9 @@
     <ClCompile Include="$(srcPath)tuple.c" />
     <ClCompile Condition="'$(ANSI_VERSION)'=='no'" Include="$(srcPath)win_unicode.c" />
     <ClCompile Condition="'$(MSDTC)'=='yes'" Include="$(srcPath)xalibname.c" />
-    <ClCompile Include="..\wrapper\RDSClient_wrapper.cpp" />
+    <ClCompile Include="..\wrapper\rds_api.cpp" />
+    <ClCompile Include="..\wrapper\federation.cpp" />
+    <ClCompile Include="..\wrapper\adfs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(srcPath)psqlodbc.rc" />

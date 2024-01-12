@@ -48,18 +48,31 @@
 #define IDS_SSLREQUEST_VERIFY_FULL      416
 #define IDS_AUTHTYPE_DATABASE           510
 #define IDS_AUTHTYPE_IAM                511
+#define IDS_AUTHTYPE_ADFS               512
 #define DLG_CONFIG                      1001
 #define IDC_PORT                        1002
 #define DLG_DRIVER_CHANGE               1002
 #define IDC_USER                        1006
 #define IDC_REGION                      1007
+#define IDC_IDP_ENDPOINT                1008
 #define IDC_PASSWORD                    1009
+#define IDC_IDP_PORT                    1010
 #define DS_READONLY                     1011
+#define IDC_IDP_USER_NAME               1011
 #define DS_SHOWOIDCOLUMN                1012
+#define IDC_IDP_PASSWORD                1012
 #define DS_FAKEOIDINDEX                 1013
+#define IDC_ROLE_ARN                    1013
 #define DRV_COMMLOG                     1014
+#define IDC_IDP_ARN                     1014
+#define IDC_TOKEN_TIMEOUT               1015
+#define IDC_TOKEN_EXPIRATION            1015
+#define IDC_SOCKET_TIMEOUT              1016
+#define IDC_RELAYING_PARTY              1017
+#define IDC_RELAYING_PARTY_ID           1017
 #define IDC_DATASOURCE                  1018
 #define DRV_OPTIMIZER                   1019
+#define IDC_CONN_TIMEOUT                1019
 #define DS_CONNSETTINGS                 1020
 #define IDC_DRIVER                      1021
 #define DRV_CONNSETTINGS                1031
@@ -145,7 +158,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        109
 #define _APS_NEXT_COMMAND_VALUE         40002
-#define _APS_NEXT_CONTROL_VALUE         1116
+#define _APS_NEXT_CONTROL_VALUE         1118
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

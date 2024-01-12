@@ -21,6 +21,7 @@
   <?define PRODID = "3E42F836-9204-4c42-B3C3-8680A0434875" ?>
   <?define CIDREG = "4D361F28-8F75-4c86-9A37-6C279967413D" ?>
   <?define CIDDOC = "0C745A85-4E55-4bab-BBF1-DCF51D92FCC5" ?>
+  <?define CIDIMG = "F8E39758-0770-4E28-82FA-9E44692219CD" ?>
   <?define CIDSMD = "{E6410EE8-96DC-4d84-8D07-94F8093BF3EF}" ?>
   <?define UPGCOD = "BBD29DF5-89F6-4b8b-BDC9-C3EA3A4AFDBB" ?>
   <?define ALLUSERS = "1" ?>
@@ -31,6 +32,7 @@
   <?define PRODID = "838E187D-8B7A-473d-B93C-C8E970B15D2B" ?>
   <?define CIDREG = "4F0C04EB-ADCB-4fa8-B6A3-E9F74EA693F8" ?>
   <?define CIDDOC = "89DDBC52-9F0D-4846-91DC-09EECC87E42E" ?>
+  <?define CIDIMG = "550E4F1B-8858-4CD5-A386-827472D0E966" ?>
   <?define CIDSMD = "{22288E09-B3B6-4181-907F-676099C20125}" ?>
   <?define UPGCOD = "24BCA538-75A2-4a7f-B236-C99EFC2145DE" ?>
   <?define ALLUSERS = "1" ?>
@@ -81,10 +83,21 @@
                 <File Id="docs.release_7.3.html" Name="release-7.3.html" DiskId="1" Source="../docs/release-7.3.html" />
                 <File Id="docs.unix_compilation.html" Name="unix-compilation.html" DiskId="1" Source="../docs/unix-compilation.html" />
                 <File Id="docs.win32_compilation.html" Name="win32-compilation.md" DiskId="1" Source="../docs/win32-compilation.md" />
-		<File Id="docs.img.editConfiguration.jpg" Name="editConfiguration.jpg" DiskId="1" Source="../docs/img/editConfiguration.jpg" />
+                <File Id="docs.authentication" Name="authentication.md" DiskId="1" Source="../docs/authentication.md" />
 
                 <!-- <Shortcut Id="docs.index.html" Directory="SMDir" Name="Documentation index" Description="psqlODBC documentation, HOWTOs and FAQs" Advertise="yes" Show="normal" /> -->
               </Component>
+                <Directory Id="IMGDIR" Name="img">
+                  <Component Id="img" Guid="$(var.CIDIMG)" Win64="$(var.BIT64)">
+		    <File Id="docs.img.editConfiguration.jpg" Name="editConfiguration.jpg" DiskId="1" Source="../docs/img/editConfiguration.jpg" />
+		    <File Id="docs.img.database.png" Name="database.png" DiskId="1" Source="../docs/img/database.png" />
+		    <File Id="docs.img.iam.png" Name="iam.png" DiskId="1" Source="../docs/img/iam.png" />
+		    <File Id="docs.img.adfs.png" Name="adfs.png" DiskId="1" Source="../docs/img/adfs.png" />
+		    <File Id="docs.img.builderror.png" Name="builderror.png" DiskId="1" Source="../docs/img/builderror.png" />
+		    <File Id="docs.img.cpluspack.png" Name="cpluspack.png" DiskId="1" Source="../docs/img/cpluspack.png" />
+		    <File Id="docs.img.universalpack.png" Name="universalpack.png" DiskId="1" Source="../docs/img/universalpack.png" />
+                  </Component>
+                </Directory>
             </Directory>
           </Directory>
         </Directory>
@@ -110,6 +123,7 @@
       <Feature Id="docs" Title="Documentation" Level="4" Description="Documentation and release notes.">
         <ComponentRef Id="smdir" />
         <ComponentRef Id="docs" />
+        <ComponentRef Id="img" />
       </Feature>
 
     </Feature>
