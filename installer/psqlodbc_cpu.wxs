@@ -138,8 +138,8 @@
 
      <UIRef Id="WixUI_FeatureTree" />
      <WixVariable Id="WixUILicenseRtf" Value="lgpl.rtf" />
-     <WixVariable Id="WixUIDialogBmp" Value="background.bmp" />
-     <WixVariable Id="WixUIBannerBmp" Value="banner.bmp" />
+     <WixVariable Id="WixUIDialogBmp" Value="background.jpg" />
+     <WixVariable Id="WixUIBannerBmp" Value="banner.jpg" />
 
 <!-- Upgrade -->
     <Upgrade Id="$(var.UPGCOD)">
