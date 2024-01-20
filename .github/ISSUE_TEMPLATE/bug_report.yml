@@ -34,7 +34,6 @@ body:
   
         Please include full errors, uncaught exceptions, stack traces, and relevant logs.
         
-        To see how to enable driver logging see https://github.com/awslabs/aws-advanced-jdbc-wrapper/blob/main/docs/using-the-jdbc-driver/UsingTheJdbcDriver.md#logging.
     validations:
       required: true
   - type: textarea
@@ -69,14 +68,7 @@ body:
   - type: input
     id: driver-version
     attributes:
-      label: The AWS Advanced JDBC Driver version used
-    validations:
-      required: true
-  - type: input
-    id: jdk-version
-    attributes:
-      label: JDK version used
-      description: Output of `java -version`
+      label: The AWS ODBC Driver for PostgreSQL version used
     validations:
       required: true
   - type: input
