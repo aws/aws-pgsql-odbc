@@ -5,7 +5,7 @@
  *                  APIs for C++ functions that are compiled for calling from C code. 
  *
  *
- * Comments:		See "readme.txt" for copyright and license information.
+ * Comments:		Copyright Amazon.com Inc. or its affiliates. See "readme.txt" for copyright and license information.
  *-------
  */
 
