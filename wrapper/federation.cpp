@@ -4,7 +4,7 @@
  * Description:		This module contains methods of base class for federation authentication.
  *
  *
- * Comments:		See "readme.txt" for copyright and license information.
+ * Comments:		Copyright Amazon.com Inc. or its affiliates. See "readme.txt" for copyright and license information.
  *-------
  */
 

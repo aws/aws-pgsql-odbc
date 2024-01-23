@@ -3,7 +3,7 @@
  * Description:		This file contains APIs that are written in C++ for C code to use.
  *					The APIs are for authentication token generation and cache use.
  *
- * Comments:		See "readme.txt" for copyright and license information.
+ * Comments:		Copyright Amazon.com Inc. or its affiliates. See "readme.txt" for copyright and license information.
  *
  */
 

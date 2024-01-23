@@ -3,7 +3,7 @@
  * Description:		This file contains defines and declarations that are related to
  *					the federation authentication base class.
  *
- * Comments:		See "readme.txt" for copyright and license information.
+ * Comments:		Copyright Amazon.com Inc. or its affiliates. See "readme.txt" for copyright and license information.
  *
  */
 
