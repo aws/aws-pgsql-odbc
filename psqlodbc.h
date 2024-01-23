@@ -293,7 +293,7 @@ extern int posix_snprintf(char *buf, size_t size, const char *format, ...);
 
 /* Driver stuff */
 
-#define DRIVERNAME				"PostgreSQL ODBC"
+#define DRIVERNAME				"AWS ODBC Driver PostgreSQL"
 
 #define DBMS_NAME_UNICODE		"PostgreSQL Unicode"
 #define DBMS_NAME_ANSI			"PostgreSQL ANSI"

@@ -15,7 +15,7 @@
 <?endif?>
 
 <?if $(var.Platform) = x64 ?>
-  <?define ModuleName = "psqlODBC_$(var.Platform)" ?>
+  <?define ModuleName = "AWSpsqlODBC_$(var.Platform)" ?>
   <?define BIT64 = "yes" ?>
   <?define ANSIFOLDER = "x64_ANSI_Release" ?>
   <?define UNICODEFOLDER = "x64_Unicode_Release" ?>
@@ -29,7 +29,7 @@
   <?define SysFolder = "$(env.SystemRoot)\sysnative" ?>
 <?endif?>
 <?else?>
-  <?define ModuleName = "psqlODBC" ?>
+  <?define ModuleName = "AWSpsqlODBC" ?>
   <?define BIT64 = "no" ?>
   <?define ANSIFOLDER = "x86_ANSI_Release" ?>
   <?define UNICODEFOLDER = "x86_Unicode_Release" ?>
@@ -51,9 +51,9 @@
 
     <Package
       Id="$(var.Module_PackageId)"
-      Description="PostgreSQL ODBC Driver"
-      Keywords="PostgreSQL, ODBC"
-      Manufacturer="PostgreSQL Global Development Group"
+      Description="AWS ODBC Driver PostgreSQL"
+      Keywords="PostgreSQL, ODBC, AWS"
+      Manufacturer="Amazon.com, Inc"
       InstallerVersion="$(var.InstallerVersion)"
       Platform="$(var.Platform)"
       Languages="1033"

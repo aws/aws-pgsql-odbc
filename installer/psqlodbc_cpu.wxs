@@ -15,7 +15,7 @@
 <?endif?>
 
 <?if $(var.Platform) = x64 ?>
-  <?define PKGNAME = "psqlODBC_x64" ?>
+  <?define PKGNAME = "AWSpsqlODBC_x64" ?>
   <?define BIT64 = "yes" ?>
   <?define PGFOLDER = "ProgramFiles64Folder" ?>
   <?define PRODID = "3E42F836-9204-4c42-B3C3-8680A0434875" ?>
@@ -26,7 +26,7 @@
   <?define UPGCOD = "BBD29DF5-89F6-4b8b-BDC9-C3EA3A4AFDBB" ?>
   <?define ALLUSERS = "1" ?>
 <?else?>
-  <?define PKGNAME = "psqlODBC" ?>
+  <?define PKGNAME = "AWSpsqlODBC" ?>
   <?define BIT64 = "no" ?>
   <?define PGFOLDER = "ProgramFilesFolder" ?>
   <?define PRODID = "838E187D-8B7A-473d-B93C-C8E970B15D2B" ?>
@@ -43,7 +43,7 @@
 <!-- Product details -->
 
   <Product
-    Manufacturer="PostgreSQL Global Development Group"
+    Manufacturer="Amazon.com, Inc"
     Id="$(var.PRODUCTCODE)"
     UpgradeCode="$(var.UPGCOD)"
     Name="$(var.PKGNAME)"
@@ -53,9 +53,9 @@
 <!-- Package details -->
 
     <Package
-      Keywords="PostgreSQL, ODBC"
-      Comments="PostgreSQL ODBC Driver"
-      Manufacturer="PostgreSQL Global Development Group"
+      Keywords="PostgreSQL, ODBC, AWS"
+      Comments="AWS ODBC Driver for PostgreSQL"
+      Manufacturer="Amazon.com, Inc"
       InstallerVersion="300"
       Platform="$(var.Platform)"
       Languages="1033"
@@ -114,7 +114,7 @@
 
 <!-- Features -->
 
-    <Feature Id="psqlodbc" Title="$(var.PKGNAME)" Level="1" Description="psqlODBC - The PostgreSQL ODBC Driver" ConfigurableDirectory="BASEDIR" Display="expand">
+    <Feature Id="awspsqlodbc" Title="$(var.PKGNAME)" Level="1" Description="AWSpsqlODBC - The AWS ODBC Driver for PostgreSQL" ConfigurableDirectory="BASEDIR" Display="expand">
       <Feature Id="binaries" Title="ODBC Driver" Level="1" Description="The ODBC driver and supporting libraries.">
         <ComponentRef Id="registration" />
         <MergeRef Id="psqlodbcm" />
