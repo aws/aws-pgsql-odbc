@@ -5,7 +5,7 @@
 
     <Bundle Name="awspsqlodbc"
 		Version="$(var.VERSION)"
-		Manufacturer="Amazon.com, Inc"
+		Manufacturer="Amazon.com, Inc. or its affiliates"
 		UpgradeCode="7f9f14ee-2f3a-4120-a300-ee3fbd585627">
 
 	<BootstrapperApplicationRef

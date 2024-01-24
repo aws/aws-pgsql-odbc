@@ -53,7 +53,7 @@
       Id="$(var.Module_PackageId)"
       Description="AWS ODBC Driver PostgreSQL"
       Keywords="PostgreSQL, ODBC, AWS"
-      Manufacturer="Amazon.com, Inc"
+      Manufacturer="Amazon.com, Inc. or its affiliates"
       InstallerVersion="$(var.InstallerVersion)"
       Platform="$(var.Platform)"
       Languages="1033"

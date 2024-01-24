@@ -43,7 +43,7 @@
 <!-- Product details -->
 
   <Product
-    Manufacturer="Amazon.com, Inc"
+    Manufacturer="Amazon.com, Inc. or its affiliates"
     Id="$(var.PRODUCTCODE)"
     UpgradeCode="$(var.UPGCOD)"
     Name="$(var.PKGNAME)"
@@ -55,7 +55,7 @@
     <Package
       Keywords="PostgreSQL, ODBC, AWS"
       Comments="AWS ODBC Driver for PostgreSQL"
-      Manufacturer="Amazon.com, Inc"
+      Manufacturer="Amazon.com, Inc. or its affiliates"
       InstallerVersion="300"
       Platform="$(var.Platform)"
       Languages="1033"
