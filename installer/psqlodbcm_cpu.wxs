@@ -141,36 +141,36 @@
                all platforms, but no-one's gotten around to revisit this
           -->
 <?if $(var.Platform) = x64 ?>
-          <ODBCDriver Id="Psqlodbc_9.0_Driver_ANSI" Name="PostgreSQL ANSI($(var.Platform))" File="psqlodbc30a.dll" />
-          <ODBCDriver Id="Psqlodbc_9.0_Driver" Name="PostgreSQL Unicode($(var.Platform))" File="psqlodbc35w.dll" />
-          <ODBCDriver Id="Psqlodbc_11_newid_Driver_ANSI" Name="PostgreSQL ANSI" File="psqlodbc30a.dll" />
-          <ODBCDriver Id="Psqlodbc_11_newid_Driver" Name="PostgreSQL Unicode" File="psqlodbc35w.dll" />
-          <RegistryValue Id="psqlodbc30a.reg.1" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="CPTimeout" Type="string" Value="60" />
-          <RegistryValue Id="psqlodbc35w.reg.1" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="CPTimeout" Type="string" Value="60" />
-          <RegistryValue Id="psqlodbc30a.reg.2" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI($(var.Platform))" Name="CPTimeout" Type="string" Value="60" />
-          <RegistryValue Id="psqlodbc35w.reg.2" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode($(var.Platform))" Name="CPTimeout" Type="string" Value="60" />
+          <ODBCDriver Id="Psqlodbc_9.0_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL($(var.Platform))" File="psqlodbc30a.dll" />
+          <ODBCDriver Id="Psqlodbc_9.0_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL($(var.Platform))" File="psqlodbc35w.dll" />
+          <ODBCDriver Id="Psqlodbc_11_newid_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL" File="psqlodbc30a.dll" />
+          <ODBCDriver Id="Psqlodbc_11_newid_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL" File="psqlodbc35w.dll" />
+          <RegistryValue Id="psqlodbc30a.reg.1" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="CPTimeout" Type="string" Value="60" />
+          <RegistryValue Id="psqlodbc35w.reg.1" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="CPTimeout" Type="string" Value="60" />
+          <RegistryValue Id="psqlodbc30a.reg.2" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL($(var.Platform))" Name="CPTimeout" Type="string" Value="60" />
+          <RegistryValue Id="psqlodbc35w.reg.2" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL($(var.Platform))" Name="CPTimeout" Type="string" Value="60" />
 <?else?>
-          <RegistryValue Id="psqlodbc30a.reg.1" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\ODBC Drivers" Name="PostgreSQL ANSI" Type="string" Value="Installed" />
-          <RegistryValue Id="psqlodbc30a.reg.2" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="APILevel" Type="string" Value="1" />
-          <RegistryValue Id="psqlodbc30a.reg.3" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="ConnectFunctions" Type="string" Value="YYN" />
-          <RegistryValue Id="psqlodbc30a.reg.4" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="Driver" Type="string" Value="[#psqlodbc30a.dll]" />
-          <RegistryValue Id="psqlodbc30a.reg.5" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="DriverODBCVer" Type="string" Value="03.50" />
-          <RegistryValue Id="psqlodbc30a.reg.6" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="FileUsage" Type="string" Value="0" />
-          <RegistryValue Id="psqlodbc30a.reg.7" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="Setup" Type="string" Value="[#psqlodbc30a.dll]" />
-          <RegistryValue Id="psqlodbc30a.reg.8" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="SQLLevel" Type="string" Value="1" />
-          <RegistryValue Id="psqlodbc30a.reg.9" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="UsageCount" Type="integer" Value="1" />
-          <RegistryValue Id="psqlodbc30a.reg.10" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL ANSI" Name="CPTimeout" Type="string" Value="60" />
+          <RegistryValue Id="psqlodbc30a.reg.1" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\ODBC Drivers" Name="AWS ANSI ODBC Driver for PostgreSQL" Type="string" Value="Installed" />
+          <RegistryValue Id="psqlodbc30a.reg.2" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="APILevel" Type="string" Value="1" />
+          <RegistryValue Id="psqlodbc30a.reg.3" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="ConnectFunctions" Type="string" Value="YYN" />
+          <RegistryValue Id="psqlodbc30a.reg.4" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="Driver" Type="string" Value="[#psqlodbc30a.dll]" />
+          <RegistryValue Id="psqlodbc30a.reg.5" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="DriverODBCVer" Type="string" Value="03.50" />
+          <RegistryValue Id="psqlodbc30a.reg.6" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="FileUsage" Type="string" Value="0" />
+          <RegistryValue Id="psqlodbc30a.reg.7" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="Setup" Type="string" Value="[#psqlodbc30a.dll]" />
+          <RegistryValue Id="psqlodbc30a.reg.8" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="SQLLevel" Type="string" Value="1" />
+          <RegistryValue Id="psqlodbc30a.reg.9" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="UsageCount" Type="integer" Value="1" />
+          <RegistryValue Id="psqlodbc30a.reg.10" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS ANSI ODBC Driver for PostgreSQL" Name="CPTimeout" Type="string" Value="60" />
 
-          <RegistryValue Id="psqlodbc35w.reg.1" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\ODBC Drivers" Name="PostgreSQL Unicode" Type="string" Value="Installed" />
-          <RegistryValue Id="psqlodbc35w.reg.2" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="APILevel" Type="string" Value="1" />
-          <RegistryValue Id="psqlodbc35w.reg.3" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="ConnectFunctions" Type="string" Value="YYN" />
-          <RegistryValue Id="psqlodbc35w.reg.4" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="Driver" Type="string" Value="[#psqlodbc35w.dll]" />
-          <RegistryValue Id="psqlodbc35w.reg.5" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="DriverODBCVer" Type="string" Value="03.51" />
-          <RegistryValue Id="psqlodbc35w.reg.6" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="FileUsage" Type="string" Value="0" />
-          <RegistryValue Id="psqlodbc35w.reg.7" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="Setup" Type="string" Value="[#psqlodbc35w.dll]" />
-          <RegistryValue Id="psqlodbc35w.reg.8" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="SQLLevel" Type="string" Value="1" />
-          <RegistryValue Id="psqlodbc35w.reg.9" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="UsageCount" Type="integer" Value="1" />
-          <RegistryValue Id="psqlodbc35w.reg.10" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\PostgreSQL Unicode" Name="CPTimeout" Type="string" Value="60" />
+          <RegistryValue Id="psqlodbc35w.reg.1" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\ODBC Drivers" Name="AWS Unicode ODBC Driver for PostgreSQL" Type="string" Value="Installed" />
+          <RegistryValue Id="psqlodbc35w.reg.2" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="APILevel" Type="string" Value="1" />
+          <RegistryValue Id="psqlodbc35w.reg.3" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="ConnectFunctions" Type="string" Value="YYN" />
+          <RegistryValue Id="psqlodbc35w.reg.4" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="Driver" Type="string" Value="[#psqlodbc35w.dll]" />
+          <RegistryValue Id="psqlodbc35w.reg.5" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="DriverODBCVer" Type="string" Value="03.51" />
+          <RegistryValue Id="psqlodbc35w.reg.6" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="FileUsage" Type="string" Value="0" />
+          <RegistryValue Id="psqlodbc35w.reg.7" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="Setup" Type="string" Value="[#psqlodbc35w.dll]" />
+          <RegistryValue Id="psqlodbc35w.reg.8" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="SQLLevel" Type="string" Value="1" />
+          <RegistryValue Id="psqlodbc35w.reg.9" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="UsageCount" Type="integer" Value="1" />
+          <RegistryValue Id="psqlodbc35w.reg.10" Root="HKLM" Key="SOFTWARE\ODBC\ODBCINST.INI\AWS Unicode ODBC Driver for PostgreSQL" Name="CPTimeout" Type="string" Value="60" />
 <?endif?>
         </Component>
 	<!--
