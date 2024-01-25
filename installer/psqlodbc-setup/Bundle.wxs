@@ -3,9 +3,9 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
      xmlns:bal="http://schemas.microsoft.com/wix/BalExtension">
 
-    <Bundle Name="psqlodbc"
+    <Bundle Name="awspsqlodbc"
 		Version="$(var.VERSION)"
-		Manufacturer="PostgreSQL Global Development Group"
+		Manufacturer="Amazon.com, Inc. or its affiliates"
 		UpgradeCode="7f9f14ee-2f3a-4120-a300-ee3fbd585627">
 
 	<BootstrapperApplicationRef
@@ -26,9 +26,9 @@
 <?ifndef var.INSTBASE ?>
 <?define INSTBASE = ".."?>
 <?endif ?>
-		<MsiPackage SourceFile="$(var.INSTBASE)\x86\psqlodbc_x86.msi"
+		<MsiPackage SourceFile="$(var.INSTBASE)\x86\awspsqlodbc_x86.msi"
 			DisplayInternalUI="$(var.withUI)" />
-		<MsiPackage SourceFile="$(var.INSTBASE)\x64\psqlodbc_x64.msi"
+		<MsiPackage SourceFile="$(var.INSTBASE)\x64\awspsqlodbc_x64.msi"
 		 	DisplayInternalUI="$(var.withUI)"
 			InstallCondition="VersionNT64" />
     	</Chain>

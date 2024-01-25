@@ -32,12 +32,12 @@ cat << _EOT_ > $outinstini
 Trace = off
 TraceFile =
 [PostgreSQL Unicode]
-Description     = PostgreSQL ODBC driver (Unicode version), for regression tests
+Description     = AWS ODBC Driver PostgreSQL (Unicode version), for regression tests
 Driver          = $driver
 Debug           = 0
 CommLog         = 0
 [PostgreSQL ANSI]
-Description     = PostgreSQL ODBC driver (ANSI version), for regression tests
+Description     = AWS ODBC Driver PostgreSQL (ANSI version), for regression tests
 Driver          = $drivera
 Debug           = 0
 CommLog         = 0
@@ -47,7 +47,7 @@ echo creating $outini: $@
 # Unicode
 cat << _EOT_ > $outini
 [psqlodbc_test_dsn]
-Description             = psqlodbc regression test DSN
+Description             = awspsqlodbc regression test DSN
 Driver          = PostgreSQL Unicode
 Trace           = No
 TraceFile               =
@@ -73,7 +73,7 @@ done
 # ANSI
 cat << _EOT_ >> $outini
 [psqlodbc_test_dsn_ansi]
-Description             = psqlodbc ansi regression test DSN
+Description             = awspsqlodbc ansi regression test DSN
 Driver          = PostgreSQL ANSI
 Trace           = No
 TraceFile               =

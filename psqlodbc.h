@@ -293,10 +293,10 @@ extern int posix_snprintf(char *buf, size_t size, const char *format, ...);
 
 /* Driver stuff */
 
-#define DRIVERNAME				"PostgreSQL ODBC"
+#define DRIVERNAME				"AWS ODBC Driver PostgreSQL"
 
-#define DBMS_NAME_UNICODE		"PostgreSQL Unicode"
-#define DBMS_NAME_ANSI			"PostgreSQL ANSI"
+#define DBMS_NAME_UNICODE		"AWS ODBC Driver PostgreSQL Unicode"
+#define DBMS_NAME_ANSI			"AWS ODBC Driver PostgreSQL ANSI"
 
 #define DRIVER_ODBC_VER				"03.51"
 
@@ -331,7 +331,7 @@ SQLULEN ucs2strlen(const SQLWCHAR *);
 #endif /* DBMS_NAME */
 
 #ifndef DBMS_NAME
-#define DBMS_NAME				"PostgreSQL Legacy"
+#define DBMS_NAME				"AWS ODBC Driver PostgreSQL Legacy"
 #endif   /* DBMS_NAME */
 #ifdef WIN32
 #ifdef	UNICODE_SUPPORT
