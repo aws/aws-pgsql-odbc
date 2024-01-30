@@ -1138,10 +1138,9 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	}
 
 	int port = atoi(ci->port);
-	if (port < 1)
-	{
+	if (port < 1) {
 		port = 5432; // set to default port.
-	{
+	}
 
 	MYLOG(0, "auth type is %s\n", ci->authtype);
 	MYLOG(0, "server is %s\n", ci->server);
