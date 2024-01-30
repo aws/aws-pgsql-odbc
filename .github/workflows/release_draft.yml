@@ -1,0 +1,74 @@
+name: 'Release Draft'
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  actions: write
+  contents: write
+  deployments: write
+  packages: write
+  pull-requests: write
+  repository-projects: write
+
+env:
+  BUILD_TYPE: Release
+  CMAKE_GENERATOR: Visual Studio 17 2022
+
+jobs:
+  ubuntu-latest-jdbc-wrapper-release-gh-draft:
+    name: 'Build And Release Draft'
+    runs-on: windows-latest
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.3.2
+
+      - name: Cache AWS SDK libraries
+        id: cache-dynamic-aws-sdk
+        uses: actions/cache@v4
+        with:
+          path: |
+            aws_sdk
+          key: ${{ runner.os }}-aws-sdk-dynamic-lib
+
+      - name: Build the AWS SDK C++
+        working-directory: ./scripts
+        if: steps.cache-dynamic-aws-sdk.outputs.cache-hit != 'true'
+        run: |
+          .\build_aws_sdk_win.ps1 x64 ${{ env.BUILD_TYPE}} OFF "${{env.CMAKE_GENERATOR}}"
+
+      - name: Build the driver
+        working-directory: ./winbuild
+        run: .\BuildAll.ps1 -Platform x64
+
+      - name: Build the installer
+        working-directory: ./installer
+        run: |
+          mkdir x64
+          .\buildInstallers.ps1 x64
+
+      - name: Set Version Env Variable
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Get Release Details
+        run: |
+          export RELEASE_DETAILS="$(awk -vN=2 'n<N;/^## /{++n}' CHANGELOG.md)"
+          export RELEASE_DETAILS="$(sed '${/^# /d;}' <<< "$RELEASE_DETAILS")"
+          export RELEASE_DETAILS="$(sed '$d' <<< "$RELEASE_DETAILS")"
+          touch RELEASE_DETAILS.md
+          echo "$RELEASE_DETAILS" > RELEASE_DETAILS.md
+
+      - name: Upload to Draft Release
+        uses: ncipollo/release-action@v1
+        with:
+          draft: true
+          name: "AWS ODBC Driver for PostgreSQL - v${{ env.RELEASE_VERSION }}"
+          bodyFile: RELEASE_DETAILS.md
+          artifacts: ./installer/x64/*.msi
+          token: ${{ secrets.GITHUB_TOKEN }}
