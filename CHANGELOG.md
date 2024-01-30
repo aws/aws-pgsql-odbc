@@ -10,4 +10,4 @@ The Amazon Web Services (AWS) ODBC Driver for PostgreSQL allows an application t
 - The [AWS IAM Authentication method](./docs/authentication.md#iam-authentication)
 - The [AWS Federated authentication method for ADFS](./docs/authentication.md#adfs-authentication)
 
-[0.0.1]: https://github.com/awslabs/aws-advanced-jdbc-wrapper/releases/tag/0.0.1
+[0.0.1]: https://github.com/awslabs/aws-pgsql-odbc/releases/tag/0.0.1
