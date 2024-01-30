@@ -1136,11 +1136,17 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 		MYLOG(0, "Null ConnInfo pointer\n");
 		return TR_FAILURE;
 	}
-	
+
+	int port = atoi(ci->port);
+	if (port < 1)
+	{
+		port = 5432; // set to default port.
+	{
+
 	MYLOG(0, "auth type is %s\n", ci->authtype);
 	MYLOG(0, "server is %s\n", ci->server);
 	MYLOG(0, "region is %s\n", ci->region);
-	MYLOG(0, "port is %s\n", ci->port);
+	MYLOG(0, "port is %d\n", port);
 	MYLOG(0, "username is %s\n", ci->username);
 	MYLOG(0, "useCache is %d\n", useCache);
 
@@ -1148,7 +1154,7 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	if (useCache) {
 		token = GetCachedToken(ci->server, ci->region, ci->port, ci->username);
 		if (!token) {
-			token = GenerateConnectAuthToken(ci, ci->server, ci->region, atoi(ci->port), ci->username);
+			token = GenerateConnectAuthToken(ci, ci->server, ci->region, port, ci->username);
 			if (!token) {
 				MYLOG(0, "Failed to generate a RDS connect auth token\n");
 				return TR_FAILURE;
@@ -1167,7 +1173,7 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 		}
 	}
 	else {
-		token = GenerateConnectAuthToken(ci, ci->server, ci->region, atoi(ci->port), ci->username);
+		token = GenerateConnectAuthToken(ci, ci->server, ci->region, port, ci->username);
 		if (!token) {
 			MYLOG(0, "Failed to generate a RDS connect auth token\n");
 			return TR_FAILURE;
