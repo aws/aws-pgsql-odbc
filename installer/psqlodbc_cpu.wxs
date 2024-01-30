@@ -149,7 +149,7 @@
       <UpgradeVersion OnlyDetect='yes' Property='NEWERFOUND'
       		    Minimum="$(var.VERSION)" IncludeMinimum='no' />
       <UpgradeVersion OnlyDetect='no' Property='UPGRADEFOUND'
-                    Minimum='8.3.0' IncludeMinimum='yes'
+                    Minimum='0.0.1' IncludeMinimum='yes'
       		    Maximum="$(var.VERSION)" IncludeMaximum='no' />
     </Upgrade>
 

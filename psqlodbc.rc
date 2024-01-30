@@ -288,8 +288,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 15,0,0,0
- PRODUCTVERSION 15,0,0,0
+ FILEVERSION 0,0,1,0
+ PRODUCTVERSION 0,0,1,0
  FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -307,13 +307,13 @@ BEGIN
             VALUE "Comments", "AWS ANSI ODBC Driver for PostgreSQL Japanese"
             VALUE "CompanyName", "Amazon.com, Inc. or its affiliates"
             VALUE "FileDescription", "PostgreSQL ODBC Driver (Japanese)"
-            VALUE "FileVersion", "15.00.0000"
+            VALUE "FileVersion", "0.00.1000"
             VALUE "InternalName", "psqlodbc30a"
             VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoft�� is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
             VALUE "OriginalFilename", "psqlodbc30a.dll"
             VALUE "PrivateBuild", "for Japanese by Hiroshi Inoue & Hiroshi Saito"
             VALUE "ProductName", "AWS PostgreSQL"
-            VALUE "ProductVersion", "15.00.0000"
+            VALUE "ProductVersion", "0.00.1000"
         END
     END
     BLOCK "VarFileInfo"
@@ -632,8 +632,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 15,0,0,0
- PRODUCTVERSION 15,0,0,0
+ FILEVERSION 0,0,1,0
+ PRODUCTVERSION 0,0,1,0
  FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -651,13 +651,13 @@ BEGIN
             VALUE "Comments", "AWS ANSI ODBC driver for PostgreSQL"
             VALUE "CompanyName", "Amazon.com, Inc. or its affiliates"
             VALUE "FileDescription", "AWS ODBC Driver for PostgreSQL (English)"
-            VALUE "FileVersion", "15.00.0000"
+            VALUE "FileVersion", "0.00.1000"
             VALUE "InternalName", "psqlodbc30a"
             VALUE "LegalCopyright", "Copyright "
             VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoft? is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
             VALUE "OriginalFilename", "psqlodbc30a.dll"
             VALUE "ProductName", "AWS PostgreSQL"
-            VALUE "ProductVersion", "15.00.0000"
+            VALUE "ProductVersion", "0.00.1000"
         END
     END
     BLOCK "VarFileInfo"
