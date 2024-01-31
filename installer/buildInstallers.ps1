@@ -175,12 +175,12 @@ function buildInstaller([string]$CPUTYPE)
 			$dlls=findRuntime $toolset_no0 $pgmvc
 			$PODBCMSVCDLL=$dlls[0]
 			if ("$PODBCMSVCDLL" -ne "") {
-				Write-Host "psqlodbc picks $PODBCMSVCDLL"
+				Write-Host "awspsqlodbc picks $PODBCMSVCDLL"
 				$runtime_list += $PODBCMSVCDLL
 			}
 			$PODBCMSVCSYS=$dlls[1]
 			if ("$PODBCMSVCSYS" -ne "") {
-				Write-Host "psqlodbc picks system $PODBCMSVCSYS"
+				Write-Host "awspsqlodbc picks system $PODBCMSVCSYS"
 				$runtime_list += $PODBCMSVCSYS
 			}
 			$PODBCMSVPDLL=$PODBCMSVCDLL.Replace((msvcrun $runtime_version0), $str_msvcp)
@@ -280,27 +280,27 @@ function buildInstaller([string]$CPUTYPE)
 			throw "Failed to build merge module"
 		}
 
-		Write-Host ".`nLinking psqlODBC merge module..."
+		Write-Host ".`nLinking awspsqlODBC merge module..."
 		light -nologo -o $INSTBASE\psqlodbc_$CPUTYPE.msm $INSTBASE\psqlodbcm.wixobj
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to link merge module"
 		}
 
-		Write-Host ".`nBuilding psqlODBC installer database..."
+		Write-Host ".`nBuilding awspsqlODBC installer database..."
 
 		candle -nologo "-dPlatform=$CPUTYPE" "-dVERSION=$VERSION" "-dSUBLOC=$SUBLOC" "-dPRODUCTCODE=$PRODUCTCODE" "-dINSTBASE=$INSTBASE" -o $INSTBASE\psqlodbc.wixobj psqlodbc_cpu.wxs
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to build installer database"
 		}
 
-		Write-Host ".`nLinking psqlODBC installer database..."
-		light -nologo -ext WixUIExtension -cultures:en-us -o $INSTBASE\psqlodbc_$CPUTYPE.msi $INSTBASE\psqlodbc.wixobj
+		Write-Host ".`nLinking awspsqlODBC installer database..."
+		light -nologo -ext WixUIExtension -cultures:en-us -o $INSTBASE\awspsqlodbc_$CPUTYPE.msi $INSTBASE\psqlodbc.wixobj
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to link installer database"
 		}
 
-		Write-Host ".`nModifying psqlODBC installer database..."
-		cscript modify_msi.vbs $INSTBASE\psqlodbc_$CPUTYPE.msi
+		Write-Host ".`nModifying awspsqlODBC installer database..."
+		cscript modify_msi.vbs $INSTBASE\awspsqlodbc_$CPUTYPE.msi
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to modify installer database"
 		}
