@@ -38,7 +38,7 @@
   <?define ALLUSERS = "1" ?>
 <?endif?>
 
-<?define MERGEM = "$(var.INSTBASE)\awspsqlodbc_$(var.Platform).msm" ?>
+<?define MERGEM = "$(var.INSTBASE)\psqlodbc_$(var.Platform).msm" ?>
 
 <!-- Product details -->
 
