@@ -38,7 +38,7 @@
   <?define ALLUSERS = "1" ?>
 <?endif?>
 
-<?define MERGEM = "$(var.INSTBASE)\psqlodbc_$(var.Platform).msm" ?>
+<?define MERGEM = "$(var.INSTBASE)\awspsqlodbc_$(var.Platform).msm" ?>
 
 <!-- Product details -->
 
@@ -66,13 +66,13 @@
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.PGFOLDER)" Name="PFiles">
-        <Directory Id="BASEDIR" Name="psqlODBC">
+        <Directory Id="BASEDIR" Name="AWSpsqlODBC">
           <Directory Id="SUBLOC" Name="$(var.SUBLOC)">
             <Directory Id="BINDIR" Name="bin">
               <Component Id="registration" Guid="$(var.CIDREG)" Win64="$(var.BIT64)">
                 <RegistryValue KeyPath="yes" Type="string" Root="HKLM" Key="Software\$(var.PKGNAME)" Name="Version" Value="$(var.VERSION)" />
               </Component>
-              <Merge Id="psqlodbcm" DiskId="1" Language="1033" SourceFile="$(var.MERGEM)" />
+              <Merge Id="awspsqlodbcm" DiskId="1" Language="1033" SourceFile="$(var.MERGEM)" />
             </Directory>
             <Directory Id="DOCSDIR" Name="docs">
               <Component Id="docs" Guid="$(var.CIDDOC)" Win64="$(var.BIT64)">
@@ -85,7 +85,7 @@
                 <File Id="docs.win32_compilation.html" Name="win32-compilation.md" DiskId="1" Source="../docs/win32-compilation.md" />
                 <File Id="docs.authentication" Name="authentication.md" DiskId="1" Source="../docs/authentication.md" />
 
-                <!-- <Shortcut Id="docs.index.html" Directory="SMDir" Name="Documentation index" Description="psqlODBC documentation, HOWTOs and FAQs" Advertise="yes" Show="normal" /> -->
+                <!-- <Shortcut Id="docs.index.html" Directory="SMDir" Name="Documentation index" Description="AWSpsqlODBC documentation, HOWTOs and FAQs" Advertise="yes" Show="normal" /> -->
               </Component>
                 <Directory Id="IMGDIR" Name="img">
                   <Component Id="img" Guid="$(var.CIDIMG)" Win64="$(var.BIT64)">
@@ -117,7 +117,7 @@
     <Feature Id="awspsqlodbc" Title="$(var.PKGNAME)" Level="1" Description="AWSpsqlODBC - The AWS ODBC Driver for PostgreSQL" ConfigurableDirectory="BASEDIR" Display="expand">
       <Feature Id="binaries" Title="ODBC Driver" Level="1" Description="The ODBC driver and supporting libraries.">
         <ComponentRef Id="registration" />
-        <MergeRef Id="psqlodbcm" />
+        <MergeRef Id="awspsqlodbcm" />
       </Feature>
 
       <Feature Id="docs" Title="Documentation" Level="4" Description="Documentation and release notes.">
@@ -127,7 +127,7 @@
       </Feature>
 
     </Feature>
-    <Media Id="1" EmbedCab="yes" Cabinet="psqlodbc.cab"/>
+    <Media Id="1" EmbedCab="yes" Cabinet="awspsqlodbc.cab"/>
 
 <!-- Properties -->
 
