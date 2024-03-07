@@ -7,6 +7,9 @@
   Copyright (C) 1998          Insight Distribution Systems
   Copyright (C) 1998 - 2021   The PostgreSQL Global Development Group
 
+  Modifications Copyright Amazon.com Inc. or its affiliates.
+  See GitHub history for details.
+
   Multibyte support was added by Sankyo Unyu Service, (C) 2001.
 
   The code contained in this library is based on code written by
