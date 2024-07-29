@@ -39,8 +39,8 @@ CREATE VIEW testview AS SELECT * FROM testtab1;
 CREATE MATERIALIZED VIEW testmatview AS SELECT * FROM testtab1;
 
 -- Foreign table
-CREATE FOREIGN DATA WRAPPER testfdw;
-CREATE SERVER testserver FOREIGN DATA WRAPPER testfdw;
+CREATE EXTENSION IF NOT EXISTS postgres_fdw;
+CREATE SERVER testserver FOREIGN DATA WRAPPER postgres_fdw;
 CREATE FOREIGN TABLE testforeign (c1 int) SERVER testserver;
 
 -- Procedure for catalog function checks

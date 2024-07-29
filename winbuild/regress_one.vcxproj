@@ -24,7 +24,8 @@
     <RootNamespace>regress</RootNamespace>
     <ProjectName>regress</ProjectName>
     <TestName>regressw</TestName>
-    <SubDir></SubDir>
+    <SubDir>
+    </SubDir>
   </PropertyGroup>
   <PropertyGroup Label="Globals">
   </PropertyGroup>
@@ -32,26 +33,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Ansi</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Ansi</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Ansi</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Ansi</CharacterSet>
   </PropertyGroup>
@@ -76,7 +77,6 @@
   <PropertyGroup Condition="'$(Platform)'!='Win32'">
     <TARGET_CPU>x64</TARGET_CPU>
   </PropertyGroup>
-
   <Import Project="pguser.Cpp.props" />
   <PropertyGroup>
     <ObjbaseDir Condition="'$(ObjbaseDir)'==''">.\</ObjbaseDir>
@@ -84,9 +84,7 @@
     <IntDir>$(ObjbaseDir)test_$(TARGET_CPU)\obj\</IntDir>
     <OutDir>$(ObjbaseDir)test_$(TARGET_CPU)\$(SubDir)</OutDir>
   </PropertyGroup>
-
   <!-- Import Project="pguser.Cpp.props" / -->
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
