@@ -33,6 +33,7 @@ $CURRENT_DIR = (Get-Location).Path
 $SRC_DIR = "${PSScriptRoot}\..\aws_sdk\aws_sdk_cpp"
 $BUILD_DIR = "${SRC_DIR}\..\build"
 $INSTALL_DIR = "${BUILD_DIR}\..\install"
+$AWS_SDK_CPP_TAG = "1.11.371"
 
 $WIN_ARCH = $args[0]
 $CONFIGURATION = $args[1]
@@ -44,7 +45,7 @@ Write-Host $args
 # Make AWS SDK source directory
 New-Item -Path $SRC_DIR -ItemType Directory -Force | Out-Null
 # Clone the AWS SDK CPP repo
-git clone --recurse-submodules "https://github.com/aws/aws-sdk-cpp.git" $SRC_DIR
+git clone --recurse-submodules -b "$AWS_SDK_CPP_TAG" "https://github.com/aws/aws-sdk-cpp.git" $SRC_DIR
 
 # Make and move to build directory
 New-Item -Path $BUILD_DIR -ItemType Directory -Force | Out-Null
