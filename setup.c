@@ -478,7 +478,7 @@ test_connection(HANDLE hwnd, ConnInfo *ci, BOOL withDTC)
 		ci->pqopt_in_str = TRUE;
 	makeConnectString(out_conn, ci, sizeof(out_conn));
 #ifdef	FORCE_PASSWORD_DISPLAY
-	MYLOG(0, "conn_string=%s\n", out_conn);
+MYLOG(0, "conn_string=%s\n", out_conn);
 #else
 	char* hide_str = hide_password(out_conn, ';');
 	MYLOG(0, "conn_string=%s\n", hide_str);

@@ -375,7 +375,7 @@ MYLOG(DETAIL_LOG_LEVEL, "[%d].SQLType=%d .PGType=%d\n", ipar, ipdopts->parameter
 		else
 		{
 			ret = SQL_ERROR;
-			SC_set_error(stmt, STMT_EXEC_ERROR, "Unfortunatley couldn't get this paramater's info", func);
+			SC_set_error(stmt, STMT_EXEC_ERROR, "Unfortunately couldn't get this paramater's info", func);
 			goto cleanup;
 		}
 	}
@@ -701,6 +701,8 @@ IPD_free_params(IPDFields *ipdopts, char option)
 		return;
 	if (option == STMT_FREE_PARAMS_ALL)
 	{
+		for (int i = 0; i < ipdopts->allocated; ++i)
+			NULL_THE_NAME(ipdopts->parameters[i].paramName);
 		free(ipdopts->parameters);
 		ipdopts->parameters = NULL;
 		ipdopts->allocated = 0;

@@ -316,13 +316,13 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;AUTHTYPE=%s;" \
 		"UID=%s;PWD=%s;REGION=%s;TOKENEXPIRATION=%s;IDPENDPOINT=%s;IDPPORT=%s;IDPUSERNAME=%s;" \
 		"IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s",
-		got_dsn ? "DSN" : "DRIVER",
-		got_dsn ? ci->dsn : ci->drivername,
-		ci->database,
-		ci->server,
-		ci->port,
+			got_dsn ? "DSN" : "DRIVER",
+			got_dsn ? ci->dsn : ci->drivername,
+			ci->database,
+			ci->server,
+			ci->port,
 		ci->authtype,
-		ci->username,
+			ci->username,
 		encoded_item,
 		ci->region,
 		ci->token_expiration,
@@ -643,6 +643,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		STRCPY_FIXED(ci->username, value);
 	else if (stricmp(attribute, INI_PASSWORD) == 0 || stricmp(attribute, "pwd") == 0)
 	{
+		NULL_THE_NAME(ci->password);
 		ci->password = decode_or_remove_braces(value);
 #ifndef FORCE_PASSWORDE_DISPLAY
 		MYLOG(0, "key='%s' value='xxxxxxxx'\n", attribute);
@@ -715,11 +716,13 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 	else if (stricmp(attribute, INI_CONNSETTINGS) == 0 || stricmp(attribute, ABBR_CONNSETTINGS) == 0)
 	{
 		/* We can use the conn_settings directly when they are enclosed with braces */
+		NULL_THE_NAME(ci->conn_settings);
 		ci->conn_settings_in_str = TRUE;
 		ci->conn_settings = decode_or_remove_braces(value);
 	}
 	else if (stricmp(attribute, INI_PQOPT) == 0 || stricmp(attribute, ABBR_PQOPT) == 0)
 	{
+		NULL_THE_NAME(ci->pqopt);
 		ci->pqopt_in_str = TRUE;
 		ci->pqopt = decode_or_remove_braces(value);
 	}
@@ -1015,7 +1018,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 
 	if (SQLGetPrivateProfileString(DSN, INI_DATABASE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->database, temp);
-	
+
 	if (SQLGetPrivateProfileString(DSN, INI_AUTHTYPE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->authtype, temp);
 
@@ -1207,12 +1210,12 @@ MYLOG(0, "drivername=%s\n", drivername);
 		"authtype='%s',user='%s',passwd='%s',region='%s',token_expiration='%s',idp_endpoint='%s'," \
 		"idp_port='%s',idp_username='%s',idp_password='%s',idp_arn='%s',idp_role_arn=%s," \
 		"socket_timeout='%s',conn_timeout='%s',relaying_party_id='%s'\n",
-		DSN,
-		ci->server,
-		ci->port,
-		ci->database,
+		 DSN,
+		 ci->server,
+		 ci->port,
+		 ci->database,
 		ci->authtype,
-		ci->username,
+		 ci->username,
 		NAME_IS_VALID(ci->password) ? "xxxxx" : "",
 		ci->region,
 		ci->token_expiration,
@@ -1773,7 +1776,7 @@ decode(const char *in)
 
 /*
  *	Remove braces if the input value is enclosed by braces({}).
- *	Othewise decode the input value.
+ *	Otherwise decode the input value.
  */
 static pgNAME
 decode_or_remove_braces(const char *in)

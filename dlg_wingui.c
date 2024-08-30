@@ -195,7 +195,7 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	{
 		LoadString(GetWindowInstance(hdlg), authtype[i].ids, buff, MEDIUM_REGISTRY_LEN);
 		SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_ADDSTRING, 0, (WPARAM)buff);
-	}
+}
 	SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_SETCURSEL, selidx, (WPARAM)0);
 
 	// Set subclass procedure for the authtype drop list to handle notifications
@@ -414,7 +414,7 @@ HMODULE DtcProc(const char *procname, FARPROC *proc)
 	*proc = NULL;
 	if (hmodule = LoadLibraryEx(GetXaLibPath(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH), NULL != hmodule)
 	{
-MYLOG(0, "GetProcAddres for %s\n", procname);
+MYLOG(0, "GetProcAddress for %s\n", procname);
 		*proc = GetProcAddress(hmodule, procname);
 	}
 

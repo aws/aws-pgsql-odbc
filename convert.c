@@ -950,7 +950,7 @@ setup_getdataclass(SQLLEN * const length_return, const char ** const ptr_return,
 #ifdef	UNICODE_SUPPORT
 	if (0 == bytea_process_kind)
 	{
-		if (get_convtype() > 0) /* coversion between the current locale is available */
+		if (get_convtype() > 0) /* conversion between the current locale is available */
 		{
 			BOOL	wcs_debug = conn->connInfo.wcs_debug;
 			BOOL	same_encoding = (conn->ccsc == pg_CS_code(conn->locale_encoding));
@@ -1389,7 +1389,7 @@ MYLOG(0, "null_cvt_date_string=%d\n", conn->connInfo.cvt_null_date_string);
 		else
 		{
 			SC_set_error(stmt, STMT_RETURN_NULL_WITHOUT_INDICATOR, "StrLen_or_IndPtr was a null pointer and NULL data was retrieved", func);
-			return	SQL_ERROR;
+			return	COPY_GENERAL_ERROR;
 		}
 	}
 
@@ -2001,7 +2001,7 @@ MYLOG(DETAIL_LOG_LEVEL, "SQL_C_VARBOOKMARK value=%d\n", ival);
 /*--------------------------------------------------------------------
  *	Functions/Macros to get rid of query size limit.
  *
- *	I always used the follwoing macros to convert from
+ *	I always used the following macros to convert from
  *	old_statement to new_statement.  Please improve it
  *	if you have a better way.	Hiroshi 2001/05/22
  *--------------------------------------------------------------------
@@ -3056,7 +3056,7 @@ MYLOG(DETAIL_LOG_LEVEL, "type=" FORMAT_UINTEGER " concur=" FORMAT_UINTEGER "\n",
 		}
 		if (SC_is_fetchcursor(stmt))
 		{
-			snprintfcat(new_statement, qb->str_alsize, 
+			snprintfcat(new_statement, qb->str_alsize,
 				"declare \"%s\"%s cursor%s for ",
 				SC_cursor_name(stmt), opt_scroll, opt_hold);
 			qb->npos = strlen(new_statement);
@@ -3159,7 +3159,7 @@ MYLOG(DETAIL_LOG_LEVEL, "type=" FORMAT_UINTEGER " concur=" FORMAT_UINTEGER "\n",
 					CVT_APPEND_STR(qb, bestitem);
 				}
 				CVT_APPEND_STR(qb, "\" from ");
-				CVT_APPEND_DATA(qb, qp->statement + qp->from_pos + 5, npos - qp->from_pos - 5);
+				CVT_APPEND_DATA(qb, qp->statement + qp->from_pos + 5, qp->stmt_len - qp->from_pos - 5);
 			}
 		}
 		npos -= qp->declare_pos;
@@ -3744,7 +3744,7 @@ inner_process_tokens(QueryParse *qp, QueryBuild *qb)
 				}
 				if (converted)
 				{
-				        const char *column_def = (const char *) QR_get_value_backend_text(coli->result, i, COLUMNS_COLUMN_DEF);
+					const char *column_def = (const char *) QR_get_value_backend_text(coli->result, i, COLUMNS_COLUMN_DEF);
 					if (NULL != column_def &&
 					    strncmp(column_def, "nextval", 7) == 0)
 					{
@@ -3770,6 +3770,7 @@ inner_process_tokens(QueryParse *qp, QueryBuild *qb)
 					}
 				}
 			}
+			TI_ClearObject(pti);
 		}
 		if (!converted)
 			CVT_APPEND_STR(qb, "NULL");
@@ -4422,7 +4423,7 @@ handle_lu_onvert_error(QueryBuild *qb, int flag, char *buffer, SQLLEN paralen)
 	{
 		case ReturnZeroLengthString:
 			if (qb->stmt)
-				SC_set_error(qb->stmt, STMT_ERROR_IN_ROW, "conversion error to wide chars occured", __FUNCTION__);
+				SC_set_error(qb->stmt, STMT_ERROR_IN_ROW, "conversion error to wide chars occurred", __FUNCTION__);
 			return TRUE;
 		default:
 			qb->errornumber = STMT_EXEC_ERROR;
@@ -4725,7 +4726,7 @@ MYLOG(DETAIL_LOG_LEVEL, "ipara=%p paramName=%s paramType=%d %d proc_return=%d\n"
 	ivstruct = (SQL_INTERVAL_STRUCT *) buffer;
 	/* Convert input C type to a neutral format */
 #ifdef	UNICODE_SUPPORT
-	if (get_convtype() > 0) /* coversion between the current locale is available */
+	if (get_convtype() > 0) /* conversion between the current locale is available */
 	{
 		BOOL	wcs_debug = conn->connInfo.wcs_debug;
 		BOOL	is_utf8 = (UTF8 == conn->ccsc);

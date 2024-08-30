@@ -277,6 +277,11 @@ PGAPI_FreeStmt(HSTMT hstmt,
 			 * before freeing the associated cursors. Otherwise
 			 * CC_cursor_count() would get wrong results.
 			 */
+			if (stmt->parsed)
+			{
+				QR_Destructor(stmt->parsed);
+				stmt->parsed = NULL;
+			}
 			res = SC_get_Result(stmt);
 			QR_Destructor(res);
 			SC_init_Result(stmt);
@@ -296,7 +301,9 @@ PGAPI_FreeStmt(HSTMT hstmt,
 		if (stmt->execute_parent)
 			stmt->execute_parent->execute_delegate = NULL;
 		/* Destroy the statement and free any results, cursors, etc. */
-		SC_Destructor(stmt);
+		/* if the connection was already closed return error */
+		if (SC_Destructor(stmt) == FALSE)
+			return SQL_ERROR;
 	}
 	else if (fOption == SQL_UNBIND)
 		SC_unbind_cols(stmt);
@@ -477,6 +484,7 @@ SC_Constructor(ConnectionClass *conn)
 char
 SC_Destructor(StatementClass *self)
 {
+	char cRet = TRUE;
 	CSTR func	= "SC_Destructor";
 	QResultClass	*res = SC_get_Result(self);
 
@@ -495,10 +503,21 @@ SC_Destructor(StatementClass *self)
 
 		QR_Destructor(res);
 	}
+	if (self->parsed)
+	{
+		QR_Destructor(self->parsed);
+		self->parsed = NULL;
+	}
 
 	SC_initialize_stmts(self, TRUE);
 
-        /* Free the parsed table information */
+	if(self->hdbc && !self->hdbc->pqconn)
+	{
+		SC_set_error(self, STMT_COMMUNICATION_ERROR, "connection error.", func);
+		cRet = FALSE;
+	}
+
+    /* Free the parsed table information */
 	SC_initialize_cols_info(self, FALSE, TRUE);
 
 	NULL_THE_NAME(self->cursor_name);
@@ -525,7 +544,7 @@ SC_Destructor(StatementClass *self)
 
 	MYLOG(0, "leaving\n");
 
-	return TRUE;
+	return cRet;
 }
 
 void
@@ -883,7 +902,7 @@ SC_recycle_statement(StatementClass *self)
 			break;
 
 		default:
-			SC_set_error(self, STMT_INTERNAL_ERROR, "An internal error occured while recycling statements", func);
+			SC_set_error(self, STMT_INTERNAL_ERROR, "An internal error occurred while recycling statements", func);
 			return FALSE;
 	}
 
@@ -1391,7 +1410,7 @@ SC_create_errorinfo(const StatementClass *self, PG_ErrorInfo *pgerror_fail_safe)
 			pgerror = pgerror_fail_safe;
 			pgerror->status = self->__error_number;
 			pgerror->errorsize = sizeof(pgerror->__error_message);
-			STRCPY_FIXED(pgerror->__error_message, ermsg); 
+			STRCPY_FIXED(pgerror->__error_message, ermsg);
 			pgerror->recsize = -1;
 		}
 		else
@@ -1840,7 +1859,7 @@ MYLOG(DETAIL_LOG_LEVEL, "curt=" FORMAT_LEN "\n", curt);
 					break;
 
 				case COPY_INVALID_STRING_CONVERSION:    /* invalid string */
-					SC_set_error(self, STMT_STRING_CONVERSION_ERROR, "invalid string conversion occured.", func);
+					SC_set_error(self, STMT_STRING_CONVERSION_ERROR, "invalid string conversion occurred.", func);
 					result = SQL_ERROR;
 					break;
 
@@ -1986,7 +2005,7 @@ SC_execute(StatementClass *self)
 
 	if (!SC_SetExecuting(self, TRUE))
 	{
-		SC_set_error(self, STMT_OPERATION_CANCELLED, "Cancel Reuest Accepted", func);
+		SC_set_error(self, STMT_OPERATION_CANCELLED, "Cancel Request Accepted", func);
 		goto cleanup;
 	}
 	conn->status = CONN_EXECUTING;
@@ -2047,7 +2066,7 @@ SC_execute(StatementClass *self)
 			qflag &= (~READ_ONLY_QUERY); /* must be a SAVEPOINT after DECLARE */
 		}
 		rhold = CC_send_query_append(conn, self->stmt_with_params, qryi, qflag, SC_get_ancestor(self), appendq);
-		first = rhold.first;	
+		first = rhold.first;
 		if (useCursor && QR_command_maybe_successful(first))
 		{
 			/*
@@ -2106,7 +2125,7 @@ SC_execute(StatementClass *self)
 	{
 		/*
 		 * We shouldn't send COMMIT. Postgres backend does the autocommit
-		 * if neccessary. (Zoltan, 04/26/2000)
+		 * if necessary. (Zoltan, 04/26/2000)
 		 */
 
 		/*
@@ -2199,6 +2218,7 @@ MYLOG(DETAIL_LOG_LEVEL, "!!%p->miscinfo=%x res=%p\n", self, self->miscinfo, firs
 					QR_set_fields(first,  NULL);
 					tres->num_fields = first->num_fields;
 					QR_detach(first);
+					QR_Destructor(first);
 					SC_set_Result(self, tres);
 					rhold = self->rhold;
 				}
@@ -3197,7 +3217,7 @@ SC_set_errorinfo(StatementClass *self, QResultClass *res, int errkind)
 			SC_set_error_if_not_set(self, STMT_NO_MEMORY_ERROR, "memory allocation error???", __FUNCTION__);
 			break;
 		case PORES_BAD_RESPONSE:
-			SC_set_error_if_not_set(self, STMT_COMMUNICATION_ERROR, "communication error occured", __FUNCTION__);
+			SC_set_error_if_not_set(self, STMT_COMMUNICATION_ERROR, "communication error occurred", __FUNCTION__);
 			break;
 		case PORES_INTERNAL_ERROR:
 			SC_set_error_if_not_set(self, STMT_INTERNAL_ERROR, "Internal error fetching next row", __FUNCTION__);

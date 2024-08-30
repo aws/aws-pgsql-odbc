@@ -96,11 +96,11 @@
 		    <File Id="docs.img.builderror.png" Name="builderror.png" DiskId="1" Source="../docs/img/builderror.png" />
 		    <File Id="docs.img.cpluspack.png" Name="cpluspack.png" DiskId="1" Source="../docs/img/cpluspack.png" />
 		    <File Id="docs.img.universalpack.png" Name="universalpack.png" DiskId="1" Source="../docs/img/universalpack.png" />
-                  </Component>
-                </Directory>
+              </Component>
             </Directory>
           </Directory>
         </Directory>
+      </Directory>
       </Directory>
       <Directory Id="ProgramMenuFolder" Name="." SourceName="Programs">
         <Directory Id="SMDir" Name="$(var.PKGNAME)">

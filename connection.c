@@ -57,6 +57,7 @@ static int  CC_close_eof_cursors(ConnectionClass *self);
 
 static void LIBPQ_update_transaction_status(ConnectionClass *self);
 
+
 static void CC_set_error_if_not_set(ConnectionClass *self, int errornumber, const char *errormsg, const char *func)
 {
 	int	errornum = CC_get_errornumber(self);
@@ -554,21 +555,28 @@ CC_clear_col_info(ConnectionClass *self, BOOL destroy)
 
 		for (i = 0; i < self->ntables; i++)
 		{
+			/* Going through COL_INFO cache table and releasing coli objects. */
 			if (coli = self->col_info[i], NULL != coli)
 			{
-				if (destroy || coli->refcnt == 0)
+				coli->refcnt--;
+				if (coli->refcnt <= 0)
 				{
+					/* Last reference to coli object disappeared. Now destroying it. */
 					free_col_info_contents(coli);
 					free(coli);
 					self->col_info[i] = NULL;
 				}
 				else
+				{
+					/* coli object have another reference to it, so it will be destroyed somewhere else. */
 					coli->acc_time = 0;
+				}
 			}
 		}
-		self->ntables = 0;
+		self->ntables = 0; /* Now we have cleared COL_INFO cached objects table. */
 		if (destroy)
 		{
+			/* We destroying COL_INFO cache completely. */
 			free(self->col_info);
 			self->col_info = NULL;
 			self->coli_allocated = 0;
@@ -967,7 +975,7 @@ handle_pgres_error(ConnectionClass *self, const PGresult *pgres,
 		CC_on_abort(self, CONN_DEAD); /* give up the connection */
 	}
 	else if ((errseverity_nonloc && strcmp(errseverity_nonloc, "FATAL") == 0) ||
-		(NULL == errseverity_nonloc && errseverity && strcmp(errseverity, "FATAL") == 0)) /* no */ 
+		(NULL == errseverity_nonloc && errseverity && strcmp(errseverity, "FATAL") == 0)) /* no */
 	{
 		CC_set_errornumber(self, CONNECTION_SERVER_REPORTED_SEVERITY_FATAL);
 		CC_on_abort(self, CONN_DEAD); /* give up the connection */
@@ -1200,7 +1208,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		if (tr == TR_FAILURE)
 			return 0;
 
-		ret = LIBPQ_CC_connect(self, salt_para);
+	ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
 			// The cached token fails to connect successfully.
 			// Recreate a token to try again.
@@ -1221,8 +1229,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	}
 	else {
 		ret = LIBPQ_CC_connect(self, salt_para);
-		if (ret <= 0)
-			return ret;
+	if (ret <= 0)
+		return ret;
 	}
 
 	CC_set_translation(self);
@@ -1788,7 +1796,7 @@ CC_from_PGresult(QResultClass *res, StatementClass *stmt,
 					CC_set_error(conn, CONN_NO_MEMORY_ERROR, NULL, __FUNCTION__);
 					break;
 				case PORES_BAD_RESPONSE:
-					CC_set_error(conn, CONNECTION_COMMUNICATION_ERROR, "communication error occured", __FUNCTION__);
+					CC_set_error(conn, CONNECTION_COMMUNICATION_ERROR, "communication error occurred", __FUNCTION__);
 					break;
 				default:
 					CC_set_error(conn, CONN_EXEC_ERROR, QR_get_message(res), __FUNCTION__);
@@ -1943,7 +1951,7 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 
 	/*
 	 *	In case the round trip time can be ignored, the query
-	 *	and the appeneded query would be issued separately.
+	 *	and the appended query would be issued separately.
 	 *	Otherwise a multiple command query would be issued.
 	 */
 	if (appendq && ignore_roundtrip_time)
@@ -2205,7 +2213,7 @@ MYLOG(DETAIL_LOG_LEVEL, "Discarded a RELEASE result\n");
 			case PGRES_FATAL_ERROR:
 				handle_pgres_error(self, pgres, "send_query", res, TRUE);
 
-				/* We should report that an error occured. Zoltan */
+				/* We should report that an error occurred. Zoltan */
 				aborted = TRUE;
 
 				query_completed = TRUE;
@@ -2994,11 +3002,11 @@ LIBPQ_connect(ConnectionClass *self)
 				QPRINTF(0, " %s='%s'", *popt, "xxxxxx");
 			}
 			else {
-				QPRINTF(0, " %s='%s'", *popt, *pval);
+			QPRINTF(0, " %s='%s'", *popt, *pval);
 			}
 #endif
 		}
-		QPRINTF(0, "\n"); 
+		QPRINTF(0, "\n");
 	}
 	pqconn = PQconnectdbParams(opts, vals, FALSE);
 	if (!pqconn)

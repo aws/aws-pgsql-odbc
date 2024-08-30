@@ -281,7 +281,7 @@ function buildInstaller([string]$CPUTYPE)
 		}
 
 		Write-Host ".`nLinking awspsqlODBC merge module..."
-		light -nologo -o $INSTBASE\psqlodbc_$CPUTYPE.msm $INSTBASE\psqlodbcm.wixobj
+		light -sval -nologo -o $INSTBASE\psqlodbc_$CPUTYPE.msm $INSTBASE\psqlodbcm.wixobj
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to link merge module"
 		}
@@ -294,7 +294,7 @@ function buildInstaller([string]$CPUTYPE)
 		}
 
 		Write-Host ".`nLinking awspsqlODBC installer database..."
-		light -nologo -ext WixUIExtension -cultures:en-us -o $INSTBASE\awspsqlodbc_$CPUTYPE.msi $INSTBASE\psqlodbc.wixobj
+		light -sval -nologo -ext WixUIExtension -cultures:en-us -o $INSTBASE\awspsqlodbc_$CPUTYPE.msi $INSTBASE\psqlodbc.wixobj
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to link installer database"
 		}

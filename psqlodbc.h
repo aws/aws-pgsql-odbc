@@ -24,6 +24,9 @@
 #endif
 #include "version.h"
 
+#ifdef	_MIMALLOC_
+#include <stdlib.h>
+#else /* _MIMALLOC_ */
 #ifdef	WIN32
 #ifdef	_DEBUG
 #ifndef	_MEMORY_DEBUG_
@@ -37,8 +40,14 @@
 #else  /* _DEBUG */
 #include <stdlib.h>
 #endif /* _DEBUG */
+#include <stdbool.h>
 #else  /* WIN32 */
 #include <stdlib.h>
+#endif /* WIN32 */
+#endif /* _MIMALLOC_ */
+
+#ifdef	WIN32
+#include <stdbool.h>
 #endif /* WIN32 */
 
 #ifdef  __INCLUDE_POSTGRES_FE_H__ /* currently not defined */
@@ -59,6 +68,25 @@
 #define pg_attribute_printf(f,a)
 #endif  /* __GNUC__ || __IBMC__ */
 #endif  /* __INCLUDE_POSTGRES_FE_H__ */
+
+#ifdef	_MIMALLOC_
+#include <mimalloc.h>
+#define pg_malloc	mi_malloc
+#define pg_realloc 	mi_realloc
+#define pg_calloc	mi_calloc
+#define pg_strdup	mi_strdup
+#define pg_free		mi_free
+#else  /* _MIMALLOC_ */
+#define pg_malloc	malloc
+#define pg_realloc 	realloc
+#define pg_calloc	calloc
+#ifndef WIN32
+#define pg_strdup	strdup
+#else
+#define pg_strdup	_strdup
+#endif /* WIN32 */
+#define pg_free		free
+#endif /* _MIMALLOC_ */
 
 #ifdef	_MEMORY_DEBUG_
 void		*pgdebug_alloc(size_t);
@@ -86,6 +114,15 @@ void		debug_memory_check(void);
 /* #define strncpy_null	pgdebug_strncpy_null */
 #define memcpy	pgdebug_memcpy
 #define memset	pgdebug_memset
+#else   /* _MEMORY_DEBUG_ */
+#ifdef	WIN32
+#undef strdup
+#endif /* WIN32 */
+#define malloc	pg_malloc
+#define realloc pg_realloc
+#define calloc	pg_calloc
+#define strdup	pg_strdup
+#define free	pg_free
 #endif   /* _MEMORY_DEBUG_ */
 
 #ifdef	WIN32
@@ -252,6 +289,28 @@ typedef double SDOUBLE;
 #define CALLBACK
 #endif /* CALLBACK */
 #endif /* WIN32 */
+
+#ifndef __cplusplus
+
+#ifdef PG_USE_STDBOOL
+#include <stdbool.h>
+#else
+
+#ifndef bool
+typedef unsigned char bool;
+#endif
+
+#ifndef true
+#define true	((bool) 1)
+#endif
+
+#ifndef false
+#define false	((bool) 0)
+#endif
+
+#endif							/* not PG_USE_STDBOOL */
+#endif							/* not C++ */
+
 
 #ifndef WIN32
 #define stricmp strcasecmp
@@ -682,7 +741,7 @@ typedef struct
 int	initialize_global_cs(void);
 enum { /* CC_conninfo_init option */
 	CLEANUP_FOR_REUSE	= 1L		/* reuse the info */
-	,INIT_GLOBALS		= (1L << 1) /* init globals memebers */
+	,INIT_GLOBALS		= (1L << 1) /* init globals members */
 };
 void	CC_conninfo_init(ConnInfo *conninfo, UInt4 option);
 void	CC_conninfo_release(ConnInfo *conninfo);

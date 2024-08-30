@@ -1,5 +1,5 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(psqlodbc, 15.00.0000, [pgsql-odbc@postgresql.org])
+AC_INIT(psqlodbc, 16.00.0000, [pgsql-odbc@postgresql.org])
 AC_PREREQ(2.57)
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE
@@ -22,6 +22,19 @@ AC_CHECK_SIZEOF(void *)
 AC_CHECK_TYPES([long long])
 AC_CHECK_TYPES([signed char])
 AC_CHECK_TYPES([ssize_t])
+
+AC_CHECK_SIZEOF([bool], [],
+[#ifdef HAVE_STDBOOL_H
+#include <stdbool.h>
+#endif])
+
+dnl We use <stdbool.h> if we have it and it declares type bool as having
+dnl size 1.  Otherwise, c.h will fall back to declaring bool as unsigned char.
+if test "$ac_cv_header_stdbool_h" = yes -a "$ac_cv_sizeof_bool" = 1; then
+  AC_DEFINE([PG_USE_STDBOOL], 1,
+            [Define to 1 to use <stdbool.h> to define type bool.])
+fi
+
 AC_TYPE_SIZE_T
 
 # Check if "-Wall" is valid
@@ -183,7 +196,7 @@ PGAC_ARG_BOOL(enable, pthreads, yes,
               [  --disable-pthreads      do not build with POSIX threads],
               [AC_DEFINE(POSIX_MULTITHREAD_SUPPORT, 1,
                          [Define to 1 to build with pthreads support (--enable-pthreads)])
-               AC_DEFINE(_REENTRANT, 1, [Define _REENTRANT for several plaforms])])
+               AC_DEFINE(_REENTRANT, 1, [Define _REENTRANT for several platforms])])
 
 
 #
@@ -240,6 +253,7 @@ AC_CHECK_LIB(pq, PQsetSingleRowMode, [],
 AC_CHECK_HEADERS(locale.h sys/time.h uchar.h)
 AC_CHECK_HEADER(libpq-fe.h,,[AC_MSG_ERROR([libpq header not found])])
 AC_HEADER_TIME
+AC_HEADER_STDBOOL
 
 
 # 4. Types(all members were moved to 0.)
