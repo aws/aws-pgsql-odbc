@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Run regressin test on Windows.
+    Run regression test on Windows.
 .DESCRIPTION
     Build test programs and run them.
 .PARAMETER Target
@@ -13,6 +13,8 @@
     Specify this switch in case of testing Ansi drivers.
 .PARAMETER DeclareFetch
     Specify Use Declare/Fetch mode. "On"(default), "off" or "both" is available.
+.PARAMETER DsnInfo
+	Specify the dsn info "SERVER=${server}|DATABASE=${database}|PORT=${port}|UID=${uid}|PWD=${passwd}"	
 .PARAMETER VCVersion
     Used Visual Studio version is determined automatically unless this
     option is specified.
@@ -23,7 +25,7 @@
     option is specified. Currently "v100", "Windows7.1SDK", "v110",
     "v110_xp", "v120", "v120_xp", "v140" or "v140_xp" is available.
 .PARAMETER MSToolsVersion
-    This option is deprecated. MSBuild ToolsVersion is detemrined
+    This option is deprecated. MSBuild ToolsVersion is determined
     automatically unless this option is specified.  Currently "4.0",
     "12.0" or "14.0" is available.
 .PARAMETER Configuration
@@ -36,6 +38,8 @@
     The relative path is relative to the current directory.
 .PARAMETER ReinstallDriver
     Reinstall the driver in any case.
+.PARAMETER ExpectMimalloc
+    Specify whether usage of the mimalloc allocator is expected.
 .EXAMPLE
     > .\regress
 	Build with default or automatically selected parameters
@@ -44,7 +48,7 @@
     > .\regress Clean
 	Clean all generated files.
 .EXAMPLE
-    > .\regress -TestList connect, deprected
+    > .\regress -TestList connect, deprecated
 	Build and run connect-test and deprecated-test.
 .EXAMPLE
     > .\regress -Ansi
@@ -81,8 +85,10 @@ Param(
 [string]$BuildConfigPath,
 [ValidateSet("off", "on", "both")]
 [string]$DeclareFetch="on",
+[string]$DsnInfo,
 [string]$SpecificDsn,
-[switch]$ReinstallDriver
+[switch]$ReinstallDriver,
+[switch]$ExpectMimalloc
 )
 
 
@@ -204,6 +210,8 @@ function vcxfile_make($testnames, $dirnames, $vcxfile)
 
 function RunTest($scriptPath, $Platform, $testexes)
 {
+	$originalErrorActionPreference = $ErrorActionPreference
+
 	# Run regression tests
 	if ($Platform -eq "x64") {
 		$targetdir="test_x64"
@@ -234,6 +242,9 @@ function RunTest($scriptPath, $Platform, $testexes)
 		if ($cnstr.length -eq 0) {
 			$cnstr += $null
 		}
+		# Temporarily set $ErrorActionPreference to "Continue" because MIMALLOC_VERBOSE writes to stderr
+		$ErrorActionPreference = "Continue"
+		$env:MIMALLOC_VERBOSE = 1
 		for ($i = 0; $i -lt $cnstr.length; $i++)
 		{
 			$env:COMMON_CONNECTION_STRING_FOR_REGRESSION_TEST = $cnstr[$i]
@@ -241,16 +252,23 @@ function RunTest($scriptPath, $Platform, $testexes)
 				$env:COMMON_CONNECTION_STRING_FOR_REGRESSION_TEST += ";Database=contrib_regression;ConnSettings={set lc_messages='C'}"
 			}
 			write-host "`n`tSetting by env variable:$env:COMMON_CONNECTION_STRING_FOR_REGRESSION_TEST"
-			.\runsuite $testexes --inputdir=$origdir
+			.\runsuite $testexes --inputdir=$origdir 2>&1 | Tee-Object -Variable runsuiteOutput
+
+			# Check whether mimalloc ran by searching for a verbose message from mimalloc
+			if ($ExpectMimalloc -xor ($runsuiteOutput -match "mimalloc: process done")) {
+				throw "`tmimalloc usage was expected to be $ExpectMimalloc"
+			}
 		}
 	} catch [Exception] {
 		throw $error[0]
 	} finally {
 		$env:COMMON_CONNECTION_STRING_FOR_REGRESSION_TEST = $null
+		$env:MIMALLOC_VERBOSE = $null
+		$ErrorActionPreference = $originalErrorActionPreference
 	}
 }
 
-function SpecialDsn($testdsn, $testdriver)
+function SpecialDsn($testdsn, $testdriver, $dsninfo)
 {
 	function input-dsninfo($server="localhost", $uid="postgres", $passwd="postgres", $port="5432", $database="contrib_regression")
 	{
@@ -280,7 +298,11 @@ function SpecialDsn($testdsn, $testdriver)
 	switch ($LastExitCode) { 
 	 -1 {
 		Write-Host "`tAdding System DSN=$testdsn Driver=$testdriver"
-		$prop = input-dsninfo
+		if ($dsninfo.Length -eq 0) {
+			$prop = input-dsninfo
+		} else {
+			$prop = $dsninfo
+		}
 		$prop += "|Debug=0|Commlog=0|ConnSettings=set+lc_messages='C'"
 		$proc = Start-Process $regProgram -Verb runas -Wait -PassThru -ArgumentList "register_dsn $testdriver $testdsn $prop `"$dlldir`" Driver=${dllname}|Setup=${setup}"
 		if ($proc.ExitCode -ne 0) {
@@ -383,6 +405,10 @@ if ($DriverConfiguration -ieq "Debug") {
 	$testdriver += "_debug"
 	$testdsn += "_debug"
 }
+if ("$DsnInfo" -ne "") {
+	Write-Host "`tDsn Info=$DsnInfo"
+	$dsninfo=$DsnInfo
+}
 if ("$SpecificDsn" -ne "") {
 	Write-Host "`tSpecific DSN=$SpecificDsn"
 	$testdsn=$SpecificDsn
@@ -414,7 +440,7 @@ foreach ($pl in $pary) {
 
 	$env:PSQLODBC_TEST_DSN = $testdsn
 	try {
-		SpecialDsn $testdsn $testdriver
+		SpecialDsn $testdsn $testdriver $dsninfo
 		RunTest $scriptPath $pl $TESTEXES
 	} catch [Exception] {
 		throw $error[0]

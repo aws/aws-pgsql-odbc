@@ -76,7 +76,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <ANSI_VERSION>no</ANSI_VERSION>
+	<ANSI_VERSION>no</ANSI_VERSION>
     <PG_BIN>
     </PG_BIN>
     <CALL_LIB>
@@ -84,6 +84,7 @@
     <DELAY_LOAD_DLLS>
     </DELAY_LOAD_DLLS>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(ANSI_VERSION)'=='yes'">
     <TargetName>psqlsetupa</TargetName>
     <TargetType>ANSI</TargetType>
@@ -102,22 +103,27 @@
     <ADD_DEFINES>UNICODE_SUPPORT</ADD_DEFINES>
     <RSC_DEFINES>UNICODE_SUPPORT</RSC_DEFINES>
   </PropertyGroup>
+
   <!-- Import Project="std_dbmsname.Cpp.props" / -->
+
   <PropertyGroup Condition="'$(Platform)'=='Win32'">
     <TARGET_CPU>x86</TARGET_CPU>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'!='Win32'">
     <TARGET_CPU>x64</TARGET_CPU>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(BuildStep)'==''">
     <GenerateImportLib>false</GenerateImportLib>
   </PropertyGroup>
+
   <Import Project="psqlodbc.Cpp.props" />
   <PropertyGroup>
     <ObjbaseDir Condition="'$(ObjbaseDir)'==''">$(srcPath)</ObjbaseDir>
     <IntDir>$(ObjbaseDir)$(TARGET_CPU)_$(TargetType)_$(Configuration)\psqlsetup\</IntDir>
     <OutDir>$(ObjbaseDir)$(TARGET_CPU)_$(TargetType)_$(Configuration)\</OutDir>
   </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
@@ -130,10 +136,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
+
   <!-- Import Project="psqlodbc.Cpp.props" / -->
+
   <PropertyGroup Condition="'$(PG_BIN)'!=''">
     <ADD_DEFINES>$(ADD_DEFINES);PG_BIN="$(PG_BIN.Replace('\','\\'))"</ADD_DEFINES>
   </PropertyGroup>
+
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>DYNAMIC_LOAD;_HANDLE_ENLIST_IN_DTC_;$(ADD_DEFINES);_CRT_SECURE_NO_DEPRECATE;WIN32;_DEBUG;_WINDOWS;_USRDLL;PSQLSETUP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>

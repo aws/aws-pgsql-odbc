@@ -37,7 +37,29 @@
 
 #include "dlg_specific.h"
 
+#define	FORCE_PASSWORD_DISPLAY
 #define	NULL_IF_NULL(a) (a ? a : "(NULL)")
+
+#ifndef FORCE_PASSWORD_DISPLAY
+static char * hide_password(const char *str)
+{
+	char *outstr, *pwdp;
+
+	if (!str)	return NULL;
+	outstr = strdup(str);
+	if (!outstr) return NULL;
+	if (pwdp = strstr(outstr, "PWD="), !pwdp)
+		pwdp = strstr(outstr, "pwd=");
+	if (pwdp)
+	{
+		char	*p;
+
+		for (p=pwdp + 4; *p && *p != ';'; p++)
+			*p = 'x';
+	}
+	return outstr;
+}
+#endif
 
 /* prototypes */
 static BOOL dconn_get_DSN_or_Driver(const char *connect_string, ConnInfo *ci);
@@ -92,6 +114,8 @@ PGAPI_DriverConnect(HDBC hdbc,
 	ssize_t		len = 0;
 	SQLSMALLINT	lenStrout;
 	int		reqs = 0;
+
+
 	MYLOG(0, "entering...\n");
 
 	if (!conn)
@@ -479,9 +503,9 @@ dconn_get_attributes(copyfunc func, const char *connect_string, ConnInfo *ci)
 		/*
 		 * Values enclosed with braces({}) can contain ; etc
 		 * We don't remove the braces here because
-		 * decode_or_remove_braces() in dlg_specifi.c
+		 * decode_or_remove_braces() in dlg_specific.c
 		 * would remove them later.
-		 * Just correct the misdetected delimter(;).
+		 * Just correct the misdetected delimiter(;).
 		 */
 		switch (*value)
 		{

@@ -55,6 +55,7 @@ typedef struct
 #define	TI_set_has_no_subclass(ti)	(ti->flags &= (~TI_HASSUBCLASS))
 void	TI_Constructor(TABLE_INFO *, const ConnectionClass *);
 void	TI_Destructor(TABLE_INFO **, int);
+void    TI_ClearObject(TABLE_INFO *ti);
 void	TI_Create_IH(TABLE_INFO *ti);
 void	TI_Destroy_IH(TABLE_INFO *ti);
 const pgNAME	TI_From_IH(TABLE_INFO *ti, OID tableoid);
@@ -261,5 +262,7 @@ enum {
 	,DESC_OPTION_NOT_FOR_THE_DRIVER
 	,DESC_FETCH_OUT_OF_RANGE
 	,DESC_COUNT_FIELD_INCORRECT
+	,DESC_STATEMENT_NOT_PREPARED
+	,DESC_STRING_DATA_TRUNCATED
 };
 #endif /* __DESCRIPTOR_H__ */
