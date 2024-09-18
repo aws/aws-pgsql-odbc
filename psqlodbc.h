@@ -724,6 +724,17 @@ typedef struct
 	Int4		keepalive_idle;
 	Int4		keepalive_interval;
 	Int4		batch_size;
+	// Failover
+	signed char		enable_failover;
+	char			failover_mode[MEDIUM_REGISTRY_LEN];
+	char			reader_host_selector_strategy[MEDIUM_REGISTRY_LEN];
+	char			host_pattern[MEDIUM_REGISTRY_LEN];
+	char			cluster_id[MEDIUM_REGISTRY_LEN];
+	UInt4			topology_refresh;
+	UInt4			topology_high_refresh;
+	UInt4			ignore_topology_refresh;
+	UInt4			failover_timeout;
+
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 	signed char	xa_opt;
 #endif /* _HANDLE_ENLIST_IN_DTC_ */
