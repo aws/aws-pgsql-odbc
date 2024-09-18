@@ -26,11 +26,17 @@ psqlodbca_la_SOURCES = \
 	descriptor.h dlg_specific.h environ.h unicode_support.h \
 	lobj.h misc.h multibyte.h pgapifunc.h pgtypes.h \
 	psqlodbc.h qresult.h resource.h statement.h tuple.h \
-	version.h pgenlist.h mylog.h xalibname.h
+	version.h pgenlist.h mylog.h xalibname.h \
+\
+	wrapper/adfs.cpp \
+	wrapper/adfs.h \
+	wrapper/federation.cpp \
+	wrapper/federation.h \
+	wrapper/rds_api.cpp \
+	wrapper/rds_api.h
 
 psqlodbcw_la_SOURCES = $(psqlodbca_la_SOURCES) \
 	odbcapi30w.c odbcapiw.c win_unicode.c
-
 
 EXTRA_DIST = license.txt readme.txt readme_winbuild.txt \
 	psqlodbc.def psqlodbca.def editConfiguration.bat BuildAll.bat \

@@ -1,16 +1,17 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT(psqlodbc, 16.00.0000, [pgsql-odbc@postgresql.org])
-AC_PREREQ(2.57)
+AC_INIT([psqlodbc],[16.00.0000],[pgsql-odbc@postgresql.org])
+AC_PREREQ([2.72])
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
+AC_CONFIG_MACRO_DIRS([config])
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([bind.c])
-AM_CONFIG_HEADER([config.h])
 AM_MAINTAINER_MODE
-
 
 # 0. Options processing
 
 AC_PROG_CC
+AC_PROG_CXX
 
 AM_CONDITIONAL([GCC], [test -n "$GCC"])
 
@@ -215,7 +216,38 @@ if test -n "$PG_CONFIG"; then
   LDFLAGS="$LDFLAGS -L$pg_libdir"
 fi
 
+AC_CANONICAL_HOST
 
+#
+# Apple build support
+#
+case "$host" in
+  arm64-apple-darwin*)
+    CFLAGS="$CFLAGS -arch arm64"
+	CPPFLAGS="$CPPFLAGS -arch arm64"
+	CXXFLAGS="$CXXFLAGS -arch arm64"
+    ;;
+  x86_64-apple-darwin*)
+    CFLAGS="$CFLAGS -arch x86_64"
+	CPPFLAGS="$CPPFLAGS -arch x86_64"
+	CXXFLAGS="$CXXFLAGS -arch x86_64"
+    ;;
+esac
+
+#
+# Whether AWS SDK is used
+#
+AC_ARG_WITH(awssdk, [  --with-awssdk[[=DIR]]	  [[default=yes]] DIR is the AWS SDK base directory],
+[], [with_awssdk=yes])
+
+if test "$with_awssdk" != no; then
+	if test "$with_awssdk" = yes; then
+		AWSSDK_INCLUDE=aws_sdk/install/include
+	else
+		AWSSDK_INCLUDE=$with_awssdk
+	fi
+	CPPFLAGS="$CPPFLAGS -I${AWSSDK_INCLUDE}"
+fi
 
 # 1. Programs
 
@@ -224,10 +256,7 @@ AC_CHECK_PROGS(PROVE, prove)
 
 # 2. Libraries
 
-AC_LIBTOOL_WIN32_DLL
-AC_DISABLE_STATIC
-AC_LIBTOOL_DLOPEN
-AC_PROG_LIBTOOL
+LT_INIT([disable-static win32-dll dlopen])
 
 if test "$with_unixodbc" != no; then
   AC_SEARCH_LIBS(SQLGetPrivateProfileString, odbcinst, [],
@@ -252,9 +281,7 @@ AC_CHECK_LIB(pq, PQsetSingleRowMode, [],
 
 AC_CHECK_HEADERS(locale.h sys/time.h uchar.h)
 AC_CHECK_HEADER(libpq-fe.h,,[AC_MSG_ERROR([libpq header not found])])
-AC_HEADER_TIME
 AC_HEADER_STDBOOL
-
 
 # 4. Types(all members were moved to 0.)
 
