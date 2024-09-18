@@ -325,6 +325,34 @@ extern "C" {
 #define CONN_DONT_OVERWRITE		0
 #define CONN_OVERWRITE			1
 
+/* Failover */
+#define INI_ENABLE_CLUSTER_FAILOVER          	"EnableClusterFailover"
+#define INI_GATHER_PERF_METRICS            		"GatherPerfMetrics"
+#define INI_GATHER_PERF_METRICS_PER_INSTANCE	"GatherPerfMetricsPerInstance"
+#define INI_FAILOVER_MODE                      	"FailoverMode"
+#define INI_HOST_PATTERN                       	"HostPattern"
+#define INI_CLUSTER_ID                         	"ClusterId"
+#define INI_TOPOLOGY_REFRESH_RATE              	"TopologyRefreshRate"
+#define INI_FAILOVER_TIMEOUT                   	"FailoverTimeout"
+#define INI_FAILOVER_TOPOLOGY_REFRESH_RATE     	"FailoverTopologyRefreshRate"
+#define INI_FAILOVER_WRITER_RECONNECT_INTERVAL 	"FailoverWriterReconnectInterval"
+#define INI_FAILOVER_READER_CONNECT_TIMEOUT    	"FailoverReaderConnectTimeout"
+#define INI_HOST_CONNECT_TIMEOUT                "HostConnectTimeout"
+#define INI_HOST_NETWORK_TIMEOUT                "HostNetworkTimeout"
+
+#define FAILOVER_READER_OR_WRITER	"READER OR WRITER"
+#define FAILOVER_STRICT_READER		"STRICT READER"
+#define FAILOVER_STRICT_WRITER		"STRICT WRITER"
+
+#define DEFAULT_FAILOVER_MODE				FAILOVER_READER_OR_WRITER
+#define DEFAULT_TOPOLOGY_REFRESH			30000
+#define DEFAULT_FAILOVER_TIMEOUT_REFRESH	60000
+#define DEFAULT_FAILOVER_TOPOLOGY_REFRESH	5000
+#define DEFAULT_WRITER_RECONNECT_INTERVAL	5000
+#define DEFAULT_READER_CONNECT_TIMEOUT		30000
+#define DEFAULT_HOST_CONNECT_TIMEOUT		30
+#define DEFAULT_READ_WRITE_TIMEOUT			30
+
 /*	prototypes */
 
 #ifdef WIN32
@@ -356,6 +384,10 @@ LRESULT CALLBACK manage_dsnProc(HWND hdlg,
 			   WPARAM wParam,
 			   LPARAM lParam);
 LRESULT CALLBACK limitless_optionsProc(HWND hdlg,
+			   UINT wMsg,
+			   WPARAM wParam,
+			   LPARAM lParam);
+LRESULT CALLBACK failover_optionsProc(HWND hdlg,
 			   UINT wMsg,
 			   WPARAM wParam,
 			   LPARAM lParam);

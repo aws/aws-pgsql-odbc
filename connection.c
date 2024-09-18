@@ -1114,6 +1114,23 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_socket_timeout,
 		ci->federation_cfg.http_client_connect_timeout);
 #endif
+	MYLOG(DETAIL_LOG_LEVEL, "          failover_enabled='%d',failover_mode='%s',host_pattern='%s',cluster_id='%s'," \
+		"topology_refresh='%u',failover_timeout='%u',failover_topology_refresh='%u',writer_reconnect_interval='%u'," \
+		"reader_connect_timeout='%u',host_connect_timeout='%u',host_read_write_timeout='%u'," \
+		"gather_perf_metrics='%d',gather_perf_metrics_per_instance='%d'\n",
+		 ci->enable_failover,
+		 ci->failover_mode,
+		 ci->host_pattern,
+		 ci->cluster_id,
+		 ci->topology_refresh,
+		 ci->failover_timeout,
+		 ci->failover_topology_refresh,
+		 ci->writer_reconnect_interval,
+		 ci->reader_connect_timeout,
+		 ci->host_connect_timeout,
+		 ci->host_read_write_timeout,
+		 ci->gather_perf_metrics,
+		 ci->gather_perf_metrics_per_instance);
 
     initialize_rds_logger(ci->log_dir);
 	return 1;

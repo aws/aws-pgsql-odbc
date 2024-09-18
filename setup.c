@@ -398,6 +398,15 @@ ConfigDlgProc(HWND hdlg,
 					DialogBoxParam(s_hModule, MAKEINTRESOURCE(DLG_OPTIONS_LIMITLESS),
 						hdlg, limitless_optionsProc, (LPARAM) &lpsetupdlg->ci);
 					return TRUE;
+				// Failover - Action handler for Failover Settings Button
+				case IDC_FAILOVER_SETTINGS:
+				{
+					/* Get Dialog Values */
+					GetDlgStuff(hdlg, &lpsetupdlg->ci);
+					DialogBoxParam(s_hModule, MAKEINTRESOURCE(DLG_OPTIONS_FAILOVER),
+						hdlg, failover_optionsProc, (LPARAM) &lpsetupdlg->ci);
+					return TRUE;
+				}
 			}
 			break;
 		case WM_CTLCOLORSTATIC:
