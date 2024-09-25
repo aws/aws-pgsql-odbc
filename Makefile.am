@@ -8,11 +8,14 @@ AUTOMAKE_OPTIONS = 1.8 foreign
 
 ACLOCAL_AMFLAGS = -I config
 
-lib_LTLIBRARIES = psqlodbcw.la psqlodbca.la
-
-AM_LDFLAGS = -module -no-undefined -avoid-version -export-symbols-regex '^SQL'
+lib_LTLIBRARIES = psqlodbca.la psqlodbcw.la 
 
 psqlodbcw_la_CFLAGS = -DUNICODE_SUPPORT # -DUNICODE_SUPPORTXX
+
+AM_CFLAGS = @CFLAGS@
+AM_CPPFLAGS = @CPPFLAGS@
+AM_CXXFLAGS = @CXXFLAGS@
+AM_LDFLAGS = @LDFLAGS@ -module -no-undefined -avoid-version -export-symbols-regex '^SQL'
 
 psqlodbca_la_SOURCES = \
 	info.c bind.c columninfo.c connection.c convert.c drvconn.c \

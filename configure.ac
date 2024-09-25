@@ -15,6 +15,9 @@ AC_PROG_CXX
 
 AM_CONDITIONAL([GCC], [test -n "$GCC"])
 
+# C++ language level
+CXXFLAGS="${CXXFLAGS} -std=c++17"
+
 # All AC_CHECK_SIZEOF() or AC_CHECK_TYPES() calls were move from 4.
 # unixODBC wants the following to get sane behavior for ODBCINT64
 AC_CHECK_SIZEOF(long)
@@ -40,7 +43,6 @@ AC_TYPE_SIZE_T
 
 # Check if "-Wall" is valid
 if test -n "$GCC" && test "$ac_test_CFLAGS" != set; then
-
 	AC_MSG_CHECKING(-Wall is a valid compile option)
 	CFLAGS_SAVE="${CFLAGS}"
 	CFLAGS="${CFLAGS} -Wall"
@@ -50,6 +52,7 @@ if test -n "$GCC" && test "$ac_test_CFLAGS" != set; then
 		[AC_MSG_RESULT(yes)],
 		[AC_MSG_RESULT(no)
 		 CFLAGS="${CFLAGS_SAVE}"])
+	CXXFLAGS="${CXXFLAGS} -Wall"
 fi
 
 #
@@ -58,7 +61,6 @@ fi
 AC_ARG_WITH(unixodbc, [  --with-unixodbc[[=DIR]]	  [[default=yes]] DIR is the unixODBC base install
 			  directory or the path to odbc_config],
 [], [with_unixodbc=yes])
-
 
 #
 # Whether iODBC driver manager is used
@@ -108,7 +110,6 @@ fi
 #
 # ODBC include and library
 #
-
 if test "$ODBC_CONFIG" != ""; then
 	if test "$with_iodbc" != no; then
 		ODBC_INCLUDE=`${ODBC_CONFIG} --cflags`
@@ -163,7 +164,6 @@ SQLRETURN SQL_API SQLColAttribute(SQLHSTMT StatementHandle,
   [AC_MSG_RESULT(no)]
 )
 
-
 #
 # Whether libpq functionalities are used
 #
@@ -192,18 +192,15 @@ fi
 #
 # Pthreads
 #
-
 PGAC_ARG_BOOL(enable, pthreads, yes,
               [  --disable-pthreads      do not build with POSIX threads],
               [AC_DEFINE(POSIX_MULTITHREAD_SUPPORT, 1,
                          [Define to 1 to build with pthreads support (--enable-pthreads)])
                AC_DEFINE(_REENTRANT, 1, [Define _REENTRANT for several platforms])])
 
-
 #
 # Find libpq headers and libraries
 #
-
 if test -z "$PG_CONFIG"; then
   AC_PATH_PROGS(PG_CONFIG, pg_config)
 fi
@@ -216,37 +213,51 @@ if test -n "$PG_CONFIG"; then
   LDFLAGS="$LDFLAGS -L$pg_libdir"
 fi
 
-AC_CANONICAL_HOST
-
 #
 # Apple build support
 #
-case "$host" in
-  arm64-apple-darwin*)
-    CFLAGS="$CFLAGS -arch arm64"
-	CPPFLAGS="$CPPFLAGS -arch arm64"
-	CXXFLAGS="$CXXFLAGS -arch arm64"
-    ;;
-  x86_64-apple-darwin*)
-    CFLAGS="$CFLAGS -arch x86_64"
-	CPPFLAGS="$CPPFLAGS -arch x86_64"
-	CXXFLAGS="$CXXFLAGS -arch x86_64"
-    ;;
+AC_CANONICAL_HOST
+
+case "$host" in 
+  *apple-darwin*)
+	LDFLAGS="${LDFLAGS} -framework CoreFoundation -framework Security"
+  ;;
 esac
 
 #
-# Whether AWS SDK is used
+# AWS SDK
 #
-AC_ARG_WITH(awssdk, [  --with-awssdk[[=DIR]]	  [[default=yes]] DIR is the AWS SDK base directory],
+AC_ARG_WITH(awssdk, [  --with-awssdk		  [[default=yes]] Build with AWS SDK for C++],
 [], [with_awssdk=yes])
 
+AWS_SDK_LIBS="
+	curl
+	z
+	aws-c-auth
+	aws-c-cal
+	aws-c-common
+	aws-c-compression
+	aws-c-event-stream
+	aws-c-http
+	aws-c-io
+	aws-c-mqtt
+	aws-c-s3
+	aws-c-sdkutils
+	aws-checksums
+	aws-crt-cpp
+	aws-cpp-sdk-core
+	aws-cpp-sdk-sts
+	aws-cpp-sdk-rds
+"
+
 if test "$with_awssdk" != no; then
-	if test "$with_awssdk" = yes; then
-		AWSSDK_INCLUDE=aws_sdk/install/include
-	else
-		AWSSDK_INCLUDE=$with_awssdk
-	fi
-	CPPFLAGS="$CPPFLAGS -I${AWSSDK_INCLUDE}"
+	CPPFLAGS="${CPPFLAGS} -Iaws_sdk/install/include"
+	LDFLAGS="${LDFLAGS} -Laws_sdk/install/lib"
+
+	for lib in $AWS_SDK_LIBS; do
+		AC_CHECK_LIB([$lib], [main], [], [AC_MSG_ERROR([lib${lib} library not found])])
+		LDFLAGS="${LDFLAGS} -l${lib}"
+	done
 fi
 
 # 1. Programs
@@ -293,7 +304,6 @@ AC_STRUCT_TM
 
 AC_C_CONST
 
-
 # 7. Functions, global variables
 
 AC_FUNC_STRERROR_R
@@ -319,6 +329,15 @@ fi
 # 8. Libltdl	This release doesn't need libltdl
 # AC_CHECK_LIB(ltdl, lt_dlopen)
 
+AC_MSG_NOTICE(["CFLAGS = ${CFLAGS}"])
+AC_MSG_NOTICE(["CPPFLAGS = ${CPPFLAGS}"])
+AC_MSG_NOTICE(["CXXFLAGS = ${CXXFLAGS}"])
+AC_MSG_NOTICE(["LDFLAGS = ${LDFLAGS}"])
+
+AC_SUBST(CFLAGS)
+AC_SUBST(CPPFLAGS)
+AC_SUBST(CXXFLAGS)
+AC_SUBST(LDFLAGS)
 
 AC_CONFIG_FILES([Makefile test/Makefile])
 AC_OUTPUT
