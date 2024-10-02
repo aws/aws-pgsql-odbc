@@ -442,3 +442,5 @@ aws_sdk/
 
 # macOS generated directories and files
 autom4te.cache
+test/exe
+*.dSYM

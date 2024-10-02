@@ -8,6 +8,16 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_SRCDIR([bind.c])
 AM_MAINTAINER_MODE
 
+# Define a macro to convert relative path to full path
+# First argument is the relative path
+# Second argument is the variable to store the full path
+AC_DEFUN([AC_FULL_PATH], [
+  AC_MSG_CHECKING([for full path of $1])
+  full_path=`cd $1 && pwd`
+  AC_MSG_RESULT([$full_path])
+  eval $2=$full_path
+])
+
 # 0. Options processing
 
 AC_PROG_CC
@@ -251,8 +261,9 @@ AWS_SDK_LIBS="
 "
 
 if test "$with_awssdk" != no; then
-	CPPFLAGS="${CPPFLAGS} -Iaws_sdk/install/include"
-	LDFLAGS="${LDFLAGS} -Laws_sdk/install/lib"
+	AC_FULL_PATH([aws_sdk], [AWS_SDK_PATH])
+	CPPFLAGS="${CPPFLAGS} -I${AWS_SDK_PATH}/install/include"
+	LDFLAGS="${LDFLAGS} -L${AWS_SDK_PATH}/install/lib"
 
 	for lib in $AWS_SDK_LIBS; do
 		AC_CHECK_LIB([$lib], [main], [], [AC_MSG_ERROR([lib${lib} library not found])])
