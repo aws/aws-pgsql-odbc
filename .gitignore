@@ -445,3 +445,18 @@ autom4te.cache
 test/exe
 test/regression.diffs
 *.dSYM
+
+# Xcode
+.DS_Store
+build/
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+xcuserdata/
+*.xcuserstate
+contents.xcworkspacedata
+*.swp
+*.swo
+*.tmp
