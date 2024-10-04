@@ -15,9 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "732C935E2CB023170091B8EE"
-               BuildableName = "libaws-pgsql-odbc.dylib"
-               BlueprintName = "aws-pgsql-odbc"
+               BlueprintIdentifier = "7369D14A2CB0627000CBF22B"
+               BuildableName = "libawspgsqlodbca.dylib"
+               BlueprintName = "awspgsqlodbca"
                ReferencedContainer = "container:aws-pgsql-odbc.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -50,9 +50,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "732C935E2CB023170091B8EE"
-            BuildableName = "libaws-pgsql-odbc.dylib"
-            BlueprintName = "aws-pgsql-odbc"
+            BlueprintIdentifier = "7369D14A2CB0627000CBF22B"
+            BuildableName = "libawspgsqlodbca.dylib"
+            BlueprintName = "awspgsqlodbca"
             ReferencedContainer = "container:aws-pgsql-odbc.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
