@@ -1,0 +1,61 @@
+#! /bin/sh
+
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2.0
+# (GPLv2), as published by the Free Software Foundation, with the
+# following additional permissions:
+#
+# This program is distributed with certain software that is licensed
+# under separate terms, as designated in a particular file or component
+# or in the license documentation. Without limiting your rights under
+# the GPLv2, the authors of this program hereby grant you an additional
+# permission to link the program and your derivative works with the
+# separately licensed software that they have included with the program.
+#
+# Without limiting the foregoing grant of rights under the GPLv2 and
+# additional permission as to separately licensed software, this
+# program is also subject to the Universal FOSS Exception, version 1.0,
+# a copy of which can be found along with its FAQ at
+# http://oss.oracle.com/licenses/universal-foss-exception.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License, version 2.0, for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see 
+# http://www.gnu.org/licenses/gpl-2.0.html.
+
+# Must be either Debug or Release
+CONFIGURATION="$1"
+
+export ROOT_REPO_PATH=$(cd "$(dirname "$0")/.."; pwd -P)
+
+export AWS_SDK_CPP_TAG="1.11.407"
+export AWS_SDK_PATH="${ROOT_REPO_PATH}/aws_sdk"
+export SRC_DIR="${AWS_SDK_PATH}/aws_sdk_cpp"
+export BUILD_DIR="${AWS_SDK_PATH}/build"
+export INSTALL_DIR="${AWS_SDK_PATH}/install"
+
+mkdir -p ${INSTALL_DIR}
+mkdir -p ${BUILD_DIR}
+pushd ${BUILD_DIR}
+
+git clone --recurse-submodules -b "$AWS_SDK_CPP_TAG" "https://github.com/aws/aws-sdk-cpp.git" ${SRC_DIR}
+
+# From https://github.com/aws/aws-sdk-cpp#building-for-macos
+cmake ${SRC_DIR} \
+    -DAUTORUN_UNIT_TESTS=OFF \
+    -DBUILD_ONLY="sts;rds" \
+    -DBUILD_SHARED_LIBS=OFF \
+    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
+    -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/curl/" \
+    -DCPP_STANDARD="17"
+
+cmake --build . --config=${CONFIGURATION}
+cmake --install . --config=${CONFIGURATION}
+
+popd

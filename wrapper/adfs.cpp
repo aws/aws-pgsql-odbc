@@ -17,6 +17,7 @@ const std::string AdfsCredentialsProvider::FORM_ACTION_PATTERN = "<form.*?action
 const std::string AdfsCredentialsProvider::SAML_RESPONSE_PATTERN = "SAMLResponse\\W+value=\"(.*)\"( />)";
 const std::string AdfsCredentialsProvider::URL_PATTERN = "^(https)://[-a-zA-Z0-9+&@#/%?=~_!:,.']*[-a-zA-Z0-9+&@#/%=~_']";
 const std::string AdfsCredentialsProvider::INPUT_TAG_PATTERN = "<input id=(.*)";
+const std::string AdfsCredentialsProvider::NAME_KEY = "name";
 
 std::string AdfsCredentialsProvider::GetSAMLAssertion(std::string& errInfo) {
 	MYLOG(0, "Enter AdfsCredentialsProvider::GetSAMLAssertion\n");
@@ -44,7 +45,8 @@ std::string AdfsCredentialsProvider::GetSAMLAssertion(std::string& errInfo) {
 	std::smatch matches;
 	std::string action("");
 	if (std::regex_search(body, matches, std::regex(FORM_ACTION_PATTERN))) {
-		action = escapeHtmlEntity(matches.str(1));
+		std::string unescapedAction = matches.str(1);
+		action = escapeHtmlEntity(unescapedAction);
 	} else {
 		errInfo = "Could not extract action from the response body";
 		return retval;
@@ -68,7 +70,7 @@ std::string AdfsCredentialsProvider::GetSAMLAssertion(std::string& errInfo) {
 		MYLOG(0, "SAMLResponse value is %s\n", matches.str(1).c_str());
 		return matches.str(1);
 	} else {
-		MYLOG(0, "fail to get SAML response\n", "");
+		MYLOG(0, "fail to get SAML response\n");
 		return retval;
 	}
 }
@@ -143,7 +145,7 @@ std::vector<std::string> AdfsCredentialsProvider::getInputTagsFromHTML(std::stri
 	while (std::regex_search(source,matches,pattern)) {
 		std::string tag = matches.str(0);
 		MYLOG(0, "tag is %s\n", tag.c_str());
-		std::string tagName = getValueByKey(tag, std::string("name"));
+		std::string tagName = getValueByKey(tag, NAME_KEY);
 		MYLOG(0, "tagName is %s\n", tagName.c_str());
 		std::transform(tagName.begin(), tagName.end(), tagName.begin(), [](unsigned char c) {
 			return std::tolower(c);
@@ -161,7 +163,7 @@ std::vector<std::string> AdfsCredentialsProvider::getInputTagsFromHTML(std::stri
 	return retval;
 }
 
-std::string AdfsCredentialsProvider::getValueByKey(std::string& input, std::string& key) {
+std::string AdfsCredentialsProvider::getValueByKey(std::string& input, const std::string& key) {
 	MYLOG(0, "Enter AdfsCredentialsProvider::getValueByKey\n");
     std::string pattern("(");
     pattern += key;
@@ -169,9 +171,10 @@ std::string AdfsCredentialsProvider::getValueByKey(std::string& input, std::stri
 
 	std::smatch matches;
     if (std::regex_search(input, matches, std::regex(pattern))) {
-      return escapeHtmlEntity(matches.str(2));
+		std::string unescapedMatch = matches.str(2);
+		return escapeHtmlEntity(unescapedMatch);
     } else {
-      return "";
+		return "";
     }
 }
 
@@ -180,7 +183,7 @@ std::map<std::string, std::string> AdfsCredentialsProvider::getParametersFromHtm
 	std::map<std::string, std::string> parameters;
 	for (auto& inputTag : getInputTagsFromHTML(body)) {
 		MYLOG(0, "inputTag is %s\n", inputTag.c_str());
-		std::string name = getValueByKey(inputTag, std::string("name"));
+		std::string name = getValueByKey(inputTag, NAME_KEY);
 		std::string value = getValueByKey(inputTag, std::string("value"));
 		MYLOG(0, "name is %s, value is %s\n", name.c_str(), value.c_str());
 		std::string nameLower = name;
@@ -201,7 +204,7 @@ std::map<std::string, std::string> AdfsCredentialsProvider::getParametersFromHtm
 		}
 	}
 
-	MYLOG(0, "parameters size is %d\n", parameters.size());
+	MYLOG(0, "parameters size is %d\n", (int)parameters.size());
 	for (auto& itr : parameters) {
 		MYLOG(0, "parameter key is %s, value size is %zu\n", itr.first.c_str(), itr.second.size());
 	}

@@ -23,10 +23,14 @@ LIBODBC = @LIBODBC@
 
 all: $(TESTBINS) runsuite reset-db
 
-odbc.ini:
+odbc-ini:
+ifdef DEBUG
+	$(origdir)/odbcini-gen-debug.sh $(odbc_ini_extras)
+else
 	$(origdir)/odbcini-gen.sh $(odbc_ini_extras)
+endif
 
-installcheck: all odbc.ini reset-db runsuite
+installcheck: all odbc-ini reset-db runsuite
 	rm -f regression.diffs
 	@if test ! -d results; then mkdir -p results; fi
 	ODBCSYSINI=. ODBCINSTINI=./odbcinst.ini ODBCINI=./odbc.ini ./reset-db < $(origdir)/sampletables.sql
@@ -90,3 +94,4 @@ installcheck-all:
 clean:
 	rm -f $(TESTBINS) exe/*.o runsuite reset-db
 	rm -f results/*
+	rm -f *.ini

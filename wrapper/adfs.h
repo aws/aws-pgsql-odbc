@@ -30,6 +30,9 @@ class AdfsCredentialsProvider : public FederationCredentialProvider {
   static const std::string URL_PATTERN;
   static const std::string INPUT_TAG_PATTERN;
 
+  // other constant strings
+  static const std::string NAME_KEY;
+
  protected:
   virtual std::string GetSAMLAssertion(std::string& errInfo);
 
@@ -38,7 +41,7 @@ class AdfsCredentialsProvider : public FederationCredentialProvider {
   bool validateUrl(std::string& url);
   std::string escapeHtmlEntity(std::string& html);
   std::vector<std::string> getInputTagsFromHTML(std::string& body);
-  std::string getValueByKey(std::string& input, std::string& key);
+  std::string getValueByKey(std::string& input, const std::string& key);
   std::map<std::string, std::string> getParametersFromHtmlBody(std::string& body);
   std::string getFormActionBody(std::string& url, std::map<std::string, std::string>& params);
 

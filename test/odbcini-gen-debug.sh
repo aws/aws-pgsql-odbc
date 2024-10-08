@@ -1,7 +1,8 @@
 #!/bin/sh
 #
 #	This isn't a test application.
-#	Initial setting of odbc(inst).ini.
+#	Initial setting of odbc(inst).ini with debug and trace enabled
+#   Debug and trace logs are written to the ./logs directory
 #
 outini=odbc.ini
 outinstini=odbcinst.ini
@@ -26,21 +27,23 @@ if test ! -e $drivera ; then
 	fi
 fi
 
+mkdir -p ./logs
+
 echo creating $outinstini
 cat << _EOT_ > $outinstini
 [ODBC]
-Trace = off
-TraceFile =
+Trace = on
+TraceFile = ./logs/aws-pgsql-odbc-trace.log
+[AWS ODBC Driver PostgreSQL ANSI]
+Logdir = /users/kwedinger/logs
+[AWS ODBC Driver PostgreSQL Unicode]
+Logdir = /users/kwedinger/logs
 [PostgreSQL Unicode]
 Description     = AWS ODBC Driver PostgreSQL (Unicode version), for regression tests
 Driver          = $driver
-Debug           = 0
-CommLog         = 0
 [PostgreSQL ANSI]
 Description     = AWS ODBC Driver PostgreSQL (ANSI version), for regression tests
 Driver          = $drivera
-Debug           = 0
-CommLog         = 0
 _EOT_
 
 echo creating $outini: $@
@@ -48,9 +51,10 @@ echo creating $outini: $@
 cat << _EOT_ > $outini
 [psqlodbc_test_dsn]
 Description             = awspsqlodbc regression test DSN
-Driver          = PostgreSQL Unicode
-Trace           = No
-TraceFile               =
+Driver          		= PostgreSQL Unicode
+Debug       			= 1
+Trace       			= Yes
+TraceFile   			= ./logs/psqlodbc_test_dsn_trace.log
 Database                = contrib_regression
 Servername              =
 Username                =
@@ -74,9 +78,10 @@ done
 cat << _EOT_ >> $outini
 [psqlodbc_test_dsn_ansi]
 Description             = awspsqlodbc ansi regression test DSN
-Driver          = PostgreSQL ANSI
-Trace           = No
-TraceFile               =
+Driver          		= PostgreSQL ANSI
+Debug       			= 1
+Trace       			= Yes
+TraceFile   			= ./logs/psqlodbc_test_dsn_ansi_trace.log
 Database                = contrib_regression
 Servername              =
 Username                =
