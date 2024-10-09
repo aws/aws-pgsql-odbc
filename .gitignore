@@ -441,6 +441,7 @@ aws_sdk/
 .vscode
 
 # macOS generated directories and files
+.dirstamp
 autom4te.cache
 test/exe
 test/regression.diffs
