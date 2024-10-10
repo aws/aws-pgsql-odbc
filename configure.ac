@@ -235,6 +235,21 @@ case "$host" in
 esac
 
 #
+# aws-rds-odbc
+#
+AC_ARG_WITH(awsrdsodbc, [  --with-awsrdsodbc		  [[default=yes]] Build with aws-rds-odbc],
+[], [with_awsrdsodbc=yes])
+
+if test "$with_awsrdsodbc" != no; then
+	AC_FULL_PATH([aws-rds-odbc], [AWS_RDS_ODBC_PATH])
+	CPPFLAGS="${CPPFLAGS} -I${AWS_RDS_ODBC_PATH}/src"
+	LDFLAGS="${LDFLAGS} -L${AWS_RDS_ODBC_PATH}/build"
+
+	AC_CHECK_LIB([aws-rds-odbc], [main], [], [AC_MSG_ERROR([libaws-rds-odbc library not found])])
+	LDFLAGS="${LDFLAGS} -laws-rds-odbc"
+fi
+
+#
 # AWS SDK
 #
 AC_ARG_WITH(awssdk, [  --with-awssdk		  [[default=yes]] Build with AWS SDK for C++],
@@ -261,7 +276,7 @@ AWS_SDK_LIBS="
 "
 
 if test "$with_awssdk" != no; then
-	AC_FULL_PATH([aws_sdk], [AWS_SDK_PATH])
+	AC_FULL_PATH([aws-rds-odbc/aws_sdk], [AWS_SDK_PATH])
 	CPPFLAGS="${CPPFLAGS} -I${AWS_SDK_PATH}/install/include"
 	LDFLAGS="${LDFLAGS} -L${AWS_SDK_PATH}/install/lib"
 
