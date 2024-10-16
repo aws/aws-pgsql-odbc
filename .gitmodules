@@ -2,3 +2,6 @@
 	path = libs/mimalloc
 	url = https://github.com/microsoft/mimalloc
 	branch = master
+[submodule "libs/aws-rds-odbc"]
+	path = libs/aws-rds-odbc
+	url = git@github.com:Bit-Quill/aws-rds-odbc.git

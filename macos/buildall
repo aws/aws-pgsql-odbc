@@ -30,32 +30,54 @@
 # http://www.gnu.org/licenses/gpl-2.0.html.
 
 # Must be either Debug or Release
-CONFIGURATION="$1"
+CONFIGURATION=$1
+echo ${CONFIGURATION}
+if [ "${CONFIGURATION}" != "Debug" ] && [ "${CONFIGURATION}" != "Release" ]; then
+  echo "Build configuration must be Debug or Release"
+  exit 1
+fi
 
 export ROOT_REPO_PATH=$(cd "$(dirname "$0")/.."; pwd -P)
 
-export AWS_SDK_CPP_TAG="1.11.407"
-export AWS_SDK_PATH="${ROOT_REPO_PATH}/aws_sdk"
-export SRC_DIR="${AWS_SDK_PATH}/aws_sdk_cpp"
-export BUILD_DIR="${AWS_SDK_PATH}/build"
-export INSTALL_DIR="${AWS_SDK_PATH}/install"
+# Build the AWS SDK
+echo "Building the AWS SDK"
+cd ${ROOT_REPO_PATH}/aws-rds-odbc
+scripts/build_aws_sdk_macos ${CONFIGURATION}
+if [ $? -ne 0 ]; then
+  echo "AWS SDK build failed"
+  exit 1
+fi
 
-mkdir -p ${INSTALL_DIR}
-mkdir -p ${BUILD_DIR}
-pushd ${BUILD_DIR}
+# Prep the aws-rds-odbc build
+echo "Prepping the aws-rds-odbc build"
+cmake -S . -B build
+if [ $? -ne 0 ]; then
+  echo "aws-rds-odbc build prep failed"
+  exit 1
+fi
 
-git clone --recurse-submodules -b "$AWS_SDK_CPP_TAG" "https://github.com/aws/aws-sdk-cpp.git" ${SRC_DIR}
+# Build aws-rds-odbc
+echo "Building aws-rds-odbc"
+cmake --build build --config ${CONFIGURATION}
+if [ $? -ne 0 ]; then
+  echo "aws-rds-odbc build failed"
+  exit 1
+fi
 
-# From https://github.com/aws/aws-sdk-cpp#building-for-macos
-cmake ${SRC_DIR} \
-    -DAUTORUN_UNIT_TESTS=OFF \
-    -DBUILD_ONLY="sts;rds" \
-    -DBUILD_SHARED_LIBS=OFF \
-    -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
-    -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/curl/" \
-    -DCPP_STANDARD="17"
+# Prep and build aws-pgsql-odbc
+echo "Prepping the aws-pgsql-odbc build"
+cd ${ROOT_REPO_PATH}
+./bootstrap
+if [ $? -ne 0 ]; then
+  echo "bootstrap failed"
+  exit 1
+fi
 
-cmake --build . --config=${CONFIGURATION}
-cmake --install . --config=${CONFIGURATION}
+./configure --with-unixodbc=/opt/homebrew/bin/odbc_config --disable-dependency-tracking
+if [ $? -ne 0 ]; then
+  echo "configure failed"
+  exit 1
+fi
 
-popd
+echo "Building aws-pgsql-odbc"
+make
