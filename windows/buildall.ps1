@@ -40,7 +40,7 @@ Param(
 )
 
 $CURRENT_DIR = (Get-Location).Path
-$AWS_RDS_ODBC_DIR = "${PSScriptRoot}\..\aws-rds-odbc"
+$AWS_RDS_ODBC_DIR = "${PSScriptRoot}\..\libs\aws-rds-odbc"
 
 Set-Location $AWS_RDS_ODBC_DIR
 
@@ -72,3 +72,15 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "Building aws-pgsql-odbc"
 Set-Location $CURRENT_DIR
 & .\winbuild\BuildAll.ps1 -P x64 -UseMimalloc -C $Configuration
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "aws-pgsql-odbc build failed"
+    exit $LASTEXITCODE
+}
+
+# Build the installer
+Write-Host "Building the installer"
+& .\installer\buildInstallers.ps1 x64
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "installer build failed"
+    exit $LASTEXITCODE
+}

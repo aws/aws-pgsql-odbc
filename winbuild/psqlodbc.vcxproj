@@ -182,14 +182,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;$(ADD_DEFINES);DYNAMIC_LOAD;WIN_MULTITHREAD_SUPPORT;WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir);$(ProjectDir)\aws-rds-odbc\src;$(ProjectDir)\aws-rds-odbc\aws_sdk\install\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir);$(ProjectDir)\libs\aws-rds-odbc\src;$(ProjectDir)\libs\aws-rds-odbc\aws_sdk\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>$(RSC_DEFINES);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <DelayLoadDLLs>$(DELAY_LOAD_DLLS);%(DelayLoadDLLs)</DelayLoadDLLs>
-      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\aws-rds-odbc\build\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\libs\aws-rds-odbc\build\Debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CALL_LIB);libpq.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;wsock32.lib;ws2_32.lib;secur32.lib;winmm.lib;dbghelp.lib;%(AdditionalDependencies);aws-rds-odbc.lib;bcrypt.lib;Crypt32.lib;wininet.lib;version.lib;winhttp.lib;ncrypt.lib;userenv.lib;Shlwapi.lib;Comctl32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>$(MAINDEF)</ModuleDefinitionFile>
       <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
@@ -220,14 +220,14 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;$(ADD_DEFINES);DYNAMIC_LOAD;WIN_MULTITHREAD_SUPPORT;WIN32;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir);$(ProjectDir)\aws-rds-odbc\src;$(ProjectDir)\aws-rds-odbc\aws_sdk\install\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir);$(ProjectDir)\libs\aws-rds-odbc\src;$(ProjectDir)\libs\aws-rds-odbc\aws_sdk\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>$(RSC_DEFINES);%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ResourceCompile>
     <Link>
       <DelayLoadDLLs>$(DELAY_LOAD_DLLS);%(DelayLoadDLLs)</DelayLoadDLLs>
-      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\aws-rds-odbc\build\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\libs\aws-rds-odbc\build\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(CALL_LIB);libpq.lib;winmm.lib;wsock32.lib;ws2_32.lib;secur32.lib;dbghelp.lib;%(AdditionalDependencies);aws-rds-odbc.lib;bcrypt.lib;Crypt32.lib;wininet.lib;version.lib;winhttp.lib;ncrypt.lib;userenv.lib;Shlwapi.lib;Comctl32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>$(MAINDEF)</ModuleDefinitionFile>
       <SupportUnloadOfDelayLoadedDLL>true</SupportUnloadOfDelayLoadedDLL>
