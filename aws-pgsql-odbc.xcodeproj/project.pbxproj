@@ -58,12 +58,6 @@
 		732C93D72CB034740091B8EE /* odbcapi30w.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93D42CB034740091B8EE /* odbcapi30w.c */; };
 		732C93D82CB034740091B8EE /* odbcapiw.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93D52CB034740091B8EE /* odbcapiw.c */; };
 		732C93D92CB034740091B8EE /* win_unicode.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93D62CB034740091B8EE /* win_unicode.c */; };
-		732C94172CB035CC0091B8EE /* federation.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C940D2CB035CC0091B8EE /* federation.h */; };
-		732C94182CB035CC0091B8EE /* rds_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C94102CB035CC0091B8EE /* rds_api.h */; };
-		732C94192CB035CC0091B8EE /* adfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C940A2CB035CC0091B8EE /* adfs.h */; };
-		732C941A2CB035CC0091B8EE /* federation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 732C940E2CB035CC0091B8EE /* federation.cpp */; };
-		732C941B2CB035CC0091B8EE /* rds_api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 732C94112CB035CC0091B8EE /* rds_api.cpp */; };
-		732C941C2CB035CC0091B8EE /* adfs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 732C940B2CB035CC0091B8EE /* adfs.cpp */; };
 		732C941F2CB0380F0091B8EE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C941E2CB0380F0091B8EE /* CoreFoundation.framework */; };
 		732C94212CB0381E0091B8EE /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C94202CB0381E0091B8EE /* Security.framework */; };
 		7369D14C2CB0627000CBF22B /* environ.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C93822CB034440091B8EE /* environ.h */; };
@@ -80,9 +74,6 @@
 		7369D1572CB0627000CBF22B /* multibyte.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C938A2CB034440091B8EE /* multibyte.h */; };
 		7369D1582CB0627000CBF22B /* tuple.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C939F2CB034440091B8EE /* tuple.h */; };
 		7369D1592CB0627000CBF22B /* pgtypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C93952CB034440091B8EE /* pgtypes.h */; };
-		7369D15A2CB0627000CBF22B /* federation.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C940D2CB035CC0091B8EE /* federation.h */; };
-		7369D15B2CB0627000CBF22B /* rds_api.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C94102CB035CC0091B8EE /* rds_api.h */; };
-		7369D15C2CB0627000CBF22B /* adfs.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C940A2CB035CC0091B8EE /* adfs.h */; };
 		7369D15D2CB0627000CBF22B /* unicode_support.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C93A12CB034440091B8EE /* unicode_support.h */; };
 		7369D15E2CB0627000CBF22B /* resource.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C939B2CB034440091B8EE /* resource.h */; };
 		7369D15F2CB0627000CBF22B /* version.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C93A22CB034440091B8EE /* version.h */; };
@@ -115,9 +106,6 @@
 		7369D17B2CB0627000CBF22B /* columninfo.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93772CB034440091B8EE /* columninfo.c */; };
 		7369D17C2CB0627000CBF22B /* pgapi30.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93922CB034440091B8EE /* pgapi30.c */; };
 		7369D17D2CB0627000CBF22B /* convert.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C937B2CB034440091B8EE /* convert.c */; };
-		7369D1802CB0627000CBF22B /* federation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 732C940E2CB035CC0091B8EE /* federation.cpp */; };
-		7369D1812CB0627000CBF22B /* rds_api.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 732C94112CB035CC0091B8EE /* rds_api.cpp */; };
-		7369D1822CB0627000CBF22B /* adfs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 732C940B2CB035CC0091B8EE /* adfs.cpp */; };
 		7369D1842CB0627000CBF22B /* psqlodbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93982CB034440091B8EE /* psqlodbc.c */; };
 		7369D1852CB0627000CBF22B /* bind.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93742CB034440091B8EE /* bind.c */; };
 		7369D1872CB0627000CBF22B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C94202CB0381E0091B8EE /* Security.framework */; };
@@ -178,12 +166,6 @@
 		732C93D42CB034740091B8EE /* odbcapi30w.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = odbcapi30w.c; sourceTree = "<group>"; };
 		732C93D52CB034740091B8EE /* odbcapiw.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = odbcapiw.c; sourceTree = "<group>"; };
 		732C93D62CB034740091B8EE /* win_unicode.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = win_unicode.c; sourceTree = "<group>"; };
-		732C940A2CB035CC0091B8EE /* adfs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = adfs.h; sourceTree = "<group>"; };
-		732C940B2CB035CC0091B8EE /* adfs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = adfs.cpp; sourceTree = "<group>"; };
-		732C940D2CB035CC0091B8EE /* federation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = federation.h; sourceTree = "<group>"; };
-		732C940E2CB035CC0091B8EE /* federation.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = federation.cpp; sourceTree = "<group>"; };
-		732C94102CB035CC0091B8EE /* rds_api.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rds_api.h; sourceTree = "<group>"; };
-		732C94112CB035CC0091B8EE /* rds_api.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = rds_api.cpp; sourceTree = "<group>"; };
 		732C941E2CB0380F0091B8EE /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		732C94202CB0381E0091B8EE /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		7369D18C2CB0627000CBF22B /* libawspgsqlodbca.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libawspgsqlodbca.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -281,19 +263,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		732C94132CB035CC0091B8EE /* wrapper */ = {
-			isa = PBXGroup;
-			children = (
-				732C940A2CB035CC0091B8EE /* adfs.h */,
-				732C940B2CB035CC0091B8EE /* adfs.cpp */,
-				732C940D2CB035CC0091B8EE /* federation.h */,
-				732C940E2CB035CC0091B8EE /* federation.cpp */,
-				732C94102CB035CC0091B8EE /* rds_api.h */,
-				732C94112CB035CC0091B8EE /* rds_api.cpp */,
-			);
-			path = wrapper;
-			sourceTree = "<group>";
-		};
 		732C941D2CB0380E0091B8EE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -324,9 +293,6 @@
 				732C93AF2CB034440091B8EE /* multibyte.h in Headers */,
 				732C93B02CB034440091B8EE /* tuple.h in Headers */,
 				732C93B12CB034440091B8EE /* pgtypes.h in Headers */,
-				732C94172CB035CC0091B8EE /* federation.h in Headers */,
-				732C94182CB035CC0091B8EE /* rds_api.h in Headers */,
-				732C94192CB035CC0091B8EE /* adfs.h in Headers */,
 				732C93B22CB034440091B8EE /* unicode_support.h in Headers */,
 				732C93B32CB034440091B8EE /* resource.h in Headers */,
 				732C93B42CB034440091B8EE /* version.h in Headers */,
@@ -357,9 +323,6 @@
 				7369D1572CB0627000CBF22B /* multibyte.h in Headers */,
 				7369D1582CB0627000CBF22B /* tuple.h in Headers */,
 				7369D1592CB0627000CBF22B /* pgtypes.h in Headers */,
-				7369D15A2CB0627000CBF22B /* federation.h in Headers */,
-				7369D15B2CB0627000CBF22B /* rds_api.h in Headers */,
-				7369D15C2CB0627000CBF22B /* adfs.h in Headers */,
 				7369D15D2CB0627000CBF22B /* unicode_support.h in Headers */,
 				7369D15E2CB0627000CBF22B /* resource.h in Headers */,
 				7369D15F2CB0627000CBF22B /* version.h in Headers */,
@@ -477,9 +440,6 @@
 				732C93D12CB034440091B8EE /* convert.c in Sources */,
 				732C93D72CB034740091B8EE /* odbcapi30w.c in Sources */,
 				732C93D82CB034740091B8EE /* odbcapiw.c in Sources */,
-				732C941A2CB035CC0091B8EE /* federation.cpp in Sources */,
-				732C941B2CB035CC0091B8EE /* rds_api.cpp in Sources */,
-				732C941C2CB035CC0091B8EE /* adfs.cpp in Sources */,
 				732C93D92CB034740091B8EE /* win_unicode.c in Sources */,
 				732C93D22CB034440091B8EE /* psqlodbc.c in Sources */,
 				732C93D32CB034440091B8EE /* bind.c in Sources */,
@@ -513,9 +473,6 @@
 				7369D17B2CB0627000CBF22B /* columninfo.c in Sources */,
 				7369D17C2CB0627000CBF22B /* pgapi30.c in Sources */,
 				7369D17D2CB0627000CBF22B /* convert.c in Sources */,
-				7369D1802CB0627000CBF22B /* federation.cpp in Sources */,
-				7369D1812CB0627000CBF22B /* rds_api.cpp in Sources */,
-				7369D1822CB0627000CBF22B /* adfs.cpp in Sources */,
 				7369D1842CB0627000CBF22B /* psqlodbc.c in Sources */,
 				7369D1852CB0627000CBF22B /* bind.c in Sources */,
 			);

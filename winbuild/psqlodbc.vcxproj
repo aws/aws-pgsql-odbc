@@ -287,9 +287,6 @@
     <ClCompile Include="$(srcPath)tuple.c" />
     <ClCompile Condition="'$(ANSI_VERSION)'=='no'" Include="$(srcPath)win_unicode.c" />
     <ClCompile Condition="'$(MSDTC)'=='yes'" Include="$(srcPath)xalibname.c" />
-    <ClCompile Include="..\wrapper\rds_api.cpp" />
-    <ClCompile Include="..\wrapper\federation.cpp" />
-    <ClCompile Include="..\wrapper\adfs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(srcPath)psqlodbc.rc" />
