@@ -468,3 +468,6 @@ contents.xcworkspacedata
 *.swp
 *.swo
 *.tmp
+
+# IntelliJ IDEA
+.idea
