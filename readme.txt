@@ -5,7 +5,7 @@
 
 
   Copyright (C) 1998          Insight Distribution Systems
-  Copyright (C) 1998 - 2021   The PostgreSQL Global Development Group
+  Copyright (C) 1998 - 2024   The PostgreSQL Global Development Group
 
   Modifications Copyright Amazon.com Inc. or its affiliates.
   See GitHub history for details.

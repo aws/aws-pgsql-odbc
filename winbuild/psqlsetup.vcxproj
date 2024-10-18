@@ -23,7 +23,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{10B26A5D-21A2-428C-ACEC-2D5605B1164F}</ProjectGuid>
+    <ProjectGuid>{DFD90C9A-E9BA-4CA3-812B-E820EE9A3F5B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>psqlsetup</RootNamespace>
     <GenerateImportLib>true</GenerateImportLib>
@@ -75,7 +75,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros">
+  <PropertyGroup Label="UserMacros" >
 	<ANSI_VERSION>no</ANSI_VERSION>
     <PG_BIN>
     </PG_BIN>

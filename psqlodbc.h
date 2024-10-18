@@ -259,7 +259,7 @@ typedef	unsigned long long ULONG_PTR;
 #define	FORMAT_ULEN	"%lu"	/* SQLULEN */
 #endif /* HAVE_LONG_LONG */
 #endif /* SIZEOF_LONG */
- 
+
 #if (SIZEOF_VOID_P == 8) && !defined(WITH_IODBC)
 #define	FORMAT_POSIROW	FORMAT_ULEN
 #else

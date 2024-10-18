@@ -1,11 +1,10 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([psqlodbc],[16.00.0000],[pgsql-odbc@postgresql.org])
-AC_PREREQ([2.72])
+AC_INIT(psqlodbc, 17.00.0002, [pgsql-odbc@postgresql.org])
+AC_PREREQ(2.57)
 AC_CONFIG_AUX_DIR(config)
-AM_INIT_AUTOMAKE([subdir-objects])
-AC_CONFIG_MACRO_DIRS([config])
-AC_CONFIG_HEADERS([config.h])
+AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([bind.c])
+AM_CONFIG_HEADER([config.h])
 AM_MAINTAINER_MODE
 
 # Define a macro to convert relative path to full path
@@ -53,6 +52,7 @@ AC_TYPE_SIZE_T
 
 # Check if "-Wall" is valid
 if test -n "$GCC" && test "$ac_test_CFLAGS" != set; then
+
 	AC_MSG_CHECKING(-Wall is a valid compile option)
 	CFLAGS_SAVE="${CFLAGS}"
 	CFLAGS="${CFLAGS} -Wall"
@@ -71,6 +71,7 @@ fi
 AC_ARG_WITH(unixodbc, [  --with-unixodbc[[=DIR]]	  [[default=yes]] DIR is the unixODBC base install
 			  directory or the path to odbc_config],
 [], [with_unixodbc=yes])
+
 
 #
 # Whether iODBC driver manager is used
@@ -120,6 +121,7 @@ fi
 #
 # ODBC include and library
 #
+
 if test "$ODBC_CONFIG" != ""; then
 	if test "$with_iodbc" != no; then
 		ODBC_INCLUDE=`${ODBC_CONFIG} --cflags`
@@ -174,6 +176,7 @@ SQLRETURN SQL_API SQLColAttribute(SQLHSTMT StatementHandle,
   [AC_MSG_RESULT(no)]
 )
 
+
 #
 # Whether libpq functionalities are used
 #
@@ -202,15 +205,18 @@ fi
 #
 # Pthreads
 #
+
 PGAC_ARG_BOOL(enable, pthreads, yes,
               [  --disable-pthreads      do not build with POSIX threads],
               [AC_DEFINE(POSIX_MULTITHREAD_SUPPORT, 1,
                          [Define to 1 to build with pthreads support (--enable-pthreads)])
                AC_DEFINE(_REENTRANT, 1, [Define _REENTRANT for several platforms])])
 
+
 #
 # Find libpq headers and libraries
 #
+
 if test -z "$PG_CONFIG"; then
   AC_PATH_PROGS(PG_CONFIG, pg_config)
 fi
@@ -228,7 +234,7 @@ fi
 #
 AC_CANONICAL_HOST
 
-case "$host" in 
+case "$host" in
   *apple-darwin*)
 	LDFLAGS="${LDFLAGS} -framework CoreFoundation -framework Security"
   ;;
@@ -293,7 +299,10 @@ AC_CHECK_PROGS(PROVE, prove)
 
 # 2. Libraries
 
-LT_INIT([disable-static win32-dll dlopen])
+AC_LIBTOOL_WIN32_DLL
+AC_DISABLE_STATIC
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
 
 if test "$with_unixodbc" != no; then
   AC_SEARCH_LIBS(SQLGetPrivateProfileString, odbcinst, [],
@@ -318,7 +327,9 @@ AC_CHECK_LIB(pq, PQsetSingleRowMode, [],
 
 AC_CHECK_HEADERS(locale.h sys/time.h uchar.h)
 AC_CHECK_HEADER(libpq-fe.h,,[AC_MSG_ERROR([libpq header not found])])
+AC_HEADER_TIME
 AC_HEADER_STDBOOL
+
 
 # 4. Types(all members were moved to 0.)
 
@@ -329,6 +340,7 @@ AC_STRUCT_TM
 # 6. Compiler characteristics
 
 AC_C_CONST
+
 
 # 7. Functions, global variables
 

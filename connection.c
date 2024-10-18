@@ -558,6 +558,7 @@ CC_clear_col_info(ConnectionClass *self, BOOL destroy)
 			/* Going through COL_INFO cache table and releasing coli objects. */
 			if (coli = self->col_info[i], NULL != coli)
 			{
+				MYLOG(0, "!!!refcnt %p:%d -> %d\n", coli, coli->refcnt, coli->refcnt - 1);
 				coli->refcnt--;
 				if (coli->refcnt <= 0)
 				{
@@ -1057,6 +1058,8 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 			ci->drivers.extra_systable_prefixes,
 			PRINT_NAME(ci->conn_settings),
 			encoding ? encoding : "");
+		if (encoding)
+			free(encoding);
 	}
 	if (self->status == CONN_DOWN)
 	{
@@ -3735,4 +3738,3 @@ CC_set_transact(ConnectionClass *self, UInt4 isolation)
 
 	return TRUE;
 }
-

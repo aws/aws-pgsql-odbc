@@ -8,8 +8,8 @@
 PG_INC=C:\Program Files (x86)\PostgreSQL\9.6\include
 PG_LIB=C:\Program Files (x86)\PostgreSQL\9.6\lib
 !ELSE
-PG_INC=C:\Program Files\PostgreSQL\15\include
-PG_LIB=C:\Program Files\PostgreSQL\15\lib
+PG_INC=$(PROGRAMFILES)\PostgreSQL\17\include
+PG_LIB=$(PROGRAMFILES)\PostgreSQL\17\lib
 !ENDIF
 
 # Enable/disable features

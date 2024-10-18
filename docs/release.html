@@ -1,4 +1,4 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
@@ -9,6 +9,60 @@
 
 <h1>psqlODBC release notes</h1>
 <hr>
+<ol type="1">
+<h2><a id="17.00.0000">psqlODBC 17.00.0000 Release</a></h2>
+Changes:<br />
+<li>
+  Release: Update version numbers <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/52">PR #52</a>
+  Author: <a href="https://github.com/davecramer">Dave Cramer</a>
+</li>
+</ol>
+<ol type="1">
+  <h2><a id="16.00.0006">psqlODBC 16.00.0006 Release</a></h2>
+  Changes:<br />
+  <li>
+    Change: Build against PostgreSQL 17 RC1 <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/44">PR #44</a>
+    Author: <a href="https://github.com/davecramer">Dave Cramer</a>
+  </li>
+  <li>
+    Fix: Double free of COL_INFO object <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/48">PR #48</a>
+    Fixes <a href="https://github.com/postgresql-interfaces/psqlodbc/issues/47"> Issue #47</a>
+    Author: <a href="https://github.com/progmachine">Alexandr Kuznetsov</a>
+  </li>
+
+<h2><a id="16.00.0005">psqlODBC 16.00.0005 Release</a></h2>
+Changes:<br />
+<ol type="1">
+  <li>Fix: if the connection is broken when calling SQLFreeHandle, the client can't be notified <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/1">PR #1</a>
+  Author: <a href="https://github.com/apgrucza"> Adrian Grucza</a></li>
+  <li>Perf: Use mimalloc to improve performance and reduce memory allocation lock contention <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/6">PR#6</a></li>
+  <li>Add: Build and release using github actions <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/7">PR#7</a></li>
+  <li>Add: Support building against VC17 on AMD64 <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/9">PR#9</a>
+  Author: <a href="https://github.com/apgrucza"> Adrian Grucza</a></li>
+  <li>Fix: Fixed typos in all source code and documentations <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/11">PR#11</a>
+  Author <a href="https://github.com/Hunaid2000">Hunaid Sohail</a></li>
+  <li>Fix: during call SQLFreeHandle, if the connection is broken the client is not notified <a href-"https://github.com/postgresql-interfaces/psqlodbc/pull/12">PR #12</a>
+  Author: <a href="https://github.com/apgrucza"> Adrian Grucza</a></li>
+  </li>
+  <li>Fix: Key caches based on software versions <a href-"https://github.com/postgresql-interfaces/psqlodbc/pull/13">PR #13</a><
+  Author: <a href="https://github.com/apgrucza"> Adrian Grucza</a></li>
+  <li>Add: Add mimalloc release <a href-"https://github.com/postgresql-interfaces/psqlodbc/pull/14">PR #14</a>
+  Author: <a href="https://github.com/apgrucza"> Adrian Grucza</a></li>
+  <li>Fix: Use strdup on non-Windows systems <a href-"https://github.com/postgresql-interfaces/psqlodbc/pull/17">PR #17</a>
+  Author: <a href="https://github.com/apgrucza"> Adrian Grucza</a></li>
+  <li>Add: Implementation of SQLSetDescRec & SQLGetDescRec functions <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/23">PR#23</a>
+    Author <a href="https://github.com/Hunaid2000">Hunaid Sohail</a></li>
+  <li>Fix: Fix Memory leaks <a href="https://github.com/postgresql-interfaces/psqlodbc/issues/8">Issue #8</a> <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/25">PR#25</a>
+  Author: <a href="https://github.com/progmachine">Alexandr Kuznetsov</a>
+  </li>
+  <li> Fix: SQLGetData function can return an incorrect SQLSTATE <a href="https://github.com/postgresql-interfaces/psqlodbc/issues/33">Issue #33</a> <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/35"> PR #35</a>
+  Author: <a href=""https://github.com/omeuid">Carlos García</a>
+  </li>
+  <li>
+    Change: Build against PostgreSQL 17 Beta3 <a href="https://github.com/postgresql-interfaces/psqlodbc/pull/37">PR #37</a>
+    Author: <a href="https://github.com/davecramer">Dave Cramer</a>
+  </li>
+</ol>
 <h2><a id="16.00.0000">psqlODBC 16.00.0000 Release</a></h2>
 Changes:<br />
 <ol type="1">
@@ -27,7 +81,7 @@ Changes:<br />
 <h2><a id="13.02.0000">psqlODBC 13.02.0000 Release</a></h2>
 Changes:<br />
 <ol type="1">
-<li>Fix a bug of CC_send_query_append() when the ignore_roundtrip_time flag is onRemove a mylog() call which is a dupilicate of the preceding MYLOG() macro call.</li>
+<li>Fix a bug of CC_send_query_append() when the ignore_roundtrip_time flag is onRemove a mylog() call which is a duplicate of the preceding MYLOG() macro call.</li>
 Also direct use of mylog() should be avoided because mylog() uses lots of CPU.
 <li>Noticed that the password field on the PostgreSQL Connection</li>
 dialog is always focused when empty, even when other fields that appear
@@ -90,7 +144,7 @@ Changes:<br />
 <li>Add a new *Display Optional Error Message* option. </li>
 This option allows to
 display error messages other than primary one.
-Also add documentaition about the option and *Numeric as* option.
+Also add documentation about the option and *Numeric as* option.
 <li>Handle notice messages in libpq_bind_and_exec().</li>
 Sets and resets a notify receiver around PQexecParams() or PQexecPrepared().
 <li>Ignore PQtransactionStatus PQTRANS_ACTIVE in LIBPQ_update_transaction_status().
@@ -385,8 +439,8 @@ we should use SIZEOF_LONG_INT.
 <li><b>Fix the bug messages handle.</b><br /></li>
 handle_error_message() and handle_notice_message() were unified into handle_pgres_error() in the wrong way.
 Unfortunately handle_error_message() never handled notice messages and set positive errornumbers which mean
- error_not_a_notice in psqlodbc. 
-I renamed the constant CONNECTION_SERVER_REPORTED_ERROR to CONNECTION_SERVER_REPORTED_SEVERITY_FATAL and 
+ error_not_a_notice in psqlodbc.
+I renamed the constant CONNECTION_SERVER_REPORTED_ERROR to CONNECTION_SERVER_REPORTED_SEVERITY_FATAL and
 the constant CONNECTION_SERVER_REPORTED_WARNING to CONNECTION_SERVER_REPORTED_SEVERITY_ERROR so as to avoid
  confusion.<br />
 Reported by Shinji Mecha.
@@ -521,13 +575,13 @@ Changes:<br />
  <li>It's better to take the same road even in case of pre_convert.<br /></li>
  </ol>
 
- <li><b>Fixed possible once to build test suite in a different place other than the source code is, it's not now.</b><br /></li> 
+ <li><b>Fixed possible once to build test suite in a different place other than the source code is, it's not now.</b><br /></li>
 
  <li><b>CHAR causes a compilation error in some environment. Use char instead of CHAR.</b><br /></li>
 
  <li><b>Correctly judge the SQLSTATE 01S06(Attempt to fetch before the result set returned the first rowset) for SQL_FETCH_PRIOR operations of SQFetchScroll.</b><br /></li>
 
- <li><b>Checking a flag bit mistakenly resets other flag bits.</b><br /></li> 
+ <li><b>Checking a flag bit mistakenly resets other flag bits.</b><br /></li>
  Patch by Tsunakawa, Takayuki.
 
  <li><b>setup.c:test_connection() calls EN_Constructor() twice, leaking small memory.</b><br /></li>
@@ -719,8 +773,8 @@ Changes:<br />
 Changes:<br />
 <ol type="1">
 <li><b>Rip out broken retry/timeout logic in SOCK_wait_for_ready.</b><br /></li>
-At a quick glance, the logic looked like retry with progressive timeout, but it was horribly broken. 
-First of all, the timeout was only used if retry_count was passed as 0. And in that case, the timeout was 0. 
+At a quick glance, the logic looked like retry with progressive timeout, but it was horribly broken.
+First of all, the timeout was only used if retry_count was passed as 0. And in that case, the timeout was 0.
 So retry_count == 0 actually meant "check if data can be read/written without blocking", while retry_count > 0 meant "sleep until data is available".
 There was also some code to handle retry_count < 0, but that was dead code because none of the callers passed a negative value.
 The hardcoded max. retry count of 30 retries was quite bogus too.
@@ -737,15 +791,15 @@ It never worked to pass a "CPU=x86" and using a x64 compiler, for example, so se
 from the environment, than fail with a cryptic error message if the CPU argument and the environment don't match.
 To build 32-bit binaries with win64.mak, simply do "setenv /x86" before running "nmake -f win64.mak".
 Similarly, to build 64-bit binaries, use "setenv /x64".
-It should now be possible to build both 32-bit and 64-bit binaries with win64.mak. 
+It should now be possible to build both 32-bit and 64-bit binaries with win64.mak.
 Ideally, we could now remove win32.mak altogether, but there are small differences between win64.mak and win32.mak in the build options that
 they use. I don't understand the differences enough to dare to remove win32.mak yet.
 The CPU=AMD64 alias for x64 is no longer supported (as the whole parameter is now gone).
-Also do whitespace & other cosmetic fixes to win32.mak and win64, to make them more similar. 
+Also do whitespace & other cosmetic fixes to win32.mak and win64, to make them more similar.
 This helps when comparing the two with "diff".
 Remove remains of the long-gone "MULTIBYTE" setting (it was misspelled in win64.mak, anyway)
 <li><b>Fix crash if connection is closed while sending a query to the server.</b><br /></li>
-Some functions reset conn->sock to NULL on a socket error, so we must not keep a copy of it in a local variable. 
+Some functions reset conn->sock to NULL on a socket error, so we must not keep a copy of it in a local variable.
 Also, SOCK_get_id should check for NULL argument like all the rest of the SOCK_get/put_* functions.
 <li><b>Rewrite the conversion functions between strings and SQL_NUMERIC_STRUCT.</b><br /></li>
 Aside from making the functions more readable and faster, this fixes a number of bugs:
@@ -761,18 +815,18 @@ Also add a test cases for all of these bugs.
 <li><b>Fix ODBC function escape for SPACE function.</b><br /></li>
 <li><b>Make sure that the psqlodbc ANSI driver is ODBC3.5.</b><br /></li>
 <li><b>Register 64bit XA DLL on installation</b><br /></li>
-Changes by a patch from Craig Ringer 
+Changes by a patch from Craig Ringer
 <li><b>Fix potentially uninitialized local pointer access which causes.</b><br /></li>
 fatal compilation errors on vs2012/2013 reported by Craig Ringer.
 <li><b>Fixed ctype_length() is missing the length for SQL_C_BIGINT and SQL_C_NUMERIC.</b><br /></li>
 patch by John Smith.
 <li><b>Fix access to unallocated memory in IAsyncPG.</b><br /></li>
-IAsyncPG was deleting its self, then returning an instance variable by value. 
+IAsyncPG was deleting its self, then returning an instance variable by value.
 This is probably going to be safe pretty much all the time,
 but it's still a memory error, and DrMemory (a Windows valgrind-alike)
 <li><b>SQL_NUMERIC_STRUCT was not available until ODBC 3.0.</b><br /></li>
 Also add a prototype for ResolveNumericParam for readability.
-<li><b>Increase digits used to convert from REAL/DOUBLEs to strings so that the reverse conversions can recover original values.</b><br /></li> 
+<li><b>Increase digits used to convert from REAL/DOUBLEs to strings so that the reverse conversions can recover original values.</b><br /></li>
 Patch originally by John Smith.
 <li><b>Clear errors for prepared statement for subsequent executions.</b><br /></li>
 <li><b>Fix the problems using SQLFetch on prepared INSERT with RETURNING clause.</b><br /></li>
@@ -788,7 +842,7 @@ would emit:
 <br />
 &nbsp; unexpected EOF within message length word
 <br />
-This issue was observed while tracking down problems with XA transactions in MSDTC failing to commit after a successful prepare because an isolated tx 
+This issue was observed while tracking down problems with XA transactions in MSDTC failing to commit after a successful prepare because an isolated tx
 created via getLockedXAConn() got stuck here, but is not confined to that problem.
 <li><b>Don't use PG_VERSION_xx() macros in original_CC_connect().</b><br /></li>
 it's not obtained from the server yet. This may fix another cause of the problem Craig Ringer reported.
@@ -802,16 +856,16 @@ It's outright wrong and dangerous if the statement is busy executing in a differ
 DiscardStatementSvp().
 Bug report by Jade Koskela.
 <li><b>Fixes a NULL pointer dereference occurring when connecting.</b><br /></li>
-using SSPI authentication (without kerberos, a local Windows user trying to connect to postgres instance on same host). 
+using SSPI authentication (without kerberos, a local Windows user trying to connect to postgres instance on same host).
 Patch originally by Nikhil R Deshpande.
 <li><b>Fix bug with UseDeclareFetch=1 when a transaction is committed before fetch.</b><br /></li>
 If a server cursor is closed before the application has fetched any rows from the result set, the "base" of the result set's cached rowset was off-by-one.
 Also add a regression test for the same. This fixes the bug reported by Jan-Peter Seifert.
 <li><b>Fix driver name mismatch between 32-bit ODBC app and 64-bit MSDTC host.</b><br /></li>
 If the 32-bit driver runs on a 64-bit host within a 32-bit app running under SysWow64 then XA transactions will fail to recover.
-That's because recovery is done by pgxalib.dll which runs with in MSDTC.exe - a 64-bit application. 
-It connects to a DSN supplied by psqlODBC in EnlistInDtc_1pipe during DTC enlistment by the XA resource manager. 
-This DSN uses the driver name of the client's ODBC driver - which is fine so long as the client and MSDTC architectures match. 
+That's because recovery is done by pgxalib.dll which runs with in MSDTC.exe - a 64-bit application.
+It connects to a DSN supplied by psqlODBC in EnlistInDtc_1pipe during DTC enlistment by the XA resource manager.
+This DSN uses the driver name of the client's ODBC driver - which is fine so long as the client and MSDTC architectures match.
 If they don't then MSDTC will fail to connect to Pg, so it'll never resolve transactions.
 Traces of MSDTC will show RM_COMMIT_DELIVERY_FAILED_DUE_TO_CONNECTION_DOWN events.
 Traces of pgxalib.dll will show xa_recover(..) being entered, followed by "SQLDriverConnect return=-1".
@@ -862,7 +916,7 @@ In ODBC3, TABLE_QUALIFIER was renamed to TABLE_CAT, and TABLE_OWNER to TABLE_SCH
 Per report David Hedberg.
 <li><b>Add a new dialog page to the setup program and allow the setting of PREFERLIBPQ and XAOPT option.</b><br /></li>
 <li><b>Add a powershell script buildBootStrapper.ps1 which builds bootStrapper program with some optional parameters.</b><br /></li>
-Quote the version number of bootstrapper from the configuration xml file unless specified. 
+Quote the version number of bootstrapper from the configuration xml file unless specified.
 Also change the name of 32bit MSI in the bootstrapper according to changes of 32bit installer build system.
 Change buildInstallers.ps1 build the bootstrapper together.
 Change ALLUSERS from "2" to "1" of the 64bit installer.

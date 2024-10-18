@@ -915,7 +915,7 @@ MYLOG(0, " c16dt=%p size=" FORMAT_SIZE_T "\n", c16dt, n);
 		brtn = mbrtoc16(c16dt ? c16dt + i : NULL, cdt, 4, &mbst);
 		if (0 == brtn)
 			break;
-		if (brtn == (size_t) -1 || 
+		if (brtn == (size_t) -1 ||
 		    brtn == (size_t) -2)
 			return -1;
 		if (brtn == (size_t) -3)
@@ -964,7 +964,7 @@ MYLOG(0, " c8dt=%p size=" FORMAT_SIZE_T "u\n", c8dt, n);
 			}
 		}
 		/*
-		printf("c16dt=%04X brtn=%lu result=%ld cdt=%02X%02X%02X%02X\n", 
+		printf("c16dt=%04X brtn=%lu result=%ld cdt=%02X%02X%02X%02X\n",
 			c16dt[i], brtn, result, (UCHAR) cdt[0], (UCHAR) cdt[1], (UCHAR) cdt[2], (UCHAR) cdt[3]);
 		*/
 		if (brtn == (size_t) -1)
@@ -1017,7 +1017,7 @@ SQLLEN bindpara_msg_to_utf8(const char *ldt, char **wcsbuf, SQLLEN used)
 		memcpy(ldt_nts, ldt, used);
 		ldt_nts[used] = '\0';
 	}
- 
+
 	get_convtype();
 	MYLOG(0, " \n");
 #if defined(__WCS_ISO10646__)
@@ -1277,7 +1277,7 @@ SQLLEN bindcol_localize_estimate(const char *utf8dt, BOOL lf_conv, char **wcsbuf
 		free(convalc);
 	else if (NULL != convalc)
 		*wcsbuf = (char *) convalc;
-	
+
 MYLOG(0, " return=" FORMAT_LEN "\n", l);
 	return l;
 }
