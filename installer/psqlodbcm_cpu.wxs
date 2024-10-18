@@ -43,7 +43,7 @@
     Language="1033">
 
     <SummaryInformation
-      Description="AWS ODBC Driver PostgreSQL"
+      Description="AWS ODBC Driver for PostgreSQL"
       Keywords="PostgreSQL, ODBC, AWS"
       Manufacturer="Amazon.com, Inc. or its affiliates"
       Codepage="1252" />
@@ -53,10 +53,10 @@
 
     <!-- PostgreSQL -->
     <File Name="psqlodbc30a.dll" Source="$(BINBASE)\$(ANSIFOLDER)\psqlodbc30a.dll">
-      <ODBCDriver Id="Psqlodbc_9.0_Driver_ANSI" Name="PostgreSQL ANSI($(Platform))">
+      <ODBCDriver Id="Psqlodbc_9.0_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL ($(Platform))">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
-      <ODBCDriver Id="Psqlodbc_11_newid_Driver_ANSI" Name="PostgreSQL ANSI">
+      <ODBCDriver Id="Psqlodbc_11_newid_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
     </File>
@@ -66,10 +66,10 @@
     <File Name="pgenlista.pdb" Source="$(BINBASE)\$(ANSIFOLDER)\pgenlista.pdb" />
 <?endif ?>
     <File Name="psqlodbc35w.dll" Source="$(BINBASE)\$(UNICODEFOLDER)\psqlodbc35w.dll">
-      <ODBCDriver Id="Psqlodbc_9.0_Driver" Name="PostgreSQL Unicode($(Platform))">
+      <ODBCDriver Id="Psqlodbc_9.0_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL ($(Platform))">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
-      <ODBCDriver Id="Psqlodbc_11_newid_Driver" Name="PostgreSQL Unicode">
+      <ODBCDriver Id="Psqlodbc_11_newid_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
     </File>

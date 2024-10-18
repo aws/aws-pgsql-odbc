@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-    Build all installers of psqlodbc project.
+    Build all installers of awspsqlodbc project.
 .DESCRIPTION
-    Build psqlodbc_x86.msi(msm), psqlodbc_x64.msi(msm).
+    Build awspsqlodbc_x86.msi(msm), awspsqlodbc_x64.msi(msm).
 .PARAMETER cpu
     Specify build cpu type, "both"(default), "x86" or "x64" is
     available.
@@ -269,7 +269,7 @@ function buildInstaller([string]$CPUTYPE)
 	try {
 		pushd "$scriptPath"
 
-		Write-Host ".`nBuilding psqlODBC/$SUBLOC merge module..."
+		Write-Host ".`nBuilding awspsqlodbc/$SUBLOC merge module..."
 		$BINBASE = GetObjbase ".."
 		$INSTBASE = GetObjbase ".\$CPUTYPE" "installer\$CPUTYPE"
 		wix build --nologo -arch $CPUTYPE $libpqRelArgs -d "VERSION=$VERSION" -d "SUBLOC=$SUBLOC" -d "LIBPQBINDIR=$LIBPQBINDIR" -d "LIBPQMSVCDLL=$LIBPQMSVCDLL" -d "LIBPQMSVCSYS=$LIBPQMSVCSYS" -d "PODBCMSVCDLL=$PODBCMSVCDLL" -d "PODBCMSVPDLL=$PODBCMSVPDLL" -d "PODBCMSVCSYS=$PODBCMSVCSYS" -d "PODBCMSVPSYS=$PODBCMSVPSYS" -d "NoPDB=$NoPDB" -d "BINBASE=$BINBASE" -o $INSTBASE\psqlodbc_$CPUTYPE.msm psqlodbcm_cpu.wxs
@@ -277,15 +277,15 @@ function buildInstaller([string]$CPUTYPE)
 			throw "Failed to build merge module"
 		}
 
-		Write-Host ".`nBuilding awspsqlODBC installer database..."
+		Write-Host ".`nBuilding awspsqlodbc installer database..."
 
-		wix build --nologo -arch $CPUTYPE -ext WixToolset.UI.wixext -d "VERSION=$VERSION" -d "SUBLOC=$SUBLOC" -d "INSTBASE=$INSTBASE" -o $INSTBASE\psqlodbc_$CPUTYPE.msi psqlodbc_cpu.wxs
+		wix build --nologo -arch $CPUTYPE -ext WixToolset.UI.wixext -d "VERSION=$VERSION" -d "SUBLOC=$SUBLOC" -d "INSTBASE=$INSTBASE" -o $INSTBASE\awspsqlodbc_$CPUTYPE.msi psqlodbc_cpu.wxs
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to build installer database"
 		}
 
-		Write-Host ".`nModifying awspsqlODBC installer database..."
-		cscript modify_msi.vbs $INSTBASE\awspsqlODBC_$CPUTYPE.msi
+		Write-Host ".`nModifying awspsqlodbc installer database..."
+		cscript modify_msi.vbs $INSTBASE\awspsqlodbc_$CPUTYPE.msi
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to modify installer database"
 		}
