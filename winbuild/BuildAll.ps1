@@ -61,7 +61,7 @@ Param(
 [string]$Target="Build",
 [string]$VCVersion,
 [ValidateSet("Win32", "x64", "both")]
-[string]$Platform="x64",
+[string]$Platform="both",
 [string]$Toolset,
 [ValidateSet("", "4.0", "12.0", "14.0")]
 [string]$MSToolsVersion,
@@ -95,7 +95,7 @@ function buildPlatform([xml]$configInfo, [string]$Platform)
 	if (-not (Test-Path $PG_BIN)) {
 		throw("`n!!!! bin directory $PG_BIN does not exist`nplease specify the correct folder name using editConfiguration")
 	}
-	
+
 	$useSplit=$true
 	if ($useSplit) {
 			$macroList = -split $BUILD_MACROS
@@ -136,9 +136,7 @@ $path_save = ${env:PATH}
 
 Import-Module ${scriptPath}\MSProgram-Get.psm1
 try {
-	$DebugPreference = 'Continue'
-	Write-Debug "VCVersion=$VCVersion MSToolsVersion=$MSToolsVersion Toolset=$Toolset"
-	$rtnArray=Find-MSBuild ([ref]$VCVersion) ($MSToolsVersion) ([ref]$Toolset) $configInfo -Debug
+	$rtnArray=Find-MSBuild ([ref]$VCVersion) ($MSToolsVersion) ([ref]$Toolset) $configInfo
 	$msbuildexe=$rtnArray[0]
 	$MSToolsV=$rtnArray[1]
 } catch [Exception] {
@@ -196,7 +194,7 @@ try {
 		}
 	} else {
 		$resultText="failed"
-	} 
+	}
 	SaveConfiguration $configInfo
 	Write-Host "VisualStudioVersion=$VCVersion(ToolsVersion=$MSToolsV) PlatformToolset=$Toolset Platform=$Platform $resultText`n"
 #
@@ -205,7 +203,7 @@ try {
 	if ($AlongWithInstallers) {
 		if (-not $recordResult) {
 			throw("compilation failed")
-		} 
+		}
                 $cpu = $Platform
                 if ($Platform -eq "win32") {
                         $cpu = "x86"

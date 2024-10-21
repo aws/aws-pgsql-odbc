@@ -8,7 +8,9 @@ AUTOMAKE_OPTIONS = 1.8 foreign
 
 ACLOCAL_AMFLAGS = -I config
 
-lib_LTLIBRARIES = psqlodbca.la psqlodbcw.la 
+lib_LTLIBRARIES = psqlodbcw.la psqlodbca.la
+
+AM_LDFLAGS = -module -no-undefined -avoid-version -export-symbols-regex '^SQL'
 
 psqlodbcw_la_CFLAGS = -DUNICODE_SUPPORT # -DUNICODE_SUPPORTXX
 
@@ -41,6 +43,7 @@ psqlodbca_la_SOURCES = \
 psqlodbcw_la_SOURCES = $(psqlodbca_la_SOURCES) \
 	odbcapi30w.c odbcapiw.c win_unicode.c
 
+
 EXTRA_DIST = license.txt readme.txt readme_winbuild.txt \
 	psqlodbc.def psqlodbca.def editConfiguration.bat BuildAll.bat \
 	windows-defaults.mak buildInstallers.bat regress.bat \
@@ -57,11 +60,11 @@ EXTRA_DIST = license.txt readme.txt readme_winbuild.txt \
 	docs/release-7.3.html \
 	docs/release.html \
 	docs/unix-compilation.html \
-	docs/win32-compilation.md\
+	docs/win32-compilation.html \
 	docs/msdtc_pgxalib_tracing_enable.reg \
 	docs/msdtc_pgxalib_tracing_disable.reg \
 	docs/msdtc_pgxalib_tracing_README.txt \
-	docs/img/editConfiguration.jpg \
+	docs/editConfiguration.jpg \
 \
 	installer/background.bmp \
 	installer/banner.bmp \

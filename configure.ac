@@ -241,7 +241,7 @@ AC_ARG_WITH(awsrdsodbc, [  --with-awsrdsodbc		  [[default=yes]] Build with aws-r
 [], [with_awsrdsodbc=yes])
 
 if test "$with_awsrdsodbc" != no; then
-	AC_FULL_PATH([aws-rds-odbc], [AWS_RDS_ODBC_PATH])
+	AC_FULL_PATH([libs/aws-rds-odbc], [AWS_RDS_ODBC_PATH])
 	CPPFLAGS="${CPPFLAGS} -I${AWS_RDS_ODBC_PATH}/src"
 	LDFLAGS="${LDFLAGS} -L${AWS_RDS_ODBC_PATH}/build"
 
@@ -276,7 +276,7 @@ AWS_SDK_LIBS="
 "
 
 if test "$with_awssdk" != no; then
-	AC_FULL_PATH([aws-rds-odbc/aws_sdk], [AWS_SDK_PATH])
+	AC_FULL_PATH([libs/aws-rds-odbc/aws_sdk], [AWS_SDK_PATH])
 	CPPFLAGS="${CPPFLAGS} -I${AWS_SDK_PATH}/install/include"
 	LDFLAGS="${LDFLAGS} -L${AWS_SDK_PATH}/install/lib"
 

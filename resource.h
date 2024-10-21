@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
+// Microsoft Developer Studio generated include file.
 // Used by psqlodbc.rc
 //
 #define IDS_BADDSN                      1
@@ -99,7 +99,7 @@
 #define IDC_OPTIONS                     1054
 #define DRV_OR_DSN                      1059
 #define DRV_DEBUG                       1060
-#define DS_OPTIONALERRORS               1061
+#define DS_OPTIONALERRORS		1061
 #define DS_LFCONVERSION                 1062
 #define DS_TRUEISMINUS1                 1063
 #define DS_UPDATABLECURSORS             1064
@@ -153,7 +153,7 @@
 #define IDC_AUTHTYPE                    1115
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        109

@@ -261,7 +261,7 @@ getDriversDefaultsOfCi(const ConnInfo *ci, GLOBAL_VALUES *glbv)
 	if (ci->drivername[0])
 		drivername = ci->drivername;
 	else if (NAME_IS_VALID(ci->drivers.drivername))
-		drivername = SAFE_NAME(ci->drivers.drivername);	
+		drivername = SAFE_NAME(ci->drivers.drivername);
 	if (drivername && drivername[0])
 		getDriversDefaults(drivername, glbv);
 	else
@@ -425,7 +425,7 @@ MYLOG(0, "GetProcAddress for %s\n", procname);
 #include <sys/stat.h>
 static const char *IsAnExistingDirectory(const char *path)
 {
-		
+
 	struct stat st;
 
 	if (stat(path, &st) < 0)
@@ -437,7 +437,7 @@ static const char *IsAnExistingDirectory(const char *path)
 	if ((st.st_mode & S_IFDIR) == 0)
 	{
 		CSTR errmsg_isnt_a_dir = "isn't a directory";
-		
+
 		return errmsg_isnt_a_dir;
 	}
 	return NULL;
@@ -464,7 +464,7 @@ global_optionsProc(HWND hdlg,
 	switch (wMsg)
 	{
 		case WM_INITDIALOG:
-			SetWindowLongPtr(hdlg, DWLP_USER, lParam); /* save for test etc */ 
+			SetWindowLongPtr(hdlg, DWLP_USER, lParam); /* save for test etc */
 			ci = (ConnInfo *) lParam;
 			getDriversDefaultsOfCi(ci, &defval);
 			CheckDlgButton(hdlg, DRV_COMMLOG, getGlobalCommlog());
@@ -958,7 +958,7 @@ MYLOG(0, "entering\n");
 void *PQconninfoParse(const char *, char **);
 void PQconninfoFree(void *);
 typedef void *(*PQCONNINFOPARSEPROC)(const char *, char **);
-typedef void (*PQCONNINFOFREEPROC)(void *); 
+typedef void (*PQCONNINFOFREEPROC)(void *);
 static int
 ds_options3_update(HWND hdlg, ConnInfo *ci)
 {
@@ -967,7 +967,7 @@ ds_options3_update(HWND hdlg, ConnInfo *ci)
 	char	pqopt[LARGE_REGISTRY_LEN];
 	HMODULE	hmodule;
 	PQCONNINFOPARSEPROC	pproc = NULL;
-	PQCONNINFOFREEPROC	fproc = NULL;	
+	PQCONNINFOFREEPROC	fproc = NULL;
 
 	MYLOG(0, "entering got ci=%p\n", ci);
 

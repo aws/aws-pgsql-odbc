@@ -97,7 +97,7 @@ ADD_DEFINES = $(ADD_DEFINES) /D "_MEMORY_DEBUG_" /GS
 ADD_DEFINES = $(ADD_DEFINES) /D "DBMS_NAME=\"PostgreSQL ANSI($(TARGET_CPU))\""
 !ELSE
 ADD_DEFINES = $(ADD_DEFINES) /D "DBMS_NAME=\"PostgreSQL Unicode($(TARGET_CPU))\"" /D "UNICODE_SUPPORT"
-RSC_DEFINES = $(RSC_DEFINES) /D "UNICODE_SUPPORT" /I $(MSVC_INC) /I $(SDK_INC)
+RSC_DEFINES = $(RSC_DEFINES) /D "UNICODE_SUPPORT"
 !ENDIF
 
 !IF "$(PORT_CHECK)" == "yes"
@@ -350,9 +350,10 @@ installer: unicode-driver ansi-driver
 world:
 	cmd < <<
 setenv /x64
-$(MAKE) -f win64.mak installer CFG=$(CFG)
+$(MAKE) -f win64.mak unicode-driver ansi-driver CFG=$(CFG)
 setenv /x86
-$(MAKE) -f win64.mak installer CFG=$(CFG)
+$(MAKE) -f win64.mak unicode-driver ansi-driver CFG=$(CFG)
+>&2 echo The "world" target does not build installers anymore.
 <<
 
 clean-world:

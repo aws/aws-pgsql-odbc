@@ -41,7 +41,7 @@ export ROOT_REPO_PATH=$(cd "$(dirname "$0")/.."; pwd -P)
 
 # Build the AWS SDK
 echo "Building the AWS SDK"
-cd ${ROOT_REPO_PATH}/aws-rds-odbc
+cd ${ROOT_REPO_PATH}/libs/aws-rds-odbc
 scripts/build_aws_sdk_macos ${CONFIGURATION}
 if [ $? -ne 0 ]; then
   echo "AWS SDK build failed"

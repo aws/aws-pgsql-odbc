@@ -296,7 +296,7 @@ ConfigDlgProc(HWND hdlg,
 
 			/* Initialize dialog fields */
 			SetDlgStuff(hdlg, ci);
-	
+
 			/* Save drivername */
 			if (!(lpsetupdlg->ci.drivername[0]))
 				STRCPY_FIXED(lpsetupdlg->ci.drivername, lpsetupdlg->lpszDrvr);

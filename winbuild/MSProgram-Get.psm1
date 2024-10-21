@@ -17,7 +17,7 @@ function Find-MSBuild
 	$Toolsetv=$Toolset.Value
 
 	$WSDK71Set="Windows7.1SDK"
-	Write-Debug "VCVersion=$VisualStudioVersion $env:VisualStudioVersion"
+	Write-Debug "VCVersion=$VCVersionv $env:VisualStudioVersion"
 	[int]$toolsnum=0
 #
 #	Determine VisualStudioVersion
@@ -40,12 +40,12 @@ function Find-MSBuild
 	$refnum=""
 #	neither C++ nor SDK prompt
 	if ("$VisualStudioVersion" -eq "") {
-		if ((Find-VSDir 17) -ne "") {	# VC17 is installed
-			$VisualStudioVersion = "17.0"
+		if ((Find-VSDir 15) -ne "") {	# VC15 is installed (current official)
+			$VisualStudioVersion = "15.0"
 		} elseif ((Find-VSDir 16) -ne "") {	# VC16 is installed
 			$VisualStudioVersion = "16.0"
-		} elseif ((Find-VSDir 15) -ne "") {	# VC15 is installed (current official)
-			$VisualStudioVersion = "15.0"
+		} elseif ((Find-VSDir 17) -ne "") { #VC 17 is installed
+			$VisualStudioVersion = "17.0"
 		} elseif ("${env:VS140COMNTOOLS}" -ne "") { # VC14 is installed
 			$VisualStudioVersion = "14.0"
 		} elseif ("${env:VS120COMNTOOLS}" -ne "") { # VC12 is installed
@@ -226,7 +226,7 @@ function Find-Dumpbin
 {
     [CmdletBinding()]
 
-    Param([int]$CurMaxVC = 17)
+    Param([int]$CurMaxVC = 16)
 
 	if ("$dumpbinexe" -ne "") {
 		if ("$addPath" -ne "") {
@@ -276,7 +276,7 @@ function Find-Dumpbin
 			}
 		}
 	}
-	
+
 	Write-Host "Dumpbin=$dumpbinexe"
 	Set-Variable -Name dumpbinexe -Value $dumpbinexe -Scope 1
 	Set-Variable -Name addPath -Value $addPath -Scope 1
