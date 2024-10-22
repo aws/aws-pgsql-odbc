@@ -10,8 +10,6 @@ ACLOCAL_AMFLAGS = -I config
 
 lib_LTLIBRARIES = psqlodbcw.la psqlodbca.la
 
-AM_LDFLAGS = -module -no-undefined -avoid-version -export-symbols-regex '^SQL'
-
 psqlodbcw_la_CFLAGS = -DUNICODE_SUPPORT # -DUNICODE_SUPPORTXX
 
 AM_CFLAGS = @CFLAGS@
