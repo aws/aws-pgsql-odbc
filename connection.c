@@ -45,7 +45,7 @@
 
 #include "pgapifunc.h"
 
-#include "wrapper/rds_api.h"
+#include <authentication\authentication_provider.h>
 
 #define	SAFE_STR(s)	(NULL != (s) ? (s) : "(null)")
 
@@ -1135,11 +1135,14 @@ LIBPQ_CC_connect(ConnectionClass *self, char *salt_para)
 	return ret;
 }
 
+#define	MAX_TOKEN_SIZE 2048
 typedef enum {
 	TR_FAILURE,
 	TR_CACHED_TOKEN,
 	TR_GENERATED_TOKEN
 } TokenResult;
+
+#define	SAFESTRCPY(dst, src) (strcpy(dst, src ? src : ""))
 
 // Get token for IAM or ADFS authentication mode.
 TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
@@ -1160,39 +1163,52 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	MYLOG(0, "username is %s\n", ci->username);
 	MYLOG(0, "useCache is %d\n", useCache);
 
-	char* token;
+	char* token = (char*) malloc(MAX_TOKEN_SIZE * sizeof(char));
+	// Fill in password to avoid crashing on token failures
+	STRN_TO_NAME(ci->password, token, 0);
+	FederatedAuthType authType = GetFedAuthTypeEnum(ci->authtype);
+	// TODO - Temp configuration copy
+	//		will need to modify GUI and have FedAuthConfig in CI
+	FederatedAuthConfig authConfig;
+	SAFESTRCPY(authConfig.idp_endpoint, ci->federation_cfg.idp_endpoint);
+	SAFESTRCPY(authConfig.idp_port, ci->federation_cfg.idp_port);
+	SAFESTRCPY(authConfig.relaying_party_id, ci->federation_cfg.relaying_party_id);
+	SAFESTRCPY(authConfig.iam_role_arn, ci->federation_cfg.iam_role_arn);
+	SAFESTRCPY(authConfig.iam_idp_arn, ci->federation_cfg.iam_idp_arn);
+	SAFESTRCPY(authConfig.idp_username, ci->federation_cfg.idp_username);
+	SAFESTRCPY(authConfig.idp_password, ci->federation_cfg.idp_password.name);
+	SAFESTRCPY(authConfig.http_client_socket_timeout, ci->federation_cfg.http_client_socket_timeout);
+	SAFESTRCPY(authConfig.http_client_connect_timeout, ci->federation_cfg.http_client_connect_timeout);
+	SAFESTRCPY(authConfig.ssl_insecure, ci->federation_cfg.ssl_insecure);
 	if (useCache) {
-		token = GetCachedToken(ci->server, ci->region, ci->port, ci->username);
-		if (!token) {
-			token = GenerateConnectAuthToken(ci, ci->server, ci->region, port, ci->username);
-			if (!token) {
+		MYLOG(0, "Trying Cache\n");
+		if (!GetCachedToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, ci->port, ci->username)) {
+			MYLOG(0, "Cache Miss\n");
+			if (!GenerateConnectAuthToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, port, ci->username, authType, authConfig)) {
 				MYLOG(0, "Failed to generate a RDS connect auth token\n");
+				free(token);
 				return TR_FAILURE;
 			}
 			STRN_TO_NAME(ci->password, token, strlen(token));
-			// token memory is allocated in GenerateConnectAuthToken
-			free(token);
 			MYLOG(0, "generated token length is %zu\n", strlen(ci->password.name));
 		}
 		else {
 			STRN_TO_NAME(ci->password, token, strlen(token));
-			// token memory is allocated in GetCachedToken
-			free(token);
 			MYLOG(0, "cached token length is %zu\n", strlen(ci->password.name));
+			free(token);
 			return TR_CACHED_TOKEN;
 		}
 	}
 	else {
-		token = GenerateConnectAuthToken(ci, ci->server, ci->region, port, ci->username);
-		if (!token) {
+		if (!GenerateConnectAuthToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, port, ci->username, authType, authConfig)) {
 			MYLOG(0, "Failed to generate a RDS connect auth token\n");
+			free(token);
 			return TR_FAILURE;
 		}
 		STRN_TO_NAME(ci->password, token, strlen(token));
-		// token memory is allocated in GenerateConnectAuthToken
-		free(token);
 		MYLOG(0, "generated token length is %zu\n", strlen(ci->password.name));
 	}
+	free(token);
 	return TR_GENERATED_TOKEN;
 }
 
@@ -1208,10 +1224,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 
 	if (stricmp(ci->authtype, IAM_MODE) == 0 || stricmp(ci->authtype, ADFS_MODE) == 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
-		if (tr == TR_FAILURE)
-			return 0;
-
-	ret = LIBPQ_CC_connect(self, salt_para);
+		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
 			// The cached token fails to connect successfully.
 			// Recreate a token to try again.
