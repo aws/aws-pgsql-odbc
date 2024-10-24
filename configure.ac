@@ -240,50 +240,23 @@ esac
 AC_ARG_WITH(awsrdsodbc, [  --with-awsrdsodbc		  [[default=yes]] Build with aws-rds-odbc],
 [], [with_awsrdsodbc=yes])
 
+AWS_RDS_ODBC_DEPENDENCIES="
+	curl
+	z
+"
+
 if test "$with_awsrdsodbc" != no; then
 	AC_FULL_PATH([libs/aws-rds-odbc], [AWS_RDS_ODBC_PATH])
-	CPPFLAGS="${CPPFLAGS} -I${AWS_RDS_ODBC_PATH}/src"
+	CPPFLAGS="${CPPFLAGS} -I${AWS_RDS_ODBC_PATH}/src -I${AWS_RDS_ODBC_PATH}/aws_sdk/install/include"
 	LDFLAGS="${LDFLAGS} -L${AWS_RDS_ODBC_PATH}/build"
+
+	for dependency in $AWS_RDS_ODBC_DEPENDENCIES; do
+		AC_CHECK_LIB([$dependency], [main], [], [AC_MSG_ERROR([lib${dependency} library not found])])
+		LDFLAGS="${LDFLAGS} -l${dependency}"
+	done
 
 	AC_CHECK_LIB([aws-rds-odbc], [main], [], [AC_MSG_ERROR([libaws-rds-odbc library not found])])
 	LDFLAGS="${LDFLAGS} -laws-rds-odbc"
-fi
-
-#
-# AWS SDK
-#
-AC_ARG_WITH(awssdk, [  --with-awssdk		  [[default=yes]] Build with AWS SDK for C++],
-[], [with_awssdk=yes])
-
-AWS_SDK_LIBS="
-	curl
-	z
-	aws-c-auth
-	aws-c-cal
-	aws-c-common
-	aws-c-compression
-	aws-c-event-stream
-	aws-c-http
-	aws-c-io
-	aws-c-mqtt
-	aws-c-s3
-	aws-c-sdkutils
-	aws-checksums
-	aws-crt-cpp
-	aws-cpp-sdk-core
-	aws-cpp-sdk-sts
-	aws-cpp-sdk-rds
-"
-
-if test "$with_awssdk" != no; then
-	AC_FULL_PATH([libs/aws-rds-odbc/aws_sdk], [AWS_SDK_PATH])
-	CPPFLAGS="${CPPFLAGS} -I${AWS_SDK_PATH}/install/include"
-	LDFLAGS="${LDFLAGS} -L${AWS_SDK_PATH}/install/lib"
-
-	for lib in $AWS_SDK_LIBS; do
-		AC_CHECK_LIB([$lib], [main], [], [AC_MSG_ERROR([lib${lib} library not found])])
-		LDFLAGS="${LDFLAGS} -l${lib}"
-	done
 fi
 
 # 1. Programs

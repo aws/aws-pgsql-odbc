@@ -110,7 +110,19 @@
 		7369D1852CB0627000CBF22B /* bind.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93742CB034440091B8EE /* bind.c */; };
 		7369D1872CB0627000CBF22B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C94202CB0381E0091B8EE /* Security.framework */; };
 		7369D1882CB0627000CBF22B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C941E2CB0380F0091B8EE /* CoreFoundation.framework */; };
+		736BC1862CCA8F11006D0685 /* libaws-rds-odbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 736BC1852CCA8EFE006D0685 /* libaws-rds-odbc.a */; };
+		736BC1872CCA900D006D0685 /* libaws-rds-odbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 736BC1852CCA8EFE006D0685 /* libaws-rds-odbc.a */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		736BC1842CCA8EFE006D0685 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 73D7880E2CC915A60028B42F;
+			remoteInfo = "aws-rds-odbc";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		732C935F2CB023170091B8EE /* libawspgsqlodbcw.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libawspgsqlodbcw.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -169,6 +181,7 @@
 		732C941E2CB0380F0091B8EE /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		732C94202CB0381E0091B8EE /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		7369D18C2CB0627000CBF22B /* libawspgsqlodbca.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libawspgsqlodbca.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "aws-rds-odbc.xcodeproj"; path = "libs/aws-rds-odbc/aws-rds-odbc.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +191,7 @@
 			files = (
 				732C94212CB0381E0091B8EE /* Security.framework in Frameworks */,
 				732C941F2CB0380F0091B8EE /* CoreFoundation.framework in Frameworks */,
+				736BC1872CCA900D006D0685 /* libaws-rds-odbc.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -187,6 +201,7 @@
 			files = (
 				7369D1872CB0627000CBF22B /* Security.framework in Frameworks */,
 				7369D1882CB0627000CBF22B /* CoreFoundation.framework in Frameworks */,
+				736BC1862CCA8F11006D0685 /* libaws-rds-odbc.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -268,8 +283,17 @@
 			children = (
 				732C94202CB0381E0091B8EE /* Security.framework */,
 				732C941E2CB0380F0091B8EE /* CoreFoundation.framework */,
+				736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		736BC1812CCA8EFE006D0685 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				736BC1852CCA8EFE006D0685 /* libaws-rds-odbc.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -402,6 +426,12 @@
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 732C93602CB023170091B8EE /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 736BC1812CCA8EFE006D0685 /* Products */;
+					ProjectRef = 736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				7369D14A2CB0627000CBF22B /* awspgsqlodbca */,
@@ -409,6 +439,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		736BC1852CCA8EFE006D0685 /* libaws-rds-odbc.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libaws-rds-odbc.a";
+			remoteRef = 736BC1842CCA8EFE006D0685 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXSourcesBuildPhase section */
 		732C935C2CB023170091B8EE /* Sources */ = {
@@ -618,40 +658,24 @@
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
-					"$(SRCROOT)/aws_sdk/install/include",
+					"$(SRCROOT)/libs/aws-rds-odbc/aws_sdk/install/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"/opt/homebrew/opt/openssl@3/lib",
 					/opt/homebrew/opt/libpq/lib,
 					/opt/homebrew/Cellar/unixodbc/2.3.12/lib,
 					/Applications/Postgres.app/Contents/Versions/17/lib,
-					"$(SRCROOT)/aws_sdk/install/lib",
 				);
-				OBJROOT = "$(SRCROOT)/build";
+				OBJROOT = "$(SRCROOT)/xcode-build";
 				OTHER_LDFLAGS = (
 					"-lpq",
 					"-lodbcinst",
 					"-lcurl",
 					"-lz",
-					"-laws-c-auth",
-					"-laws-c-cal",
-					"-laws-c-common",
-					"-laws-c-compression",
-					"-laws-c-event-stream",
-					"-laws-c-http",
-					"-laws-c-io",
-					"-laws-c-mqtt",
-					"-laws-c-s3",
-					"-laws-c-sdkutils",
-					"-laws-checksums",
-					"-laws-crt-cpp",
-					"-laws-cpp-sdk-core",
-					"-laws-cpp-sdk-sts",
-					"-laws-cpp-sdk-rds",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = "$(SRCROOT)/build";
+				SYMROOT = "$(SRCROOT)/xcode-build";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
@@ -675,40 +699,24 @@
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
-					"$(SRCROOT)/aws_sdk/install/include",
+					"$(SRCROOT)/libs/aws-rds-odbc/aws_sdk/install/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"/opt/homebrew/opt/openssl@3/lib",
 					/opt/homebrew/opt/libpq/lib,
 					/opt/homebrew/Cellar/unixodbc/2.3.12/lib,
 					/Applications/Postgres.app/Contents/Versions/17/lib,
-					"$(SRCROOT)/aws_sdk/install/lib",
 				);
-				OBJROOT = "$(SRCROOT)/build";
+				OBJROOT = "$(SRCROOT)/xcode-build";
 				OTHER_LDFLAGS = (
 					"-lpq",
 					"-lodbcinst",
 					"-lcurl",
 					"-lz",
-					"-laws-c-auth",
-					"-laws-c-cal",
-					"-laws-c-common",
-					"-laws-c-compression",
-					"-laws-c-event-stream",
-					"-laws-c-http",
-					"-laws-c-io",
-					"-laws-c-mqtt",
-					"-laws-c-s3",
-					"-laws-c-sdkutils",
-					"-laws-checksums",
-					"-laws-crt-cpp",
-					"-laws-cpp-sdk-core",
-					"-laws-cpp-sdk-sts",
-					"-laws-cpp-sdk-rds",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = "$(SRCROOT)/build";
+				SYMROOT = "$(SRCROOT)/xcode-build";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Release;
@@ -732,40 +740,24 @@
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
-					"$(SRCROOT)/aws_sdk/install/include",
+					"$(SRCROOT)/libs/aws-rds-odbc/aws_sdk/install/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"/opt/homebrew/opt/openssl@3/lib",
 					/opt/homebrew/opt/libpq/lib,
 					/opt/homebrew/Cellar/unixodbc/2.3.12/lib,
 					/Applications/Postgres.app/Contents/Versions/17/lib,
-					"$(SRCROOT)/aws_sdk/install/lib",
 				);
-				OBJROOT = "$(SRCROOT)/build";
+				OBJROOT = "$(SRCROOT)/xcode-build";
 				OTHER_LDFLAGS = (
 					"-lpq",
 					"-lodbcinst",
 					"-lcurl",
 					"-lz",
-					"-laws-c-auth",
-					"-laws-c-cal",
-					"-laws-c-common",
-					"-laws-c-compression",
-					"-laws-c-event-stream",
-					"-laws-c-http",
-					"-laws-c-io",
-					"-laws-c-mqtt",
-					"-laws-c-s3",
-					"-laws-c-sdkutils",
-					"-laws-checksums",
-					"-laws-crt-cpp",
-					"-laws-cpp-sdk-core",
-					"-laws-cpp-sdk-sts",
-					"-laws-cpp-sdk-rds",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = "$(SRCROOT)/build";
+				SYMROOT = "$(SRCROOT)/xcode-build";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
@@ -789,40 +781,24 @@
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
-					"$(SRCROOT)/aws_sdk/install/include",
+					"$(SRCROOT)/libs/aws-rds-odbc/aws_sdk/install/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"/opt/homebrew/opt/openssl@3/lib",
 					/opt/homebrew/opt/libpq/lib,
 					/opt/homebrew/Cellar/unixodbc/2.3.12/lib,
 					/Applications/Postgres.app/Contents/Versions/17/lib,
-					"$(SRCROOT)/aws_sdk/install/lib",
 				);
-				OBJROOT = "$(SRCROOT)/build";
+				OBJROOT = "$(SRCROOT)/xcode-build";
 				OTHER_LDFLAGS = (
 					"-lpq",
 					"-lodbcinst",
 					"-lcurl",
 					"-lz",
-					"-laws-c-auth",
-					"-laws-c-cal",
-					"-laws-c-common",
-					"-laws-c-compression",
-					"-laws-c-event-stream",
-					"-laws-c-http",
-					"-laws-c-io",
-					"-laws-c-mqtt",
-					"-laws-c-s3",
-					"-laws-c-sdkutils",
-					"-laws-checksums",
-					"-laws-crt-cpp",
-					"-laws-cpp-sdk-core",
-					"-laws-cpp-sdk-sts",
-					"-laws-cpp-sdk-rds",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = "$(SRCROOT)/build";
+				SYMROOT = "$(SRCROOT)/xcode-build";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Release;
