@@ -457,6 +457,7 @@ test/regression.diffs
 # Xcode
 .DS_Store
 build/
+xcode-build/
 DerivedData/
 *.pbxuser
 *.mode1v3
@@ -468,6 +469,7 @@ contents.xcworkspacedata
 *.swp
 *.swo
 *.tmp
+
 
 # IntelliJ IDEA
 .idea
