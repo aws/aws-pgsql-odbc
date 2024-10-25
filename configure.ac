@@ -230,6 +230,7 @@ AC_CANONICAL_HOST
 
 case "$host" in 
   *apple-darwin*)
+	MACOS_BUILD=yes
 	LDFLAGS="${LDFLAGS} -framework CoreFoundation -framework Security"
   ;;
 esac
@@ -257,6 +258,11 @@ if test "$with_awsrdsodbc" != no; then
 
 	AC_CHECK_LIB([aws-rds-odbc], [main], [], [AC_MSG_ERROR([libaws-rds-odbc library not found])])
 	LDFLAGS="${LDFLAGS} -laws-rds-odbc"
+
+	# macOS build of glog needs gflags
+	if test "$MACOS_BUILD" != no; then
+		LDFLAGS="${LDFLAGS} -L/opt/homebrew/opt/gflags/lib -lc++ -lgflags"
+	fi
 fi
 
 # 1. Programs

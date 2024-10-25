@@ -45,7 +45,7 @@
 
 #include "pgapifunc.h"
 
-#include <authentication\authentication_provider.h>
+#include <authentication/authentication_provider.h>
 
 #define	SAFE_STR(s)	(NULL != (s) ? (s) : "(null)")
 
