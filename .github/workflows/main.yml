@@ -1,5 +1,5 @@
-name: Build And Regression Tests
-run-name: aws-pgsql-odbc CI - ${{ github.event.head_commit.message }}
+name: Build and Regression Tests on Windows
+run-name: aws-pgsql-odbc Windows CI - ${{ github.event.head_commit.message }}
 
 on:
   workflow_dispatch:
@@ -38,8 +38,7 @@ permissions:
   contents: read
 
 jobs:
-  build-and-test-driver-windows:
-    name: Build and run regression tests
+  build:
     runs-on: windows-latest
     steps:
       - name: Cache Postgres build output

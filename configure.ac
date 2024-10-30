@@ -66,11 +66,25 @@ if test -n "$GCC" && test "$ac_test_CFLAGS" != set; then
 fi
 
 #
+# Apple build support
+#
+AC_CANONICAL_HOST
+
+case "$host" in 
+  *apple-darwin*)
+	MACOS_BUILD=yes
+	LDFLAGS="${LDFLAGS} -framework CoreFoundation -framework Security"
+	AC_DEFINE([HAVE_STRLCAT], [], [])
+  ;;
+esac
+
+#
 # Whether unixODBC driver manager is used
 #
 AC_ARG_WITH(unixodbc, [  --with-unixodbc[[=DIR]]	  [[default=yes]] DIR is the unixODBC base install
 			  directory or the path to odbc_config],
 [], [with_unixodbc=yes])
+AC_MSG_NOTICE([with_unixodbc: $with_unixodbc])
 
 #
 # Whether iODBC driver manager is used
@@ -141,6 +155,9 @@ if test "$ODBC_CONFIG" != ""; then
 		if test "${ODBC_LIBDIR}" != ""; then
 			LDFLAGS="$LDFLAGS -L${ODBC_LIBDIR}"
 		fi
+		if test "$MACOS_BUILD" == yes; then
+			LDFLAGS="$LDFLAGS -lodbcinst"
+		fi
 		LIBODBC=`${ODBC_CONFIG} --libs`	# for regression test
 	fi
 	AC_MSG_NOTICE([using $ODBC_INCLUDE $ODBC_LIBDIR])
@@ -197,6 +214,10 @@ if test "$with_libpq" != yes; then
 			AC_MSG_ERROR([specified pg_config not found])
 		fi
 	fi
+else
+	if test "$MACOS_BUILD" == yes; then
+		LDFLAGS="$LDFLAGS -L/opt/homebrew/opt/libpq/lib -lpq"
+	fi
 fi
 
 #
@@ -212,28 +233,18 @@ PGAC_ARG_BOOL(enable, pthreads, yes,
 # Find libpq headers and libraries
 #
 if test -z "$PG_CONFIG"; then
+  AC_MSG_NOTICE([Checking for pg_config])
   AC_PATH_PROGS(PG_CONFIG, pg_config)
 fi
 
 if test -n "$PG_CONFIG"; then
+  AC_MSG_NOTICE([Running PG_CONFIG: ${PG_CONFIG}])
   pg_includedir=`"$PG_CONFIG" --includedir`
   pg_pkg_includedir=`"$PG_CONFIG" --pkgincludedir`
   pg_libdir=`"$PG_CONFIG" --libdir`
   CPPFLAGS="$CPPFLAGS -I$pg_includedir -I$pg_pkg_includedir/internal"
   LDFLAGS="$LDFLAGS -L$pg_libdir"
 fi
-
-#
-# Apple build support
-#
-AC_CANONICAL_HOST
-
-case "$host" in 
-  *apple-darwin*)
-	MACOS_BUILD=yes
-	LDFLAGS="${LDFLAGS} -framework CoreFoundation -framework Security"
-  ;;
-esac
 
 #
 # aws-rds-odbc
@@ -260,7 +271,7 @@ if test "$with_awsrdsodbc" != no; then
 	LDFLAGS="${LDFLAGS} -laws-rds-odbc"
 
 	# macOS build of glog needs gflags
-	if test "$MACOS_BUILD" != no; then
+	if test "$MACOS_BUILD" == yes; then
 		LDFLAGS="${LDFLAGS} -L/opt/homebrew/opt/gflags/lib -lc++ -lgflags"
 	fi
 fi
@@ -274,10 +285,12 @@ AC_CHECK_PROGS(PROVE, prove)
 
 LT_INIT([disable-static win32-dll dlopen])
 
+# if test "$GITHUB_ACTIONS" != "true" ]; then
 if test "$with_unixodbc" != no; then
-  AC_SEARCH_LIBS(SQLGetPrivateProfileString, odbcinst, [],
-                 [AC_MSG_ERROR([unixODBC library "odbcinst" not found])])
+	AC_SEARCH_LIBS(SQLGetPrivateProfileString, odbcinst, [],
+					[AC_MSG_ERROR([unixODBC library "odbcinst" not found])])
 fi
+# fi
 
 if test "$with_iodbc" != no; then
   AC_SEARCH_LIBS(SQLGetPrivateProfileString, iodbcinst, [],
@@ -290,13 +303,17 @@ if test "$enable_pthreads" = yes; then
 	       [AC_CHECK_LIB(pthread, pthread_create)])
 fi
 
-AC_CHECK_LIB(pq, PQsetSingleRowMode, [],
-	      [AC_MSG_ERROR([libpq library version >= 9.2 is required])])
+if test "$GITHUB_ACTIONS" != "true" ]; then
+	AC_CHECK_LIB(pq, PQsetSingleRowMode, [],
+		      [AC_MSG_ERROR([libpq library version >= 9.2 is required])])
+fi			  
 
 # 3. Header files
 
 AC_CHECK_HEADERS(locale.h sys/time.h uchar.h)
-AC_CHECK_HEADER(libpq-fe.h,,[AC_MSG_ERROR([libpq header not found])])
+if test "$GITHUB_ACTIONS" != "true" ]; then
+	AC_CHECK_HEADER(libpq-fe.h,,[AC_MSG_ERROR([libpq header not found])])
+fi
 AC_HEADER_STDBOOL
 
 # 4. Types(all members were moved to 0.)
