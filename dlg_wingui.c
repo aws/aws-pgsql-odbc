@@ -48,6 +48,7 @@ static struct {
 		  {IDS_AUTHTYPE_DATABASE, DATABASE_MODE}
 		, {IDS_AUTHTYPE_IAM, IAM_MODE}
 		, {IDS_AUTHTYPE_ADFS, ADFS_MODE}
+		, {IDS_AUTHTYPE_OKTA, OKTA_MODE}
 };
 
 static struct {
@@ -80,25 +81,41 @@ HWND idpArnDlg;
 HWND socketTimeoutDlg;
 HWND connTimeoutDlg;
 HWND relayingPartyIDDlg;
+HWND appIdDlg;
+
+bool isInList(char* check, char *valid[], unsigned int size) {
+    for (int i = 0; i < size; i++) {
+        if (stricmp(check, valid[i]) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
 
 void EnableWindows(int index) {
-	// Enable region and token expiration only when authtype is IAM or ADFS
-	EnableWindow(regionDlg, stricmp(authtype[index].authtypestr, IAM_MODE) == 0 || stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
-	EnableWindow(tokenExpirationDlg, stricmp(authtype[index].authtypestr, IAM_MODE) == 0 || stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	// Enable region and token expiration only when authtype is not Database
+	EnableWindow(regionDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
+	EnableWindow(tokenExpirationDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
 
 	// Enable password only when authtype is DATABASE
 	EnableWindow(passwordDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) == 0);
 
-	// Enable IDP windows only when authtype is ADFS
-	EnableWindow(idpEndpointDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
-	EnableWindow(idpPortDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
-	EnableWindow(idpUserNameDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
-	EnableWindow(idpPasswordDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
-	EnableWindow(idpRoleArnDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
-	EnableWindow(idpArnDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
-	EnableWindow(socketTimeoutDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
-	EnableWindow(connTimeoutDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+	// ADFS & Okta
+	bool isFederated = isInList(authtype[index].authtypestr, (char*[]){ADFS_MODE, OKTA_MODE}, 2);
+	EnableWindow(idpEndpointDlg, isFederated);
+	EnableWindow(idpPortDlg, isFederated);
+	EnableWindow(idpUserNameDlg, isFederated);
+	EnableWindow(idpPasswordDlg, isFederated);
+	EnableWindow(idpRoleArnDlg, isFederated);
+	EnableWindow(idpArnDlg, isFederated);
+	EnableWindow(socketTimeoutDlg, isFederated);
+	EnableWindow(connTimeoutDlg, isFederated);
+
+	// ADFS Specific
 	EnableWindow(relayingPartyIDDlg, stricmp(authtype[index].authtypestr, ADFS_MODE) == 0);
+
+	// Okta Specfic
+	EnableWindow(appIdDlg, stricmp(authtype[index].authtypestr, OKTA_MODE) == 0);
 }
 
 // Function to handle notifications from the AuthType drop list
@@ -140,12 +157,13 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	SetDlgItemText(hdlg, IDC_IDP_ENDPOINT, ci->federation_cfg.idp_endpoint);
 	SetDlgItemText(hdlg, IDC_IDP_PORT, ci->federation_cfg.idp_port);
 	SetDlgItemText(hdlg, IDC_IDP_USER_NAME, ci->federation_cfg.idp_username);
-	SetDlgItemText(hdlg, IDC_IDP_PASSWORD, SAFE_NAME(ci->federation_cfg.idp_password));
+	SetDlgItemText(hdlg, IDC_IDP_PASSWORD, ci->federation_cfg.idp_password);
 	SetDlgItemText(hdlg, IDC_ROLE_ARN, ci->federation_cfg.iam_role_arn);
 	SetDlgItemText(hdlg, IDC_IDP_ARN, ci->federation_cfg.iam_idp_arn);
 	SetDlgItemText(hdlg, IDC_SOCKET_TIMEOUT, ci->federation_cfg.http_client_socket_timeout);
 	SetDlgItemText(hdlg, IDC_CONN_TIMEOUT, ci->federation_cfg.http_client_connect_timeout);
 	SetDlgItemText(hdlg, IDC_RELAYING_PARTY_ID, ci->federation_cfg.relaying_party_id);
+	SetDlgItemText(hdlg, IDC_APP_ID, ci->federation_cfg.app_id);
 
 	dsplevel = 0;
 
@@ -215,6 +233,7 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	socketTimeoutDlg = GetDlgItem(hdlg, IDC_SOCKET_TIMEOUT);
 	connTimeoutDlg = GetDlgItem(hdlg, IDC_CONN_TIMEOUT);
 	relayingPartyIDDlg = GetDlgItem(hdlg, IDC_RELAYING_PARTY_ID);
+	appIdDlg = GetDlgItem(hdlg, IDC_APP_ID);
 
 	EnableWindows(selidx);
 }
@@ -243,14 +262,14 @@ GetDlgStuff(HWND hdlg, ConnInfo *ci)
 	GetDlgItemText(hdlg, IDC_IDP_ENDPOINT, ci->federation_cfg.idp_endpoint, sizeof(ci->federation_cfg.idp_endpoint));
 	GetDlgItemText(hdlg, IDC_IDP_PORT, ci->federation_cfg.idp_port, sizeof(ci->federation_cfg.idp_port));
 	GetDlgItemText(hdlg, IDC_IDP_USER_NAME, ci->federation_cfg.idp_username, sizeof(ci->federation_cfg.idp_username));
-	GetDlgItemText(hdlg, IDC_IDP_PASSWORD, medium_buf, sizeof(medium_buf));
-	STR_TO_NAME(ci->federation_cfg.idp_password, medium_buf);
+	GetDlgItemText(hdlg, IDC_IDP_PASSWORD, ci->federation_cfg.idp_password, sizeof(medium_buf));
 	GetDlgItemText(hdlg, IDC_ROLE_ARN, ci->federation_cfg.iam_role_arn, sizeof(ci->federation_cfg.iam_role_arn));
 	GetDlgItemText(hdlg, IDC_IDP_ARN, ci->federation_cfg.iam_idp_arn, sizeof(ci->federation_cfg.iam_idp_arn));
 
 	GetDlgItemText(hdlg, IDC_SOCKET_TIMEOUT, ci->federation_cfg.http_client_socket_timeout, sizeof(ci->federation_cfg.http_client_socket_timeout));
 	GetDlgItemText(hdlg, IDC_CONN_TIMEOUT, ci->federation_cfg.http_client_connect_timeout, sizeof(ci->federation_cfg.http_client_connect_timeout));
 	GetDlgItemText(hdlg, IDC_RELAYING_PARTY_ID, ci->federation_cfg.relaying_party_id, sizeof(ci->federation_cfg.relaying_party_id));
+	GetDlgItemText(hdlg, IDC_APP_ID, ci->federation_cfg.app_id, sizeof(ci->federation_cfg.app_id));
 }
 
 static void

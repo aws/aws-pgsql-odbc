@@ -122,11 +122,13 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir);$(ProjectDir)\..\libs\aws-rds-odbc\src;$(ProjectDir)\libs\aws-rds-odbc\aws_sdk\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(IntDir)common.obj;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\..\libs\aws-rds-odbc\build\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(IntDir)common.obj;odbc32.lib;odbccp32.lib;aws-rds-odbc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
@@ -158,13 +160,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(ADD_INC);%(AdditionalIncludeDirectories);$(ProjectDir);$(ProjectDir)\..\libs\aws-rds-odbc\src;$(ProjectDir)\libs\aws-rds-odbc\aws_sdk\install\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(IntDir)common.obj;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\..\libs\aws-rds-odbc\build\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(IntDir)common.obj;odbc32.lib;odbccp32.lib;aws-rds-odbc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>

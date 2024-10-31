@@ -294,7 +294,6 @@ makeConnectString(char *connect_string, const ConnInfo *ci, UWORD len)
 {
 	char		got_dsn = (ci->dsn[0] != '\0');
 	char		encoded_item[LARGE_REGISTRY_LEN];
-	char		encoded_idp_password[LARGE_REGISTRY_LEN];
 	char		*connsetStr = NULL;
 	char		*pqoptStr = NULL;
 	char		keepaliveStr[64];
@@ -310,12 +309,12 @@ MYLOG(0, "%s row_versioning=%s\n", __FUNCTION__, ci->row_versioning);
 
 MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr, abbrev);
 	encode(ci->password, encoded_item, sizeof(encoded_item));
-	encode(ci->federation_cfg.idp_password, encoded_idp_password, sizeof(encoded_idp_password));
 	/* fundamental info */
 	nlen = MAX_CONNECT_STRING;
 	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;AUTHTYPE=%s;" \
 		"UID=%s;PWD=%s;REGION=%s;TOKENEXPIRATION=%s;IDPENDPOINT=%s;IDPPORT=%s;IDPUSERNAME=%s;" \
-		"IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s",
+		"IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s;" \
+		"APPID=%s;",
 			got_dsn ? "DSN" : "DRIVER",
 			got_dsn ? ci->dsn : ci->drivername,
 			ci->database,
@@ -329,12 +328,13 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 		ci->federation_cfg.idp_endpoint,
 		ci->federation_cfg.idp_port,
 		ci->federation_cfg.idp_username,
-		encoded_idp_password,
+		ci->federation_cfg.idp_password,
 		ci->federation_cfg.iam_idp_arn,
 		ci->federation_cfg.iam_role_arn,
 		ci->federation_cfg.http_client_socket_timeout,
 		ci->federation_cfg.http_client_connect_timeout,
-		ci->federation_cfg.relaying_party_id);
+		ci->federation_cfg.relaying_party_id,
+		ci->federation_cfg.app_id);
 	if (olen < 0 || olen >= nlen)
 	{
 		connect_string[0] = '\0';
@@ -645,8 +645,8 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 	{
 		NULL_THE_NAME(ci->password);
 		ci->password = decode_or_remove_braces(value);
-#ifndef FORCE_PASSWORDE_DISPLAY
-		MYLOG(0, "key='%s' value='xxxxxxxx'\n", attribute);
+#ifndef FORCE_PASSWORD_DISPLAY
+		MYLOG(0, "key='%s' value='%s'\n", attribute, value);
 		printed = TRUE;
 #endif
 	}
@@ -663,9 +663,9 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 	else if (stricmp(attribute, INI_IDP_USER_NAME) == 0)
 		STRCPY_FIXED(ci->federation_cfg.idp_username, value);
 	else if (stricmp(attribute, INI_IDP_PASSWORD) == 0) {
-		ci->federation_cfg.idp_password = decode_or_remove_braces(value);
-#ifndef FORCE_PASSWORDE_DISPLAY
-		MYLOG(0, "key='%s' value='xxxxxxxx'\n", attribute);
+		STRCPY_FIXED(ci->federation_cfg.idp_password, value);
+#ifndef FORCE_PASSWORD_DISPLAY
+		MYLOG(0, "key='%s' value='%s'\n", attribute, value);
 		printed = TRUE;
 #endif
 	}
@@ -679,6 +679,8 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		STRCPY_FIXED(ci->federation_cfg.http_client_connect_timeout, value);
 	else if (stricmp(attribute, INI_RELAYING_PARTY_ID) == 0)
 		STRCPY_FIXED(ci->federation_cfg.relaying_party_id, value);
+	else if (stricmp(attribute, INI_APP_ID) == 0)
+		STRCPY_FIXED(ci->federation_cfg.app_id, value);
 	else if (stricmp(attribute, INI_READONLY) == 0 || stricmp(attribute, ABBR_READONLY) == 0)
 		STRCPY_FIXED(ci->onlyread, value);
 	else if (stricmp(attribute, INI_PROTOCOL) == 0 || stricmp(attribute, ABBR_PROTOCOL) == 0)
@@ -1047,7 +1049,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 		STRCPY_FIXED(ci->federation_cfg.idp_username, temp);
 
 	if (SQLGetPrivateProfileString(DSN, INI_IDP_PASSWORD, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
-		ci->federation_cfg.idp_password = decode(temp);
+		STRCPY_FIXED(ci->federation_cfg.idp_password, temp);
 
 	if (SQLGetPrivateProfileString(DSN, INI_ROLE_ARN, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->federation_cfg.iam_role_arn, temp);
@@ -1063,6 +1065,9 @@ MYLOG(0, "drivername=%s\n", drivername);
 
 	if (SQLGetPrivateProfileString(DSN, INI_RELAYING_PARTY_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->federation_cfg.relaying_party_id, temp);
+
+	if (SQLGetPrivateProfileString(DSN, INI_APP_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+		STRCPY_FIXED(ci->federation_cfg.app_id, temp);
 
 	/* It's appropriate to handle debug and commlog here */
 	if (SQLGetPrivateProfileString(DSN, INI_DEBUG, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
@@ -1209,7 +1214,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 	MYLOG(DETAIL_LOG_LEVEL, "DSN info: DSN='%s',server='%s',port='%s',dbase='%s'," \
 		"authtype='%s',user='%s',passwd='%s',region='%s',token_expiration='%s',idp_endpoint='%s'," \
 		"idp_port='%s',idp_username='%s',idp_password='%s',idp_arn='%s',idp_role_arn=%s," \
-		"socket_timeout='%s',conn_timeout='%s',relaying_party_id='%s'\n",
+		"socket_timeout='%s',conn_timeout='%s',relaying_party_id='%s',app_id='%s'\n",
 		 DSN,
 		 ci->server,
 		 ci->port,
@@ -1222,12 +1227,13 @@ MYLOG(0, "drivername=%s\n", drivername);
 		ci->federation_cfg.idp_endpoint,
 		ci->federation_cfg.idp_port,
 		ci->federation_cfg.idp_username,
-		NAME_IS_VALID(ci->federation_cfg.idp_password) ? "xxxxx" : "",
+		ci->federation_cfg.idp_password ? "xxxxx" : "",
 		ci->federation_cfg.iam_idp_arn,
 		ci->federation_cfg.iam_role_arn,
 		ci->federation_cfg.http_client_socket_timeout,
 		ci->federation_cfg.http_client_connect_timeout,
-		ci->federation_cfg.relaying_party_id);
+		ci->federation_cfg.relaying_party_id,
+		ci->federation_cfg.app_id);
 	MYLOG(DETAIL_LOG_LEVEL, "          onlyread='%s',showoid='%s',fakeoidindex='%s',showsystable='%s'\n",
 		 ci->onlyread,
 		 ci->show_oid_column,
@@ -1405,10 +1411,9 @@ writeDSNinfo(const ConnInfo *ci)
 								 ci->federation_cfg.idp_username,
 								 ODBC_INI);
 
-	encode(ci->federation_cfg.idp_password, encoded_item, sizeof(encoded_item));
 	SQLWritePrivateProfileString(DSN,
 								 INI_IDP_PASSWORD,
-								 encoded_item,
+								 ci->federation_cfg.idp_password,
 								 ODBC_INI);
 
 	SQLWritePrivateProfileString(DSN,
@@ -1434,6 +1439,11 @@ writeDSNinfo(const ConnInfo *ci)
 	SQLWritePrivateProfileString(DSN,
 								 INI_RELAYING_PARTY_ID,
 								 ci->federation_cfg.relaying_party_id,
+								 ODBC_INI);
+
+	SQLWritePrivateProfileString(DSN,
+								 INI_APP_ID,
+								 ci->federation_cfg.app_id,
 								 ODBC_INI);
 
 	SQLWritePrivateProfileString(DSN,
@@ -1939,7 +1949,6 @@ CC_conninfo_release(ConnInfo *conninfo)
 	NULL_THE_NAME(conninfo->password);
 	NULL_THE_NAME(conninfo->conn_settings);
 	NULL_THE_NAME(conninfo->pqopt);
-	NULL_THE_NAME(conninfo->federation_cfg.idp_password);
 	finalize_globals(&conninfo->drivers);
 }
 
@@ -2053,7 +2062,7 @@ CC_copy_conninfo(ConnInfo *ci, const ConnInfo *sci)
 	CORR_FED_STRCPY(iam_role_arn);
 	CORR_FED_STRCPY(iam_idp_arn);
 	CORR_FED_STRCPY(idp_username);
-	NAME_TO_NAME(ci->federation_cfg.idp_password, sci->federation_cfg.idp_password);
+	CORR_FED_STRCPY(idp_password);
 
 	CORR_FED_STRCPY(http_client_socket_timeout);
 	CORR_FED_STRCPY(http_client_connect_timeout);

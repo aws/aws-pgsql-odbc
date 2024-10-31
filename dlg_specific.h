@@ -68,6 +68,7 @@ extern "C" {
 #define INI_SOCKET_TIMEOUT		"SocketTimeout"		/* Default socket timeout */
 #define INI_CONN_TIMEOUT		"ConnTimeout"		/* Default connection timeout */
 #define INI_RELAYING_PARTY_ID	"RelayingPartyID"	/* Default relaying party id */
+#define INI_APP_ID				"AppId"
 
 #define	INI_ABBREVIATE			"CX"
 #define INI_DEBUG			"Debug"		/* Debug flag */
@@ -198,6 +199,7 @@ extern "C" {
 #define DATABASE_MODE			"database"
 #define IAM_MODE			"iam"
 #define ADFS_MODE			"adfs"
+#define OKTA_MODE			"okta"
 
 #define	SSLMODE_DISABLE		"disable"
 #define	SSLMODE_ALLOW		"allow"

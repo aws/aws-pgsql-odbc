@@ -179,7 +179,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>DYNAMIC_LOAD;_HANDLE_ENLIST_IN_DTC_;WIN_MULTITHREAD_SUPPORT;$(ADD_DEFINES);_CRT_SECURE_NO_DEPRECATE;WIN32;_DEBUG;_WINDOWS;_USRDLL;PSQLSETUP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\libs\aws-rds-odbc\src</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>$(RSC_DEFINES);%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -237,7 +237,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>DYNAMIC_LOAD;_HANDLE_ENLIST_IN_DTC_;WIN_MULTITHREAD_SUPPORT;$(ADD_DEFINES);_CRT_SECURE_NO_DEPRECATE;WIN32;NDEBUG;_WINDOWS;_USRDLL;PSQLSETUP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(ProjectDir)\libs\aws-rds-odbc\src</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>$(RSC_DEFINES);%(PreprocessorDefinitions)</PreprocessorDefinitions>

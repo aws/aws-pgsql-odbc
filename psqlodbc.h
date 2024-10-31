@@ -173,6 +173,8 @@ void		debug_memory_check(void);
 #include <iodbcinst.h>
 #endif
 
+#include <authentication/authentication_provider.h>
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -658,22 +660,6 @@ void		logs_on_off(int cnopen, int, int);
 
 #define	LENADDR_SHIFT(x, sft)	((x) ? (SQLLEN *)((char *)(x) + (sft)) : NULL)
 
-/*	Structure to hold all the federation attributes for a specific
-	authentication type. Now only support ADFS.
-*/
-typedef struct {
-	char    idp_endpoint[MEDIUM_REGISTRY_LEN];
-	char    idp_port[SMALL_REGISTRY_LEN];
-	char    relaying_party_id[MEDIUM_REGISTRY_LEN];
-	char    iam_role_arn[MEDIUM_REGISTRY_LEN];
-	char    iam_idp_arn[MEDIUM_REGISTRY_LEN];
-	char    idp_username[MEDIUM_REGISTRY_LEN];
-	pgNAME	idp_password;
-	char    http_client_socket_timeout[SMALL_REGISTRY_LEN];
-	char    http_client_connect_timeout[SMALL_REGISTRY_LEN];
-	char    ssl_insecure[SMALL_REGISTRY_LEN];  // For ADFS with IAM, this field is not used as it should be true always
-} FederationConfig;
-
 /*	Structure to hold all the connection attributes for a specific
 	connection (used for both registry and file, DSN and DRIVER)
 */
@@ -698,7 +684,7 @@ typedef struct
 	char		show_system_tables[SMALL_REGISTRY_LEN];
 	char		translation_dll[MEDIUM_REGISTRY_LEN];
 	char		translation_option[SMALL_REGISTRY_LEN];
-	FederationConfig federation_cfg;
+	FederatedAuthConfig federation_cfg;
 	char		password_required;
 	char		conn_settings_in_str;
 	char		pqopt_in_str;
