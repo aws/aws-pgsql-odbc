@@ -49,6 +49,7 @@ static struct {
 		, {IDS_AUTHTYPE_IAM, IAM_MODE}
 		, {IDS_AUTHTYPE_ADFS, ADFS_MODE}
 		, {IDS_AUTHTYPE_OKTA, OKTA_MODE}
+		, {IDS_AUTHTYPE_SECRET, SECRET_MODE}
 };
 
 static struct {
@@ -66,6 +67,8 @@ static int	dspcount_bylevel[] = {1, 4, 6};
 
 // window handle of region
 HWND regionDlg;
+// window handle of user name
+HWND userNameDlg;
 // window handle of password
 HWND passwordDlg;
 // window handle of token expiration
@@ -92,10 +95,16 @@ bool isInList(char* check, char *valid[], unsigned int size) {
     return false;
 }
 
+// window handle of secret ID
+HWND secretIdDlg;
+
 void EnableWindows(int index) {
 	// Enable region and token expiration only when authtype is not Database
 	EnableWindow(regionDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
 	EnableWindow(tokenExpirationDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
+
+	// Enable user name only when authtype is not Secrets Manager
+	EnableWindow(userNameDlg, stricmp(authtype[index].authtypestr, SECRET_MODE) != 0);
 
 	// Enable password only when authtype is DATABASE
 	EnableWindow(passwordDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) == 0);
@@ -116,6 +125,9 @@ void EnableWindows(int index) {
 
 	// Okta Specfic
 	EnableWindow(appIdDlg, stricmp(authtype[index].authtypestr, OKTA_MODE) == 0);
+
+	// Secrets Manager Specific
+	EnableWindow(secretIdDlg, stricmp(authtype[index].authtypestr, SECRET_MODE) == 0);
 }
 
 // Function to handle notifications from the AuthType drop list
@@ -165,6 +177,8 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	SetDlgItemText(hdlg, IDC_RELAYING_PARTY_ID, ci->federation_cfg.relaying_party_id);
 	SetDlgItemText(hdlg, IDC_APP_ID, ci->federation_cfg.app_id);
 
+	SetDlgItemText(hdlg, IDC_SECRET_ID, ci->secret_id);
+
 	dsplevel = 0;
 
 	/*
@@ -213,7 +227,7 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	{
 		LoadString(GetWindowInstance(hdlg), authtype[i].ids, buff, MEDIUM_REGISTRY_LEN);
 		SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_ADDSTRING, 0, (WPARAM)buff);
-}
+	}
 	SendDlgItemMessage(hdlg, IDC_AUTHTYPE, CB_SETCURSEL, selidx, (WPARAM)0);
 
 	// Set subclass procedure for the authtype drop list to handle notifications
@@ -221,6 +235,7 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 
     regionDlg = GetDlgItem(hdlg, IDC_REGION);
 	tokenExpirationDlg = GetDlgItem(hdlg, IDC_TOKEN_EXPIRATION);
+	userNameDlg = GetDlgItem(hdlg, IDC_USER);
 	passwordDlg = GetDlgItem(hdlg, IDC_PASSWORD);
 
 	idpEndpointDlg = GetDlgItem(hdlg, IDC_IDP_ENDPOINT);
@@ -234,6 +249,8 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	connTimeoutDlg = GetDlgItem(hdlg, IDC_CONN_TIMEOUT);
 	relayingPartyIDDlg = GetDlgItem(hdlg, IDC_RELAYING_PARTY_ID);
 	appIdDlg = GetDlgItem(hdlg, IDC_APP_ID);
+
+    secretIdDlg = GetDlgItem(hdlg, IDC_SECRET_ID);
 
 	EnableWindows(selidx);
 }
@@ -269,7 +286,10 @@ GetDlgStuff(HWND hdlg, ConnInfo *ci)
 	GetDlgItemText(hdlg, IDC_SOCKET_TIMEOUT, ci->federation_cfg.http_client_socket_timeout, sizeof(ci->federation_cfg.http_client_socket_timeout));
 	GetDlgItemText(hdlg, IDC_CONN_TIMEOUT, ci->federation_cfg.http_client_connect_timeout, sizeof(ci->federation_cfg.http_client_connect_timeout));
 	GetDlgItemText(hdlg, IDC_RELAYING_PARTY_ID, ci->federation_cfg.relaying_party_id, sizeof(ci->federation_cfg.relaying_party_id));
+
 	GetDlgItemText(hdlg, IDC_APP_ID, ci->federation_cfg.app_id, sizeof(ci->federation_cfg.app_id));
+
+	GetDlgItemText(hdlg, IDC_SECRET_ID, ci->secret_id, sizeof(ci->secret_id));
 }
 
 static void
