@@ -5,3 +5,4 @@
 [submodule "libs/aws-rds-odbc"]
 	path = libs/aws-rds-odbc
 	url = git@github.com:aws/aws-rds-odbc.git
+	branch = main
