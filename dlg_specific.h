@@ -70,6 +70,8 @@ extern "C" {
 #define INI_RELAYING_PARTY_ID	"RelayingPartyID"	/* Default relaying party id */
 #define INI_APP_ID				"AppId"
 
+#define INI_SECRET_ID	"SecretID" /* Default secret id */
+
 #define	INI_ABBREVIATE			"CX"
 #define INI_DEBUG			"Debug"		/* Debug flag */
 #define ABBR_DEBUG			"B2"
@@ -200,6 +202,7 @@ extern "C" {
 #define IAM_MODE			"iam"
 #define ADFS_MODE			"adfs"
 #define OKTA_MODE			"okta"
+#define SECRET_MODE			"secret"
 
 #define	SSLMODE_DISABLE		"disable"
 #define	SSLMODE_ALLOW		"allow"

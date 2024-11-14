@@ -1143,6 +1143,7 @@ typedef enum {
 } TokenResult;
 
 #define	SAFESTRCPY(dst, src) (strcpy(dst, src ? src : ""))
+#define SAFESTRNCPY(dst, src, dst_size) (strncpy(dst, src ? src : "", dst_size))
 
 // Get token for IAM or ADFS authentication mode.
 TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
@@ -1210,7 +1211,33 @@ CC_connect(ConnectionClass *self, char *salt_para)
 
 	MYLOG(0, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
-	if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
+	if (stricmp(ci->authtype, SECRET_MODE) == 0) {
+		Credentials credentials;
+		credentials.username = (char *)malloc(MEDIUM_REGISTRY_LEN);
+		credentials.password = (char *)malloc(MEDIUM_REGISTRY_LEN);
+		credentials.username_size = MEDIUM_REGISTRY_LEN;
+		credentials.password_size = MEDIUM_REGISTRY_LEN;
+
+		MYLOG(0, "secret ID: %s, region: %s\n", ci->secret_id, ci->region);
+
+		bool successful = GetCredentialsFromSecretsManager(ci->secret_id, ci->region, &credentials);
+		if (!successful) {
+			MYLOG(0, "could not get credentials from secrets manager\n");
+			return 0;
+		}
+
+		SAFESTRNCPY(ci->username, credentials.username, MEDIUM_REGISTRY_LEN);
+		STRN_TO_NAME(ci->password, credentials.password, MEDIUM_REGISTRY_LEN);
+		free(credentials.username);
+		free(credentials.password);
+		credentials.username = NULL;
+		credentials.password = NULL;
+
+		ret = LIBPQ_CC_connect(self, salt_para);
+		if (ret <= 0)
+			return ret;
+	}
+	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
@@ -1233,8 +1260,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	}
 	else {
 		ret = LIBPQ_CC_connect(self, salt_para);
-	if (ret <= 0)
-		return ret;
+		if (ret <= 0)
+			return ret;
 	}
 
 	CC_set_translation(self);

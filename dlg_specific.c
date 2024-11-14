@@ -314,7 +314,7 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;AUTHTYPE=%s;" \
 		"UID=%s;PWD=%s;REGION=%s;TOKENEXPIRATION=%s;IDPENDPOINT=%s;IDPPORT=%s;IDPUSERNAME=%s;" \
 		"IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s;" \
-		"APPID=%s;",
+		"APPID=%s;SECRETID=%S",
 			got_dsn ? "DSN" : "DRIVER",
 			got_dsn ? ci->dsn : ci->drivername,
 			ci->database,
@@ -334,7 +334,8 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 		ci->federation_cfg.http_client_socket_timeout,
 		ci->federation_cfg.http_client_connect_timeout,
 		ci->federation_cfg.relaying_party_id,
-		ci->federation_cfg.app_id);
+		ci->federation_cfg.app_id,
+		ci->secret_id);
 	if (olen < 0 || olen >= nlen)
 	{
 		connect_string[0] = '\0';
@@ -681,6 +682,8 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		STRCPY_FIXED(ci->federation_cfg.relaying_party_id, value);
 	else if (stricmp(attribute, INI_APP_ID) == 0)
 		STRCPY_FIXED(ci->federation_cfg.app_id, value);
+	else if (stricmp(attribute, INI_SECRET_ID) == 0)
+		STRCPY_FIXED(ci->secret_id, value);
 	else if (stricmp(attribute, INI_READONLY) == 0 || stricmp(attribute, ABBR_READONLY) == 0)
 		STRCPY_FIXED(ci->onlyread, value);
 	else if (stricmp(attribute, INI_PROTOCOL) == 0 || stricmp(attribute, ABBR_PROTOCOL) == 0)
@@ -1069,6 +1072,9 @@ MYLOG(0, "drivername=%s\n", drivername);
 	if (SQLGetPrivateProfileString(DSN, INI_APP_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->federation_cfg.app_id, temp);
 
+	if (SQLGetPrivateProfileString(DSN, INI_SECRET_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+		STRCPY_FIXED(ci->secret_id, temp);
+
 	/* It's appropriate to handle debug and commlog here */
 	if (SQLGetPrivateProfileString(DSN, INI_DEBUG, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		ci->drivers.debug = atoi(temp);
@@ -1439,6 +1445,11 @@ writeDSNinfo(const ConnInfo *ci)
 	SQLWritePrivateProfileString(DSN,
 								 INI_RELAYING_PARTY_ID,
 								 ci->federation_cfg.relaying_party_id,
+								 ODBC_INI);
+								 
+	SQLWritePrivateProfileString(DSN,
+								 INI_SECRET_ID,
+								 ci->secret_id,
 								 ODBC_INI);
 
 	SQLWritePrivateProfileString(DSN,
@@ -2056,6 +2067,7 @@ CC_copy_conninfo(ConnInfo *ci, const ConnInfo *sci)
 	CORR_STRCPY(region);
 	CORR_STRCPY(port);
 	CORR_STRCPY(token_expiration);
+	CORR_STRCPY(secret_id);
 
 	CORR_FED_STRCPY(idp_endpoint);
 	CORR_FED_STRCPY(idp_port);

@@ -50,6 +50,7 @@
 #define IDS_AUTHTYPE_IAM                511
 #define IDS_AUTHTYPE_ADFS               512
 #define IDS_AUTHTYPE_OKTA               513
+#define IDS_AUTHTYPE_SECRET             514
 #define DLG_CONFIG                      1001
 #define IDC_PORT                        1002
 #define DLG_DRIVER_CHANGE               1002
@@ -153,6 +154,7 @@
 #define DS_FETCH_REFCURSORS             1114
 #define IDC_AUTHTYPE                    1115
 #define IDC_APP_ID                      1116
+#define IDC_SECRET_ID                   1117
 
 // Next default values for new objects
 //
