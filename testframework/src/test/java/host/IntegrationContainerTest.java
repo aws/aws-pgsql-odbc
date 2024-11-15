@@ -45,12 +45,13 @@ import utility.StringUtils;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class IntegrationContainerTest {
-  private static final int MYSQL_PORT = 3306;
+  private static final int POSTGRES_PORT = 5432;
   private static final String TEST_CONTAINER_NAME = "test-container";
   private static final String TEST_DATABASE = "test";
   private static final String TEST_DSN = System.getenv("TEST_DSN");
@@ -68,7 +69,7 @@ public class IntegrationContainerTest {
   private static final String ENDPOINT = System.getenv("RDS_ENDPOINT");
   private static final String REGION = System.getenv("RDS_REGION");
   private static final String DOCKER_UID = "1001";
-  private static final String COMMUNITY_SERVER = "mysql-instance";
+  private static final String COMMUNITY_SERVER = "postgres-instance";
 
   private static final String DRIVER_LOCATION = System.getenv("DRIVER_PATH");
   private static final String PROXIED_DOMAIN_NAME_SUFFIX = ".proxied";
@@ -81,10 +82,12 @@ public class IntegrationContainerTest {
   private static final ContainerHelper containerHelper = new ContainerHelper();
   private static final AuroraTestUtility auroraUtil = new AuroraTestUtility(REGION, ENDPOINT);
 
-  private static int mySQLProxyPort;
-  private static List<String> mySqlInstances = new ArrayList<>();
+  private static final String UNIXODBC_VERSION = "2.3.12";
+
+  private static int postgresProxyPort;
+  private static List<String> postgresInstances = new ArrayList<>();
   private static GenericContainer<?> testContainer;
-  private static GenericContainer<?> mysqlContainer;
+  private static GenericContainer<?> postgresContainer;
   private static String dbHostCluster = "";
   private static String dbHostClusterRo = "";
   private static String runnerIP = null;
@@ -118,8 +121,8 @@ public class IntegrationContainerTest {
       }
     }
     testContainer.stop();
-    if (mysqlContainer != null) {
-      mysqlContainer.stop();
+    if (postgresContainer != null) {
+      postgresContainer.stop();
     }
   }
 
@@ -138,20 +141,6 @@ public class IntegrationContainerTest {
     containerHelper.runCTest(testContainer, "/app/build/test");
   }
 
-  @Test
-  public void testRunFailoverTestInContainer()
-      throws UnsupportedOperationException, IOException, InterruptedException {
-    setupFailoverIntegrationTests(NETWORK);
-    containerHelper.runExecutable(testContainer, "build/integration/bin", "integration");
-  }
-
-  @Test
-  public void testRunPerformanceTestInContainer()
-      throws UnsupportedOperationException, IOException, InterruptedException {
-    setupPerformanceIntegrationTests(NETWORK);
-    containerHelper.runExecutable(testContainer, "build/integration/bin", "integration");
-  }
-
   protected static GenericContainer<?> createTestContainer(final Network network) {
     return containerHelper.createTestContainer(
             "odbc/rds-test-container",
@@ -162,71 +151,69 @@ public class IntegrationContainerTest {
         .withEnv("TEST_UID", TEST_USERNAME)
         .withEnv("TEST_PASSWORD", TEST_PASSWORD)
         .withEnv("TEST_DATABASE", TEST_DATABASE)
-        .withEnv("MYSQL_PORT", Integer.toString(MYSQL_PORT))
+        .withEnv("POSTGRES_PORT", Integer.toString(POSTGRES_PORT))
         .withEnv("ODBCINI", ODBCINI_LOCATION)
         .withEnv("ODBCINST", ODBCINSTINI_LOCATION)
         .withEnv("ODBCSYSINI", "/app/build/test")
-        .withEnv("TEST_DRIVER", "/app/build/lib/awsmysqlodbca.so");
+        .withEnv("TEST_DRIVER", "/app/.libs/psqlodbca.so");
   }
 
-  private void buildDriver(boolean enableIntegrationTests, boolean enablePerformanceTests, boolean enableUnitTests) {
+  private void installPrerequisites() throws Exception {
+    System.out.println("apt-get update");
+    Container.ExecResult result = testContainer.execInContainer("apt-get", "update");
+    System.out.println(result.getStdout());
+
+    // Install dependencies w/ apt-get and auto-confirm with -y
+    // Denies any configuration changes e.g. Unixodbc changing odbc.ini, using `yes n`
+    List<String> packages = Arrays.asList(
+        "autoconf",
+        "automake",
+        "build-essential",
+        "cmake",
+        "curl",
+        "g++-10",
+        "git",
+        "grep",
+        "libcurl4-openssl-dev",
+        "libssl-dev",
+        "libgflags-dev",
+        "libpq-dev",
+        "libtool-bin",
+        "lsb-core",
+        "uuid-dev",
+        "zlib1g-dev"
+    );
+
+    // Install dependencies w/ apt-get and auto-confirm with -y
+    // Denies any configuration changes e.g. Unixodbc changing odbc.ini, using `yes n`
+    System.out.println("yes n | apt-get install " + String.join(" ", packages) + " -y");
+    result = testContainer.execInContainer("sh", "-c", "yes n | apt-get install " + String.join(" ", packages) + " -y");
+    System.out.println(result.getStdout());
+
+    // We need to build and install unixODBC because the apt-get package
+    // does not include odbc_config
+    System.out.println("curl -L https://www.unixodbc.org/unixODBC-" + UNIXODBC_VERSION + ".tar.gz -o unixODBC.tar");
+    result = testContainer.execInContainer("curl", "-L", "https://www.unixodbc.org/unixODBC-" + UNIXODBC_VERSION + ".tar.gz", "-o", "unixODBC.tar");
+    System.out.println(result.getStdout());
+
+    System.out.println("tar xf unixODBC.tar");
+    result = testContainer.execInContainer("tar", "xf", "unixODBC.tar");
+    System.out.println(result.getStdout());
+
+    System.out.println("sh -c cd unixODBC-" + UNIXODBC_VERSION + " && ./configure && make && make install");
+    result = testContainer.execInContainer("sh", "-c",
+        "cd unixODBC-" + UNIXODBC_VERSION + " && " +
+        "./configure && make && make install"
+    );
+    System.out.println(result.getStdout());
+  }
+
+  private void buildDriver() {
     try {
-      System.out.println("apt-get update");
-      Container.ExecResult result = testContainer.execInContainer("apt-get", "update");
-      System.out.println(result.getStdout());
+      installPrerequisites();
 
-      // Install dependencies w/ apt-get and auto-confirm with -y
-      // Denies any configuration changes e.g. Unixodbc changing odbc.ini, using `yes n`
-      System.out.println(
-        "yes n | apt-get install build-essential cmake git libgtk-3-dev unixodbc " +
-        "unixodbc-dev curl libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev -y");
-      // Using `sh` as piping `|` is a property of shell
-      result = testContainer.execInContainer(
-        "sh", "-c", "yes n | apt-get install build-essential cmake git libgtk-3-dev unixodbc unixodbc-dev curl libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev -y");
-      System.out.println(result.getStdout());
-
-      System.out.println("curl -L https://dev.mysql.com/get/Downloads/MySQL-8.3/mysql-8.3.0-linux-glibc2.28-x86_64.tar.xz -o mysql.tar.gz");
-      result = testContainer.execInContainer(
-        "curl", "-L", "https://dev.mysql.com/get/Downloads/MySQL-8.3/mysql-8.3.0-linux-glibc2.28-x86_64.tar.xz", "-o", "mysql.tar.gz");
-      System.out.println(result.getStdout());
-
-      System.out.println("tar xf mysql.tar.gz");
-      result = testContainer.execInContainer("tar", "xf", "mysql.tar.gz");
-      System.out.println(result.getStdout());
-
-      System.out.println("cmake -E make_directory ./build");
-      result = testContainer.execInContainer("cmake",  "-E",  "make_directory", "./build");
-      System.out.println(result.getStdout());
-
-      // Build AWS SDK within test container
-      // This will allow driver to run on Windows machines
-      System.out.println("bash ./scripts/build_aws_sdk_unix.sh Release");
-      result = testContainer.execInContainer("bash", "./scripts/build_aws_sdk_unix.sh", "Release");
-      System.out.println(result.getStdout());
-
-      String buildCommand = "cmake -S . -B build " +
-        "-DCMAKE_BUILD_TYPE=Release " +
-        "-DMYSQLCLIENT_STATIC_LINKING=TRUE " +
-        "-DENABLE_INTEGRATION_TESTS=" + (enableIntegrationTests ? "TRUE " : "FALSE ") +
-        "-DENABLE_PERFORMANCE_TESTS=" + (enablePerformanceTests ? "TRUE " : "FALSE ") +
-        "-DENABLE_UNIT_TESTS=" + (enableUnitTests ? "TRUE " : "FALSE ") +
-        "-DMYSQL_DIR=./mysql-8.3.0-linux-glibc2.28-x86_64/ " +
-        "-DWITH_UNIXODBC=1";
-      System.out.println(buildCommand);
-
-      result = testContainer.execInContainer(
-        "cmake", "-S", ".", "-B", "build",
-          "-DCMAKE_BUILD_TYPE=Release",
-          "-DMYSQLCLIENT_STATIC_LINKING=TRUE",
-          "-DENABLE_INTEGRATION_TESTS=" + (enableIntegrationTests ? "TRUE" : "FALSE"),
-          "-DENABLE_PERFORMANCE_TESTS=" + (enablePerformanceTests ? "TRUE" : "FALSE"),
-          "-DENABLE_UNIT_TESTS=" + (enableUnitTests ? "TRUE" : "FALSE"),
-          "-DMYSQL_DIR=./mysql-8.3.0-linux-glibc2.28-x86_64/",
-          "-DWITH_UNIXODBC=1");
-      System.out.println(result.getStdout());
-
-      System.out.println("cmake --build ./build --config Release");
-      result = testContainer.execInContainer("cmake",  "--build",  "./build", "--config", "Release");
+      System.out.println("bash linux/buildall Release");
+      Container.ExecResult result = testContainer.execInContainer("bash", "linux/buildall", "Release");
       System.out.println(result.getStdout());
     } catch (Exception e) {
       fail("Test container failed during driver/test building process.");
@@ -251,7 +238,7 @@ public class IntegrationContainerTest {
     if (!StringUtils.isNullOrEmpty(ACCESS_KEY) && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY)) {
       // Comment out below to not create a new cluster & instances
       if (StringUtils.isNullOrEmpty(dbClusterIdentifier)) {
-        dbClusterIdentifier = "mysql-odbc-" + System.nanoTime();
+        dbClusterIdentifier = "postgres-odbc-" + System.nanoTime();
       }
 
       AuroraClusterInfo clusterInfo = auroraUtil.createCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, TEST_DATABASE);
@@ -264,23 +251,23 @@ public class IntegrationContainerTest {
       dbHostCluster = clusterInfo.getClusterEndpoint();
       dbHostClusterRo = clusterInfo.getClusterROEndpoint();
 
-      mySqlInstances = clusterInfo.getInstances();
+      postgresInstances = clusterInfo.getInstances();
       String secretValue = auroraUtil.createSecretValue(dbHostCluster, TEST_USERNAME, TEST_PASSWORD);
       secretsArn = auroraUtil.createSecrets("AWS-MySQL-ODBC-Tests-" + dbHostCluster, secretValue);
 
-      proxyContainers = containerHelper.createProxyContainers(network, mySqlInstances, PROXIED_DOMAIN_NAME_SUFFIX);
+      proxyContainers = containerHelper.createProxyContainers(network, postgresInstances, PROXIED_DOMAIN_NAME_SUFFIX);
       for (ToxiproxyContainer container : proxyContainers) {
         container.start();
       }
-      mySQLProxyPort = containerHelper.createAuroraInstanceProxies(mySqlInstances, proxyContainers, MYSQL_PORT);
+      postgresProxyPort = containerHelper.createAuroraInstanceProxies(postgresInstances, proxyContainers, POSTGRES_PORT);
 
       proxyContainers.add(containerHelper.createAndStartProxyContainer(
           network,
           "toxiproxy-instance-cluster",
           dbHostCluster + PROXIED_DOMAIN_NAME_SUFFIX,
           dbHostCluster,
-          MYSQL_PORT,
-          mySQLProxyPort)
+          POSTGRES_PORT,
+          postgresProxyPort)
       );
 
       proxyContainers.add(containerHelper.createAndStartProxyContainer(
@@ -288,8 +275,8 @@ public class IntegrationContainerTest {
           "toxiproxy-ro-instance-cluster",
           dbHostClusterRo + PROXIED_DOMAIN_NAME_SUFFIX,
           dbHostClusterRo,
-          MYSQL_PORT,
-          mySQLProxyPort)
+          POSTGRES_PORT,
+          postgresProxyPort)
       );
     }
 
@@ -308,49 +295,33 @@ public class IntegrationContainerTest {
       .withEnv("PROXIED_CLUSTER_TEMPLATE", "?." + dbConnStrSuffix + PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("SECRETS_ARN", secretsArn);
 
-    // Add mysql instances & proxies to container env
-    for (int i = 0; i < mySqlInstances.size(); i++) {
+    // Add postgres instances & proxies to container env
+    for (int i = 0; i < postgresInstances.size(); i++) {
       // Add instance
       testContainer.addEnv(
-          "MYSQL_INSTANCE_" + (i + 1) + "_URL",
-          mySqlInstances.get(i));
+          "POSTGRES_INSTANCE_" + (i + 1) + "_URL",
+          postgresInstances.get(i));
 
       // Add proxies
       testContainer.addEnv(
           "TOXIPROXY_INSTANCE_" + (i + 1) + "_NETWORK_ALIAS",
           "toxiproxy-instance-" + (i + 1));
     }
-    testContainer.addEnv("MYSQL_PROXY_PORT", Integer.toString(mySQLProxyPort));
+    testContainer.addEnv("POSTGRES_PROXY_PORT", Integer.toString(postgresProxyPort));
     testContainer.start();
 
-    System.out.println("Toxyproxy Instances port: " + mySQLProxyPort);
-  }
-
-  private void setupFailoverIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
-    setupTestContainer(network);
-
-    buildDriver(true, false, false);
-
-    displayIniFiles();
-  }
-
-  private void setupPerformanceIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
-    setupTestContainer(network);
-
-    buildDriver(true, true, false);
-
-    displayIniFiles();
+    System.out.println("Toxyproxy Instances port: " + postgresProxyPort);
   }
 
   private void setupCommunityTests(final Network network) {
-    mysqlContainer = ContainerHelper.createMysqlContainer(network);
-    mysqlContainer.start();
+    postgresContainer = ContainerHelper.createPostgresContainer(network);
+    postgresContainer.start();
 
     testContainer
       .withEnv("TEST_SERVER", COMMUNITY_SERVER);
     testContainer.start();
 
-    buildDriver(false, false, false);
+    buildDriver();
 
     displayIniFiles();
   }

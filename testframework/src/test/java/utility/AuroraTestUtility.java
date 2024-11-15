@@ -24,7 +24,7 @@
 // See the GNU General Public License, version 2.0, for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program. If not, see 
+// along with this program. If not, see
 // http://www.gnu.org/licenses/gpl-2.0.html.
 
 package utility;
@@ -89,7 +89,7 @@ public class AuroraTestUtility {
   private String dbPassword = "my_test_password";
   private String dbName = "test";
   private String dbIdentifier = "test-identifier";
-  private String dbEngine = "aurora-mysql";
+  private String dbEngine = "aurora-postgres";
   private String dbEngineVersion = System.getenv("DB_ENGINE_VERSION");;
   private String dbInstanceClass = "db.r5.large";
   private final Region dbRegion;
@@ -156,7 +156,7 @@ public class AuroraTestUtility {
 
   protected static Region getRegionInternal(String rdsRegion) {
     final String region = StringUtils.isNullOrEmpty(rdsRegion) ? "us-east-2" : rdsRegion;
-    
+
     Optional<Region> regionOptional =
         Region.regions().stream().filter(r -> r.id().equalsIgnoreCase(region)).findFirst();
 
@@ -407,7 +407,7 @@ public class AuroraTestUtility {
 
   public String createSecretValue(String host, String username, String password) {
     return new JSONObject()
-        .put("engine", "mysql")
+        .put("engine", "postgres")
         .put("host", host)
         .put("username", username)
         .put("password", password)

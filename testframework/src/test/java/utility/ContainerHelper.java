@@ -202,15 +202,14 @@ public class ContainerHelper {
     }
   }
 
-  public static GenericContainer<?> createMysqlContainer(Network network) {
-    return new GenericContainer<>("mysql:8.4")
+  public static GenericContainer<?> createPostgresContainer(Network network) {
+    return new GenericContainer<>(DockerImageName.parse("postgres:17"))
+        .withExposedPorts(5432)
         .withNetwork(network)
-        .withNetworkAliases("mysql-instance")
-        .withEnv("MYSQL_ROOT_PASSWORD", "root")
-        .withEnv("MYSQL_DATABASE", "test")
-        .withCommand(
-          "--local_infile=1",
-          "--secure-file-priv=/var/lib/mysql");
+        .withNetworkAliases("postgres-instance")
+        .withEnv("POSTGRES_DB", "test")
+        .withEnv("POSTGRES_USER", "postgres")
+        .withEnv("POSTGRES_PASSWORD", "test");
   }
 
   public ToxiproxyContainer createAndStartProxyContainer(

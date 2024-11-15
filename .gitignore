@@ -69,16 +69,7 @@ windows-local.mak
 *.manifest
 *.lastbuildstate
 
-
-# Java build files
-testframework/.gradle/
-testframework/.idea/
-testframework/bin/
-testframework/buildtest/
-testframework/dist/
-testframework/nbproject/
-testframework/patches/
-testframework/src/test/resources/*.ini
+# Integration build files
 *~
 *.lock
 *.swp
@@ -91,8 +82,20 @@ testframework/src/test/resources/*.ini
 *.project.elrade
 *.attach_pid*
 *.gradle
-*.idea
+*.gradle.kts
+gradle.properties
+gradlew
+testframework/.gradle/
+testframework/.idea/
+testframework/bin/
+testframework/buildtest/
+testframework/dist/
 testframework/hs_err_pid*.log
+testframework/nbproject/
+testframework/patches/
+testframework/src/test/resources/*.ini
+unixODBC*/
+unixODBC*.tar
 
 # WIX tools (candle, light) generate
 *.wix*
