@@ -50,9 +50,11 @@ fi
 
 # Prep the aws-rds-odbc build
 echo "Prepping the aws-rds-odbc build"
-cmake -S . -B build
+cmake -S . -B build > ./cmake.log 2>&1
 if [ $? -ne 0 ]; then
   echo "aws-rds-odbc build prep failed"
+  echo "cmake.log:"
+  cat ./cmake.log
   exit 1
 fi
 
