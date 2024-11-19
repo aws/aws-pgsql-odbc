@@ -6,6 +6,6 @@ Driver          = @TEST_DRIVER@
 DATABASE        = @TEST_DATABASE@
 DESCRIPTION     = @DESCRIPTION@
 SERVER          = @TEST_SERVER@
-UID             = @TEST_UID@
+UID             = @TEST_USERNAME@
 PASSWORD        =
 SOCKET          =

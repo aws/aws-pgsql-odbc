@@ -138,7 +138,7 @@ public class IntegrationContainerTest {
       fail("Test container was not initialized correctly");
     }
 
-    containerHelper.runCTest(testContainer, "/app/build/test");
+    containerHelper.runCommunityTest(testContainer, "/app");
   }
 
   protected static GenericContainer<?> createTestContainer(final Network network) {
@@ -148,7 +148,7 @@ public class IntegrationContainerTest {
         .withNetworkAliases(TEST_CONTAINER_NAME)
         .withNetwork(network)
         .withEnv("TEST_DSN", TEST_DSN)
-        .withEnv("TEST_UID", TEST_USERNAME)
+        .withEnv("TEST_USERNAME", TEST_USERNAME)
         .withEnv("TEST_PASSWORD", TEST_PASSWORD)
         .withEnv("TEST_DATABASE", TEST_DATABASE)
         .withEnv("POSTGRES_PORT", Integer.toString(POSTGRES_PORT))
@@ -177,6 +177,8 @@ public class IntegrationContainerTest {
         "libcurl4-openssl-dev",
         "libssl-dev",
         "libgflags-dev",
+        "libodbc2",
+        "libodbcinst2",
         "libpq-dev",
         "libtool-bin",
         "lsb-core",
@@ -318,7 +320,9 @@ public class IntegrationContainerTest {
     postgresContainer.start();
 
     testContainer
-      .withEnv("TEST_SERVER", COMMUNITY_SERVER);
+      .withEnv("PGHOST", COMMUNITY_SERVER)
+      .withEnv("PGUSER", TEST_USERNAME)
+      .withEnv("PGPASSWORD", TEST_PASSWORD);
     testContainer.start();
 
     buildDriver();

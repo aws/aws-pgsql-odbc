@@ -30,16 +30,12 @@
 package utility;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.ExecCreateCmd;
 import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.exception.DockerException;
 import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.BindMode;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.Network;
-import org.testcontainers.containers.ToxiproxyContainer;
+import org.testcontainers.containers.*;
 import org.testcontainers.containers.output.FrameConsumerResultCallback;
 import org.testcontainers.containers.output.OutputFrame;
 import org.testcontainers.images.builder.ImageFromDockerfile;
@@ -72,11 +68,11 @@ public class ContainerHelper {
     assertEquals(0, exitCode, "Some tests failed.");
   }
 
-  public void runCTest(GenericContainer<?> container, String testDir)
+  public void runCommunityTest(GenericContainer<?> container, String testDir)
       throws IOException, InterruptedException {
     System.out.println("==== Container console feed ==== >>>>");
     Consumer<OutputFrame> consumer = new ConsoleConsumer();
-    Long exitCode = execInContainerWithWorkingDir(container, consumer, testDir, "ctest", "--output-on-failure");
+    Long exitCode = execInContainerWithWorkingDir(container, consumer, testDir, "bash", "linux/run_community_tests");
     System.out.println("==== Container console feed ==== <<<<");
     assertEquals(0, exitCode, "Some tests failed.");
   }
@@ -98,7 +94,7 @@ public class ContainerHelper {
                     .workDir("/app")
                     .entryPoint("/bin/sh -c \"while true; do sleep 30; done;\"")
                     .build()))
-        .withEnv("LD_LIBRARY_PATH", "$LD_LIBRARY_PATH:/app/aws_sdk/install/lib")
+        .withEnv("LD_LIBRARY_PATH", "$LD_LIBRARY_PATH:/app/aws_sdk/install/lib:/app/libs/aws-rds-odbc/build")
         .withEnv("DEBIAN_FRONTEND", "noninteractive")
         .withFileSystemBind(driverPath, "/app", BindMode.READ_WRITE)
         .withPrivilegedMode(true) // it's needed to control Linux core settings like TcpKeepAlive

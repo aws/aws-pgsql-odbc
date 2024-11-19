@@ -243,7 +243,7 @@ if test -n "$PG_CONFIG"; then
   pg_pkg_includedir=`"$PG_CONFIG" --pkgincludedir`
   pg_libdir=`"$PG_CONFIG" --libdir`
   CPPFLAGS="$CPPFLAGS -I$pg_includedir -I$pg_pkg_includedir/internal"
-  LDFLAGS="$LDFLAGS -L$pg_libdir"
+  LDFLAGS="$LDFLAGS -L$pg_libdir -lpq"
 fi
 
 #
