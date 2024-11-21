@@ -55,12 +55,11 @@ public class IntegrationContainerTest {
   private static final String TEST_CONTAINER_NAME = "test-container";
   private static final String TEST_DATABASE = "test";
   private static final String TEST_DSN = System.getenv("TEST_DSN");
-  private static final String TEST_USERNAME =
-      !StringUtils.isNullOrEmpty(System.getenv("TEST_USERNAME")) ?
+  private static final String TEST_USERNAME = !StringUtils.isNullOrEmpty(System.getenv("TEST_USERNAME")) ?
           System.getenv("TEST_USERNAME") : "my_test_username";
-  private static final String TEST_PASSWORD =
-      !StringUtils.isNullOrEmpty(System.getenv("TEST_PASSWORD")) ?
+  private static final String TEST_PASSWORD = !StringUtils.isNullOrEmpty(System.getenv("TEST_PASSWORD")) ?
           System.getenv("TEST_PASSWORD") : "my_test_password";
+
   private static final String ACCESS_KEY = System.getenv("AWS_ACCESS_KEY_ID");
   private static final String SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
   private static final String SESSION_TOKEN =
@@ -68,6 +67,7 @@ public class IntegrationContainerTest {
           System.getenv("AWS_SESSION_TOKEN") : "";
   private static final String ENDPOINT = System.getenv("RDS_ENDPOINT");
   private static final String REGION = System.getenv("RDS_REGION");
+
   private static final String DOCKER_UID = "1001";
   private static final String COMMUNITY_SERVER = "postgres-instance";
 
@@ -75,9 +75,12 @@ public class IntegrationContainerTest {
   private static final String PROXIED_DOMAIN_NAME_SUFFIX = ".proxied";
   private static List<ToxiproxyContainer> proxyContainers = new ArrayList<>();
   private static String dbClusterIdentifier = System.getenv("TEST_DB_CLUSTER_IDENTIFIER");
+  private static String dbShardGroupIdentifier = System.getenv("TEST_DB_SHARD_GROUP_IDENTIFIER");
 
   private static final String ODBCINI_LOCATION = "/app/build/test/odbc.ini";
   private static final String ODBCINSTINI_LOCATION = "/app/build/test/odbcinst.ini";
+
+  private static final String DEFAULT_LIMITLESS_PREFIX = "postgres-odbc-limitless-";
 
   private static final ContainerHelper containerHelper = new ContainerHelper();
   private static final AuroraTestUtility auroraUtil = new AuroraTestUtility(REGION, ENDPOINT);
@@ -104,11 +107,7 @@ public class IntegrationContainerTest {
   @AfterAll
   static void tearDown() {
     if (!StringUtils.isNullOrEmpty(ACCESS_KEY) && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY) && !StringUtils.isNullOrEmpty(dbHostCluster)) {
-      if (StringUtils.isNullOrEmpty(dbClusterIdentifier)) {
-        auroraUtil.deleteCluster();
-      } else {
-        auroraUtil.deleteCluster(dbClusterIdentifier);
-      }
+      auroraUtil.deleteLimitlessCluster(dbClusterIdentifier, dbShardGroupIdentifier);
 
       if (!StringUtils.isNullOrEmpty(secretsArn)) {
         auroraUtil.deleteSecrets(secretsArn);
@@ -139,6 +138,16 @@ public class IntegrationContainerTest {
     }
 
     containerHelper.runCommunityTest(testContainer, "/app");
+  }
+
+  @Test
+  public void testRunLimitlessTestInContainer()
+      throws UnsupportedOperationException, IOException, InterruptedException {
+    setupLimitlessIntegrationTests(NETWORK);
+
+    // TODO: Update or replace with integration executable when integration
+    //       tests are added
+    // containerHelper.runExecutable(testContainer, "build/integration/bin", "integration");
   }
 
   protected static GenericContainer<?> createTestContainer(final Network network) {
@@ -236,14 +245,19 @@ public class IntegrationContainerTest {
     }
   }
 
-  private void setupTestContainer(final Network network) throws InterruptedException, UnknownHostException {
+  private void setupLimitlessTestContainer(final Network network) throws InterruptedException, UnknownHostException {
     if (!StringUtils.isNullOrEmpty(ACCESS_KEY) && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY)) {
       // Comment out below to not create a new cluster & instances
+
       if (StringUtils.isNullOrEmpty(dbClusterIdentifier)) {
-        dbClusterIdentifier = "postgres-odbc-" + System.nanoTime();
+        dbClusterIdentifier = DEFAULT_LIMITLESS_PREFIX + "cluster-" + System.nanoTime();
+      }
+      if (StringUtils.isNullOrEmpty(dbShardGroupIdentifier)) {
+        dbShardGroupIdentifier = DEFAULT_LIMITLESS_PREFIX + "shard-" + System.nanoTime();
       }
 
-      AuroraClusterInfo clusterInfo = auroraUtil.createCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, TEST_DATABASE);
+      AuroraClusterInfo clusterInfo =
+          auroraUtil.createLimitlessCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, dbShardGroupIdentifier);
 
       // Comment out getting public IP to not add & remove from EC2 whitelist
       runnerIP = auroraUtil.getPublicIPAddress();
@@ -255,7 +269,7 @@ public class IntegrationContainerTest {
 
       postgresInstances = clusterInfo.getInstances();
       String secretValue = auroraUtil.createSecretValue(dbHostCluster, TEST_USERNAME, TEST_PASSWORD);
-      secretsArn = auroraUtil.createSecrets("AWS-MySQL-ODBC-Tests-" + dbHostCluster, secretValue);
+      secretsArn = auroraUtil.createSecrets("AWS-PGSQL-ODBC-Tests-" + dbHostCluster, secretValue);
 
       proxyContainers = containerHelper.createProxyContainers(network, postgresInstances, PROXIED_DOMAIN_NAME_SUFFIX);
       for (ToxiproxyContainer container : proxyContainers) {
@@ -326,7 +340,11 @@ public class IntegrationContainerTest {
     testContainer.start();
 
     buildDriver();
+  }
 
-    displayIniFiles();
+  private void setupLimitlessIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
+    setupLimitlessTestContainer(network);
+
+    buildDriver();
   }
 }

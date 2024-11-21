@@ -29,12 +29,14 @@
 
 package utility;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONObject;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.waiters.WaiterOverrideConfiguration;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ec2.Ec2Client;
@@ -42,16 +44,7 @@ import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.RdsClientBuilder;
-import software.amazon.awssdk.services.rds.model.CreateDbClusterRequest;
-import software.amazon.awssdk.services.rds.model.CreateDbInstanceRequest;
-import software.amazon.awssdk.services.rds.model.DBEngineVersion;
-import software.amazon.awssdk.services.rds.model.DeleteDbClusterResponse;
-import software.amazon.awssdk.services.rds.model.DeleteDbInstanceRequest;
-import software.amazon.awssdk.services.rds.model.DescribeDbEngineVersionsRequest;
-import software.amazon.awssdk.services.rds.model.DescribeDbEngineVersionsResponse;
-import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
-import software.amazon.awssdk.services.rds.model.Filter;
-import software.amazon.awssdk.services.rds.model.Tag;
+import software.amazon.awssdk.services.rds.model.*;
 import software.amazon.awssdk.services.rds.waiters.RdsWaiter;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
@@ -71,7 +64,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Creates and destroys AWS RDS Cluster and Instances AWS Credentials is loaded using
@@ -83,18 +75,19 @@ import java.util.stream.Collectors;
  * AWS_SECRET_KEY
  */
 public class AuroraTestUtility {
+  private static final double MIN_ACU = 28.0;
+  private static final double MAX_ACU = 601.0;
+
+  private static final int MAX_WAIT_RETRIES = 90;
+
+  private static final String LIMITLESS_ENGINE = "aurora-postgresql";
+  private static final String LIMITLESS_ENGINE_VERSION = "16.4-limitless";
+  private static final String MONITORING_ROLE_ARN = "arn:aws:iam::851725167871:role/rds-monitoring-role";
 
   // Default values
-  private String dbUsername = "my_test_username";
-  private String dbPassword = "my_test_password";
-  private String dbName = "test";
-  private String dbIdentifier = "test-identifier";
-  private String dbEngine = "aurora-postgres";
-  private String dbEngineVersion = System.getenv("DB_ENGINE_VERSION");;
-  private String dbInstanceClass = "db.r5.large";
   private final Region dbRegion;
+  private final String dbEngine = LIMITLESS_ENGINE;
   private final String dbSecGroup = "default";
-  private int numOfInstances = 5;
 
   private final RdsClient rdsClient;
   private final Ec2Client ec2Client;
@@ -170,94 +163,85 @@ public class AuroraTestUtility {
    * Creates RDS Cluster/Instances and waits until they are up, and proper IP whitelisting for
    * databases.
    *
-   * @param username   Master username for access to database
-   * @param password   Master password for access to database
-   * @param identifier Database identifier
-   * @param name       Database name
+   * @param username          Master username for access to database
+   * @param password          Master password for access to database
+   * @param clusterIdentifier Database cluster identifier
+   * @param shardIdentifier   Database shard identifier
    * @return An endpoint for one of the instances
    * @throws InterruptedException when clusters have not started after 30 minutes
    */
-  public AuroraClusterInfo createCluster(String username, String password, String identifier, String name)
+  public AuroraClusterInfo createLimitlessCluster(String username, String password, String clusterIdentifier, String shardIdentifier)
       throws InterruptedException {
-    dbUsername = username;
-    dbPassword = password;
-    dbIdentifier = identifier;
-    dbName = name;
-    return createCluster();
-  }
-
-  /**
-   * Creates RDS Cluster/Instances and waits until they are up, and proper IP whitelisting for
-   * databases.
-   *
-   * @return An endpoint for one of the instances
-   * @throws InterruptedException when clusters have not started after 30 minutes
-   */
-  public AuroraClusterInfo createCluster() throws InterruptedException {
-    final List<String> instances = new ArrayList<>();
     final Tag testRunnerTag = Tag.builder().key("env").value("test-runner").build();
 
-    final String engineVersion = getAuroraDbEngineVersion(dbEngineVersion);
+    // Create the limitless cluster
     final CreateDbClusterRequest dbClusterRequest =
         CreateDbClusterRequest.builder()
-            .dbClusterIdentifier(dbIdentifier)
-            .databaseName(dbName)
-            .masterUsername(dbUsername)
-            .masterUserPassword(dbPassword)
-            .sourceRegion(dbRegion.id())
+            .clusterScalabilityType(ClusterScalabilityType.LIMITLESS)
+            .databaseName(null)
+            .dbClusterIdentifier(clusterIdentifier)
+            .enableCloudwatchLogsExports("postgresql")
             .enableIAMDatabaseAuthentication(true)
-            .engine(dbEngine)
-            .engineVersion(engineVersion)
-            .storageEncrypted(true)
+            .enablePerformanceInsights(true)
+            .engine(LIMITLESS_ENGINE)
+            .engineVersion(LIMITLESS_ENGINE_VERSION)
+            .masterUsername(username)
+            .masterUserPassword(password)
+            .monitoringInterval(5)
+            .monitoringRoleArn(MONITORING_ROLE_ARN)
+            .performanceInsightsRetentionPeriod(31)
+            .storageType("aurora-iopt1")
             .tags(testRunnerTag)
             .build();
-
     rdsClient.createDBCluster(dbClusterRequest);
 
-    // Create Instances
-    for (int i = 1; i <= numOfInstances; i++) {
-      final String instanceName = dbIdentifier + "-" + i;
-      rdsClient.createDBInstance(
-          CreateDbInstanceRequest.builder()
-              .dbClusterIdentifier(dbIdentifier)
-              .dbInstanceIdentifier(instanceName)
-              .dbInstanceClass(dbInstanceClass)
-              .engine(dbEngine)
-              .engineVersion(engineVersion)
-              .publiclyAccessible(true)
-              .tags(testRunnerTag)
-              .build());
-      instances.add(instanceName);
-    }
+    // Create the limitless shard
+    final CreateDbShardGroupRequest shardGroupRequest =
+        CreateDbShardGroupRequest.builder()
+            .dbClusterIdentifier(clusterIdentifier)
+            .dbShardGroupIdentifier(shardIdentifier)
+            .minACU(MIN_ACU)
+            .maxACU(MAX_ACU)
+            .build();
+    rdsClient.createDBShardGroup(shardGroupRequest);
 
-    // Wait for all instances to be up
+    DescribeDbClustersRequest describeDbClustersRequest = DescribeDbClustersRequest.builder()
+        .dbClusterIdentifier(clusterIdentifier)
+        .build();
+    WaiterOverrideConfiguration waiterConfig = WaiterOverrideConfiguration.builder()
+        .maxAttempts(MAX_WAIT_RETRIES)
+        .waitTimeout(Duration.ofMinutes(MAX_WAIT_RETRIES))
+        .build();
     final RdsWaiter waiter = rdsClient.waiter();
-    WaiterResponse<DescribeDbInstancesResponse> waiterResponse =
-        waiter.waitUntilDBInstanceAvailable(
-            (requestBuilder) ->
-                requestBuilder.filters(
-                    Filter.builder().name("db-cluster-id").values(dbIdentifier).build()),
-            (configurationBuilder) -> configurationBuilder.waitTimeout(Duration.ofMinutes(30)));
+    WaiterResponse<DescribeDbClustersResponse> waiterResponse = waiter.waitUntilDBClusterAvailable(describeDbClustersRequest, waiterConfig);
 
     if (waiterResponse.matched().exception().isPresent()) {
-      deleteCluster();
+      deleteLimitlessCluster(clusterIdentifier, shardIdentifier);
       throw new InterruptedException(
-          "Unable to start AWS RDS Cluster & Instances after waiting for 30 minutes");
+          "Unable to start AWS RDS Cluster & Instances after waiting for 90 minutes");
     }
 
-    final DescribeDbInstancesResponse dbInstancesResult =
-        rdsClient.describeDBInstances(
-            (builder) ->
-                builder.filters(
-                    Filter.builder().name("db-cluster-id").values(dbIdentifier).build()));
-    final String endpoint = dbInstancesResult.dbInstances().get(0).endpoint().address();
+    return getClusterInfo(clusterIdentifier);
+  }
+
+  private @NotNull AuroraClusterInfo getClusterInfo(String clusterIdentifier) {
+    DescribeDbClustersRequest describeDbClustersRequest = DescribeDbClustersRequest.builder()
+        .dbClusterIdentifier(clusterIdentifier)
+        .build();
+
+    final DescribeDbClustersResponse clustersResponse = rdsClient.describeDBClusters(describeDbClustersRequest);
+    DBCluster cluster = clustersResponse.dbClusters().get(0);
+    String endpoint = cluster.endpoint();
+    String readerEndpoint = cluster.readerEndpoint();
     final String suffix = endpoint.substring(endpoint.indexOf('.') + 1);
 
+    final List<String> instances = new ArrayList<>();
+    instances.add(cluster.dbClusterIdentifier());
     return new AuroraClusterInfo(
         suffix,
-        dbIdentifier + ".cluster-" + suffix,
-        dbIdentifier + ".cluster-ro-" + suffix,
-        instances.stream().map(item -> item + "." + suffix).collect(Collectors.toList())
+        endpoint,
+        readerEndpoint,
+        instances
     );
   }
 
@@ -344,38 +328,34 @@ public class AuroraTestUtility {
   }
 
   /**
-   * Destroys all instances and clusters. Removes IP from EC2 whitelist.
+   * Destroys the limitless cluster. Removes IP from EC2 whitelist.
    *
-   * @param identifier database identifier to delete
+   * @param clusterIdentifier Limitless cluster identifier to delete
+   * @param shardIdentifier   Limitless cluster shard identifier to delete
    */
-  public void deleteCluster(String identifier) {
-    dbIdentifier = identifier;
-    deleteCluster();
-  }
+  public void deleteLimitlessCluster(String clusterIdentifier, String shardIdentifier) {
+    int remainingAttempts = 5;
 
-  /**
-   * Destroys all instances and clusters. Removes IP from EC2 whitelist.
-   */
-  public void deleteCluster() {
-    // Tear down instances
-    for (int i = 1; i <= numOfInstances; i++) {
+    // Destroy the cluster's shard
+    while (--remainingAttempts > 0) {
       try {
-        rdsClient.deleteDBInstance(
-            DeleteDbInstanceRequest.builder()
-                .dbInstanceIdentifier(dbIdentifier + "-" + i)
-                .skipFinalSnapshot(true)
-                .build());
+        DeleteDbShardGroupResponse response = rdsClient.deleteDBShardGroup(
+            (builder -> builder.dbShardGroupIdentifier(shardIdentifier)));
+        if (response.sdkHttpResponse().isSuccessful()) {
+          break;
+        }
+        TimeUnit.SECONDS.sleep(30);
       } catch (Exception ex) {
-        // Ignore this error and continue with other instances
+        // ignore
       }
     }
 
-    // Tear down cluster
-    int remainingAttempts = 5;
+    // Then, destroy the cluster
+    remainingAttempts = 5;
     while (--remainingAttempts > 0) {
       try {
         DeleteDbClusterResponse response = rdsClient.deleteDBCluster(
-            (builder -> builder.skipFinalSnapshot(true).dbClusterIdentifier(dbIdentifier)));
+            (builder -> builder.skipFinalSnapshot(true).dbClusterIdentifier(clusterIdentifier)));
         if (response.sdkHttpResponse().isSuccessful()) {
           break;
         }

@@ -10,13 +10,13 @@ repositories {
 }
 
 dependencies {
-    testImplementation("software.amazon.awssdk:rds:2.25.36")
-    testImplementation("software.amazon.awssdk:ec2:2.26.18")
-    testImplementation("software.amazon.awssdk:secretsmanager:2.25.36")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.3")
+    testImplementation("software.amazon.awssdk:rds:2.29.17")
+    testImplementation("software.amazon.awssdk:ec2:2.29.17")
+    testImplementation("software.amazon.awssdk:secretsmanager:2.29.17")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.3")
     testImplementation("org.testcontainers:toxiproxy:1.20.3")
-    testImplementation("org.testcontainers:mysql:1.20.0")
-    testImplementation("org.json:json:20231013")
+    testImplementation("org.testcontainers:postgresql:1.20.3")
+    testImplementation("org.json:json:20240303")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
@@ -25,8 +25,8 @@ tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }
 
-tasks.register<Test>("test-failover") {
-    filter.includeTestsMatching("host.IntegrationContainerTest.testRunFailoverTestInContainer")
+tasks.register<Test>("test-limitless") {
+    filter.includeTestsMatching("host.IntegrationContainerTest.testRunLimitlessTestInContainer")
 }
 
 tasks.register<Test>("test-community") {
