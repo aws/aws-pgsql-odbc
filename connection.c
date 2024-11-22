@@ -1145,7 +1145,7 @@ typedef enum {
 #define	SAFESTRCPY(dst, src) (strcpy(dst, src ? src : ""))
 #define SAFESTRNCPY(dst, src, dst_size) (strncpy(dst, src ? src : "", dst_size))
 
-// Get token for IAM or ADFS authentication mode.
+// Get token for IAM, ADFS or OKTA authentication mode.
 TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	if (!ci) {
 		MYLOG(0, "Null ConnInfo pointer\n");
@@ -1255,8 +1255,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 			}
 		}
 
-		// cache generated token for IAM or ADFS mode
-		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci);
+		// cache generated token
+		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci->token_expiration);
 	}
 	else {
 		ret = LIBPQ_CC_connect(self, salt_para);
