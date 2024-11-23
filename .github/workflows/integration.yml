@@ -85,6 +85,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.TEMP_AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
+          AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           DRIVER_PATH: ${{ github.workspace }}
 

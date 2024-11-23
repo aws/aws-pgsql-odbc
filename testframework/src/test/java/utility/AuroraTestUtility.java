@@ -80,9 +80,9 @@ public class AuroraTestUtility {
 
   private static final int MAX_WAIT_RETRIES = 90;
 
+  private static final String AWS_RDS_MONITORING_ROLE_ARN = System.getenv("AWS_RDS_MONITORING_ROLE_ARN");
   private static final String LIMITLESS_ENGINE = "aurora-postgresql";
   private static final String LIMITLESS_ENGINE_VERSION = "16.4-limitless";
-  private static final String MONITORING_ROLE_ARN = "arn:aws:iam::851725167871:role/rds-monitoring-role";
 
   // Default values
   private final Region dbRegion;
@@ -172,6 +172,10 @@ public class AuroraTestUtility {
    */
   public AuroraClusterInfo createLimitlessCluster(String username, String password, String clusterIdentifier, String shardIdentifier)
       throws InterruptedException {
+    if (StringUtils.isNullOrEmpty(AWS_RDS_MONITORING_ROLE_ARN)) {
+      throw new IllegalStateException("AWS_RDS_MONITORING_ROLE_ARN is not defined");
+    }
+
     final Tag testRunnerTag = Tag.builder().key("env").value("test-runner").build();
 
     // Create the limitless cluster
@@ -188,7 +192,7 @@ public class AuroraTestUtility {
             .masterUsername(username)
             .masterUserPassword(password)
             .monitoringInterval(5)
-            .monitoringRoleArn(MONITORING_ROLE_ARN)
+            .monitoringRoleArn(AWS_RDS_MONITORING_ROLE_ARN)
             .performanceInsightsRetentionPeriod(31)
             .storageType("aurora-iopt1")
             .tags(testRunnerTag)
