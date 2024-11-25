@@ -69,6 +69,34 @@ windows-local.mak
 *.manifest
 *.lastbuildstate
 
+# Integration build files
+*~
+*.lock
+*.swp
+*.DS_Store
+*.diff
+*.dot
+*.dot.png
+*.class
+*.iml
+*.project.elrade
+*.attach_pid*
+*.gradle
+*.gradle.kts
+gradle.properties
+gradlew
+testframework/.gradle/
+testframework/.idea/
+testframework/bin/
+testframework/buildtest/
+testframework/dist/
+testframework/hs_err_pid*.log
+testframework/nbproject/
+testframework/patches/
+testframework/src/test/resources/*.ini
+unixODBC*/
+unixODBC*.tar
+
 # WIX tools (candle, light) generate
 *.wix*
 !*.wixproj
@@ -469,7 +497,6 @@ contents.xcworkspacedata
 *.swp
 *.swo
 *.tmp
-
 
 # IntelliJ IDEA
 .idea

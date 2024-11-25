@@ -1,0 +1,60 @@
+name: Community Integration Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.jpg'
+      - '**/README.txt'
+      - '**/LICENSE.txt'
+      - 'docs/**'
+      - 'ISSUE_TEMPLATE/**'
+      - '**/remove-old-artifacts.yml'
+      - '**/build-installer.yml'
+      - '**/release.yml'
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  community-tests:
+    name: Dockerized Community Tests
+    runs-on: ubuntu-latest
+    env:
+      CMAKE_GENERATOR: Unix Makefiles
+
+    steps:
+      - name: Checkout aws-pgsql-odbc
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout aws-rds-odbc
+        uses: actions/checkout@v4
+        with:
+          repository: aws/aws-rds-odbc
+          ref: main
+          path: ./libs/aws-rds-odbc
+          token: ${{secrets.CLONE_PAT}}
+
+      - name: 'Set up JDK'
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 17
+      
+      - name: 'Run Community Tests'
+        working-directory: ${{ github.workspace }}/testframework
+        run: |
+          ./gradlew --no-parallel --no-daemon test-community --info
+        env:
+          TEST_USERNAME: postgres
+          TEST_PASSWORD: test
+          DRIVER_PATH: ${{ github.workspace }}
+
