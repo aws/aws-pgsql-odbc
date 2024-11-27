@@ -69,14 +69,24 @@ fi
 # Apple build support
 #
 AC_CANONICAL_HOST
+AC_MSG_NOTICE(["HOST = ${host}"])
 
 case "$host" in 
   *apple-darwin*)
-	MACOS_BUILD=yes
-	LDFLAGS="${LDFLAGS} -framework CoreFoundation -framework Security"
-	AC_DEFINE([HAVE_STRLCAT], [], [])
+    AC_DEFINE([HAVE_STRLCAT], [], [])
+    LDFLAGS="${LDFLAGS} -framework CoreFoundation -framework Security"
+    MACOS_BUILD=yes
+    OS_TYPE="macos"
   ;;
+  *linux*)
+    OS_TYPE="linux"
+    ;;
+  *)
+    OS_TYPE="other"
+    ;;
 esac
+AC_MSG_NOTICE(["OS_TYPE = ${OS_TYPE}"])
+AC_SUBST(OS_TYPE)
 
 #
 # Whether unixODBC driver manager is used
