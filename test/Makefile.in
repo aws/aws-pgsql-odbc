@@ -6,7 +6,13 @@ origdir = @srcdir@
 vpath %.c $(origdir)
 vpath %.sh $(origdir)
 
-include $(origdir)/tests
+OS_TYPE = @OS_TYPE@
+
+ifeq ($(OS_TYPE), linux)
+	include $(origdir)/tests-linux
+else
+	include $(origdir)/tests
+endif
 
 # The included file defined variable TESTBINS, which is a list of program
 # names in format exe/<testname>-test. Extract the base test names from it.
@@ -18,7 +24,6 @@ CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@ -I..	# config.h
 ODBC_CONFIG = @ODBC_CONFIG@
 PROVE = @PROVE@
-
 LIBODBC = @LIBODBC@
 
 all: $(TESTBINS) runsuite reset-db
