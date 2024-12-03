@@ -77,10 +77,12 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# Build the installer
-Write-Host "Building the installer"
-& .\installer\buildInstallers.ps1 x64
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "installer build failed"
-    exit $LASTEXITCODE
+# Build the installer during release builds only
+if ($Configuration -ieq "Release") {
+    Write-Host "Building the installer"
+    & .\installer\buildInstallers.ps1 x64
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "installer build failed"
+        exit $LASTEXITCODE
+    }
 }
