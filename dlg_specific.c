@@ -314,7 +314,7 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;AUTHTYPE=%s;" \
 		"UID=%s;PWD=%s;REGION=%s;TOKENEXPIRATION=%s;IDPENDPOINT=%s;IDPPORT=%s;IDPUSERNAME=%s;" \
 		"IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s;" \
-		"APPID=%s;SECRETID=%S",
+		"APPID=%s;SECRETID=%s",
 			got_dsn ? "DSN" : "DRIVER",
 			got_dsn ? ci->dsn : ci->drivername,
 			ci->database,
@@ -336,8 +336,10 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 		ci->federation_cfg.relaying_party_id,
 		ci->federation_cfg.app_id,
 		ci->secret_id);
+    MYLOG(0, "%s connect_string=%s\n", __FUNCTION__, connect_string);
 	if (olen < 0 || olen >= nlen)
 	{
+        MYLOG(0, "%s olen = %d || nlen = %d\n", __FUNCTION__, olen, nlen);
 		connect_string[0] = '\0';
 		return;
 	}
