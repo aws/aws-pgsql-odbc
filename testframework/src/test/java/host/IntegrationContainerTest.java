@@ -51,6 +51,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class IntegrationContainerTest {
+  enum TestConfigurationEngine {
+    LIMITLESS,
+    AURORA_PG,
+    COMMUNITY
+  }
+
   private static final int POSTGRES_PORT = 5432;
   private static final String TEST_CONTAINER_NAME = "test-container";
   private static final String TEST_DATABASE = "test";
@@ -59,6 +65,8 @@ public class IntegrationContainerTest {
           System.getenv("TEST_USERNAME") : "my_test_username";
   private static final String TEST_PASSWORD = !StringUtils.isNullOrEmpty(System.getenv("TEST_PASSWORD")) ?
           System.getenv("TEST_PASSWORD") : "my_test_password";
+  private static final String TEST_IAM_USER = !StringUtils.isNullOrEmpty(System.getenv("TEST_IAM_USER")) ?
+          System.getenv("TEST_IAM_USER") : "my_test_iam_user";
 
   private static final String ACCESS_KEY = System.getenv("AWS_ACCESS_KEY_ID");
   private static final String SECRET_ACCESS_KEY = System.getenv("AWS_SECRET_ACCESS_KEY");
@@ -81,12 +89,14 @@ public class IntegrationContainerTest {
   private static final String ODBCINSTINI_LOCATION = "/app/build/test/odbcinst.ini";
 
   private static final String DEFAULT_LIMITLESS_PREFIX = "postgres-odbc-limitless-";
+  private static final String DEFAULT_APG_PREFIX = "postgres-odbc-apg-";
 
   private static final ContainerHelper containerHelper = new ContainerHelper();
   private static final AuroraTestUtility auroraUtil = new AuroraTestUtility(REGION, ENDPOINT);
 
   private static final String UNIXODBC_VERSION = "2.3.12";
-
+  
+  private static TestConfigurationEngine testConfiguration;
   private static int postgresProxyPort;
   private static List<String> postgresInstances = new ArrayList<>();
   private static GenericContainer<?> testContainer;
@@ -107,7 +117,17 @@ public class IntegrationContainerTest {
   @AfterAll
   static void tearDown() {
     if (!StringUtils.isNullOrEmpty(ACCESS_KEY) && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY) && !StringUtils.isNullOrEmpty(dbHostCluster)) {
-      auroraUtil.deleteLimitlessCluster(dbClusterIdentifier, dbShardGroupIdentifier);
+      switch (testConfiguration) {
+        case LIMITLESS:
+          auroraUtil.deleteLimitlessCluster(dbClusterIdentifier, dbShardGroupIdentifier);
+          break;
+        case AURORA_PG:
+          auroraUtil.deleteCluster();
+          break;
+        case COMMUNITY:
+        default:
+          break;
+      }
 
       if (!StringUtils.isNullOrEmpty(secretsArn)) {
         auroraUtil.deleteSecrets(secretsArn);
@@ -128,6 +148,8 @@ public class IntegrationContainerTest {
   @Test
   public void testRunCommunityTestInContainer()
       throws UnsupportedOperationException, IOException, InterruptedException {
+
+    testConfiguration = TestConfigurationEngine.COMMUNITY;
     setupCommunityTests(NETWORK);
 
     try {
@@ -143,11 +165,24 @@ public class IntegrationContainerTest {
   @Test
   public void testRunLimitlessTestInContainer()
       throws UnsupportedOperationException, IOException, InterruptedException {
+
+    testConfiguration = TestConfigurationEngine.LIMITLESS;
     setupLimitlessIntegrationTests(NETWORK);
 
     // TODO: Update or replace with integration executable when integration
     //       tests are added
     // containerHelper.runExecutable(testContainer, "build/integration/bin", "integration");
+  }
+
+  @Test
+  public void testRunIntegrationTestInContainer()
+      throws UnsupportedOperationException, IOException, InterruptedException {
+
+    testConfiguration = TestConfigurationEngine.AURORA_PG;
+    setupIntegrationTests(NETWORK);
+
+    displayIniFiles();
+    containerHelper.runExecutable(testContainer, "build/bin", "integration");
   }
 
   protected static GenericContainer<?> createTestContainer(final Network network) {
@@ -225,6 +260,21 @@ public class IntegrationContainerTest {
 
       System.out.println("bash linux/buildall Release");
       Container.ExecResult result = testContainer.execInContainer("bash", "linux/buildall", "Release");
+      System.out.println(result.getStdout());
+    } catch (Exception e) {
+      fail("Test container failed during driver/test building process.");
+    }
+  }
+
+  private void buildIntegrationTests() {
+    try {
+      System.out.println("cmake -S test_integration -B build");
+      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build");
+      System.out.println(result.getStdout());
+
+      System.out.println("cmake --build build");
+      result = testContainer.execInContainer("cmake", "--build", "build");
+      
       System.out.println(result.getStdout());
     } catch (Exception e) {
       fail("Test container failed during driver/test building process.");
@@ -329,6 +379,88 @@ public class IntegrationContainerTest {
     System.out.println("Toxyproxy Instances port: " + postgresProxyPort);
   }
 
+  private void setupApgTestContainer(final Network network) throws InterruptedException, UnknownHostException {
+    if (!StringUtils.isNullOrEmpty(ACCESS_KEY) && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY)) {
+      // Comment out below to not create a new cluster & instances
+
+      if (StringUtils.isNullOrEmpty(dbClusterIdentifier)) {
+        dbClusterIdentifier = DEFAULT_APG_PREFIX + "cluster-" + System.nanoTime();
+      }
+
+      AuroraClusterInfo clusterInfo =
+          auroraUtil.createApgCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier);
+
+      // Comment out getting public IP to not add & remove from EC2 whitelist
+      runnerIP = auroraUtil.getPublicIPAddress();
+      auroraUtil.ec2AuthorizeIP(runnerIP);
+
+      dbConnStrSuffix = clusterInfo.getClusterSuffix();
+      dbHostCluster = clusterInfo.getClusterEndpoint();
+      dbHostClusterRo = clusterInfo.getClusterROEndpoint();
+
+      postgresInstances = clusterInfo.getInstances();
+      String secretValue = auroraUtil.createSecretValue(dbHostCluster, TEST_USERNAME, TEST_PASSWORD);
+      secretsArn = auroraUtil.createSecrets("AWS-PGSQL-ODBC-Tests-" + dbHostCluster, secretValue);
+
+      proxyContainers = containerHelper.createProxyContainers(network, postgresInstances, PROXIED_DOMAIN_NAME_SUFFIX);
+      for (ToxiproxyContainer container : proxyContainers) {
+        container.start();
+      }
+      postgresProxyPort = containerHelper.createAuroraInstanceProxies(postgresInstances, proxyContainers, POSTGRES_PORT);
+
+      proxyContainers.add(containerHelper.createAndStartProxyContainer(
+          network,
+          "toxiproxy-instance-cluster",
+          dbHostCluster + PROXIED_DOMAIN_NAME_SUFFIX,
+          dbHostCluster,
+          POSTGRES_PORT,
+          postgresProxyPort)
+      );
+
+      proxyContainers.add(containerHelper.createAndStartProxyContainer(
+          network,
+          "toxiproxy-ro-instance-cluster",
+          dbHostClusterRo + PROXIED_DOMAIN_NAME_SUFFIX,
+          dbHostClusterRo,
+          POSTGRES_PORT,
+          postgresProxyPort)
+      );
+    }
+
+    testContainer
+      .withEnv("AWS_ACCESS_KEY_ID", ACCESS_KEY)
+      .withEnv("AWS_SECRET_ACCESS_KEY", SECRET_ACCESS_KEY)
+      .withEnv("AWS_SESSION_TOKEN", SESSION_TOKEN)
+      .withEnv("RDS_ENDPOINT", ENDPOINT == null ? "" : ENDPOINT)
+      .withEnv("RDS_REGION", REGION == null ? "us-east-2" : REGION)
+      .withEnv("TOXIPROXY_CLUSTER_NETWORK_ALIAS", "toxiproxy-instance-cluster")
+      .withEnv("TOXIPROXY_RO_CLUSTER_NETWORK_ALIAS", "toxiproxy-ro-instance-cluster")
+      .withEnv("PROXIED_DOMAIN_NAME_SUFFIX", PROXIED_DOMAIN_NAME_SUFFIX)
+      .withEnv("TEST_SERVER", dbHostCluster)
+      .withEnv("TEST_RO_SERVER", dbHostClusterRo)
+      .withEnv("DB_CONN_STR_SUFFIX", "." + dbConnStrSuffix)
+      .withEnv("PROXIED_CLUSTER_TEMPLATE", "?." + dbConnStrSuffix + PROXIED_DOMAIN_NAME_SUFFIX)
+      .withEnv("IAM_USER", TEST_IAM_USER)
+      .withEnv("SECRETS_ARN", secretsArn);
+
+    // Add postgres instances & proxies to container env
+    for (int i = 0; i < postgresInstances.size(); i++) {
+      // Add instance
+      testContainer.addEnv(
+          "POSTGRES_INSTANCE_" + (i + 1) + "_URL",
+          postgresInstances.get(i));
+
+      // Add proxies
+      testContainer.addEnv(
+          "TOXIPROXY_INSTANCE_" + (i + 1) + "_NETWORK_ALIAS",
+          "toxiproxy-instance-" + (i + 1));
+    }
+    testContainer.addEnv("POSTGRES_PROXY_PORT", Integer.toString(postgresProxyPort));
+    testContainer.start();
+
+    System.out.println("Toxyproxy Instances port: " + postgresProxyPort);
+  }
+
   private void setupCommunityTests(final Network network) {
     postgresContainer = ContainerHelper.createPostgresContainer(network);
     postgresContainer.start();
@@ -346,5 +478,12 @@ public class IntegrationContainerTest {
     setupLimitlessTestContainer(network);
 
     buildDriver();
+  }
+
+  private void setupIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
+    setupApgTestContainer(network);
+
+    buildDriver();
+    buildIntegrationTests();
   }
 }

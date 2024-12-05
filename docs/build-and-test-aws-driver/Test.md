@@ -164,4 +164,8 @@ This is not something introduced as part of [this pull request](https://github.c
 This behaviour is only seen in Dockerized test environments. This test is passing when run as part of the GitHub CIs.
 
 ### Integration Tests
-*Coming soon*
+1. Set additional environment variables
+|Environment Variable|Description|Example|
+|-|-|-|
+|TEST_IAM_USER|IAM username, used to create a user in the database with IAM authentication|my_iam_user|
+1. Run `.\gradlew --no-parallel test-integration --info`
