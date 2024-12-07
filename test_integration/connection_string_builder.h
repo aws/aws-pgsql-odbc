@@ -139,7 +139,7 @@ class ConnectionString {
         length += sprintf(conn_in + length, "TOKENEXPIRATION=%d;", m_auth_expiration);
       }
       if (is_set_secret_id) {
-        length += sprintf(conn_in + length, "SECRET_ID=%s;", m_secret_id.c_str());
+        length += sprintf(conn_in + length, "SECRETID=%s;", m_secret_id.c_str());
       }
       if (is_set_ssl_mode) {
         length += sprintf(conn_in + length, "SSLmode=%s;", m_ssl_mode.c_str());
