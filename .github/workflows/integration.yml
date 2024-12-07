@@ -2,25 +2,22 @@ name: Integration Tests
 
 on:
   workflow_dispatch:
-# Temporarily disable running this workflow until
-# integration tests are added.
-#
-#   push:
-#     branches:
-#       - main
-#   pull_request:
-#     branches:
-#       - '*'
-#     paths-ignore:
-#       - '**/*.md'
-#       - '**/*.jpg'
-#       - '**/README.txt'
-#       - '**/LICENSE.txt'
-#       - 'docs/**'
-#       - 'ISSUE_TEMPLATE/**'
-#       - '**/remove-old-artifacts.yml'
-#       - '**/build-installer.yml'
-#       - '**/release.yml'
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.jpg'
+      - '**/README.txt'
+      - '**/LICENSE.txt'
+      - 'docs/**'
+      - 'ISSUE_TEMPLATE/**'
+      - '**/remove-old-artifacts.yml'
+      - '**/build-installer.yml'
+      - '**/release.yml'
 
 env:
   BUILD_TYPE: Release
@@ -80,9 +77,9 @@ jobs:
       - name: 'Run Integration Tests'
         working-directory: ${{ github.workspace }}/testframework
         run: |
-          ./gradlew --no-parallel --no-daemon test-limitless --info
+          ./gradlew --no-parallel --no-daemon test-integration --info
         env:
-          TEST_DSN: awsmysqlodbca
+          TEST_DSN: awspgsqlodbc
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
@@ -90,13 +87,14 @@ jobs:
           AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
           AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
           DRIVER_PATH: ${{ github.workspace }}
 
       - name: 'Get Github Action IP'
         if: always()
         id: ip
         uses: haythem/public-ip@v1.3
-        
+
       - name: 'Remove Github Action IP'
         if: always()
         run: |
