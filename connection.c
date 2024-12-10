@@ -1222,7 +1222,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 
 		bool successful = GetCredentialsFromSecretsManager(ci->secret_id, ci->region, &credentials);
 		if (!successful) {
-			MYLOG(0, "could not get credentials from secrets manager\n");
+			MYLOG(0, "Could not get credentials from secrets manager\n");
+			CC_set_error(self, CONNECTION_COMMUNICATION_ERROR, "Unable to retrieve credentials from Secrets Manager", func);
 			return 0;
 		}
 
@@ -1235,6 +1236,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0)
+			CC_set_errormsg(self, "Fetched Secrets Manager credentials are invalid");
 			return ret;
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
@@ -1245,11 +1247,12 @@ CC_connect(ConnectionClass *self, char *salt_para)
 			// Recreate a token to try again.
 			if (tr == TR_CACHED_TOKEN) {
 				tr = GetTokenForIAM(ci, FALSE);
-				if (tr == TR_FAILURE)
-					return ret;
+				if (tr != TR_FAILURE) {
+					ret = LIBPQ_CC_connect(self, salt_para);
+				}
 
-				ret = LIBPQ_CC_connect(self, salt_para);
 				if (ret <= 0) {
+					CC_set_errormsg(self, "Unable to authenticate using RDS DB IAM");
 					return ret;
 				}
 			}

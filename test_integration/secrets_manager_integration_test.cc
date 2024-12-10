@@ -76,7 +76,7 @@ class SecretsManagerIntegrationTest : public testing::Test {
 
         builder = ConnectionStringBuilder();
         builder.withPort(PG_PORT)
-            .withAuthMode("secret");
+            .withAuthMode("secrets-manager");
     }
 
     void TearDown() override {
@@ -105,7 +105,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
 
 // Disabled until bug fix. Driver will always default to us-east-1
 // and does not try to parse the ARN
-TEST_F(SecretsManagerIntegrationTest, DISABLED_EnableSecretsManagerWithoutRegion) {
+TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
     connection_string = builder
                             .withDSN(dsn)
                             .withServer(DB_SERVER_URL)
@@ -119,7 +119,7 @@ TEST_F(SecretsManagerIntegrationTest, DISABLED_EnableSecretsManagerWithoutRegion
 }
 
 // Disabled until bug fix. On failure, driver does not supply errors
-TEST_F(SecretsManagerIntegrationTest, DISABLED_EnableSecretsManagerWrongRegion) {
+TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
     connection_string = builder
                             .withDSN(dsn)
                             .withServer(DB_SERVER_URL)
@@ -137,11 +137,11 @@ TEST_F(SecretsManagerIntegrationTest, DISABLED_EnableSecretsManagerWrongRegion) 
     SQLSMALLINT stmt_length;
     EXPECT_EQ(SQL_SUCCESS, SQLError(nullptr, dbc, nullptr, sqlstate, &native_error, message, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length));
     const std::string state = reinterpret_cast<char*>(sqlstate);
-    EXPECT_EQ("HY000", state);
+    EXPECT_EQ("08S01", state);
 }
 
 // Disabled until bug fix. On failure, driver does not supply errors
-TEST_F(SecretsManagerIntegrationTest, DISABLED_EnableSecretsManagerInvalidSecretID) {
+TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
     connection_string = builder
                             .withDSN(dsn)
                             .withServer(DB_SERVER_URL)
@@ -159,5 +159,5 @@ TEST_F(SecretsManagerIntegrationTest, DISABLED_EnableSecretsManagerInvalidSecret
     SQLSMALLINT stmt_length;
     EXPECT_EQ(SQL_SUCCESS, SQLError(nullptr, dbc, nullptr, sqlstate, &native_error, message, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length));
     const std::string state = reinterpret_cast<char*>(sqlstate);
-    EXPECT_EQ("HY000", state);
+    EXPECT_EQ("08S01", state);
 }
