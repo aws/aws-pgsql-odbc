@@ -202,7 +202,7 @@ extern "C" {
 #define IAM_MODE			"iam"
 #define ADFS_MODE			"adfs"
 #define OKTA_MODE			"okta"
-#define SECRET_MODE			"secret"
+#define SECRET_MODE			"secrets-manager"
 
 #define	SSLMODE_DISABLE		"disable"
 #define	SSLMODE_ALLOW		"allow"

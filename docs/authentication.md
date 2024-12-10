@@ -9,10 +9,10 @@ The driver supports 5 types of authentication.
 
 You can choose the authentication method by specifying the `AuthType` connection option.
 
-| Authentication                | AuthType      |
-|-------------------------------|---------------|
-| Database authentication       | `database`    |
-| IAM authentication            | `iam`         |
-| Secret Manager authentication | `secret`      |
-| ADFS authentication           | `adfs`        |
-| OKTA authentication           | `okta`        |
+| Authentication                | AuthType          |
+|-------------------------------|-------------------|
+| Database authentication       | `database`        |
+| IAM authentication            | `iam`             |
+| Secret Manager authentication | `secrets-manager` |
+| ADFS authentication           | `adfs`            |
+| OKTA authentication           | `okta`            |
