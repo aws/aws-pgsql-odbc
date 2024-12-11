@@ -6,7 +6,7 @@
     <Bundle Name="awspsqlodbc"
 		Version="$(var.VERSION)"
 		Manufacturer="Amazon.com, Inc. or its affiliates"
-		UpgradeCode="7f9f14ee-2f3a-4120-a300-ee3fbd585627">
+		UpgradeCode="ce0f2014-8354-4497-9b94-b93fbe82fbf5">
 
 	<BootstrapperApplicationRef
 		Id="WixStandardBootstrapperApplication.RtfLicense">

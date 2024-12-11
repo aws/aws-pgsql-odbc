@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>3.6</ProductVersion>
-    <ProjectGuid>{748caa18-f40d-4308-bc52-2605d09c38b1}</ProjectGuid>
+    <ProjectGuid>{01b20394-c534-40f6-8ee3-bcb394150d22}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>psqlodbc-setup</OutputName>
     <OutputType>Bundle</OutputType>
