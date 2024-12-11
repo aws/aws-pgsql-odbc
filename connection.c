@@ -1201,6 +1201,8 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
+#define MERGE_CSTR(buffer, size, prefix, suffix) (snprintf(buffer, size, "%s\n%s", prefix, suffix))
+
 char
 CC_connect(ConnectionClass *self, char *salt_para)
 {
@@ -1208,6 +1210,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	CSTR	func = "CC_connect";
 	char		ret, *saverr = NULL, retsend;
 	const char	*errmsg = NULL;
+	char custom_err[LARGE_REGISTRY_LEN];
 
 	MYLOG(0, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
@@ -1235,26 +1238,29 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.password = NULL;
 
 		ret = LIBPQ_CC_connect(self, salt_para);
-		if (ret <= 0)
-			CC_set_errormsg(self, "Fetched Secrets Manager credentials are invalid");
+		if (ret <= 0) {
+			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Fetched Secrets Manager credentials are invalid", CC_get_errormsg(self));
+			CC_set_errormsg(self, custom_err);
 			return ret;
+		}			
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
 		ret = LIBPQ_CC_connect(self, salt_para);
+		// Failed to connect
 		if (ret <= 0) {
-			// The cached token fails to connect successfully.
-			// Recreate a token to try again.
+			// Create new token if token was cached
 			if (tr == TR_CACHED_TOKEN) {
 				tr = GetTokenForIAM(ci, FALSE);
 				if (tr != TR_FAILURE) {
 					ret = LIBPQ_CC_connect(self, salt_para);
 				}
-
-				if (ret <= 0) {
-					CC_set_errormsg(self, "Unable to authenticate using RDS DB IAM");
-					return ret;
-				}
+			}
+			// Check again, token may have regenerated
+			if (ret <= 0) {
+				MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Unable to authenticate using RDS DB IAM.", CC_get_errormsg(self));
+				CC_set_errormsg(self, custom_err);
+				return ret;
 			}
 		}
 
