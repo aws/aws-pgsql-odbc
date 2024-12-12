@@ -246,7 +246,7 @@ TEST_F(IamAuthenticationIntegrationTest, WrongUser) {
         msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
     EXPECT_EQ(SQL_SUCCESS, rc);
     const std::string state_str = reinterpret_cast<char*>(state);    
-    EXPECT_EQ("08S01", state_str);
+    EXPECT_EQ("08001", state_str);
 }
 
 // Tests that the IAM connection will fail when provided an empty user.
@@ -270,5 +270,5 @@ TEST_F(IamAuthenticationIntegrationTest, EmptyUser) {
         msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
     EXPECT_EQ(SQL_SUCCESS, rc);
     const std::string state_str = reinterpret_cast<char*>(state);
-    EXPECT_EQ("08S01", state_str);
+    EXPECT_EQ("08001", state_str);
 }
