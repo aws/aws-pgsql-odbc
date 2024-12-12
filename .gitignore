@@ -22,6 +22,7 @@ lcov.info
 *.vcxproj
 *.vcxproj.*
 !winbuild/*.vcxproj
+!test/**/*.vcxproj
 win32ver.rc
 *.exe
 lib*dll.def
