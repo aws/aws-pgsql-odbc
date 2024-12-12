@@ -5,18 +5,18 @@
 <?if $(sys.BUILDARCH) = x64 ?>
   <?define Platform = "x64" ?>
   <?define PKGNAME = "AWSpsqlODBC_x64" ?>
-  <?define CIDREG = "4D361F28-8F75-4c86-9A37-6C279967413D" ?>
-  <?define CIDDOC = "0C745A85-4E55-4bab-BBF1-DCF51D92FCC5" ?>
-  <?define CIDSMD = "{E6410EE8-96DC-4d84-8D07-94F8093BF3EF}" ?>
-  <?define UPGCOD = "BBD29DF5-89F6-4b8b-BDC9-C3EA3A4AFDBB" ?>
+  <?define CIDREG = "5761E547-D13B-4221-9A63-9E8A4FDF7B4A" ?>
+  <?define CIDDOC = "A7FAD2DB-B008-4321-B5C4-01AD6633A83F" ?>
+  <?define CIDSMD = "{5AE2E3A9-5F2E-4976-856F-740F999A1A11}" ?>
+  <?define UPGCOD = "B73906E3-C12A-4E04-ADEF-21A339013713" ?>
   <?define ALLUSERS = "1" ?>
 <?elseif $(sys.BUILDARCH) = x86 ?>
   <?define Platform = "x86" ?>
   <?define PKGNAME = "AWSpsqlODBC" ?>
-  <?define CIDREG = "4F0C04EB-ADCB-4fa8-B6A3-E9F74EA693F8" ?>
-  <?define CIDDOC = "89DDBC52-9F0D-4846-91DC-09EECC87E42E" ?>
-  <?define CIDSMD = "{22288E09-B3B6-4181-907F-676099C20125}" ?>
-  <?define UPGCOD = "24BCA538-75A2-4a7f-B236-C99EFC2145DE" ?>
+  <?define CIDREG = "C7A6F42B-2E96-4A8C-B567-C52864CFB841" ?>
+  <?define CIDDOC = "733AA28C-2BCF-46CB-90C1-38E333ECDBA1" ?>
+  <?define CIDSMD = "{D70C323C-9283-454C-B574-157FBB818BB2}" ?>
+  <?define UPGCOD = "8A494A40-15B2-4A26-9A46-D63D7B78A008" ?>
   <?define ALLUSERS = "1" ?>
 <?else?><!-- sys.BUILDARCH -->
   <?error Invalid build architecture ?>

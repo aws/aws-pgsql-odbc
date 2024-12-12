@@ -11,7 +11,7 @@
   <?define BIT64 = "yes" ?>
   <?define ANSIFOLDER = "x64_ANSI_Release" ?>
   <?define UNICODEFOLDER = "x64_Unicode_Release" ?>
-  <?define Module_PackageId = "970B6E07-7105-4d66-80FA-9E208952FB96" ?>
+  <?define Module_PackageId = "337DDF3C-462B-4659-8D10-0FF7A9D13700" ?>
   <?define InstallerVersion = "300" ?>
 <?if $(env.PROCESSOR_ARCHITECTURE) = "AMD64" ?>
   <?define SysFolder = "$(env.SystemRoot)\system32" ?>
@@ -24,7 +24,7 @@
   <?define BIT64 = "no" ?>
   <?define ANSIFOLDER = "x86_ANSI_Release" ?>
   <?define UNICODEFOLDER = "x86_Unicode_Release" ?>
-  <?define Module_PackageId = "ACF10866-5C01-46f0-90F0-D5618638CA48" ?>
+  <?define Module_PackageId = "AF6EA829-0091-4FAF-9946-734569A00642" ?>
   <?define InstallerVersion = "150" ?>
 <?if $(env.PROCESSOR_ARCHITECTURE) = "AMD64" ?>
   <?define SysFolder = "$(env.SystemRoot)\syswow64" ?>
