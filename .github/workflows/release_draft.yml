@@ -195,14 +195,11 @@ jobs:
           pattern: installers-*
           merge-multiple: true
       - name: Set Version Env Variable
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - name: 'Get Release Details'
-        run: |
-          export RELEASE_DETAILS="$(awk -vN=2 'n<N;/^## /{++n}' CHANGELOG.md)"
-          export RELEASE_DETAILS="$(sed '${/^# /d;}' <<< "$RELEASE_DETAILS")"
-          export RELEASE_DETAILS="$(sed '$d' <<< "$RELEASE_DETAILS")"
-          touch RELEASE_DETAILS.md
-          echo "$RELEASE_DETAILS" > RELEASE_DETAILS.md
+        run: echo ("RELEASE_VERSION=" + $env:GITHUB_REF_NAME) >>  $env:GITHUB_ENV
+      - name: Extract release notes
+        uses: ffurrer2/extract-release-notes@v2
+        with:
+          release_notes_file: RELEASE_DETAILS.md
       - name: Upload to Draft Release
         uses: ncipollo/release-action@v1
         with:
