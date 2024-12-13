@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/#semantic-versioning-200).
 
 ## [0.0.2] - 2024-11-27
+The Amazon Web Services (AWS) ODBC Driver for PostgreSQL allows an application to take advantage of additional authentication features such Okta Federated Service and AWS Secret Manager.
+
 ### :magic_wand: Added
 - [AWS Secret Manager authentication support](./docs/authentication.md#secret-manager-authentication)
 - [AWS Federated authentication method with OKTA](./docs/authentication.md#okta-authentication)
