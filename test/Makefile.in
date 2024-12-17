@@ -24,6 +24,7 @@ CFLAGS = @CFLAGS@
 CPPFLAGS = @CPPFLAGS@ -I..	# config.h
 ODBC_CONFIG = @ODBC_CONFIG@
 PROVE = @PROVE@
+
 LIBODBC = @LIBODBC@
 
 all: $(TESTBINS) runsuite reset-db

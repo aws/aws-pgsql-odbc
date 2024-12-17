@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
-AC_INIT([psqlodbc],[16.00.0000],[pgsql-odbc@postgresql.org])
-AC_PREREQ([2.71])
+AC_INIT(psqlodbc, 17.00.0004, [pgsql-odbc@postgresql.org])
+AC_PREREQ(2.71)
 AC_CONFIG_AUX_DIR(config)
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_MACRO_DIRS([config])
@@ -53,6 +53,7 @@ AC_TYPE_SIZE_T
 
 # Check if "-Wall" is valid
 if test -n "$GCC" && test "$ac_test_CFLAGS" != set; then
+
 	AC_MSG_CHECKING(-Wall is a valid compile option)
 	CFLAGS_SAVE="${CFLAGS}"
 	CFLAGS="${CFLAGS} -Wall"
@@ -71,7 +72,7 @@ fi
 AC_CANONICAL_HOST
 AC_MSG_NOTICE(["HOST = ${host}"])
 
-case "$host" in 
+case "$host" in
   *apple-darwin*)
     AC_DEFINE([HAVE_STRLCAT], [], [])
     LDFLAGS="${LDFLAGS} -framework CoreFoundation -framework Security"
@@ -95,6 +96,7 @@ AC_ARG_WITH(unixodbc, [  --with-unixodbc[[=DIR]]	  [[default=yes]] DIR is the un
 			  directory or the path to odbc_config],
 [], [with_unixodbc=yes])
 AC_MSG_NOTICE([with_unixodbc: $with_unixodbc])
+
 
 #
 # Whether iODBC driver manager is used
@@ -144,6 +146,7 @@ fi
 #
 # ODBC include and library
 #
+
 if test "$ODBC_CONFIG" != ""; then
 	if test "$with_iodbc" != no; then
 		ODBC_INCLUDE=`${ODBC_CONFIG} --cflags`
@@ -201,6 +204,7 @@ SQLRETURN SQL_API SQLColAttribute(SQLHSTMT StatementHandle,
   [AC_MSG_RESULT(no)]
 )
 
+
 #
 # Whether libpq functionalities are used
 #
@@ -233,15 +237,18 @@ fi
 #
 # Pthreads
 #
+
 PGAC_ARG_BOOL(enable, pthreads, yes,
               [  --disable-pthreads      do not build with POSIX threads],
               [AC_DEFINE(POSIX_MULTITHREAD_SUPPORT, 1,
                          [Define to 1 to build with pthreads support (--enable-pthreads)])
                AC_DEFINE(_REENTRANT, 1, [Define _REENTRANT for several platforms])])
 
+
 #
 # Find libpq headers and libraries
 #
+
 if test -z "$PG_CONFIG"; then
   AC_MSG_NOTICE([Checking for pg_config])
   AC_PATH_PROGS(PG_CONFIG, pg_config)
@@ -297,8 +304,8 @@ LT_INIT([disable-static win32-dll dlopen])
 
 # if test "$GITHUB_ACTIONS" != "true" ]; then
 if test "$with_unixodbc" != no; then
-	AC_SEARCH_LIBS(SQLGetPrivateProfileString, odbcinst, [],
-					[AC_MSG_ERROR([unixODBC library "odbcinst" not found])])
+  AC_SEARCH_LIBS(SQLGetPrivateProfileString, odbcinst, [],
+                 [AC_MSG_ERROR([unixODBC library "odbcinst" not found])])
 fi
 # fi
 
@@ -316,7 +323,7 @@ fi
 if test "$GITHUB_ACTIONS" != "true" ]; then
 	AC_CHECK_LIB(pq, PQsetSingleRowMode, [],
 		      [AC_MSG_ERROR([libpq library version >= 9.2 is required])])
-fi			  
+fi
 
 # 3. Header files
 
@@ -325,6 +332,7 @@ if test "$GITHUB_ACTIONS" != "true" ]; then
 	AC_CHECK_HEADER(libpq-fe.h,,[AC_MSG_ERROR([libpq header not found])])
 fi
 AC_HEADER_STDBOOL
+
 
 # 4. Types(all members were moved to 0.)
 
@@ -335,6 +343,7 @@ AC_STRUCT_TM
 # 6. Compiler characteristics
 
 AC_C_CONST
+
 
 # 7. Functions, global variables
 
