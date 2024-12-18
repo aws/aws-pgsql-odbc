@@ -1242,7 +1242,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Fetched Secrets Manager credentials are invalid", CC_get_errormsg(self));
 			CC_set_errormsg(self, custom_err);
 			return ret;
-		}			
+		}
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
@@ -3775,3 +3775,4 @@ CC_set_transact(ConnectionClass *self, UInt4 isolation)
 
 	return TRUE;
 }
+

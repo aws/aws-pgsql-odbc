@@ -53,6 +53,7 @@
 
     <!-- PostgreSQL -->
     <File Name="psqlodbc30a.dll" Source="$(BINBASE)\$(ANSIFOLDER)\psqlodbc30a.dll">
+      <CopyFile DestinationName="psqlodbc30a.dll" />
       <ODBCDriver Id="Psqlodbc_9.0_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL ($(Platform))">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
@@ -66,6 +67,7 @@
     <File Name="pgenlista.pdb" Source="$(BINBASE)\$(ANSIFOLDER)\pgenlista.pdb" />
 <?endif ?>
     <File Name="psqlodbc35w.dll" Source="$(BINBASE)\$(UNICODEFOLDER)\psqlodbc35w.dll">
+      <CopyFile DestinationName="psqlodbc35w.dll" />
       <ODBCDriver Id="Psqlodbc_9.0_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL ($(Platform))">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>

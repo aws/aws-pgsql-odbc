@@ -1448,7 +1448,7 @@ writeDSNinfo(const ConnInfo *ci)
 								 INI_RELAYING_PARTY_ID,
 								 ci->federation_cfg.relaying_party_id,
 								 ODBC_INI);
-								 
+
 	SQLWritePrivateProfileString(DSN,
 								 INI_SECRET_ID,
 								 ci->secret_id,
