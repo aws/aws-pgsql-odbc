@@ -189,6 +189,7 @@ SQLConnect(HDBC ConnectionHandle,
 	CC_clear_error(conn);
 	ret = PGAPI_Connect(ConnectionHandle, ServerName, NameLength1,
 					 UserName, NameLength2, Authentication, NameLength3);
+
 	LEAVE_CONN_CS(conn);
 	return ret;
 }
@@ -212,6 +213,13 @@ SQLDriverConnect(HDBC hdbc,
 	CC_clear_error(conn);
 	ret = PGAPI_DriverConnect(hdbc, hwnd, szConnStrIn, cbConnStrIn,
 		szConnStrOut, cbConnStrOutMax, pcbConnStrOut, fDriverCompletion);
+
+    if (SQL_SUCCESS == ret)
+    {
+        bool is_limitless = CheckLimitlessCluster(hdbc);
+        MYLOG(DETAIL_LOG_LEVEL, "Is limitless instance: %s", is_limitless ? "YES" : "NO");
+    }
+
 	LEAVE_CONN_CS(conn);
 	return ret;
 }
