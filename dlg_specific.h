@@ -216,6 +216,10 @@ extern "C" {
 #define	SSLLBYTE_REQUIRE	'r'
 #define	SSLLBYTE_VERIFY		'v'
 
+#define LIMITLESS_MODE_DISABLE		"disable"
+#define LIMITLESS_MODE_LAZY		"lazy"
+#define LIMITLESS_MODE_IMMEDIATE	"immediate"
+
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 #define INI_XAOPT			"XaOpt"
 #endif /* _HANDLE_ENLIST_IN_DTC_ */
@@ -306,6 +310,7 @@ extern "C" {
 #define DEFAULT_SOCKET_TIMEOUT		"3000"
 #define DEFAULT_CONN_TIMEOUT		"5000"
 #define DEFAULT_RELAYING_PARTY_ID	"urn:amazon:webservices"
+#define DEFAULT_LIMITLESS_MONITOR_INTERVAL	"500"
 
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 #define DEFAULT_XAOPT			1

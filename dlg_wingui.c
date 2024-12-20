@@ -65,6 +65,15 @@ static struct {
 	};
 static int	dspcount_bylevel[] = {1, 4, 6};
 
+static struct {
+	int ids;
+	const char * const modestr;
+} limitlessmode[] = {
+		  {IDS_LIMITLESS_MODE_DISABLE, LIMITLESS_MODE_DISABLE}
+		, {IDS_LIMITLESS_MODE_LAZY, LIMITLESS_MODE_LAZY}
+		, {IDS_LIMITLESS_MODE_IMMEDIATE, LIMITLESS_MODE_IMMEDIATE}
+	};
+
 // window handle of region
 HWND regionDlg;
 // window handle of user name
@@ -130,7 +139,7 @@ void EnableWindows(int index) {
 	EnableWindow(secretIdDlg, stricmp(authtype[index].authtypestr, SECRET_MODE) == 0);
 }
 
-// Function to handle notifications from the AuthType drop list
+// Function to handle notifications from the AuthType drop list and LimitlessMode drop list
 LRESULT CALLBACK ListBoxProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData) {
 	if (message == WM_COMMAND) {
 		if (HIWORD(wParam) == CBN_SELCHANGE) {
@@ -233,6 +242,26 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	// Set subclass procedure for the authtype drop list to handle notifications
 	SetWindowSubclass(GetDlgItem(hdlg, IDC_AUTHTYPE), ListBoxProc, 0, 0);
 
+	// for limitless mode
+	selidx = 0;
+	for (i = 0; i < sizeof(limitlessmode) / sizeof(limitlessmode[0]); i++)
+	{
+		if (!stricmp(ci->limitlessmode, limitlessmode[i].modestr))
+		{
+			selidx = i;
+			break;
+		}
+	}
+	for (i = 0; i < sizeof(limitlessmode) / sizeof(limitlessmode[0]); i++)
+	{
+		LoadString(GetWindowInstance(hdlg), limitlessmode[i].ids, buff, MEDIUM_REGISTRY_LEN);
+		SendDlgItemMessage(hdlg, IDC_LIMITLESS_MODE, CB_ADDSTRING, 0, (WPARAM)buff);
+	}
+	SendDlgItemMessage(hdlg, IDC_LIMITLESS_MODE, CB_SETCURSEL, selidx, (WPARAM)0);
+
+	// Set subclass procedure for the limitless mode drop list to handle notifications
+	SetWindowSubclass(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), ListBoxProc, 0, 0);
+
     regionDlg = GetDlgItem(hdlg, IDC_REGION);
 	tokenExpirationDlg = GetDlgItem(hdlg, IDC_TOKEN_EXPIRATION);
 	userNameDlg = GetDlgItem(hdlg, IDC_USER);
@@ -258,7 +287,7 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 void
 GetDlgStuff(HWND hdlg, ConnInfo *ci)
 {
-	int	sslposition, authtypeposition;
+	int	sslposition, authtypeposition, limitlessmodeposition;
 	char	medium_buf[MEDIUM_REGISTRY_LEN];
 
 	GetDlgItemText(hdlg, IDC_DESC, ci->desc, sizeof(ci->desc));
@@ -274,6 +303,8 @@ GetDlgStuff(HWND hdlg, ConnInfo *ci)
 	STRCPY_FIXED(ci->sslmode, modetab[sslposition].modestr);
 	authtypeposition = (int)(DWORD)SendMessage(GetDlgItem(hdlg, IDC_AUTHTYPE), CB_GETCURSEL, 0L, 0L);
 	STRCPY_FIXED(ci->authtype, authtype[authtypeposition].authtypestr);
+	limitlessmodeposition = (int)(DWORD)SendMessage(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), CB_GETCURSEL, 0L, 0L);
+	STRCPY_FIXED(ci->limitlessmode, limitlessmode[limitlessmodeposition].modestr);
 	GetDlgItemText(hdlg, IDC_TOKEN_EXPIRATION, ci->token_expiration, sizeof(ci->token_expiration));
 
 	GetDlgItemText(hdlg, IDC_IDP_ENDPOINT, ci->federation_cfg.idp_endpoint, sizeof(ci->federation_cfg.idp_endpoint));
