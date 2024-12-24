@@ -685,6 +685,9 @@ typedef struct
 	char		translation_option[SMALL_REGISTRY_LEN];
 	char		secret_id[MEDIUM_REGISTRY_LEN];
 	FederatedAuthConfig federation_cfg;
+	signed char	enable_limitless;
+	char		limitless_mode[MEDIUM_REGISTRY_LEN];
+	Int4		limitless_monitor_interval_ms;
 	char		password_required;
 	char		conn_settings_in_str;
 	char		pqopt_in_str;

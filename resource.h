@@ -156,6 +156,14 @@
 #define IDC_APP_ID                      1116
 #define IDC_SECRET_ID                   1117
 
+#define DLG_OPTIONS_LIMITLESS               5000
+#define IDC_LIMITLESS_SETTINGS              5001
+#define IDC_ENABLE_LIMITLESS                5002
+#define IDC_LIMITLESS_MODE                  5003
+#define IDC_LIMITLESS_MONITOR_INTERVAL_MS   5004
+#define IDC_LIMITLESS_MODE_LAZY             5005
+#define IDC_LIMITLESS_MODE_IMMEDIATE        5006
+
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED

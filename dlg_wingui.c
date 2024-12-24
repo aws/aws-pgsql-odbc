@@ -35,6 +35,7 @@
 extern HINSTANCE s_hModule;
 static int	driver_optionsDraw(HWND, const ConnInfo *, int src, BOOL enable);
 static int	driver_options_update(HWND hdlg, ConnInfo *ci);
+static int  limitless_options_update(HWND hdlg, ConnInfo *ci);
 
 static int	ds_options_update(HWND hdlg, ConnInfo *ci);
 
@@ -63,6 +64,15 @@ static struct {
 		, {IDS_SSLREQUEST_VERIFY_CA, SSLMODE_VERIFY_CA}
 		, {IDS_SSLREQUEST_VERIFY_FULL, SSLMODE_VERIFY_FULL}
 	};
+
+static struct {
+	int	ids;
+	const char * const	modestr;
+} limitlessmode[] = {
+		  {IDC_LIMITLESS_MODE_LAZY, LIMITLESS_LAZY}
+		, {IDC_LIMITLESS_MODE_IMMEDIATE, LIMITLESS_IMMEDIATE}
+	};
+
 static int	dspcount_bylevel[] = {1, 4, 6};
 
 // window handle of region
@@ -307,6 +317,11 @@ getDriversDefaultsOfCi(const ConnInfo *ci, GLOBAL_VALUES *glbv)
 		getDriversDefaults(INVALID_DRIVER, glbv);
 }
 
+static void limitless_optionsDlgEnable(HWND hdlg, const ConnInfo *ci) {
+	EnableWindow(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), ci->enable_limitless > 0);
+	EnableWindow(GetDlgItem(hdlg, IDC_LIMITLESS_MONITOR_INTERVAL_MS), ci->enable_limitless > 0);
+}
+
 static int
 driver_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
 {
@@ -397,6 +412,55 @@ MYLOG(0, "entering src=%d\n", src);
 	return 0;
 }
 
+static int
+limitless_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
+{
+	const GLOBAL_VALUES *comval = NULL;
+	GLOBAL_VALUES defval;
+	char	buff[MEDIUM_REGISTRY_LEN + 1];
+
+	MYLOG(0, "entering src=%d\n", src);
+	init_globals(&defval);
+	switch (src)
+	{
+		case 0:			/* default */
+			getDriversDefaultsOfCi(ci, &defval);
+			defval.debug = DEFAULT_DEBUG;
+			defval.commlog = DEFAULT_COMMLOG;
+			comval = &defval;
+			break;
+		case 1:			/* dsn specific */
+			comval = &(ci->drivers);
+			break;
+		default:
+			return 0;
+	}
+
+	CheckDlgButton(hdlg, IDC_ENABLE_LIMITLESS, ci->enable_limitless > 0);
+	SetDlgItemInt(hdlg, IDC_LIMITLESS_MONITOR_INTERVAL_MS, ci->limitless_monitor_interval_ms, FALSE);
+
+	int i, selidx = 0;
+	for (i = 0; i < sizeof(limitlessmode) / sizeof(limitlessmode[0]); i++) {
+		if (!stricmp(ci->limitless_mode, limitlessmode[i].modestr)) {
+			selidx = i;
+			break;
+		}
+	}
+	for (i = 0; i < sizeof(limitlessmode) / sizeof(limitlessmode[0]); i++) {
+		LoadString(GetWindowInstance(hdlg), limitlessmode[i].ids, buff, MEDIUM_REGISTRY_LEN);
+		SendDlgItemMessage(hdlg, IDC_LIMITLESS_MODE, CB_ADDSTRING, 0, (WPARAM)buff);
+	}
+	SendDlgItemMessage(hdlg, IDC_LIMITLESS_MODE, CB_SETCURSEL, selidx, (WPARAM)0);
+	SetWindowSubclass(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), ListBoxProc, 0, 0);
+
+	limitless_optionsDlgEnable(hdlg, ci);
+
+	ShowWindow(GetDlgItem(hdlg, DRV_MSG_LABEL2), enable ? SW_SHOW : SW_HIDE);
+
+	finalize_globals(&defval);
+	return 0;
+}
+
 #define	INIT_DISP_LOGVAL	2
 
 static int
@@ -443,6 +507,16 @@ MYLOG(3, "entering\n");
 	return 0;
 }
 
+static int
+limitless_options_update(HWND hdlg, ConnInfo *ci)
+{
+	ci->enable_limitless = IsDlgButtonChecked(hdlg, IDC_ENABLE_LIMITLESS);
+	GetDlgItemText(hdlg, IDC_LIMITLESS_MODE, ci->limitless_mode, sizeof(ci->limitless_mode));
+	ci->limitless_monitor_interval_ms = GetDlgItemInt(hdlg, IDC_LIMITLESS_MONITOR_INTERVAL_MS, NULL, FALSE);
+
+	limitless_optionsDlgEnable(hdlg, ci);
+	return 0;
+}
 
 #ifdef _HANDLE_ENLIST_IN_DTC_
 static
@@ -559,6 +633,55 @@ global_optionsProc(HWND hdlg,
 	}
 
 	finalize_globals(&defval);
+	return FALSE;
+}
+
+LRESULT	CALLBACK
+limitless_optionsProc(HWND hdlg,
+				   UINT wMsg,
+				   WPARAM wParam,
+				   LPARAM lParam)
+{
+	ConnInfo   *ci;
+	char	strbuf[128];
+	GLOBAL_VALUES	defval;
+	init_globals(&defval);
+	switch (wMsg) {
+		// Initial Open
+		case WM_INITDIALOG:
+			SetWindowLongPtr(hdlg, DWLP_USER, lParam);		/* save for OK etc */
+			ci = (ConnInfo *) lParam;
+			// Window Name
+			char	fbuf[64];
+			STRCPY_FIXED(fbuf, "LIMITLESS SETTINGS (%s)");
+			SPRINTF_FIXED(strbuf, fbuf, ci->dsn);
+			SetWindowText(hdlg, strbuf);
+			// Draw Window Options
+			limitless_optionsDraw(hdlg, ci, 1, FALSE);
+			break;
+		// Button Presses
+		case WM_COMMAND:
+			ci = (ConnInfo *) GetWindowLongPtr(hdlg, DWLP_USER);
+			switch (GET_WM_COMMAND_ID(wParam, lParam))
+			{
+				case IDOK:
+					limitless_options_update(hdlg, ci);
+
+				case IDCANCEL:
+					EndDialog(hdlg, GET_WM_COMMAND_ID(wParam, lParam) == IDOK);
+					return TRUE;
+
+				case IDAPPLY:
+					limitless_options_update(hdlg, ci);
+					SendMessage(GetWindow(hdlg, GW_OWNER), WM_COMMAND, wParam, lParam);
+					break;
+
+				case IDDEFAULTS:
+					limitless_optionsDraw(hdlg, ci, 0, FALSE);
+					break;
+			}
+	}
+
 	return FALSE;
 }
 
