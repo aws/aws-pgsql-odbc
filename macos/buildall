@@ -48,19 +48,33 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Prep the aws-rds-odbc build
-echo "Prepping the aws-rds-odbc build"
-cmake -S . -B build
+# Prep the aws-rds-odbc builds
+echo "Prepping the ansi aws-rds-odbc build"
+cmake -S . -B build_ansi
 if [ $? -ne 0 ]; then
-  echo "aws-rds-odbc build prep failed"
+  echo "ansi aws-rds-odbc build prep failed"
+  exit 1
+fi
+
+echo "Prepping the unicode aws-rds-odbc build"
+cmake -S . -B build_unicode -DUNICODE_BUILD=ON
+if [ $? -ne 0 ]; then
+  echo "unicode aws-rds-odbc build prep failed"
   exit 1
 fi
 
 # Build aws-rds-odbc
-echo "Building aws-rds-odbc"
-cmake --build build --config ${CONFIGURATION}
+echo "Building ansi version of aws-rds-odbc"
+cmake --build build_ansi --config ${CONFIGURATION}
 if [ $? -ne 0 ]; then
-  echo "aws-rds-odbc build failed"
+  echo "ansi aws-rds-odbc build failed"
+  exit 1
+fi
+
+echo "Building unicode version of aws-rds-odbc"
+cmake --build build_unicode --config ${CONFIGURATION}
+if [ $? -ne 0 ]; then
+  echo "unicode aws-rds-odbc build failed"
   exit 1
 fi
 
