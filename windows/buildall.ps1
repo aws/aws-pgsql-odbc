@@ -52,19 +52,33 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-# Prep the aws-rds-odbc build
-Write-Host "Prepping the aws-rds-odbc build"
-cmake -S . -B build
+# Prep the aws-rds-odbc builds
+Write-Host "Prepping the ansi aws-rds-odbc build"
+cmake -S . -B build_ansi
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "aws-rds-odbc build prep failed"
+    Write-Host "ansi aws-rds-odbc build prep failed"
+    exit $LASTEXITCODE
+}
+
+Write-Host "Prepping the unicode aws-rds-odbc build"
+cmake -S . -B build_unicode -DUNICODE_BUILD=ON
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "unicode aws-rds-odbc build prep failed"
     exit $LASTEXITCODE
 }
 
 # Build aws-rds-odbc
-Write-Host "Building aws-rds-odbc"
-cmake --build build --config $Configuration
+Write-Host "Building ansi version of aws-rds-odbc"
+cmake --build build_ansi --config $Configuration
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "aws-rds-odbc build failed"
+    Write-Host "ansi aws-rds-odbc build failed"
+    exit $LASTEXITCODE
+}
+
+Write-Host "Building unicode version of aws-rds-odbc"
+cmake --build build_unicode --config $Configuration
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "unicode aws-rds-odbc build failed"
     exit $LASTEXITCODE
 }
 

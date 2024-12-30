@@ -26,6 +26,8 @@
 #include "connection.h"
 #include "statement.h"
 
+#include <limitless/limitless_monitor_service.h>
+
 RETCODE  SQL_API
 SQLColumnsW(HSTMT StatementHandle,
 			SQLWCHAR *CatalogName, SQLSMALLINT NameLength1,
@@ -164,6 +166,13 @@ SQLDriverConnectW(HDBC hdbc,
 							  (SQLCHAR *) szIn, (SQLSMALLINT) inlen,
 							  (SQLCHAR *) szOut, maxlen,
 							  pCSO, fDriverCompletion);
+
+    if (SQL_SUCCESS == ret)
+    {
+        bool is_limitless = CheckLimitlessCluster(hdbc);
+        MYLOG(DETAIL_LOG_LEVEL, "Is limitless instance: %s", is_limitless ? "YES" : "NO");
+    }
+
 	if (ret != SQL_ERROR && NULL != pCSO)
 	{
 		SQLLEN outlen = olen;

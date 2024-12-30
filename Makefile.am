@@ -8,16 +8,25 @@ AUTOMAKE_OPTIONS = 1.8 foreign
 
 ACLOCAL_AMFLAGS = -I config
 
-lib_LTLIBRARIES = psqlodbcw.la psqlodbca.la
-
-AM_LDFLAGS = -module -no-undefined -avoid-version -export-symbols-regex '^SQL'
+pkglib_LTLIBRARIES = psqlodbcw.la psqlodbca.la
 
 psqlodbcw_la_CFLAGS = -DUNICODE_SUPPORT # -DUNICODE_SUPPORTXX
+
+if WITH_AWSRDSODBC
+# -module MUST be part of _LDFLAGS to prevent libtool reporting
+# the following error: libtool library 'psqlodbcw.la' must begin with 'lib'
+# See https://www.gnu.org/software/automake/manual/html_node/Libtool-Modules.html.
+psqlodbcw_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_unicode -laws-rds-odbc
+psqlodbca_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_ansi -laws-rds-odbc
+else
+psqlodbcw_la_LDFLAGS = -module
+psqlodbca_la_LDFLAGS = -module
+endif
 
 AM_CFLAGS = @CFLAGS@
 AM_CPPFLAGS = @CPPFLAGS@
 AM_CXXFLAGS = @CXXFLAGS@
-AM_LDFLAGS = @LDFLAGS@ -module -no-undefined -avoid-version -export-symbols-regex '^SQL'
+AM_LDFLAGS = @LDFLAGS@ -no-undefined -avoid-version -export-symbols-regex '^SQL'
 
 psqlodbca_la_SOURCES = \
 	info.c bind.c columninfo.c connection.c convert.c drvconn.c \

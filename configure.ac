@@ -277,21 +277,18 @@ AWS_RDS_ODBC_DEPENDENCIES="
 if test "$with_awsrdsodbc" != no; then
 	AC_FULL_PATH([libs/aws-rds-odbc], [AWS_RDS_ODBC_PATH])
 	CPPFLAGS="${CPPFLAGS} -I${AWS_RDS_ODBC_PATH}/src -I${AWS_RDS_ODBC_PATH}/aws_sdk/install/include"
-	LDFLAGS="${LDFLAGS} -L${AWS_RDS_ODBC_PATH}/build"
 
 	for dependency in $AWS_RDS_ODBC_DEPENDENCIES; do
 		AC_CHECK_LIB([$dependency], [main], [], [AC_MSG_ERROR([lib${dependency} library not found])])
 		LDFLAGS="${LDFLAGS} -l${dependency}"
 	done
 
-	AC_CHECK_LIB([aws-rds-odbc], [main], [], [AC_MSG_ERROR([libaws-rds-odbc library not found])])
-	LDFLAGS="${LDFLAGS} -laws-rds-odbc"
-
 	# macOS build of glog needs gflags
 	if test "$MACOS_BUILD" == yes; then
 		LDFLAGS="${LDFLAGS} -L/opt/homebrew/opt/gflags/lib -lc++ -lgflags"
 	fi
 fi
+AM_CONDITIONAL([WITH_AWSRDSODBC], [test "x$with_awsrdsodbc" = "xyes"])
 
 # 1. Programs
 
@@ -370,11 +367,13 @@ fi
 # 8. Libltdl	This release doesn't need libltdl
 # AC_CHECK_LIB(ltdl, lt_dlopen)
 
+AC_MSG_NOTICE(["AWS_RDS_ODBC_PATH = ${AWS_RDS_ODBC_PATH}"])
 AC_MSG_NOTICE(["CFLAGS = ${CFLAGS}"])
 AC_MSG_NOTICE(["CPPFLAGS = ${CPPFLAGS}"])
 AC_MSG_NOTICE(["CXXFLAGS = ${CXXFLAGS}"])
 AC_MSG_NOTICE(["LDFLAGS = ${LDFLAGS}"])
 
+AC_SUBST(AWS_RDS_ODBC_PATH)
 AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(CXXFLAGS)

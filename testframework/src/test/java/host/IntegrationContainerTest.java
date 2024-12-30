@@ -95,7 +95,7 @@ public class IntegrationContainerTest {
   private static final AuroraTestUtility auroraUtil = new AuroraTestUtility(REGION, ENDPOINT);
 
   private static final String UNIXODBC_VERSION = "2.3.12";
-  
+
   private static TestConfigurationEngine testConfiguration;
   private static int postgresProxyPort;
   private static List<String> postgresInstances = new ArrayList<>();
@@ -199,7 +199,7 @@ public class IntegrationContainerTest {
         .withEnv("ODBCINI", ODBCINI_LOCATION)
         .withEnv("ODBCINST", ODBCINSTINI_LOCATION)
         .withEnv("ODBCSYSINI", "/app/build/test")
-        .withEnv("TEST_DRIVER", "/app/.libs/psqlodbca.so");
+        .withEnv("TEST_DRIVER", "/app/.libs/psqlodbcw.so");
   }
 
   private void installPrerequisites() throws Exception {
@@ -225,7 +225,8 @@ public class IntegrationContainerTest {
         "libodbcinst2",
         "libpq-dev",
         "libtool-bin",
-        "lsb-core",
+        "lsb-base",
+        "lsb-release",
         "uuid-dev",
         "zlib1g-dev"
     );
@@ -274,7 +275,7 @@ public class IntegrationContainerTest {
 
       System.out.println("cmake --build build");
       result = testContainer.execInContainer("cmake", "--build", "build");
-      
+
       System.out.println(result.getStdout());
     } catch (Exception e) {
       fail("Test container failed during driver/test building process.");

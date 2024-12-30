@@ -55,7 +55,7 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ContainerHelper {
-  private static final String TEST_CONTAINER_IMAGE_NAME = "ubuntu:22.04";
+  private static final String TEST_CONTAINER_IMAGE_NAME = "ubuntu:24.04";
   private static final DockerImageName TOXIPROXY_IMAGE =
       DockerImageName.parse("shopify/toxiproxy:2.1.0");
 
@@ -94,7 +94,7 @@ public class ContainerHelper {
                     .workDir("/app")
                     .entryPoint("/bin/sh -c \"while true; do sleep 30; done;\"")
                     .build()))
-        .withEnv("LD_LIBRARY_PATH", "$LD_LIBRARY_PATH:/app/aws_sdk/install/lib:/app/libs/aws-rds-odbc/build")
+        .withEnv("LD_LIBRARY_PATH", "$LD_LIBRARY_PATH:/app/aws_sdk/install/lib:/app/libs/aws-rds-odbc/build_unicode")
         .withEnv("DEBIAN_FRONTEND", "noninteractive")
         .withFileSystemBind(driverPath, "/app", BindMode.READ_WRITE)
         .withPrivilegedMode(true) // it's needed to control Linux core settings like TcpKeepAlive
