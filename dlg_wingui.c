@@ -653,7 +653,7 @@ limitless_optionsProc(HWND hdlg,
 			ci = (ConnInfo *) lParam;
 			// Window Name
 			char	fbuf[64];
-			STRCPY_FIXED(fbuf, "LIMITLESS SETTINGS (%s)");
+			STRCPY_FIXED(fbuf, "Limitless Settings (%s)");
 			SPRINTF_FIXED(strbuf, fbuf, ci->dsn);
 			SetWindowText(hdlg, strbuf);
 			// Draw Window Options
@@ -662,7 +662,8 @@ limitless_optionsProc(HWND hdlg,
 		// Button Presses
 		case WM_COMMAND:
 			ci = (ConnInfo *) GetWindowLongPtr(hdlg, DWLP_USER);
-			switch (GET_WM_COMMAND_ID(wParam, lParam))
+            int commandId = GET_WM_COMMAND_ID(wParam, lParam);
+			switch (commandId)
 			{
 				case IDOK:
 					limitless_options_update(hdlg, ci);
@@ -679,6 +680,21 @@ limitless_optionsProc(HWND hdlg,
 				case IDDEFAULTS:
 					limitless_optionsDraw(hdlg, ci, 0, FALSE);
 					break;
+
+                default:
+                    {
+                        int controlId = commandId;
+                        int notificationCode = HIWORD(wParam);
+
+                        if (notificationCode == BN_CLICKED) {
+                            switch (controlId) {
+                            case IDC_ENABLE_LIMITLESS:
+                                limitless_options_update(hdlg, ci);
+                                break;
+                            }
+                        }
+                    }
+                    break;
 			}
 	}
 

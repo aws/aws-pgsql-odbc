@@ -1,4 +1,4 @@
-//Microsoft Developer Studio generated resource script.
+// Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
 
@@ -7,23 +7,18 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "winresrc.h"
-#ifndef	IDC_STATIC
-#define	IDC_STATIC (-1)
-#endif
+#include "afxres.h"
 #include "version.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Japanese resources
+// Japanese (Japan) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
-#ifdef _WIN32
 LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 #pragma code_page(932)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -31,280 +26,194 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 DLG_CONFIG DIALOGEX 65, 43, 359, 219
-STYLE DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_VISIBLE | 
-    WS_CAPTION | WS_SYSMENU
-#ifdef UNICODE_SUPPORT
-CAPTION "PostgreSQL Unicode ODBC ÔøΩZÔøΩbÔøΩgÔøΩAÔøΩbÔøΩv"
-#else
-CAPTION "PostgreSQL ANSI ODBC ÔøΩZÔøΩbÔøΩgÔøΩAÔøΩbÔøΩv"
-#endif
-FONT 9, "ÔøΩlÔøΩr ÔøΩSÔøΩVÔøΩbÔøΩN", 0, 0, 0x1
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+CAPTION "PostgreSQL ANSI ODBC ÅEΩZÅEΩbÅEΩgÅEΩAÅEΩbÅEΩv"
+FONT 9, "ÅEΩlÅEΩr ÅEΩSÅEΩVÅEΩbÅEΩN", 0, 0, 0x1
 BEGIN
-    RTEXT           "ÔøΩfÔøΩ|ÔøΩ^ÔøΩ\ÔøΩ|ÔøΩXÔøΩÔøΩ:(&N)",IDC_DSNAMETEXT,2,9,63,17,NOT 
-                    WS_GROUP,WS_EX_TRANSPARENT | WS_EX_RIGHT
-    EDITTEXT        IDC_DSNAME,72,12,188,13,ES_AUTOHSCROLL | WS_GROUP,
-                    WS_EX_TRANSPARENT
-    RTEXT           "ÔøΩÔøΩÔøΩÔøΩ:(&D)",IDC_DESCTEXT,5,31,60,16,SS_CENTERIMAGE | NOT 
-                    WS_GROUP,WS_EX_TRANSPARENT | WS_EX_RIGHT
+    RTEXT           "ÅEΩfÅEΩ|ÅEΩ^ÅEΩ\\ÅEΩ|ÅEΩXÅEΩÅEΩ:(&N)",IDC_DSNAMETEXT,2,9,63,17,NOT WS_GROUP,WS_EX_TRANSPARENT | WS_EX_RIGHT
+    EDITTEXT        IDC_DSNAME,72,12,188,13,ES_AUTOHSCROLL | WS_GROUP,WS_EX_TRANSPARENT
+    RTEXT           "ÅEΩÅEΩÅEΩÅEΩ:(&D)",IDC_DESCTEXT,5,31,60,16,SS_CENTERIMAGE | NOT WS_GROUP,WS_EX_TRANSPARENT | WS_EX_RIGHT
     EDITTEXT        IDC_DESC,72,32,188,13,ES_AUTOHSCROLL,WS_EX_TRANSPARENT
     RTEXT           "SSL Mode:(&L)",IDC_STATIC,16,49,49,9,NOT WS_GROUP
-    COMBOBOX        IDC_SSLMODE,72,47,90,56,CBS_DROPDOWNLIST | WS_VSCROLL | 
-                    WS_TABSTOP
-    LTEXT           "libpqÔøΩÔøΩÔøΩCÔøΩuÔøΩÔøΩÔøΩÔøΩloadÔøΩsÔøΩÔøΩ:SSLÔøΩ⁄ëÔøΩÔøΩÕégÔøΩpÔøΩ≈ÇÔøΩÔøΩ‹ÇÔøΩÔøΩÔøΩ",
-                    IDC_NOTICE_USER,165,50,190,10
-    RTEXT           "ÔøΩTÔøΩ|ÔøΩoÔøΩ|ÔøΩÔøΩ:(&S)",IDC_STATIC,17,68,48,15,NOT WS_GROUP
+    COMBOBOX        IDC_SSLMODE,72,47,90,56,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "libpqÅEΩÅEΩÅEΩCÅEΩuÅEΩÅEΩÅEΩÅEΩloadÅEΩsÅEΩÅEΩ:SSLÅEΩ⁄ëÔøΩÅEΩÕégÅEΩpÅEΩ≈ÇÔøΩÅEΩ‹ÇÔøΩÅEΩÅEΩ",IDC_NOTICE_USER,165,50,190,10
+    RTEXT           "ÅEΩTÅEΩ|ÅEΩoÅEΩ|ÅEΩÅEΩ:(&S)",IDC_STATIC,17,68,48,15,NOT WS_GROUP
     EDITTEXT        IDC_SERVER,72,66,203,14,ES_AUTOHSCROLL
-    RTEXT           "ÔøΩfÔøΩ|ÔøΩ^ÔøΩxÔøΩ|ÔøΩXÔøΩÔøΩ:(&b)",IDC_STATIC,5,91,60,15,NOT WS_GROUP
+    RTEXT           "ÅEΩfÅEΩ|ÅEΩ^ÅEΩxÅEΩ|ÅEΩXÅEΩÅEΩ:(&b)",IDC_STATIC,5,91,60,15,NOT WS_GROUP
     EDITTEXT        IDC_DATABASE,72,88,203,14,ES_AUTOHSCROLL
     RTEXT           "&Port:",IDC_STATIC,281,101,22,11
     EDITTEXT        IDC_PORT,307,99,37,14,ES_AUTOHSCROLL
-    RTEXT           "ÔøΩÔøΩÔøΩ|ÔøΩUÔøΩ|ÔøΩÔøΩ:(&U)",IDC_STATIC,18,139,47,15
+    RTEXT           "ÅEΩÅEΩÅEΩ|ÅEΩUÅEΩ|ÅEΩÅEΩ:(&U)",IDC_STATIC,18,139,47,15
     EDITTEXT        IDC_USER,72,135,162,14,ES_AUTOHSCROLL
-    RTEXT           "ÔøΩpÔøΩXÔøΩÔøΩÔøΩ|ÔøΩh:(&w)",IDC_STATIC,21,159,46,15
+    RTEXT           "ÅEΩpÅEΩXÅEΩÅEΩÅEΩ|ÅEΩh:(&w)",IDC_STATIC,21,159,46,15
     EDITTEXT        IDC_PASSWORD,72,157,162,13,ES_PASSWORD | ES_AUTOHSCROLL
     DEFPUSHBUTTON   "OK",IDOK,295,61,52,14,WS_GROUP
-    PUSHBUTTON      "ÔøΩLÔøΩÔøΩÔøΩÔøΩÔøΩZÔøΩÔøΩ",IDCANCEL,296,80,51,14
-    GROUPBOX        "ÔøΩIÔøΩvÔøΩVÔøΩÔøΩÔøΩÔøΩ (ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ)",IDC_OPTIONS,249,119,99,59,
-                    BS_CENTER
-    PUSHBUTTON      "ÔøΩSÔøΩÃê›íÔøΩ",IDC_DRIVER,269,155,53,15
-    PUSHBUTTON      "ÔøΩfÔøΩ|ÔøΩ^ÔøΩ\ÔøΩ|ÔøΩX",IDC_DATASOURCE,269,132,53,15
-    GROUPBOX        "ÔøΩÔøΩÔøΩÔøΩÃîFÔøΩÔøΩ",IDC_STATIC,11,119,235,59
-    LTEXT           "PostgreSQL Ver7.3  Copyright (C) 1998-2006; Insight Distribution Systems",
-                    IDC_STATIC,36,186,302,9
-    LTEXT           "In the original form, Japanese patch Hiroshi-saito",
-                    IDC_STATIC,35,198,295,8
-    PUSHBUTTON      "ÔøΩ«óÔøΩ",IDC_MANAGEDSN,295,10,50,14
-    PUSHBUTTON      "ÔøΩeÔøΩXÔøΩg",IDC_TEST,296,30,51,14
+    PUSHBUTTON      "ÅEΩLÅEΩÅEΩÅEΩÅEΩÅEΩZÅEΩÅEΩ",IDCANCEL,296,80,51,14
+    GROUPBOX        "ÅEΩIÅEΩvÅEΩVÅEΩÅEΩÅEΩÅEΩ (ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ)",IDC_OPTIONS,249,119,99,59,BS_CENTER
+    PUSHBUTTON      "ÅEΩSÅEΩÃê›íÔøΩ",IDC_DRIVER,269,155,53,15
+    PUSHBUTTON      "ÅEΩfÅEΩ|ÅEΩ^ÅEΩ\\ÅEΩ|ÅEΩX",IDC_DATASOURCE,269,132,53,15
+    GROUPBOX        "ÅEΩÅEΩÅEΩÅEΩÃîFÅEΩÅEΩ",IDC_STATIC,11,119,235,59
+    LTEXT           "PostgreSQL Ver7.3  Copyright (C) 1998-2006; Insight Distribution Systems",IDC_STATIC,36,186,302,9
+    LTEXT           "In the original form, Japanese patch Hiroshi-saito",IDC_STATIC,35,198,295,8
+    PUSHBUTTON      "ÅEΩ«óÔøΩ",IDC_MANAGEDSN,295,10,50,14
+    PUSHBUTTON      "ÅEΩeÅEΩXÅEΩg",IDC_TEST,296,30,51,14
 END
 
-#define	MISC_X
-#define	MISC_Y	155
-#define	MISC_Y1	(MISC_Y+11)
-#define	MISC_Y2	(MISC_Y+28)
-#define	MISC_Y3	(MISC_Y+45)
-
-DLG_OPTIONS_DRV DIALOG DISCARDABLE  0, 0, 350, 241
-STYLE DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | 
-    WS_SYSMENU
-CAPTION "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (ÔøΩfÔøΩ[ÔøΩ^ÔøΩ\ÔøΩ[ÔøΩXÔøΩP)"
-FONT 9, "ÔøΩlÔøΩr ÔøΩSÔøΩVÔøΩbÔøΩN"
+DLG_OPTIONS_DRV DIALOG 0, 0, 350, 241
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (ÅEΩfÅEΩ[ÅEΩ^ÅEΩ\\ÅEΩ[ÅEΩXÅEΩP)"
+FONT 9, "ÅEΩlÅEΩr ÅEΩSÅEΩVÅEΩbÅEΩN"
 BEGIN
-    PUSHBUTTON      "ÔøΩ›íÔøΩ2",ID2NDPAGE,5,5,40,15
-    PUSHBUTTON      "ÔøΩ›íÔøΩ3",ID3RDPAGE,49,5,40,15
-    CONTROL         "ÔøΩÔøΩ ÉÔøΩÔøΩOÔøΩoÔøΩÕÇÔøΩÔøΩÔøΩÔøΩÔøΩ(&L) (C:\\psqlodbc.log)",DRV_COMMLOG,
+    PUSHBUTTON      "ÅEΩ›íÔøΩ2",ID2NDPAGE,5,5,40,15
+    PUSHBUTTON      "ÅEΩ›íÔøΩ3",ID3RDPAGE,49,5,40,15
+    CONTROL         "ÅEΩÅEΩ ÅEøΩÅEΩOÅEΩoÅEΩÕÇÔøΩÅEΩÅEΩÅEΩÅEΩ(&L) (C:\\psqlodbc.log)",DRV_COMMLOG,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,167,24,167,10
-    EDITTEXT        DS_COMMLOG,337,24,13,12,ES_AUTOHSCROLL | WS_GROUP,
-                    WS_EX_TRANSPARENT
-    CONTROL         "ÔøΩÔøΩÔøΩjÔøΩ|ÔøΩNÔøΩCÔøΩÔøΩÔøΩfÔøΩbÔøΩNÔøΩXÔøΩÔøΩÔøΩgÔøΩÔøΩ(&I)",DRV_UNIQUEINDEX,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,56,129,10
-    CONTROL         "ÔøΩ^ÔøΩCÔøΩÔøΩÔøΩAÔøΩEÔøΩgÔøΩÔøΩÔøΩÔøΩ",DS_IGNORETIMEOUT,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,167,56,129,10
-    CONTROL         "ÔøΩXÔøΩeÔøΩ|ÔøΩgÔøΩÔøΩÔøΩÔøΩÔøΩgÔøΩÃç\ÔøΩÔøΩÔøΩÔøΩÕÇÔøΩÔøΩsÔøΩ»ÇÔøΩ(&a)",DRV_PARSE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,167,40,152,10
-    CONTROL         "DeclareÔøΩ`FetchÔøΩÔøΩÔøΩgÔøΩpÔøΩÔøΩÔøΩÔøΩ(&U)",DRV_USEDECLAREFETCH,
+    EDITTEXT        DS_COMMLOG,337,24,13,12,ES_AUTOHSCROLL | WS_GROUP,WS_EX_TRANSPARENT
+    CONTROL         "ÅEΩÅEΩÅEΩjÅEΩ|ÅEΩNÅEΩCÅEΩÅEΩÅEΩfÅEΩbÅEΩNÅEΩXÅEΩÅEΩÅEΩgÅEΩÅEΩ(&I)",DRV_UNIQUEINDEX,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,56,129,10
+    CONTROL         "ÅEΩ^ÅEΩCÅEΩÅEΩÅEΩAÅEΩEÅEΩgÅEΩÅEΩÅEΩÅEΩ",DS_IGNORETIMEOUT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,167,56,129,10
+    CONTROL         "ÅEΩXÅEΩeÅEΩ|ÅEΩgÅEΩÅEΩÅEΩÅEΩÅEΩgÅEΩÃç\ÅEΩÅEΩÅEΩÅEΩÕÇÔøΩÅEΩsÅEΩ»ÇÔøΩ(&a)",DRV_PARSE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,167,40,152,10
+    CONTROL         "DeclareÅEΩ`FetchÅEΩÅEΩÅEΩgÅEΩpÅEΩÅEΩÅEΩÅEΩ(&U)",DRV_USEDECLAREFETCH,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,71,138,10
-    CONTROL         "ÔøΩ⁄ç◊ÉÔøΩÔøΩOÔøΩoÔøΩÕÇÔøΩÔøΩÔøΩÔøΩÔøΩ(C:\\mylog_xxxx.log)",DRV_DEBUG,
+    CONTROL         "ÅEΩ⁄ç◊ÅEøΩÅEΩOÅEΩoÅEΩÕÇÔøΩÅEΩÅEΩÅEΩÅEΩ(C:\\mylog_xxxx.log)",DRV_DEBUG,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,167,69,164,10
-    EDITTEXT        DS_DEBUG,337,69,13,12,ES_AUTOHSCROLL | WS_GROUP,
-                    WS_EX_TRANSPARENT
-    GROUPBOX        "ÔøΩÔøΩÔøΩmÔøΩÃÉTÔøΩCÔøΩYÔøΩÔøΩÔøΩÔøΩ",IDC_STATIC,5,85,340,31
-    CONTROL         "ÔøΩ≈ëÔøΩÔøΩÔøΩ∆ÇÔøΩ",DRV_UNKNOWN_MAX,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP | WS_TABSTOP,17,98,57,10
-    CONTROL         "ÔøΩÔøΩÔøΩËÇµÔøΩ»ÇÔøΩ",DRV_UNKNOWN_DONTKNOW,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,99,98,59,10
-    CONTROL         "ÔøΩ≈íÔøΩÔøΩÔøΩÔøΩ∆ÇÔøΩ",DRV_UNKNOWN_LONGEST,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,173,98,60,10
-    GROUPBOX        "ÔøΩfÔøΩ|ÔøΩ^ ÔøΩ^ÔøΩCÔøΩv ÔøΩIÔøΩvÔøΩVÔøΩÔøΩÔøΩÔøΩ",IDC_STATIC,5,119,340,32
-    CONTROL         "textÔøΩí∑ïÔøΩÔøΩÔøΩÔøΩÔøΩ∆ÇÔøΩÔøΩƒàÔøΩÔøΩÔøΩ",DRV_TEXT_LONGVARCHAR,"Button",
-                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,12,132,107,10
-    CONTROL         "ÔøΩsÔøΩÔøΩÔøΩí∑ïÔøΩÔøΩÔøΩÔøΩÔøΩ∆ÇÔøΩÔøΩƒàÔøΩÔøΩÔøΩ",DRV_UNKNOWNS_LONGVARCHAR,
+    EDITTEXT        DS_DEBUG,337,69,13,12,ES_AUTOHSCROLL | WS_GROUP,WS_EX_TRANSPARENT
+    GROUPBOX        "ÅEΩÅEΩÅEΩmÅEΩÃÉTÅEΩCÅEΩYÅEΩÅEΩÅEΩÅEΩ",IDC_STATIC,5,85,340,31
+    CONTROL         "ÅEΩ≈ëÔøΩÅEΩÅEΩ∆ÇÔøΩ",DRV_UNKNOWN_MAX,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,17,98,57,10
+    CONTROL         "ÅEΩÅEΩÅEΩËÇµÅEΩ»ÇÔøΩ",DRV_UNKNOWN_DONTKNOW,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,99,98,59,10
+    CONTROL         "ÅEΩ≈íÔøΩÅEΩÅEΩÅEΩ∆ÇÔøΩ",DRV_UNKNOWN_LONGEST,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,173,98,60,10
+    GROUPBOX        "ÅEΩfÅEΩ|ÅEΩ^ ÅEΩ^ÅEΩCÅEΩv ÅEΩIÅEΩvÅEΩVÅEΩÅEΩÅEΩÅEΩ",IDC_STATIC,5,119,340,32
+    CONTROL         "textÅEΩí∑ïÔøΩÅEΩÅEΩÅEΩÅEΩ∆ÇÔøΩÅEΩƒàÔøΩÅEΩÅEΩ",DRV_TEXT_LONGVARCHAR,
+                    "Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,12,132,107,10
+    CONTROL         "ÅEΩsÅEΩÅEΩÅEΩí∑ïÔøΩÅEΩÅEΩÅEΩÅEΩ∆ÇÔøΩÅEΩƒàÔøΩÅEΩÅEΩ",DRV_UNKNOWNS_LONGVARCHAR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,123,132,117,10
-    CONTROL         "CharÔøΩ∆ÇÔøΩÔøΩÔøΩBoolsÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ",DRV_BOOLS_CHAR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,243,132,96,10
-    GROUPBOX        "ÔøΩÔøΩÔøΩÃëÔøΩ",IDC_STATIC,5,MISC_Y,340,57
-    LTEXT           "ÔøΩ≈ëÔøΩ&Varchar:",IDC_STATIC,13,MISC_Y1+1,54,8
-    EDITTEXT        DRV_VARCHAR_SIZE,70,MISC_Y1,35,12,ES_AUTOHSCROLL
-    LTEXT           "ÔøΩ≈ëÔøΩLon&gVarChar:",IDC_STATIC,148,MISC_Y1+2,66,8
-    EDITTEXT        DRV_LONGVARCHAR_SIZE,219,MISC_Y1,35,12,ES_AUTOHSCROLL
-    LTEXT           "ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ:",IDC_STATIC,21,MISC_Y2+1,39,8
-    EDITTEXT        DRV_CACHE_SIZE,69,MISC_Y2-1,35,12,ES_AUTOHSCROLL
-    LTEXT           "ÔøΩÔøΩÔøΩÔøΩ√∞ÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÃ®ÔøΩÔøΩ:",IDC_STATIC,140,MISC_Y2+1,74,9
-    EDITTEXT        DRV_EXTRASYSTABLEPREFIXES,219,MISC_Y2-1,71,12,ES_AUTOHSCROLL
-    LTEXT           "ÔøΩoÔøΩbÔøΩ`ÔøΩTÔøΩCÔøΩY:",IDC_STATIC,13,MISC_Y3+1,74,9
-    EDITTEXT        DS_BATCH_SIZE,69,MISC_Y3-1,35,12,ES_AUTOHSCROLL
+    CONTROL         "CharÅEΩ∆ÇÔøΩÅEΩÅEΩBoolsÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩ",DRV_BOOLS_CHAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,243,132,96,10
+    GROUPBOX        "ÅEΩÅEΩÅEΩÃëÔøΩ",IDC_STATIC,5,155,340,57
+    LTEXT           "ÅEΩ≈ëÔøΩ&Varchar:",IDC_STATIC,13,167,54,8
+    EDITTEXT        DRV_VARCHAR_SIZE,70,166,35,12,ES_AUTOHSCROLL
+    LTEXT           "ÅEΩ≈ëÔøΩLon&gVarChar:",IDC_STATIC,148,168,66,8
+    EDITTEXT        DRV_LONGVARCHAR_SIZE,219,166,35,12,ES_AUTOHSCROLL
+    LTEXT           "ÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩ:",IDC_STATIC,21,184,39,8
+    EDITTEXT        DRV_CACHE_SIZE,69,182,35,12,ES_AUTOHSCROLL
+    LTEXT           "ÅEΩÅEΩÅEΩÅEΩ√∞ÅEΩÅEΩÅEΩ ÅEΩÅEΩÅEΩÃ®ÅEΩÅEΩ:",IDC_STATIC,140,184,74,9
+    EDITTEXT        DRV_EXTRASYSTABLEPREFIXES,219,182,71,12,ES_AUTOHSCROLL
+    LTEXT           "ÅEΩoÅEΩbÅEΩ`ÅEΩTÅEΩCÅEΩY:",IDC_STATIC,13,201,74,9
+    EDITTEXT        DS_BATCH_SIZE,69,199,35,12,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "OK",IDOK,5,221,50,15,WS_GROUP
-    PUSHBUTTON      "ÔøΩLÔøΩÔøΩÔøΩÔøΩÔøΩZÔøΩÔøΩ",IDCANCEL,68,221,50,15
-    PUSHBUTTON      "ÔøΩKÔøΩp",IDAPPLY,132,221,50,15
-    PUSHBUTTON      "ÔøΩfÔøΩtÔøΩHÔøΩÔøΩÔøΩg",IDDEFAULTS,295,221,50,15
+    PUSHBUTTON      "ÅEΩLÅEΩÅEΩÅEΩÅEΩÅEΩZÅEΩÅEΩ",IDCANCEL,68,221,50,15
+    PUSHBUTTON      "ÅEΩKÅEΩp",IDAPPLY,132,221,50,15
+    PUSHBUTTON      "ÅEΩfÅEΩtÅEΩHÅEΩÅEΩÅEΩg",IDDEFAULTS,295,221,50,15
 END
 
-#define	CONNSETTINGS_Y	185	// 191
-#define	KEEPALIVE_X	5
-#define	KEEPALIVE_Y	225
-#define	ENDLINE_Y	245	// 224
-
-DLG_OPTIONS_DS DIALOG DISCARDABLE  0, 0, 306, 260
-STYLE DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | 
-    WS_SYSMENU
-CAPTION "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (ÔøΩfÔøΩ[ÔøΩ^ÔøΩ\ÔøΩ[ÔøΩXÔøΩQ)"
-FONT 9, "ÔøΩlÔøΩr ÔøΩSÔøΩVÔøΩbÔøΩN"
+DLG_OPTIONS_DS DIALOG 0, 0, 306, 260
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (ÅEΩfÅEΩ[ÅEΩ^ÅEΩ\\ÅEΩ[ÅEΩXÅEΩQ)"
+FONT 9, "ÅEΩlÅEΩr ÅEΩSÅEΩVÅEΩbÅEΩN"
 BEGIN
-    PUSHBUTTON      "ÔøΩ›íÔøΩ3",ID3RDPAGE,49,5,40,15
-    PUSHBUTTON      "ÔøΩ›íÔøΩ1",ID1STPAGE,5,5,40,15
-    CONTROL         "ÔøΩÔøΩÔøΩ|ÔøΩhÔøΩIÔøΩÔøΩÔøΩÔøΩÔøΩB(&R)",DS_READONLY,"Button",
-                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,15,26,102,10
-    CONTROL         "ÔøΩoÔøΩ|ÔøΩWÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ\ÔøΩÔøΩ(&V)",DS_ROWVERSIONING,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,139,25,114,10
-    CONTROL         "ÔøΩVÔøΩXÔøΩeÔøΩÔøΩÔøΩeÔøΩ|ÔøΩuÔøΩÔøΩÔøΩÔøΩ\ÔøΩÔøΩ(&T)",DS_SHOWSYSTEMTABLES,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,41,111,10
-    CONTROL         "ÔøΩ‚èïÔøΩIÔøΩGÔøΩÔøΩÔøΩ[ÔøΩÔøΩÔøΩbÔøΩZÔøΩ[ÔøΩWÔøΩÔøΩ\ÔøΩÔøΩ",DS_OPTIONALERRORS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,139,41,162,10
-    CONTROL         "LF <-> CR/LF ÔøΩœäÔøΩÔøΩÔøΩÔøΩsÔøΩÔøΩ",DS_LFCONVERSION,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,56,106,10
-    CONTROL         "-1 ÔøΩÔøΩ^ÔøΩl(True)ÔøΩ∆ÇÔøΩÔøΩÔøΩ",DS_TRUEISMINUS1,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,139,55,98,10
-    CONTROL         "ÔøΩXÔøΩVÔøΩ¬î\ÔøΩJÔøΩ[ÔøΩ\ÔøΩÔøΩ",DS_UPDATABLECURSORS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,71,87,10
-    CONTROL         "ÔøΩTÔøΩ[ÔøΩoÔøΩ[ÔøΩÔøΩ Prepare(7.3ÔøΩ»åÔøΩ)",DS_SERVERSIDEPREPARE,
+    PUSHBUTTON      "ÅEΩ›íÔøΩ3",ID3RDPAGE,49,5,40,15
+    PUSHBUTTON      "ÅEΩ›íÔøΩ1",ID1STPAGE,5,5,40,15
+    CONTROL         "ÅEΩÅEΩÅEΩ|ÅEΩhÅEΩIÅEΩÅEΩÅEΩÅEΩÅEΩB(&R)",DS_READONLY,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,15,26,102,10
+    CONTROL         "ÅEΩoÅEΩ|ÅEΩWÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩ\\ÅEΩÅEΩ(&V)",DS_ROWVERSIONING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,25,114,10
+    CONTROL         "ÅEΩVÅEΩXÅEΩeÅEΩÅEΩÅEΩeÅEΩ|ÅEΩuÅEΩÅEΩÅEΩÅEΩ\\ÅEΩÅEΩ(&T)",DS_SHOWSYSTEMTABLES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,41,111,10
+    CONTROL         "ÅEΩ‚èïÔøΩIÅEΩGÅEΩÅEΩÅEΩ[ÅEΩÅEΩÅEΩbÅEΩZÅEΩ[ÅEΩWÅEΩÅEΩ\\ÅEΩÅEΩ",DS_OPTIONALERRORS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,41,162,10
+    CONTROL         "LF <-> CR/LF ÅEΩœäÔøΩÅEΩÅEΩÅEΩsÅEΩÅEΩ",DS_LFCONVERSION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,56,106,10
+    CONTROL         "-1 ÅEΩÅEΩ^ÅEΩl(True)ÅEΩ∆ÇÔøΩÅEΩÅEΩ",DS_TRUEISMINUS1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,55,98,10
+    CONTROL         "ÅEΩXÅEΩVÅEΩ¬î\ÅEΩJÅEΩ[ÅEΩ\\ÅEΩÅEΩ",DS_UPDATABLECURSORS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,71,87,10
+    CONTROL         "ÅEΩTÅEΩ[ÅEΩoÅEΩ[ÅEΩÅEΩ Prepare(7.3ÅEΩ»åÔøΩ)",DS_SERVERSIDEPREPARE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,70,122,10
-    GROUPBOX        "Int8 ÔøΩÃëÔøΩ÷íÔøΩ`",IDC_STATIC,5,98,256,25
-    CONTROL         "default",DS_INT8_AS_DEFAULT,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,12,108,40,10
-    CONTROL         "bigint",DS_INT8_AS_BIGINT,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,55,108,35,10
-    CONTROL         "numeric",DS_INT8_AS_NUMERIC,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,98,108,40,10
-    CONTROL         "varchar",DS_INT8_AS_VARCHAR,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,141,108,40,10
-    CONTROL         "double",DS_INT8_AS_DOUBLE,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,184,108,40,10
-    CONTROL         "int4",DS_INT8_AS_INT4,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,227,108,29,10
-    LTEXT           "ÔøΩÔøΩÔøΩ Ç»ÉIÔøΩvÔøΩVÔøΩÔøΩÔøΩÔøΩ",IDC_STATIC,227,158,66,8
+    GROUPBOX        "Int8 ÅEΩÃëÔøΩ÷íÔøΩ`",IDC_STATIC,5,98,256,25
+    CONTROL         "default",DS_INT8_AS_DEFAULT,"Button",BS_AUTORADIOBUTTON | WS_GROUP,12,108,40,10
+    CONTROL         "bigint",DS_INT8_AS_BIGINT,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,55,108,35,10
+    CONTROL         "numeric",DS_INT8_AS_NUMERIC,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,98,108,40,10
+    CONTROL         "varchar",DS_INT8_AS_VARCHAR,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,141,108,40,10
+    CONTROL         "double",DS_INT8_AS_DOUBLE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,184,108,40,10
+    CONTROL         "int4",DS_INT8_AS_INT4,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,227,108,29,10
+    LTEXT           "ÅEΩÅEΩÅEΩ Ç»ÉIÅEΩvÅEΩVÅEΩÅEΩÅEΩÅEΩ",IDC_STATIC,227,158,66,8
     EDITTEXT        DS_EXTRA_OPTIONS,227,168,35,14,ES_AUTOHSCROLL
-    GROUPBOX        "Numeric(ÔøΩÔøΩÔøΩxÔøΩwÔøΩÔøΩ»ÇÔøΩ) ÔøΩÃëÔøΩ÷íÔøΩ`",IDC_STATIC,5,128,160,25
-    CONTROL         "default",DS_NUMERIC_AS_DEFAULT,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,12,140,40,10
-//    CONTROL         "numeric",DS_NUMERIC_AS_NUMERIC,"Button",BS_AUTORADIOBUTTON | 
-//                    WS_TABSTOP,50,140,40,10
-    CONTROL         "memo",DS_NUMERIC_AS_LONGVARCHAR,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,126,140,40,10
-    CONTROL         "varchar",DS_NUMERIC_AS_VARCHAR,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,50,140,40,10
-    CONTROL         "double",DS_NUMERIC_AS_DOUBLE,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,90,140,36,10
-    GROUPBOX        "ÔøΩGÔøΩÔøΩÔøΩ[ÔøΩÔøΩÔøΩÃÉÔøΩÔøΩ[ÔøΩÔøΩÔøΩoÔøΩbÔøΩNÔøΩÔøΩÔøΩs",IDC_STATIC,170,128,130,25
-    CONTROL         "ÔøΩÔøΩÔøΩÔøΩ",DS_NO_ROLLBACK,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,175,139,30,10
-    CONTROL         "ÔøΩSÔøΩÔøΩ›æÔøΩ",DS_TRANSACTION_ROLLBACK,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,205,140,50,10
-    CONTROL         "ÔøΩÔøΩÔøΩPÔøΩÔøΩ",DS_STATEMENT_ROLLBACK,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,260,140,35,10
-    GROUPBOX        "OID ÔøΩIÔøΩvÔøΩVÔøΩÔøΩÔøΩÔøΩ",IDC_STATIC,5,158,206,25
-    CONTROL         "ÔøΩJÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ\ÔøΩÔøΩ(&C)",DS_SHOWOIDCOLUMN,"Button",
-                    BS_AUTOCHECKBOX | WS_GROUP,16,169,72,10
-    CONTROL         "ÔøΩCÔøΩÔøΩÔøΩfÔøΩbÔøΩNÔøΩXÔøΩëïÇÔøΩ(&I)",DS_FAKEOIDINDEX,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,107,169,95,10
-    LTEXT           "ÔøΩ⁄ëÔøΩÔøΩÔøΩ   ÔøΩ›íÔøΩ:(&S)",IDC_STATIC,13,CONNSETTINGS_Y+3,69,10,NOT 
-                    WS_GROUP
-    EDITTEXT        DS_CONNSETTINGS,90,CONNSETTINGS_Y,211,27,ES_MULTILINE | 
-                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | NOT 
-                    WS_TABSTOP
-    GROUPBOX        "TCP KEEPALIVE(ÔøΩbÔøΩPÔøΩÔøΩ)",IDC_STATIC,KEEPALIVE_X,KEEPALIVE_Y-10,210,25
-    CONTROL         "ÔøΩÔøΩÔøΩpÔøΩÔøΩÔøΩ»ÇÔøΩ",DS_DISABLE_KEEPALIVE,"Button",BS_AUTOCHECKBOX | WS_GROUP, KEEPALIVE_X+5,KEEPALIVE_Y,50,10
-    LTEXT           "ÔøΩ“ÇÔøΩÔøΩÔøΩÔøΩÔøΩ",IDC_STATIC,KEEPALIVE_X+62,KEEPALIVE_Y,35,10,NOT WS_GROUP
-    EDITTEXT        DS_KEEPALIVETIME,KEEPALIVE_X+100,KEEPALIVE_Y,30,10, ES_AUTOHSCROLL | WS_TABSTOP
-    LTEXT           "ÔøΩÔøΩÔøΩÔøΩÔøΩ“éÔøΩÔøΩÔøΩ",IDC_STATIC,KEEPALIVE_X+137,KEEPALIVE_Y,40,10,NOT WS_GROUP
-    EDITTEXT        DS_KEEPALIVEINTERVAL,KEEPALIVE_X+180,KEEPALIVE_Y,30,10, ES_AUTOHSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,5,ENDLINE_Y,50,14,WS_GROUP
-    PUSHBUTTON      "ÔøΩLÔøΩÔøΩÔøΩÔøΩÔøΩZÔøΩÔøΩ",IDCANCEL,66,ENDLINE_Y,50,14
-    PUSHBUTTON      "ÔøΩKÔøΩp",IDAPPLY,128,ENDLINE_Y,50,14
-    CONTROL         "byteaÔøΩÔøΩLOÔøΩ∆ÇÔøΩÔøΩƒàÔøΩÔøΩÔøΩ",DS_BYTEAASLONGVARBINARY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,85,87,10
-    CONTROL         "ÔøΩerefcursorÔøΩÔøΩÔøΩÁåãÔøΩ ÇÔøΩÔøΩÊìæÔøΩÔøΩÔøΩ‹ÇÔøΩ",DS_FETCH_REFCURSORS,
+    GROUPBOX        "Numeric(ÅEΩÅEΩÅEΩxÅEΩwÅEΩÅEΩ»ÇÔøΩ) ÅEΩÃëÔøΩ÷íÔøΩ`",IDC_STATIC,5,128,160,25
+    CONTROL         "default",DS_NUMERIC_AS_DEFAULT,"Button",BS_AUTORADIOBUTTON | WS_GROUP,12,140,40,10
+    CONTROL         "memo",DS_NUMERIC_AS_LONGVARCHAR,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,126,140,40,10
+    CONTROL         "varchar",DS_NUMERIC_AS_VARCHAR,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,50,140,40,10
+    CONTROL         "double",DS_NUMERIC_AS_DOUBLE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,90,140,36,10
+    GROUPBOX        "ÅEΩGÅEΩÅEΩÅEΩ[ÅEΩÅEΩÅEΩÃÅEøΩÅEΩ[ÅEΩÅEΩÅEΩoÅEΩbÅEΩNÅEΩÅEΩÅEΩs",IDC_STATIC,170,128,130,25
+    CONTROL         "ÅEΩÅEΩÅEΩÅEΩ",DS_NO_ROLLBACK,"Button",BS_AUTORADIOBUTTON | WS_GROUP,175,139,30,10
+    CONTROL         "ÅEΩSÅEΩÅEΩ›æÅEΩ",DS_TRANSACTION_ROLLBACK,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,205,140,50,10
+    CONTROL         "ÅEΩÅEΩÅEΩPÅEΩÅEΩ",DS_STATEMENT_ROLLBACK,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,260,140,35,10
+    GROUPBOX        "OID ÅEΩIÅEΩvÅEΩVÅEΩÅEΩÅEΩÅEΩ",IDC_STATIC,5,158,206,25
+    CONTROL         "ÅEΩJÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩ\\ÅEΩÅEΩ(&C)",DS_SHOWOIDCOLUMN,"Button",BS_AUTOCHECKBOX | WS_GROUP,16,169,72,10
+    CONTROL         "ÅEΩCÅEΩÅEΩÅEΩfÅEΩbÅEΩNÅEΩXÅEΩëïÇÅEΩ(&I)",DS_FAKEOIDINDEX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,107,169,95,10
+    LTEXT           "ÅEΩ⁄ëÔøΩÅEΩÅEΩ   ÅEΩ›íÔøΩ:(&S)",IDC_STATIC,13,188,69,10,NOT WS_GROUP
+    EDITTEXT        DS_CONNSETTINGS,90,185,211,27,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | NOT WS_TABSTOP
+    GROUPBOX        "TCP KEEPALIVE(ÅEΩbÅEΩPÅEΩÅEΩ)",IDC_STATIC,5,215,210,25
+    CONTROL         "ÅEΩÅEΩÅEΩpÅEΩÅEΩÅEΩ»ÇÔøΩ",DS_DISABLE_KEEPALIVE,"Button",BS_AUTOCHECKBOX | WS_GROUP,10,225,50,10
+    LTEXT           "ÅEΩ“ÇÔøΩÅEΩÅEΩÅEΩÅEΩ",IDC_STATIC,67,225,35,10,NOT WS_GROUP
+    EDITTEXT        DS_KEEPALIVETIME,105,225,30,10,ES_AUTOHSCROLL
+    LTEXT           "ÅEΩÅEΩÅEΩÅEΩÅEΩ“éÔøΩÅEΩÅEΩ",IDC_STATIC,142,225,40,10,NOT WS_GROUP
+    EDITTEXT        DS_KEEPALIVEINTERVAL,185,225,30,10,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,5,245,50,14,WS_GROUP
+    PUSHBUTTON      "ÅEΩLÅEΩÅEΩÅEΩÅEΩÅEΩZÅEΩÅEΩ",IDCANCEL,66,245,50,14
+    PUSHBUTTON      "ÅEΩKÅEΩp",IDAPPLY,128,245,50,14
+    CONTROL         "byteaÅEΩÅEΩLOÅEΩ∆ÇÔøΩÅEΩƒàÔøΩÅEΩÅEΩ",DS_BYTEAASLONGVARBINARY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,85,87,10
+    CONTROL         "ÅEΩerefcursorÅEΩÅEΩÅEΩÁåãÔøΩ ÇÔøΩÅEΩÊìæÅEΩÅEΩÅEΩ‹ÇÔøΩ",DS_FETCH_REFCURSORS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,139,85,140,10
 END
 
-#define	DTC_GRP_X	10
-#define	DTC_GRP_Y	60
-#define	DTC_GRP_WIDTH	200
-#define	DTC_GRP_HEIGHT	100
-#define	DTC_OPT_X	(DTC_GRP_X)
-#define	DTC_OPT_Y	(DTC_GRP_Y+10)
-#define	DTC_OPT_WIDTH	180
-#define	DTC_OPT_HEIGHT	45
-#define	DTC_LOG_X	(DTC_GRP_X)
-#define	DTC_LOG_Y	(DTC_OPT_Y+60)
-#define	LIBPQOPT_Y	185
-
-DLG_OPTIONS_DS3 DIALOG DISCARDABLE  0, 0, 306, 243
-STYLE DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | 
-    WS_SYSMENU
-CAPTION "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (ÔøΩfÔøΩ[ÔøΩ^ÔøΩ\ÔøΩ[ÔøΩXÔøΩR)"
-FONT 9, "ÔøΩlÔøΩr ÔøΩSÔøΩVÔøΩbÔøΩN"
+DLG_OPTIONS_DS3 DIALOG 0, 0, 306, 243
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (ÅEΩfÅEΩ[ÅEΩ^ÅEΩ\\ÅEΩ[ÅEΩXÅEΩR)"
+FONT 9, "ÅEΩlÅEΩr ÅEΩSÅEΩVÅEΩbÅEΩN"
 BEGIN
-    PUSHBUTTON      "ÔøΩ›íÔøΩ2",ID2NDPAGE,49,5,40,15
-    PUSHBUTTON      "ÔøΩ›íÔøΩ1",ID1STPAGE,5,5,40,15
-
-    GROUPBOX        "ÔøΩÔøΩÔøΩUÔøΩgÔøΩÔøΩÔøΩÔøΩÔøΩUÔøΩNÔøΩVÔøΩÔøΩÔøΩÔøΩÔøΩ÷òAÔøΩ›íÔøΩ",IDC_STATIC,DTC_GRP_X,DTC_GRP_Y,DTC_GRP_WIDTH,DTC_GRP_HEIGHT
-    GROUPBOX        "MSDTCÔøΩÔøΩÔøΩJÔøΩoÔøΩÔøΩÔøΩ[ÔøΩsÔøΩ¬ê⁄ëÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ?",IDC_STATIC,DTC_OPT_X,DTC_OPT_Y,DTC_OPT_WIDTH,DTC_OPT_HEIGHT
-    CONTROL         "ÔøΩÔøΩÔøΩÔøΩ",DS_DTC_LINK_ONLY,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,DTC_OPT_X+5,DTC_OPT_Y+10,140,10
-    CONTROL         "sslmode verify-[ca|full]ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ",DS_DTC_SIMPLE_PRECHECK,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,DTC_OPT_X+5,DTC_OPT_Y+20,140,10
-    CONTROL         "ÔøΩÔøΩÔøΩ»ÇÔøΩ(ÔøΩ≈èÔøΩÔøΩÔøΩMSDTCÔøΩÔøΩÔøΩÔøΩÃê⁄ëÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩmÔøΩF)",DS_DTC_CONFIRM_RM_CONNECTION,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,DTC_OPT_X+5,DTC_OPT_Y+30,170,10
-    PUSHBUTTON      "ÔøΩ⁄ëÔøΩÔøΩeÔøΩXÔøΩg",IDC_TEST,DTC_OPT_X+60,DTC_OPT_Y+75,51,14
-
-    LTEXT           "libpqÔøΩpÔøΩÔøΩÔøΩÔøΩÔøΩ[ÔøΩ^:(&l)",IDC_STATIC,11,LIBPQOPT_Y+3,76,10,NOT
-                    WS_GROUP
-    EDITTEXT        DS_LIBPQOPT,90,LIBPQOPT_Y,211,27,ES_MULTILINE |
-                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | NOT
-                    WS_TABSTOP
-
+    PUSHBUTTON      "ÅEΩ›íÔøΩ2",ID2NDPAGE,49,5,40,15
+    PUSHBUTTON      "ÅEΩ›íÔøΩ1",ID1STPAGE,5,5,40,15
+    GROUPBOX        "ÅEΩÅEΩÅEΩUÅEΩgÅEΩÅEΩÅEΩÅEΩÅEΩUÅEΩNÅEΩVÅEΩÅEΩÅEΩÅEΩÅEΩ÷òAÅEΩ›íÔøΩ",IDC_STATIC,10,60,200,100
+    GROUPBOX        "MSDTCÅEΩÅEΩÅEΩJÅEΩoÅEΩÅEΩÅEΩ[ÅEΩsÅEΩ¬ê⁄ëÔøΩÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩ?",IDC_STATIC,10,70,180,45
+    CONTROL         "ÅEΩÅEΩÅEΩÅEΩ",DS_DTC_LINK_ONLY,"Button",BS_AUTORADIOBUTTON | WS_GROUP,15,80,140,10
+    CONTROL         "sslmode verify-[ca|full]ÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩ",DS_DTC_SIMPLE_PRECHECK,
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,15,90,140,10
+    CONTROL         "ÅEΩÅEΩÅEΩ»ÇÔøΩ(ÅEΩ≈èÔøΩÅEΩÅEΩMSDTCÅEΩÅEΩÅEΩÅEΩÃê⁄ëÔøΩÅEΩÅEΩÅEΩÅEΩÅEΩmÅEΩF)",DS_DTC_CONFIRM_RM_CONNECTION,
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,15,100,170,10
+    PUSHBUTTON      "ÅEΩ⁄ëÔøΩÅEΩeÅEΩXÅEΩg",IDC_TEST,70,145,51,14
+    LTEXT           "libpqÅEΩpÅEΩÅEΩÅEΩÅEΩÅEΩ[ÅEΩ^:(&l)",IDC_STATIC,11,188,76,10,NOT WS_GROUP
+    EDITTEXT        DS_LIBPQOPT,90,185,211,27,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | NOT WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,5,224,50,14,WS_GROUP
-    PUSHBUTTON      "ÔøΩLÔøΩÔøΩÔøΩÔøΩÔøΩZÔøΩÔøΩ",IDCANCEL,66,224,50,14
-    PUSHBUTTON      "ÔøΩKÔøΩp",IDAPPLY,128,224,50,14
+    PUSHBUTTON      "ÅEΩLÅEΩÅEΩÅEΩÅEΩÅEΩZÅEΩÅEΩ",IDCANCEL,66,224,50,14
+    PUSHBUTTON      "ÅEΩKÅEΩp",IDAPPLY,128,224,50,14
 END
 
-
-#undef	ENDLINE_Y
-#define	ENDLINE_Y	110
-DLG_OPTIONS_GLOBAL DIALOG DISCARDABLE  0, 0, 306, 130
-STYLE DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | 
-    WS_SYSMENU
-CAPTION "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ(ÔøΩSÔøΩÔøΩ)"
-FONT 9, "ÔøΩlÔøΩr ÔøΩSÔøΩVÔøΩbÔøΩN"
+DLG_OPTIONS_GLOBAL DIALOG 0, 0, 306, 130
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ(ÅEΩSÅEΩÅEΩ)"
+FONT 9, "ÅEΩlÅEΩr ÅEΩSÅEΩVÅEΩbÅEΩN"
 BEGIN
-    GROUPBOX        "ÔøΩRÔøΩlÔøΩNÔøΩVÔøΩÔøΩÔøΩÔøΩÔøΩOÔøΩÃÉfÔøΩtÔøΩHÔøΩÔøΩÔøΩgÔøΩÔøΩÔøΩMÔøΩÔøΩÔøΩOÔøΩIÔøΩvÔøΩVÔøΩÔøΩÔøΩÔøΩ",
-                    IDC_STATIC,5,5,296,68
-    CONTROL         "ÔøΩÔøΩ ÉÔøΩÔøΩO(&L) (C:\\psqlodbc_xxxx.log - ÔøΩRÔøΩ~ÔøΩÔøΩÔøΩjÔøΩPÔøΩ|ÔøΩVÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩO)",
-                    DRV_COMMLOG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,24,
-                    249,10
-    CONTROL         "ÔøΩÔøΩpÔøΩÔøΩÔøΩO (C:\\mylog_xxxx.log - ÔøΩ⁄ç◊ÉfÔøΩoÔøΩbÔøΩOÔøΩoÔøΩÕÉÔøΩÔøΩO)",
-                    DRV_DEBUG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,42,
-                    220,10
-    RTEXT           "ÔøΩÔøΩÔøΩMÔøΩÔøΩÔøΩOÔøΩpÔøΩtÔøΩHÔøΩÔøΩÔøΩ_",IDC_STATIC,14,57,79,12
-    EDITTEXT        DS_LOGDIR,98,55,188,13,ES_AUTOHSCROLL | WS_GROUP,
-                    WS_EX_TRANSPARENT
-    GROUPBOX        "MSDTCÔøΩTÔøΩ|ÔøΩ[ÔøΩg", IDC_STATIC,5,75,296,27
-    CONTROL         "ÔøΩÔøΩpÔøΩÔøΩÔøΩO(C:\\pgdtclog\\mylog_xxxx.log - ÔøΩfÔøΩoÔøΩbÔøΩOÔøΩoÔøΩÕÉÔøΩÔøΩO)",
-                    DRV_DTCLOG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,87,260,10
-    DEFPUSHBUTTON   "ÔøΩ€ëÔøΩ",IDOK,5,ENDLINE_Y,50,14,WS_GROUP
-    PUSHBUTTON      "ÔøΩLÔøΩÔøΩÔøΩÔøΩÔøΩZÔøΩÔøΩ",IDCANCEL,65,ENDLINE_Y,50,15
+    GROUPBOX        "ÅEΩRÅEΩlÅEΩNÅEΩVÅEΩÅEΩÅEΩÅEΩÅEΩOÅEΩÃÉfÅEΩtÅEΩHÅEΩÅEΩÅEΩgÅEΩÅEΩÅEΩMÅEΩÅEΩÅEΩOÅEΩIÅEΩvÅEΩVÅEΩÅEΩÅEΩÅEΩ",IDC_STATIC,5,5,296,68
+    CONTROL         "ÅEΩÅEΩ ÅEøΩÅEΩO(&L) (C:\\psqlodbc_xxxx.log - ÅEΩRÅEΩ~ÅEΩÅEΩÅEΩjÅEΩPÅEΩ|ÅEΩVÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩO)",DRV_COMMLOG,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,24,249,10
+    CONTROL         "ÅEΩÅEΩpÅEΩÅEΩÅEΩO (C:\\mylog_xxxx.log - ÅEΩ⁄ç◊ÉfÅEΩoÅEΩbÅEΩOÅEΩoÅEΩÕÅEøΩÅEΩO)",DRV_DEBUG,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,42,220,10
+    RTEXT           "ÅEΩÅEΩÅEΩMÅEΩÅEΩÅEΩOÅEΩpÅEΩtÅEΩHÅEΩÅEΩÅEΩ_",IDC_STATIC,14,57,79,12
+    EDITTEXT        DS_LOGDIR,98,55,188,13,ES_AUTOHSCROLL | WS_GROUP,WS_EX_TRANSPARENT
+    GROUPBOX        "MSDTCÅEΩTÅEΩ|ÅEΩ[ÅEΩg",IDC_STATIC,5,75,296,27
+    CONTROL         "ÅEΩÅEΩpÅEΩÅEΩÅEΩO(C:\\pgdtclog\\mylog_xxxx.log - ÅEΩfÅEΩoÅEΩbÅEΩOÅEΩoÅEΩÕÅEøΩÅEΩO)",DRV_DTCLOG,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,87,260,10
+    DEFPUSHBUTTON   "ÅEΩ€ëÔøΩ",IDOK,5,110,50,14,WS_GROUP
+    PUSHBUTTON      "ÅEΩLÅEΩÅEΩÅEΩÅEΩÅEΩZÅEΩÅEΩ",IDCANCEL,65,110,50,15
 END
 
-DLG_DRIVER_CHANGE DIALOG DISCARDABLE  0, 0, 306, 87
-STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "ÔøΩhÔøΩÔøΩÔøΩCÔøΩoÔøΩ@ÔøΩAÔøΩbÔøΩv/ÔøΩ_ÔøΩEÔøΩÔøΩ"
+DLG_DRIVER_CHANGE DIALOG 0, 0, 306, 87
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "ÅEΩhÅEΩÅEΩÅEΩCÅEΩoÅEΩ@ÅEΩAÅEΩbÅEΩv/ÅEΩ_ÅEΩEÅEΩÅEΩ"
 FONT 10, "Terminal"
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,82,68,50,14,WS_GROUP
-    PUSHBUTTON      "ÔøΩLÔøΩÔøΩÔøΩÔøΩÔøΩZÔøΩÔøΩ",IDCANCEL,172,67,50,15
-    GROUPBOX        "ÔøΩhÔøΩÔøΩÔøΩCÔøΩoÔøΩÔøΩÔøΩXÔøΩg",IDC_STATIC,5,5,296,58
-    LTEXT           "ÔøΩhÔøΩÔøΩÔøΩCÔøΩoÔøΩÔøΩIÔøΩÔøΩÔøΩÔøΩÔøΩƒÇÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ",IDC_STATIC,11,33,105,8
-    LISTBOX         IDC_DRIVER_LIST,124,19,170,33,LBS_SORT | 
-                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "ÅEΩLÅEΩÅEΩÅEΩÅEΩÅEΩZÅEΩÅEΩ",IDCANCEL,172,67,50,15
+    GROUPBOX        "ÅEΩhÅEΩÅEΩÅEΩCÅEΩoÅEΩÅEΩÅEΩXÅEΩg",IDC_STATIC,5,5,296,58
+    LTEXT           "ÅEΩhÅEΩÅEΩÅEΩCÅEΩoÅEΩÅEΩIÅEΩÅEΩÅEΩÅEΩÅEΩƒÇÔøΩÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩ",IDC_STATIC,11,33,105,8
+    LISTBOX         IDC_DRIVER_LIST,124,19,170,33,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END
 
 
@@ -314,7 +223,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO
 BEGIN
     DLG_CONFIG, DIALOG
     BEGIN
@@ -365,19 +274,19 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE DISCARDABLE 
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE DISCARDABLE 
+2 TEXTINCLUDE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "#include ""version.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE DISCARDABLE 
+3 TEXTINCLUDE 
 BEGIN
     "\r\n"
     "\0"
@@ -386,15 +295,14 @@ END
 #endif    // APSTUDIO_INVOKED
 
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION PG_DRVFILE_VERSION
- PRODUCTVERSION PG_DRVFILE_VERSION
+ FILEVERSION 17,0,0,4
+ PRODUCTVERSION 17,0,0,4
  FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -409,30 +317,16 @@ BEGIN
     BEGIN
         BLOCK "041104e4"
         BEGIN
-#ifdef UNICODE_SUPPORT
-            VALUE "Comments", "PostgreSQL Unicode ODBC driver Japanese\0"
-#else
-            VALUE "Comments", "PostgreSQL ANSI ODBC driver Japanese\0"
-#endif
-            VALUE "CompanyName", "PostgreSQL Global Development Group\0"
-            VALUE "FileDescription", "PostgreSQL ODBC Driver (Japanese)\0"
-            VALUE "FileVersion", POSTGRES_RESOURCE_VERSION
-#ifdef UNICODE_SUPPORT
-            VALUE "InternalName", "psqlodbc35w\0"
-#else
-            VALUE "InternalName", "psqlodbc30a\0"
-#endif
-            VALUE "LegalCopyright", "\0"
-            VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  MicrosoftÔøΩÔøΩ is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation.\0"
-#ifdef UNICODE_SUPPORT
-            VALUE "OriginalFilename", "psqlodbc35w.dll\0"
-#else
-            VALUE "OriginalFilename", "psqlodbc30a.dll\0"
-#endif
-            VALUE "PrivateBuild", "for Japanese by Hiroshi Inoue & Hiroshi Saito\0"
-            VALUE "ProductName", "PostgreSQL\0"
-            VALUE "ProductVersion", POSTGRES_RESOURCE_VERSION
-            VALUE "SpecialBuild", "\0"
+            VALUE "Comments", "PostgreSQL ANSI ODBC driver Japanese"
+            VALUE "CompanyName", "PostgreSQL Global Development Group"
+            VALUE "FileDescription", "PostgreSQL ODBC Driver (Japanese)"
+            VALUE "FileVersion", "17.00.0004"
+            VALUE "InternalName", "psqlodbc30a"
+            VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  MicrosoftÅEΩÅEΩ is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
+            VALUE "OriginalFilename", "psqlodbc30a.dll"
+            VALUE "PrivateBuild", "for Japanese by Hiroshi Inoue & Hiroshi Saito"
+            VALUE "ProductName", "PostgreSQL"
+            VALUE "ProductVersion", "17.00.0004"
         END
     END
     BLOCK "VarFileInfo"
@@ -441,51 +335,51 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
 //
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
-    IDS_BADDSN              "DSNÔøΩGÔøΩÔøΩÔøΩgÔøΩÔøΩÔøΩ|ÔøΩÔøΩÔøΩsÔøΩÔøΩÔøΩ≈ÇÔøΩÔøΩBÔøΩƒìxÔøΩ`ÔøΩFÔøΩbÔøΩNÔøΩ›íËÇµÔøΩƒÇÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩB."
-    IDS_MSGTITLE            "DSNÔøΩsÔøΩÔøΩ"
-    IDS_ADVANCE_OPTION_DEF  "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (ÔøΩfÔøΩtÔøΩHÔøΩÔøΩÔøΩg)"
-    IDS_ADVANCE_SAVE        "ÔøΩ€ëÔøΩ"
-    IDS_ADVANCE_OPTION_DSN1 "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (%s ÔøΩ›íÔøΩ1)"
-    IDS_ADVANCE_OPTION_CON1 "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩiÔøΩRÔøΩlÔøΩNÔøΩVÔøΩÔøΩÔøΩÔøΩÔøΩ›íÔøΩPÔøΩj"
-    IDS_ADVANCE_OPTION_DSN2 "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (%s ÔøΩ›íÔøΩ2)"
-    IDS_ADVANCE_OPTION_CON2 "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (ÔøΩRÔøΩlÔøΩNÔøΩVÔøΩÔøΩÔøΩÔøΩÔøΩ›íÔøΩ2)"
-    IDS_ADVANCE_OPTION_DSN3 "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (%s ÔøΩ›íÔøΩ3)"
-    IDS_ADVANCE_OPTION_CON3 "ÔøΩÔøΩÔøΩxÔøΩ»ê›íÔøΩ (ÔøΩRÔøΩlÔøΩNÔøΩVÔøΩÔøΩÔøΩÔøΩÔøΩ›íÔøΩ3)"
-    IDS_ADVANCE_CONNECTION  "ÔøΩRÔøΩlÔøΩNÔøΩVÔøΩÔøΩÔøΩÔøΩ"
+    IDS_BADDSN              "DSNÅEΩGÅEΩÅEΩÅEΩgÅEΩÅEΩÅEΩ|ÅEΩÅEΩÅEΩsÅEΩÅEΩÅEΩ≈ÇÔøΩÅEΩBÅEΩƒìxÅEΩ`ÅEΩFÅEΩbÅEΩNÅEΩ›íËÇµÅEΩƒÇÔøΩÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩÅEΩB."
+    IDS_MSGTITLE            "DSNÅEΩsÅEΩÅEΩ"
+    IDS_ADVANCE_OPTION_DEF  "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (ÅEΩfÅEΩtÅEΩHÅEΩÅEΩÅEΩg)"
+    IDS_ADVANCE_SAVE        "ÅEΩ€ëÔøΩ"
+    IDS_ADVANCE_OPTION_DSN1 "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (%s ÅEΩ›íÔøΩ1)"
+    IDS_ADVANCE_OPTION_CON1 "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩiÅEΩRÅEΩlÅEΩNÅEΩVÅEΩÅEΩÅEΩÅEΩÅEΩ›íÔøΩPÅEΩj"
+    IDS_ADVANCE_OPTION_DSN2 "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (%s ÅEΩ›íÔøΩ2)"
+    IDS_ADVANCE_OPTION_CON2 "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (ÅEΩRÅEΩlÅEΩNÅEΩVÅEΩÅEΩÅEΩÅEΩÅEΩ›íÔøΩ2)"
+    IDS_ADVANCE_CONNECTION  "ÅEΩRÅEΩlÅEΩNÅEΩVÅEΩÅEΩÅEΩÅEΩ"
+    IDS_ADVANCE_OPTION_DSN3 "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (%s ÅEΩ›íÔøΩ3)"
+    IDS_ADVANCE_OPTION_CON3 "ÅEΩÅEΩÅEΩxÅEΩ»ê›íÔøΩ (ÅEΩRÅEΩlÅEΩNÅEΩVÅEΩÅEΩÅEΩÅEΩÅEΩ›íÔøΩ3)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
-    IDS_SSLREQUEST_PREFER   "ÔøΩDÔøΩÔøΩ"
-    IDS_SSLREQUEST_ALLOW    "ÔøΩlÔøΩÔøΩ"
-    IDS_SSLREQUEST_REQUIRE  "ÔøΩKÔøΩ{"
-    IDS_SSLREQUEST_DISABLE  "ÔøΩÔøΩÔøΩÔøΩ"
-    IDS_SSLREQUEST_VERIFY_CA	"ÔøΩKÔøΩ{:ÔøΩÿñÔøΩÔøΩÔøΩÔøΩFÔøΩÔøΩ"
-    IDS_SSLREQUEST_VERIFY_FULL	"ÔøΩKÔøΩ{:ÔøΩÿñÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩSÔøΩFÔøΩÔøΩ"
+    IDS_SSLREQUEST_PREFER   "ÅEΩDÅEΩÅEΩ"
+    IDS_SSLREQUEST_ALLOW    "ÅEΩlÅEΩÅEΩ"
+    IDS_SSLREQUEST_REQUIRE  "ÅEΩKÅEΩ{"
+    IDS_SSLREQUEST_DISABLE  "ÅEΩÅEΩÅEΩÅEΩ"
+    IDS_SSLREQUEST_VERIFY_CA "ÅEΩKÅEΩ{:ÅEΩÿñÔøΩÅEΩÅEΩÅEΩFÅEΩÅEΩ"
 END
 
-#endif    // Japanese resources
+STRINGTABLE
+BEGIN
+    IDS_SSLREQUEST_VERIFY_FULL "ÅEΩKÅEΩ{:ÅEΩÿñÔøΩÅEΩÅEΩÅEΩÅEΩÅEΩSÅEΩFÅEΩÅEΩ"
+END
+
+#endif    // Japanese (Japan) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -493,322 +387,227 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 DLG_CONFIG DIALOGEX 65, 43, 310, 309
-STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 CAPTION "AWS ANSI ODBC Driver for PostgreSQL (AWSpsqlODBC) Setup"
-FONT 8, "MS Sans Serif", 0, 0, 0x0
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    RTEXT           "&Data Source", IDC_DSNAMETEXT, 14, 25, 50, 12, NOT WS_GROUP
-    EDITTEXT        IDC_DSNAME, 68, 24, 72, 12, ES_AUTOHSCROLL | WS_GROUP
-    RTEXT           "Des&cription", IDC_DESCTEXT, 170, 24, 45, 12, NOT WS_GROUP
-    EDITTEXT        IDC_DESC, 218, 22, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "Data&base", IDC_STATIC, 176, 86, 38, 12, NOT WS_GROUP
-    EDITTEXT        IDC_DATABASE, 218, 85, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "SS&L Mode", IDC_STATIC, 169, 40, 45, 12, NOT WS_GROUP
-    COMBOBOX        IDC_SSLMODE, 218, 38, 72, 50, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CTEXT           "Couldn't load libpq - SSL mode is unavailable", IDC_NOTICE_USER, 23, 220, 200, 11, SS_NOTIFY | SS_CENTERIMAGE | WS_BORDER
-    RTEXT           "&Server", IDC_STATIC, 35, 55, 29, 12, NOT WS_GROUP
-    EDITTEXT        IDC_SERVER, 68, 54, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "&Port", IDC_STATIC, 192, 56, 22, 12
-    EDITTEXT        IDC_PORT, 218, 53, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "&Auth Type", IDC_STATIC, 20, 40, 44, 11
-    EDITTEXT        IDC_USER, 68, 69, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "Pass&word", IDC_STATIC, 180, 71, 34, 9
-    EDITTEXT        IDC_PASSWORD, 218, 69, 72, 12, ES_PASSWORD | ES_AUTOHSCROLL
-    LTEXT           "Please supply any missing information required to connect.", DRV_MSG_LABEL, 12, 5, 249, 10
-    GROUPBOX        "Options", IDC_OPTIONS, 5, 245, 177, 35, BS_LEFT
-    PUSHBUTTON      "Datasource", IDC_DATASOURCE, 9, 260, 50, 14
-    PUSHBUTTON      "Global", IDC_DRIVER, 66, 260, 50, 14
-    PUSHBUTTON      "Manage DSN", IDC_MANAGEDSN, 126, 260, 52, 14
-    PUSHBUTTON      "Test", IDC_TEST, 244, 219, 44, 15
-    DEFPUSHBUTTON   "OK", IDOK, 194, 259, 44, 15, WS_GROUP
-    PUSHBUTTON      "Cancel", IDCANCEL, 245, 259, 44, 15
-    RTEXT           "&User Name", IDC_STATIC, 25, 71, 39, 12
-    COMBOBOX        IDC_AUTHTYPE, 68, 39, 72, 50, CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_REGION, 68, 84, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "&Region", IDC_STATIC, 25, 84, 39, 12
-    EDITTEXT        IDC_IDP_ENDPOINT, 68, 100, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "&IDP Port", IDC_STATIC, 175, 102, 39, 10
-    RTEXT           "&IDP EndPoint", IDC_STATIC, 15, 100, 49, 12
-    EDITTEXT        IDC_IDP_PORT, 218, 101, 72, 12, ES_AUTOHSCROLL
-    EDITTEXT        IDC_IDP_USER_NAME, 68, 116, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "&IDP Password", IDC_STATIC, 163, 117, 51, 10
-    RTEXT           "&IDP User Name", IDC_STATIC, 14, 116, 50, 12
-    EDITTEXT        IDC_IDP_PASSWORD, 218, 116, 72, 12, ES_PASSWORD | ES_AUTOHSCROLL
-    EDITTEXT        IDC_ROLE_ARN, 68, 132, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "&IDP ARN", IDC_STATIC, 163, 134, 51, 8
-    RTEXT           "&Role ARN", IDC_STATIC, 15, 132, 48, 12
-    EDITTEXT        IDC_IDP_ARN, 218, 132, 72, 12, ES_AUTOHSCROLL
-    EDITTEXT        IDC_TOKEN_EXPIRATION, 68, 148, 72, 12, ES_AUTOHSCROLL
-    EDITTEXT        IDC_SOCKET_TIMEOUT, 218, 149, 72, 12, ES_AUTOHSCROLL
-    EDITTEXT        IDC_CONN_TIMEOUT, 68, 166, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "&Token Expiration(s)", IDC_STATIC, 19, 146, 44, 15
-    RTEXT           "&Connect Timeout(ms)", IDC_STATIC, 15, 164, 48, 16
-    RTEXT           "&Socket Timeout(ms)", IDC_STATIC, 144, 150, 70, 10
-    EDITTEXT        IDC_RELAYING_PARTY_ID, 218, 167, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "Relaying Party ID", IDC_STATIC, 144, 169, 70, 9
-    EDITTEXT        IDC_APP_ID, 68, 184, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "App ID", IDC_STATIC, 15, 185, 48, 12
-    EDITTEXT        IDC_SECRET_ID, 218, 184, 72, 12, ES_AUTOHSCROLL
-    RTEXT           "Secret ID", IDC_STATIC, 144, 185, 70, 10
-    PUSHBUTTON      "Limitless Settings", IDC_LIMITLESS_SETTINGS, 15, 219, 60, 15
+    RTEXT           "&Data Source",IDC_DSNAMETEXT,14,25,50,12,NOT WS_GROUP
+    EDITTEXT        IDC_DSNAME,68,24,72,12,ES_AUTOHSCROLL | WS_GROUP
+    RTEXT           "Des&cription",IDC_DESCTEXT,170,24,45,12,NOT WS_GROUP
+    EDITTEXT        IDC_DESC,218,22,72,12,ES_AUTOHSCROLL
+    RTEXT           "&Auth Type",IDC_STATIC,20,40,44,11
+    COMBOBOX        IDC_AUTHTYPE,68,39,72,50,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "SS&L Mode",IDC_STATIC,169,40,45,12,NOT WS_GROUP
+    COMBOBOX        IDC_SSLMODE,218,38,72,50,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "&Server",IDC_STATIC,35,55,29,12,NOT WS_GROUP
+    EDITTEXT        IDC_SERVER,68,54,72,12,ES_AUTOHSCROLL
+    RTEXT           "&Port",IDC_STATIC,192,56,22,12
+    EDITTEXT        IDC_PORT,218,53,72,12,ES_AUTOHSCROLL
+    RTEXT           "&User Name",IDC_STATIC,25,71,39,12
+    EDITTEXT        IDC_USER,68,69,72,12,ES_AUTOHSCROLL
+    RTEXT           "Pass&word",IDC_STATIC,180,71,34,9
+    EDITTEXT        IDC_PASSWORD,218,69,72,12,ES_PASSWORD | ES_AUTOHSCROLL
+    RTEXT           "&Region",IDC_STATIC,25,84,39,12
+    EDITTEXT        IDC_REGION,68,84,72,12,ES_AUTOHSCROLL
+    RTEXT           "Data&base",IDC_STATIC,176,86,38,12,NOT WS_GROUP
+    EDITTEXT        IDC_DATABASE,218,85,72,12,ES_AUTOHSCROLL
+    RTEXT           "&IDP EndPoint",IDC_STATIC,15,100,49,12
+    EDITTEXT        IDC_IDP_ENDPOINT,68,100,72,12,ES_AUTOHSCROLL
+    RTEXT           "&IDP Port",IDC_STATIC,175,102,39,10
+    EDITTEXT        IDC_IDP_PORT,218,101,72,12,ES_AUTOHSCROLL
+    RTEXT           "&IDP User Name",IDC_STATIC,14,116,50,12
+    EDITTEXT        IDC_IDP_USER_NAME,68,116,72,12,ES_AUTOHSCROLL
+    RTEXT           "&IDP Password",IDC_STATIC,163,117,51,10
+    EDITTEXT        IDC_IDP_PASSWORD,218,116,72,12,ES_PASSWORD | ES_AUTOHSCROLL
+    RTEXT           "&Role ARN",IDC_STATIC,15,132,48,12
+    EDITTEXT        IDC_ROLE_ARN,68,132,72,12,ES_AUTOHSCROLL
+    RTEXT           "&IDP ARN",IDC_STATIC,163,134,51,8
+    EDITTEXT        IDC_IDP_ARN,218,132,72,12,ES_AUTOHSCROLL
+    RTEXT           "&Token Expiration(s)",IDC_STATIC,19,146,44,15
+    EDITTEXT        IDC_TOKEN_EXPIRATION,68,148,72,12,ES_AUTOHSCROLL
+    RTEXT           "&Socket Timeout(ms)",IDC_STATIC,144,150,70,10
+    EDITTEXT        IDC_SOCKET_TIMEOUT,218,149,72,12,ES_AUTOHSCROLL
+    RTEXT           "&Connect Timeout(ms)",IDC_STATIC,15,164,48,16
+    EDITTEXT        IDC_CONN_TIMEOUT,68,166,72,12,ES_AUTOHSCROLL
+    RTEXT           "Relaying Party ID",IDC_STATIC,144,169,70,9
+    EDITTEXT        IDC_RELAYING_PARTY_ID,218,167,72,12,ES_AUTOHSCROLL
+    RTEXT           "App ID",IDC_STATIC,15,185,48,12
+    EDITTEXT        IDC_APP_ID,68,184,72,12,ES_AUTOHSCROLL
+    RTEXT           "Secret ID",IDC_STATIC,144,185,70,10
+    EDITTEXT        IDC_SECRET_ID,218,184,72,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "Test",IDC_TEST,246,219,44,15
+    GROUPBOX        "Options",IDC_OPTIONS,40,245,230,31,BS_LEFT
+    PUSHBUTTON      "Datasource",IDC_DATASOURCE,45,257,52,14
+    PUSHBUTTON      "Global",IDC_DRIVER,101,257,52,14
+    PUSHBUTTON      "Manage DSN",IDC_MANAGEDSN,157,257,52,14
+    PUSHBUTTON      "Limitless",IDC_LIMITLESS_SETTINGS,213,257,52,14
+    DEFPUSHBUTTON   "OK",IDOK,103,287,44,15,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,163,287,44,15
+    LTEXT           "Please supply any missing information required to connect.",DRV_MSG_LABEL,12,5,249,10
+    CTEXT           "Couldn't load libpq - SSL mode is unavailable",IDC_NOTICE_USER,23,220,200,11,SS_NOTIFY | SS_CENTERIMAGE | WS_BORDER
 END
 
-
-#undef	MISC_Y
-#undef	MISC_Y1
-#undef	MISC_Y2
-#undef	MISC_Y3
-#define	MISC_Y	145
-#define	MISC_Y1	(MISC_Y+15)
-#define	MISC_Y2	(MISC_Y+32)
-#define	MISC_Y3	(MISC_Y+49)
-
-DLG_OPTIONS_DRV DIALOG DISCARDABLE  0, 0, 287, 231
-STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_OPTIONS_DRV DIALOGEX 0, 0, 287, 231
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Advanced Options (DataSource)"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     PUSHBUTTON      "Page 2",ID2NDPAGE,5,5,40,15
     PUSHBUTTON      "Page 3",ID3RDPAGE,49,5,40,15
-    CONTROL         "Comm&Log (C:\\psqlodbc_xxxx.log)",DRV_COMMLOG,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,149,26,121,10
-    EDITTEXT        DS_COMMLOG,275,26,100,13,ES_AUTOHSCROLL | WS_GROUP,
-                    WS_EX_TRANSPARENT
-    CONTROL         "Recognize Unique &Indexes",DRV_UNIQUEINDEX,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,56,110,10
-    CONTROL         "Ignore Timeout",DS_IGNORETIMEOUT,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,149,56,110,10
-    CONTROL         "P&arse Statements",DRV_PARSE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,149,41,80,10
-    CONTROL         "&Use Declare/Fetch",DRV_USEDECLAREFETCH,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,71,83,10
-    CONTROL         "MyLog (C:\\mylog_xxxx.log)",DRV_DEBUG,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,149,71,112,10
-    EDITTEXT        DS_DEBUG,275,71,15,12,ES_AUTOHSCROLL | WS_GROUP,
-                    WS_EX_TRANSPARENT
+    CONTROL         "Comm&Log (C:\\psqlodbc_xxxx.log)",DRV_COMMLOG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,149,26,121,10
+    EDITTEXT        DS_COMMLOG,275,26,100,13,ES_AUTOHSCROLL | WS_GROUP,WS_EX_TRANSPARENT
+    CONTROL         "Recognize Unique &Indexes",DRV_UNIQUEINDEX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,56,110,10
+    CONTROL         "Ignore Timeout",DS_IGNORETIMEOUT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,149,56,110,10
+    CONTROL         "P&arse Statements",DRV_PARSE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,149,41,80,10
+    CONTROL         "&Use Declare/Fetch",DRV_USEDECLAREFETCH,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,71,83,10
+    CONTROL         "MyLog (C:\\mylog_xxxx.log)",DRV_DEBUG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,149,71,112,10
+    EDITTEXT        DS_DEBUG,275,71,15,12,ES_AUTOHSCROLL | WS_GROUP,WS_EX_TRANSPARENT
     GROUPBOX        "Unknown Sizes",IDC_STATIC,5,85,277,25
-    CONTROL         "Maximum",DRV_UNKNOWN_MAX,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP | WS_TABSTOP,15,96,45,10
-    CONTROL         "Don't Know",DRV_UNKNOWN_DONTKNOW,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,105,96,53,10
-    CONTROL         "Longest",DRV_UNKNOWN_LONGEST,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,215,95,50,10
+    CONTROL         "Maximum",DRV_UNKNOWN_MAX,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,15,96,45,10
+    CONTROL         "Don't Know",DRV_UNKNOWN_DONTKNOW,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,105,96,53,10
+    CONTROL         "Longest",DRV_UNKNOWN_LONGEST,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,215,95,50,10
     GROUPBOX        "Data Type Options",IDC_STATIC,5,115,277,25
-    CONTROL         "Text as LongVarChar",DRV_TEXT_LONGVARCHAR,"Button",
-                    BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,15,125,90,10
+    CONTROL         "Text as LongVarChar",DRV_TEXT_LONGVARCHAR,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,15,125,90,10
     CONTROL         "Unknowns as LongVarChar",DRV_UNKNOWNS_LONGVARCHAR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,105,125,105,10
-    CONTROL         "Bools as Char",DRV_BOOLS_CHAR,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,215,125,67,10
-    GROUPBOX        "Miscellaneous",IDC_STATIC,5,MISC_Y,277,62
-    LTEXT           "Max &Varchar:",IDC_STATIC,13,MISC_Y1+1,54,8
-    EDITTEXT        DRV_VARCHAR_SIZE,70,MISC_Y1,35,12,ES_AUTOHSCROLL
-    LTEXT           "Max Lon&gVarChar:",IDC_STATIC,125,MISC_Y1+1,67,8
-    EDITTEXT        DRV_LONGVARCHAR_SIZE,199,MISC_Y1,35,12,ES_AUTOHSCROLL
-    LTEXT           "&Cache Size:",IDC_STATIC,14,MISC_Y2+1,52,8
-    EDITTEXT        DRV_CACHE_SIZE,69,MISC_Y2-1,35,12,ES_AUTOHSCROLL
-    LTEXT           "SysTable &Prefixes:",IDC_STATIC,126,MISC_Y2+1,61,18
-    EDITTEXT        DRV_EXTRASYSTABLEPREFIXES,199,MISC_Y2-1,71,12,ES_AUTOHSCROLL
-    LTEXT           "&Batch &Size:",IDC_STATIC,14,MISC_Y3+1,61,18
-    EDITTEXT        DS_BATCH_SIZE,69,MISC_Y3-1,35,12,ES_AUTOHSCROLL
+    CONTROL         "Bools as Char",DRV_BOOLS_CHAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,215,125,67,10
+    GROUPBOX        "Miscellaneous",IDC_STATIC,5,145,277,62
+    LTEXT           "Max &Varchar:",IDC_STATIC,13,161,54,8
+    EDITTEXT        DRV_VARCHAR_SIZE,70,160,35,12,ES_AUTOHSCROLL
+    LTEXT           "Max Lon&gVarChar:",IDC_STATIC,125,161,67,8
+    EDITTEXT        DRV_LONGVARCHAR_SIZE,199,160,35,12,ES_AUTOHSCROLL
+    LTEXT           "&Cache Size:",IDC_STATIC,14,178,52,8
+    EDITTEXT        DRV_CACHE_SIZE,69,176,35,12,ES_AUTOHSCROLL
+    LTEXT           "SysTable &Prefixes:",IDC_STATIC,126,178,61,18
+    EDITTEXT        DRV_EXTRASYSTABLEPREFIXES,199,176,71,12,ES_AUTOHSCROLL
+    LTEXT           "&Batch &Size:",IDC_STATIC,14,195,61,18
+    EDITTEXT        DS_BATCH_SIZE,69,193,35,12,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "OK",IDOK,5,212,50,14,WS_GROUP
     PUSHBUTTON      "Cancel",IDCANCEL,81,211,50,15
     PUSHBUTTON      "Apply",IDAPPLY,156,212,50,14
     PUSHBUTTON      "Defaults",IDDEFAULTS,232,211,50,15
 END
 
-#undef	CONNSETTINGS_Y
-#undef	KEEPALIVE_X
-#undef	KEEPALIVE_Y
-#undef	ENDLINE_Y
-#define	CONNSETTINGS_Y	185	// 189
-#define	KEEPALIVE_X	10
-#define	KEEPALIVE_Y	225
-#define	ENDLINE_Y	245	// 222
-
-DLG_OPTIONS_DS DIALOG DISCARDABLE  0, 0, 306, 260
-STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_OPTIONS_DS DIALOGEX 0, 0, 306, 260
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Advanced Options (DataSource)"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     PUSHBUTTON      "Page 3",ID3RDPAGE,49,5,40,15
     PUSHBUTTON      "Page 1",ID1STPAGE,5,5,40,15
-    CONTROL         "&Read Only",DS_READONLY,"Button",BS_AUTOCHECKBOX | 
-                    WS_GROUP | WS_TABSTOP,15,26,102,10
-    CONTROL         "Row &Versioning",DS_ROWVERSIONING,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,163,26,85,10
-    CONTROL         "Show System &Tables",DS_SHOWSYSTEMTABLES,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,41,100,10
-    CONTROL         "Display Optional Error Message",DS_OPTIONALERRORS,"Button",                    BS_AUTOCHECKBOX | WS_TABSTOP,163,41,85,10
-    CONTROL         "LF <-> CR/LF conversion",DS_LFCONVERSION,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,56,106,10
-    CONTROL         "True is -1",DS_TRUEISMINUS1,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,163,56,86,10
-    CONTROL         "Updatable Cursors",DS_UPDATABLECURSORS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,15,71,87,10
-    CONTROL         "Server side prepare",DS_SERVERSIDEPREPARE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,163,71,90,10
-    CONTROL         "bytea as LO",DS_BYTEAASLONGVARBINARY,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,16,84,87,10
+    CONTROL         "&Read Only",DS_READONLY,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,15,26,102,10
+    CONTROL         "Row &Versioning",DS_ROWVERSIONING,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,163,26,85,10
+    CONTROL         "Show System &Tables",DS_SHOWSYSTEMTABLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,41,100,10
+    CONTROL         "Display Optional Error Message",DS_OPTIONALERRORS,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,163,41,85,10
+    CONTROL         "LF <-> CR/LF conversion",DS_LFCONVERSION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,56,106,10
+    CONTROL         "True is -1",DS_TRUEISMINUS1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,163,56,86,10
+    CONTROL         "Updatable Cursors",DS_UPDATABLECURSORS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,71,87,10
+    CONTROL         "Server side prepare",DS_SERVERSIDEPREPARE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,163,71,90,10
+    CONTROL         "bytea as LO",DS_BYTEAASLONGVARBINARY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,84,87,10
     GROUPBOX        "Int8 As",IDC_STATIC,5,97,256,25
-    CONTROL         "default",DS_INT8_AS_DEFAULT,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,12,107,40,10
+    CONTROL         "default",DS_INT8_AS_DEFAULT,"Button",BS_AUTORADIOBUTTON | WS_GROUP,12,107,40,10
     CONTROL         "Fetch result from each refcursor",DS_FETCH_REFCURSORS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,163,84,122,10
-    CONTROL         "bigint",DS_INT8_AS_BIGINT,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,55,107,35,10
-    CONTROL         "numeric",DS_INT8_AS_NUMERIC,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,98,107,40,10
-    CONTROL         "varchar",DS_INT8_AS_VARCHAR,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,141,107,40,10
-    CONTROL         "double",DS_INT8_AS_DOUBLE,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,184,107,40,10
-    CONTROL         "int4",DS_INT8_AS_INT4,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,227,107,29,10
-    LTEXT	   "Extra Opts",IDC_STATIC,264,98,40,17
-    EDITTEXT	    DS_EXTRA_OPTIONS,264,105,40,12,ES_AUTOHSCROLL
+    CONTROL         "bigint",DS_INT8_AS_BIGINT,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,55,107,35,10
+    CONTROL         "numeric",DS_INT8_AS_NUMERIC,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,98,107,40,10
+    CONTROL         "varchar",DS_INT8_AS_VARCHAR,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,141,107,40,10
+    CONTROL         "double",DS_INT8_AS_DOUBLE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,184,107,40,10
+    CONTROL         "int4",DS_INT8_AS_INT4,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,227,107,29,10
+    LTEXT           "Extra Opts",IDC_STATIC,264,98,40,17
+    EDITTEXT        DS_EXTRA_OPTIONS,264,105,40,12,ES_AUTOHSCROLL
     GROUPBOX        "Numeric(without precision) As",IDC_STATIC,5,126,160,25
-    CONTROL         "default",DS_NUMERIC_AS_DEFAULT,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,12,138,40,10
-//    CONTROL         "numeric",DS_NUMERIC_AS_NUMERIC,"Button",BS_AUTORADIOBUTTON | 
-//                    WS_TABSTOP,50,138,40,10
-    CONTROL         "memo",DS_NUMERIC_AS_LONGVARCHAR,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,126,138,40,10
-    CONTROL         "varchar",DS_NUMERIC_AS_VARCHAR,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,50,138,40,10
-    CONTROL         "double",DS_NUMERIC_AS_DOUBLE,"Button",BS_AUTORADIOBUTTON | 
-                    WS_TABSTOP,90,138,36,10
+    CONTROL         "default",DS_NUMERIC_AS_DEFAULT,"Button",BS_AUTORADIOBUTTON | WS_GROUP,12,138,40,10
+    CONTROL         "memo",DS_NUMERIC_AS_LONGVARCHAR,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,126,138,40,10
+    CONTROL         "varchar",DS_NUMERIC_AS_VARCHAR,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,50,138,40,10
+    CONTROL         "double",DS_NUMERIC_AS_DOUBLE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,90,138,36,10
     GROUPBOX        "OID Options",IDC_STATIC,5,157,296,25
-    CONTROL         "Show &Column",DS_SHOWOIDCOLUMN,"Button",BS_AUTOCHECKBOX | 
-                    WS_GROUP | WS_TABSTOP,13,168,67,10
-    CONTROL         "Fake &Index",DS_FAKEOIDINDEX,"Button",BS_AUTOCHECKBOX | 
-                    WS_GROUP | WS_TABSTOP,80,168,59,10
-    LTEXT           "Connect &Settings:",IDC_STATIC,5,CONNSETTINGS_Y,57,11
-    EDITTEXT        DS_CONNSETTINGS,90,CONNSETTINGS_Y,211,27,ES_MULTILINE | 
-                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN
-    GROUPBOX        "TCP KEEPALIVE setting (by sec)",IDC_STATIC,KEEPALIVE_X,KEEPALIVE_Y-10,210,25
-    CONTROL         "disable",DS_DISABLE_KEEPALIVE,"Button",BS_AUTOCHECKBOX | WS_GROUP, KEEPALIVE_X+5,KEEPALIVE_Y,50,10
-    LTEXT           "idle time",IDC_STATIC,KEEPALIVE_X+62,KEEPALIVE_Y,25,10,NOT WS_GROUP
-    EDITTEXT        DS_KEEPALIVETIME,KEEPALIVE_X+90,KEEPALIVE_Y,20,10, ES_AUTOHSCROLL | WS_TABSTOP
-    LTEXT           "interval",IDC_STATIC,KEEPALIVE_X+117,KEEPALIVE_Y,25,10,NOT WS_GROUP
-    EDITTEXT        DS_KEEPALIVEINTERVAL,KEEPALIVE_X+145,KEEPALIVE_Y,30,10, ES_AUTOHSCROLL | WS_TABSTOP
-    DEFPUSHBUTTON   "OK",IDOK,5,ENDLINE_Y,50,14,WS_GROUP
-    PUSHBUTTON      "Cancel",IDCANCEL,81,ENDLINE_Y,50,14
-    PUSHBUTTON      "Apply",IDAPPLY,156,ENDLINE_Y,50,14
+    CONTROL         "Show &Column",DS_SHOWOIDCOLUMN,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,13,168,67,10
+    CONTROL         "Fake &Index",DS_FAKEOIDINDEX,"Button",BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP,80,168,59,10
+    LTEXT           "Connect &Settings:",IDC_STATIC,5,185,57,11
+    EDITTEXT        DS_CONNSETTINGS,90,185,211,27,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN
+    GROUPBOX        "TCP KEEPALIVE setting (by sec)",IDC_STATIC,10,215,210,25
+    CONTROL         "disable",DS_DISABLE_KEEPALIVE,"Button",BS_AUTOCHECKBOX | WS_GROUP,15,225,50,10
+    LTEXT           "idle time",IDC_STATIC,72,225,25,10,NOT WS_GROUP
+    EDITTEXT        DS_KEEPALIVETIME,100,225,20,10,ES_AUTOHSCROLL
+    LTEXT           "interval",IDC_STATIC,127,225,25,10,NOT WS_GROUP
+    EDITTEXT        DS_KEEPALIVEINTERVAL,155,225,30,10,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,5,245,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,81,245,50,14
+    PUSHBUTTON      "Apply",IDAPPLY,156,245,50,14
     GROUPBOX        "Level of rollback on errors",IDC_STATIC,172,126,134,25
-    CONTROL         "Nop",DS_NO_ROLLBACK,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,176,138,36,9
-    CONTROL         "Transaction",DS_TRANSACTION_ROLLBACK,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,206,138,57,9
-    CONTROL         "Statement",DS_STATEMENT_ROLLBACK,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,257,138,47,9
+    CONTROL         "Nop",DS_NO_ROLLBACK,"Button",BS_AUTORADIOBUTTON | WS_GROUP,176,138,36,9
+    CONTROL         "Transaction",DS_TRANSACTION_ROLLBACK,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,206,138,57,9
+    CONTROL         "Statement",DS_STATEMENT_ROLLBACK,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,257,138,47,9
 END
 
-#undef	DTC_GRP_X
-#undef	DTC_GRP_Y
-#undef	DTC_GRP_WIDTH
-#undef	DTC_GRP_HEIGHT
-#undef	DTC_OPT_X
-#undef	DTC_OPT_Y
-#undef	DTC_OPT_WIDTH
-#undef	DTC_OPT_HEIGHT
-#undef	DTC_LOG_X
-#undef	DTC_LOG_Y
-#undef	LIBPQOPT_Y
-#define	DTC_GRP_X	10
-#define	DTC_GRP_Y	60
-#define	DTC_GRP_WIDTH	200
-#define	DTC_GRP_HEIGHT	100
-#define	DTC_OPT_X	(DTC_GRP_X)
-#define	DTC_OPT_Y	(DTC_GRP_Y+10)
-#define	DTC_OPT_WIDTH	180
-#define	DTC_OPT_HEIGHT	45
-#define	DTC_LOG_X	(DTC_GRP_X)
-#define	DTC_LOG_Y	(DTC_OPT_Y+60)
-#define	LIBPQOPT_Y	185
-
-DLG_OPTIONS_DS3 DIALOG DISCARDABLE  0, 0, 306, 243
-STYLE DS_MODALFRAME | DS_3DLOOK | DS_CENTER | WS_POPUP | WS_CAPTION | 
-    WS_SYSMENU
+DLG_OPTIONS_DS3 DIALOGEX 0, 0, 306, 243
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Advanced Options(Datasource 3)"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     PUSHBUTTON      "Page 2",ID2NDPAGE,49,5,40,15
     PUSHBUTTON      "Page 1",ID1STPAGE,5,5,40,15
-
-    GROUPBOX        "Distributed Transaction related settings",IDC_STATIC,DTC_GRP_X,DTC_GRP_Y,DTC_GRP_WIDTH,DTC_GRP_HEIGHT
-    GROUPBOX        "Allow connections unrecoverable by MSDTC?",IDC_STATIC,DTC_OPT_X,DTC_OPT_Y,DTC_OPT_WIDTH,DTC_OPT_HEIGHT
-    CONTROL         "yes",DS_DTC_LINK_ONLY,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,DTC_OPT_X+5,DTC_OPT_Y+10,40,10
-    CONTROL         "rejects sslmode verify-[ca|full]",DS_DTC_SIMPLE_PRECHECK,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,DTC_OPT_X+5,DTC_OPT_Y+20,120,10
-    CONTROL         "no (confirm the connectivity from MSDTC first)",DS_DTC_CONFIRM_RM_CONNECTION,"Button",
-                    BS_AUTORADIOBUTTON | WS_TABSTOP,DTC_OPT_X+5,DTC_OPT_Y+30,170,10
-    PUSHBUTTON      "connection test",IDC_TEST,DTC_OPT_X+60,DTC_OPT_Y+75,55,14
-
-    LTEXT           "libpq parameters:(&l)",IDC_STATIC,13,LIBPQOPT_Y+3,69,10,NOT
-                    WS_GROUP
-    EDITTEXT        DS_LIBPQOPT,85,LIBPQOPT_Y,215,27,ES_MULTILINE |
-                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | NOT
-                    WS_TABSTOP
-
+    GROUPBOX        "Distributed Transaction related settings",IDC_STATIC,10,60,200,100
+    GROUPBOX        "Allow connections unrecoverable by MSDTC?",IDC_STATIC,10,70,180,45
+    CONTROL         "yes",DS_DTC_LINK_ONLY,"Button",BS_AUTORADIOBUTTON | WS_GROUP,15,80,40,10
+    CONTROL         "rejects sslmode verify-[ca|full]",DS_DTC_SIMPLE_PRECHECK,
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,15,90,120,10
+    CONTROL         "no (confirm the connectivity from MSDTC first)",DS_DTC_CONFIRM_RM_CONNECTION,
+                    "Button",BS_AUTORADIOBUTTON | WS_TABSTOP,15,100,170,10
+    PUSHBUTTON      "connection test",IDC_TEST,70,145,55,14
+    LTEXT           "libpq parameters:(&l)",IDC_STATIC,13,188,69,10,NOT WS_GROUP
+    EDITTEXT        DS_LIBPQOPT,85,185,215,27,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | NOT WS_TABSTOP
     DEFPUSHBUTTON   "OK",IDOK,5,224,50,14,WS_GROUP
     PUSHBUTTON      "Cancel",IDCANCEL,66,224,50,14
     PUSHBUTTON      "Apply",IDAPPLY,128,224,50,14
 END
 
-
-DLG_OPTIONS_GLOBAL DIALOG DISCARDABLE  0, 0, 306, 110
-STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_OPTIONS_GLOBAL DIALOGEX 0, 0, 306, 110
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Global settings"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    CONTROL         "Comm&Log (C:\\psqlodbc_xxxx.log - Communications log)",
-                    DRV_COMMLOG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,24,
-                    263,10
-    CONTROL         "Mylog (C:\\mylog_xxxx.log - Detailed debug output)",
-                    DRV_DEBUG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,42,
-                    264,10
-    CONTROL         "MSDTC log (C:\\pgdtclog\\mylog_xxxx.log - MSDTC debug output)",
-                    DRV_DTCLOG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,60,
-                    264,10
+    CONTROL         "Comm&Log (C:\\psqlodbc_xxxx.log - Communications log)",DRV_COMMLOG,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,24,263,10
+    CONTROL         "Mylog (C:\\mylog_xxxx.log - Detailed debug output)",DRV_DEBUG,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,42,264,10
+    CONTROL         "MSDTC log (C:\\pgdtclog\\mylog_xxxx.log - MSDTC debug output)",DRV_DTCLOG,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,60,264,10
     RTEXT           "Folder for logging",IDC_STATIC,17,77,69,12
-    EDITTEXT        DS_LOGDIR,98,75,188,13,ES_AUTOHSCROLL | WS_GROUP,
-                    WS_EX_TRANSPARENT
+    EDITTEXT        DS_LOGDIR,98,75,188,13,ES_AUTOHSCROLL | WS_GROUP,WS_EX_TRANSPARENT
     DEFPUSHBUTTON   "Save",IDOK,82,92,50,14,WS_GROUP
     PUSHBUTTON      "Cancel",IDCANCEL,172,91,50,15
-    GROUPBOX        "Pre-connection/default logging options",IDC_STATIC,5,5,
-                    296,85
+    GROUPBOX        "Pre-connection/default logging options",IDC_STATIC,5,5,296,85
 END
 
-DLG_DRIVER_CHANGE DIALOG DISCARDABLE  0, 0, 306, 87
-STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_DRIVER_CHANGE DIALOGEX 0, 0, 306, 87
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Driver up/downgrade"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,82,68,50,14,WS_GROUP
     PUSHBUTTON      "Cancel",IDCANCEL,172,67,50,15
     GROUPBOX        "Drivers List",IDC_STATIC,5,5,296,58
     LTEXT           "Select the driver",IDC_STATIC,31,30,73,8
-    LISTBOX         IDC_DRIVER_LIST,117,18,151,32,LBS_SORT | 
-                    LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    LISTBOX         IDC_DRIVER_LIST,117,18,151,32,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
 END
 
-DLG_OPTIONS_LIMITLESS DIALOG 0, 0, 340, 220
-STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+DLG_OPTIONS_LIMITLESS DIALOGEX 0, 0, 204, 96
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Limitless Settings"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    CONTROL         "&Enable limitless",IDC_ENABLE_LIMITLESS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP, 132, 12, 89, 10
-    RTEXT           "Limitless mode:",IDC_STATIC,12,30,116,8
-    COMBOBOX        IDC_LIMITLESS_MODE,132,29,196,12,CBS_DROPDOWN | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
-    RTEXT           "&Monitor interval (ms):",IDC_STATIC,12,48,116,8
-    EDITTEXT        IDC_LIMITLESS_MONITOR_INTERVAL_MS,132,46,196,12,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,12,184,50,14,WS_GROUP
-    PUSHBUTTON      "Cancel",IDCANCEL,132,184,50,14
-    PUSHBUTTON      "Apply",IDAPPLY,210,184,50,14
+    CONTROL         "&Enable limitless",IDC_ENABLE_LIMITLESS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,97,8,89,10
+    RTEXT           "Limitless mode:",IDC_STATIC,12,26,82,8
+    COMBOBOX        IDC_LIMITLESS_MODE,97,25,99,12,CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    RTEXT           "&Monitor interval (ms):",IDC_STATIC,12,44,82,8
+    EDITTEXT        IDC_LIMITLESS_MONITOR_INTERVAL_MS,97,42,99,12,ES_AUTOHSCROLL | ES_NUMBER
+    DEFPUSHBUTTON   "OK",IDOK,14,75,50,14,WS_GROUP
+    PUSHBUTTON      "Cancel",IDCANCEL,77,75,50,14
+    PUSHBUTTON      "Apply",IDAPPLY,140,75,50,14
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -816,11 +615,11 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO DISCARDABLE 
+GUIDELINES DESIGNINFO
 BEGIN
     DLG_CONFIG, DIALOG
     BEGIN
-        BOTTOMMARGIN, 141
+        BOTTOMMARGIN, 302
     END
 
     DLG_OPTIONS_DRV, DIALOG
@@ -840,6 +639,10 @@ BEGIN
         HORZGUIDE, 136
     END
 
+    DLG_OPTIONS_DS3, DIALOG
+    BEGIN
+    END
+
     DLG_OPTIONS_GLOBAL, DIALOG
     BEGIN
         LEFTMARGIN, 5
@@ -855,19 +658,22 @@ BEGIN
         TOPMARGIN, 5
         BOTTOMMARGIN, 82
     END
+
+    DLG_OPTIONS_LIMITLESS, DIALOG
+    BEGIN
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
 
-#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION PG_DRVFILE_VERSION
- PRODUCTVERSION PG_DRVFILE_VERSION
+ FILEVERSION 17,0,0,4
+ PRODUCTVERSION 17,0,0,4
  FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -882,30 +688,16 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-#ifdef UNICODE_SUPPORT
-            VALUE "Comments", "PostgreSQL Unicode ODBC driver\0"
-#else
-            VALUE "Comments", "PostgreSQL ANSI ODBC driver\0"
-#endif
-            VALUE "CompanyName", "PostgreSQL Global Development Group\0"
-            VALUE "FileDescription", "PostgreSQL ODBC Driver (English)\0"
-            VALUE "FileVersion", POSTGRES_RESOURCE_VERSION
-#ifdef UNICODE_SUPPORT
-            VALUE "InternalName", "psqlodbc35w\0"
-#else
-            VALUE "InternalName", "psqlodbc30a\0"
-#endif
-            VALUE "LegalCopyright", "Copyright \0"
-            VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoft? is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation.\0"
-#ifdef UNICODE_SUPPORT
-            VALUE "OriginalFilename", "psqlodbc35w.dll\0"
-#else
-            VALUE "OriginalFilename", "psqlodbc30a.dll\0"
-#endif
-            VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "PostgreSQL\0"
-            VALUE "ProductVersion", POSTGRES_RESOURCE_VERSION
-            VALUE "SpecialBuild", "\0"
+            VALUE "Comments", "PostgreSQL ANSI ODBC driver"
+            VALUE "CompanyName", "PostgreSQL Global Development Group"
+            VALUE "FileDescription", "PostgreSQL ODBC Driver (English)"
+            VALUE "FileVersion", "17.00.0004"
+            VALUE "InternalName", "psqlodbc30a"
+            VALUE "LegalCopyright", "Copyright "
+            VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoft? is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
+            VALUE "OriginalFilename", "psqlodbc30a.dll"
+            VALUE "ProductName", "PostgreSQL"
+            VALUE "ProductVersion", "17.00.0004"
         END
     END
     BLOCK "VarFileInfo"
@@ -914,7 +706,46 @@ BEGIN
     END
 END
 
-#endif    // !_MAC
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+DLG_OPTIONS_LIMITLESS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_CONFIG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_DRIVER_CHANGE AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_OPTIONS_DRV AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_OPTIONS_DS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_OPTIONS_DS3 AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+DLG_OPTIONS_GLOBAL AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -922,7 +753,7 @@ END
 // String Table
 //
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     IDS_BADDSN              "Invalid DSN entry, please recheck."
     IDS_MSGTITLE            "Invalid DSN"
@@ -931,43 +762,46 @@ BEGIN
     IDS_ADVANCE_OPTION_DSN1 "Advanced Options (%s) 1/3"
     IDS_ADVANCE_OPTION_CON1 "Advanced Options (Connection 1/3)"
     IDS_ADVANCE_OPTION_DSN2 "Advanced Options (%s) 2/3"
-    IDS_ADVANCE_OPTION_DSN3 "Advanced Options (%s) 3/3"
     IDS_ADVANCE_OPTION_CON2 "Advanced Options (Connection 2/3)"
-    IDS_ADVANCE_OPTION_CON3 "Advanced Options (Connection 3/3)"
     IDS_ADVANCE_CONNECTION  "Connection"
+    IDS_ADVANCE_OPTION_DSN3 "Advanced Options (%s) 3/3"
+    IDS_ADVANCE_OPTION_CON3 "Advanced Options (Connection 3/3)"
 END
 
-STRINGTABLE DISCARDABLE 
+STRINGTABLE
 BEGIN
     IDS_SSLREQUEST_PREFER   "prefer"
     IDS_SSLREQUEST_ALLOW    "allow"
     IDS_SSLREQUEST_REQUIRE  "require"
     IDS_SSLREQUEST_DISABLE  "disable"
-    IDS_SSLREQUEST_VERIFY_CA	    "verify-ca"
-    IDS_SSLREQUEST_VERIFY_FULL	    "verify-full"
+    IDS_SSLREQUEST_VERIFY_CA "verify-ca"
 END
 
 STRINGTABLE
 BEGIN
-IDS_AUTHTYPE_DATABASE   "database"
-IDS_AUTHTYPE_IAM        "iam"
+    IDS_SSLREQUEST_VERIFY_FULL "verify-full"
 END
 
 STRINGTABLE
 BEGIN
-IDS_AUTHTYPE_ADFS       "adfs"
-IDS_AUTHTYPE_OKTA       "okta"
-IDS_AUTHTYPE_SECRET     "secrets manager"
+    IDS_AUTHTYPE_DATABASE   "database"
+    IDS_AUTHTYPE_IAM        "iam"
 END
 
 STRINGTABLE
 BEGIN
-    IDC_LIMITLESS_MODE_LAZY         "lazy"
-    IDC_LIMITLESS_MODE_IMMEDIATE    "immediate"
+    IDS_AUTHTYPE_ADFS       "adfs"
+    IDS_AUTHTYPE_OKTA       "okta"
+    IDS_AUTHTYPE_SECRET     "secrets manager"
 END
 
+STRINGTABLE
+BEGIN
+    IDC_LIMITLESS_MODE_LAZY "lazy"
+    IDC_LIMITLESS_MODE_IMMEDIATE "immediate"
+END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -981,4 +815,4 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
-P
+

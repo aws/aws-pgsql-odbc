@@ -689,7 +689,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		STRCPY_FIXED(ci->federation_cfg.app_id, value);
 	else if (stricmp(attribute, INI_SECRET_ID) == 0)
 		STRCPY_FIXED(ci->secret_id, value);
-	else if (stricmp(attribute, INI_ENABLE_LIMITLESS) == 0)
+	else if (stricmp(attribute, INI_LIMITLESS_ENABLED) == 0)
 		ci->enable_limitless = atoi(value);
 	else if (stricmp(attribute, INI_LIMITLESS_MODE) == 0)
 		STRCPY_FIXED(ci->limitless_mode, value);
@@ -1091,7 +1091,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 	if (SQLGetPrivateProfileString(DSN, INI_SECRET_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->secret_id, temp);
 
-	if (SQLGetPrivateProfileString(DSN, INI_ENABLE_LIMITLESS, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+	if (SQLGetPrivateProfileString(DSN, INI_LIMITLESS_ENABLED, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		ci->enable_limitless = atoi(temp);
 
 	if (SQLGetPrivateProfileString(DSN, INI_LIMITLESS_MODE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
@@ -1484,7 +1484,7 @@ writeDSNinfo(const ConnInfo *ci)
 
 	ITOA_FIXED(temp, ci->enable_limitless);
 	SQLWritePrivateProfileString(DSN,
-								 INI_ENABLE_LIMITLESS,
+								 INI_LIMITLESS_ENABLED,
 								 temp,
 								 ODBC_INI);
 

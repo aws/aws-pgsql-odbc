@@ -73,7 +73,7 @@ extern "C" {
 #define INI_SECRET_ID	"SecretID" /* Default secret id */
 
 /* Limitless */
-#define INI_ENABLE_LIMITLESS	"EnableLimitless"
+#define INI_LIMITLESS_ENABLED	"LimitlessEnabled"
 #define INI_LIMITLESS_MODE		"LimitlessMode"
 #define INI_LIMITLESS_MONITOR_INTERVAL_MS	"LimitlessMonitorIntervalMs"
 
