@@ -61,7 +61,8 @@ class ConnectionString {
                          is_set_read_timeout(false), is_set_write_timeout(false), is_set_auth_mode(false), is_set_auth_region(false),
                          is_set_auth_host(false), is_set_auth_port(false), is_set_auth_expiration(false), is_set_secret_id(false),
                          is_set_ssl_mode(false),
-                         is_set_enable_limitless(false), is_set_limitless_mode(false), is_set_limitless_monitor_interval_ms(false), {};
+                         is_set_enable_limitless(false), is_set_limitless_mode(false), is_set_limitless_monitor_interval_ms(false)
+        {};
 
     std::string get_connection_string() const {
       char conn_in[4096] = "\0";
@@ -500,6 +501,21 @@ class ConnectionStringBuilder {
     ConnectionStringBuilder& withSslMode(const std::string& ssl_mode) {
         connection_string->set_ssl_mode(ssl_mode);
         return *this;
+    }
+
+    ConnectionStringBuilder& withEnableLimitless(const bool& enable_limitless) {
+      connection_string->set_enable_limitless(enable_limitless);
+      return *this;
+    }
+
+    ConnectionStringBuilder& withLimitlessMode(const std::string& limitless_mode) {
+      connection_string->set_limitless_mode(limitless_mode);
+      return *this;
+    }
+
+    ConnectionStringBuilder& withLimitlessMonitorIntervalMs(const int& limitless_monitor_interval_ms) {
+      connection_string->set_limitless_monitor_interval_ms(limitless_monitor_interval_ms);
+      return *this;
     }
 
     std::string build() const {
