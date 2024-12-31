@@ -406,8 +406,8 @@ const char *GetSvpName(const ConnectionClass *conn, char *wrk, int wrksize)
  *	The execution after all parameters were resolved.
  */
 
-#define INVALID_EXPBUFFER	PQExpBufferDataBroken(stmt->stmt_deffered)
-#define VALID_EXPBUFFER	(!PQExpBufferDataBroken(stmt->stmt_deffered))
+#define INVALID_EXPBUFFER	PQExpBufferDataBroken(stmt->stmt_deferred)
+#define VALID_EXPBUFFER	(!PQExpBufferDataBroken(stmt->stmt_deferred))
 
 static
 void param_status_batch_update(IPDFields *ipdopts, RETCODE retval, SQLLEN target_row, int count_of_deffered)
@@ -467,7 +467,7 @@ MYLOG(DETAIL_LOG_LEVEL, "prepare_before_exec=%d srv=%d\n", prepare_before_exec, 
 			stmt_with_params = stmt->stmt_with_params = NULL;
 		}
 		if (INVALID_EXPBUFFER ||
-		    !stmt->stmt_deffered.data[0])
+		    !stmt->stmt_deferred.data[0])
 			RETURN(SQL_SUCCESS);
 	}
 	else
@@ -525,7 +525,7 @@ MYLOG(MIN_LOG_LEVEL, "about to begin SC_execute exec_type=%d\n", exec_type);
 		 stmt->count_of_deffered + 1 < stmt->batch_size)
 	{
 		if (INVALID_EXPBUFFER)
-			initPQExpBuffer(&stmt->stmt_deffered);
+			initPQExpBuffer(&stmt->stmt_deferred);
 		if (INVALID_EXPBUFFER)
 		{
 			retval = SQL_ERROR;
@@ -535,10 +535,10 @@ MYLOG(MIN_LOG_LEVEL, "about to begin SC_execute exec_type=%d\n", exec_type);
 		{
 			if (NULL != stmt_with_params)
 			{
-				if (stmt->stmt_deffered.data[0])
-					appendPQExpBuffer(&stmt->stmt_deffered, ";%s", stmt_with_params);
+				if (stmt->stmt_deferred.data[0])
+					appendPQExpBuffer(&stmt->stmt_deferred, ";%s", stmt_with_params);
 				else
-					printfPQExpBuffer(&stmt->stmt_deffered, "%s", stmt_with_params);
+					printfPQExpBuffer(&stmt->stmt_deferred, "%s", stmt_with_params);
 			}
 			if (NULL != ipdopts->param_status_ptr)
 				ipdopts->param_status_ptr[stmt->exec_current_row] = SQL_PARAM_SUCCESS; // set without exec
@@ -552,14 +552,14 @@ MYLOG(MIN_LOG_LEVEL, "about to begin SC_execute exec_type=%d\n", exec_type);
 		if (VALID_EXPBUFFER)
 		{
 			if (NULL != stmt_with_params)
-				appendPQExpBuffer(&stmt->stmt_deffered, ";%s", stmt_with_params);
-			stmt->stmt_with_params = stmt->stmt_deffered.data;
+				appendPQExpBuffer(&stmt->stmt_deferred, ";%s", stmt_with_params);
+			stmt->stmt_with_params = stmt->stmt_deferred.data;
 		}
 		retval = SC_execute(stmt);
 		stmt->stmt_with_params = stmt_with_params;
 		stmt->count_of_deffered = 0;
 		if (VALID_EXPBUFFER)
-			resetPQExpBuffer(&stmt->stmt_deffered);
+			resetPQExpBuffer(&stmt->stmt_deferred);
 	}
 	if (retval == SQL_ERROR)
 	{

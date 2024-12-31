@@ -97,9 +97,9 @@ enum {
 	,STMT_INVALID_NULL_ARG
 	,STMT_NO_RESPONSE
 	,STMT_COMMUNICATION_ERROR
+	,STMT_STRING_CONVERSION_ERROR
     ,STMT_FAILOVER_SUCCESS_ERROR
     ,STMT_UNKNOWN_TRANSACTION_ERROR
-	,STMT_STRING_CONVERSION_ERROR
 };
 
 /* statement types */
@@ -306,7 +306,7 @@ struct StatementClass_
 	int		batch_size;
 	EXEC_TYPE	exec_type;
 	int		count_of_deffered;
-	PQExpBufferData	stmt_deffered;
+	PQExpBufferData	stmt_deferred;
 	/* SQL_NEED_DATA Callback list */
 	StatementClass	*execute_delegate;
 	StatementClass	*execute_parent;
