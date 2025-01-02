@@ -50,7 +50,7 @@ class ConnectionString {
                          m_read_timeout(-1), m_write_timeout(-1), m_auth_mode(""), m_auth_region(""), m_auth_host(""),
                          m_auth_port(-1), m_auth_expiration(-1), m_secret_id(""),
                          m_ssl_mode(""),
-                         m_enable_limitless(false), m_limitless_mode(""), m_limitless_monitor_interval_ms(-1),
+                         m_enable_limitless(false), m_limitless_mode(""), m_limitless_monitor_interval_ms(-1), m_limitless_service_id(""),
 
                          is_set_uid(false), is_set_pwd(false), is_set_db(false), is_set_log_query(false),
                          is_set_failover_mode(false),
@@ -61,7 +61,7 @@ class ConnectionString {
                          is_set_read_timeout(false), is_set_write_timeout(false), is_set_auth_mode(false), is_set_auth_region(false),
                          is_set_auth_host(false), is_set_auth_port(false), is_set_auth_expiration(false), is_set_secret_id(false),
                          is_set_ssl_mode(false),
-                         is_set_enable_limitless(false), is_set_limitless_mode(false), is_set_limitless_monitor_interval_ms(false)
+                         is_set_enable_limitless(false), is_set_limitless_mode(false), is_set_limitless_monitor_interval_ms(false), is_set_limitless_service_id(false)
         {};
 
     std::string get_connection_string() const {
@@ -156,6 +156,9 @@ class ConnectionString {
       if (is_set_limitless_monitor_interval_ms) {
         length += sprintf(conn_in + length, "LIMITLESSMONITORINTERVALMS=%d;", m_limitless_monitor_interval_ms);
       }
+      if (is_set_limitless_service_id) {
+        length += sprintf(conn_in + length, "LIMITLESSSERVICEID=%s;", m_limitless_service_id);
+      }
       snprintf(conn_in + length, sizeof(conn_in) - length, "\0");
 
       std::string connection_string(conn_in);
@@ -180,6 +183,7 @@ class ConnectionString {
     bool m_enable_limitless;
     std::string m_limitless_mode;
     int m_limitless_monitor_interval_ms;
+    std::string m_limitless_service_id;
 
     bool is_set_uid, is_set_pwd, is_set_db;
     bool is_set_log_query, is_set_failover_mode, is_set_multi_statements;
@@ -192,7 +196,7 @@ class ConnectionString {
     bool is_set_read_timeout, is_set_write_timeout;
     bool is_set_auth_mode, is_set_auth_region, is_set_auth_host, is_set_auth_port, is_set_auth_expiration, is_set_secret_id;
     bool is_set_ssl_mode;
-    bool is_set_enable_limitless, is_set_limitless_mode, is_set_limitless_monitor_interval_ms;
+    bool is_set_enable_limitless, is_set_limitless_mode, is_set_limitless_monitor_interval_ms, is_set_limitless_service_id;
 
     void set_dsn(const std::string& dsn) {
       m_dsn = dsn;
@@ -349,6 +353,11 @@ class ConnectionString {
     void set_limitless_monitor_interval_ms(const int& limitless_monitor_interval_ms) {
         m_limitless_monitor_interval_ms = limitless_monitor_interval_ms;
         is_set_limitless_monitor_interval_ms = true;
+    }
+
+    void set_limitless_service_id(const std::string& limitless_service_id) {
+        m_limitless_service_id = limitless_service_id;
+        is_set_limitless_service_id = true;
     }
 };
 
@@ -515,6 +524,11 @@ class ConnectionStringBuilder {
 
     ConnectionStringBuilder& withLimitlessMonitorIntervalMs(const int& limitless_monitor_interval_ms) {
       connection_string->set_limitless_monitor_interval_ms(limitless_monitor_interval_ms);
+      return *this;
+    }
+
+    ConnectionStringBuilder& withLimitlessServiceId(const std::string& limitless_service_id) {
+      connection_string->set_limitless_service_id(limitless_service_id);
       return *this;
     }
 

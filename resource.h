@@ -163,6 +163,7 @@
 #define IDC_LIMITLESS_MONITOR_INTERVAL_MS   5004
 #define IDC_LIMITLESS_MODE_LAZY             5005
 #define IDC_LIMITLESS_MODE_IMMEDIATE        5006
+#define IDC_LIMITLESS_SERVICE_ID            5007
 
 // Next default values for new objects
 //
