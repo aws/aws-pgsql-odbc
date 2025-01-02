@@ -46,6 +46,7 @@
 #include "pgapifunc.h"
 
 #include <authentication/authentication_provider.h>
+#include <limitless/limitless_monitor_service.h>
 
 #define	SAFE_STR(s)	(NULL != (s) ? (s) : "(null)")
 
@@ -1201,6 +1202,31 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
+void GetLimitlessServer(const ConnInfo *ci) {
+	if (!ci->enable_limitless) {
+		return;
+	}
+
+	// TODO(micahdbak): use ci->limitless_mode to do the following in the background if lazy
+	
+	char connection_string[MAX_CONNECT_STRING]; // TODO(micahdbak): MAX_CONNECT_STRING = 4096, ref. in psqlodbc.h
+	makeConnectString(connection_string, ci, MAX_CONNECT_STRING);
+
+	LimitlessInstance db_instance;
+	db_instance.server = (char *)malloc(MEDIUM_REGISTRY_LEN);
+	db_instance.server_size = MEDIUM_REGISTRY_LEN;
+
+	int host_port = atoi(ci->port);
+	bool successful = GetLimitlessInstance(connection_string, host_port, ci->limitless_service_id, &db_instance);
+
+	if (!successful) {
+		return; // TODO(micahdbak): error handling
+	}
+
+	STRCPY_FIXED(ci->server, db_instance.server);
+	free(db_instance.server);
+}
+
 #define MERGE_CSTR(buffer, size, prefix, suffix) (snprintf(buffer, size, "%s\n%s", prefix, suffix))
 
 char
@@ -1237,6 +1263,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.username = NULL;
 		credentials.password = NULL;
 
+		GetLimitlessServer(ci);
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
 			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Fetched Secrets Manager credentials are invalid", CC_get_errormsg(self));
@@ -1246,6 +1273,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
+		GetLimitlessServer(ci);
 		ret = LIBPQ_CC_connect(self, salt_para);
 		// Failed to connect
 		if (ret <= 0) {
@@ -1268,6 +1296,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci->token_expiration);
 	}
 	else {
+		GetLimitlessServer(ci);
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0)
 			return ret;
