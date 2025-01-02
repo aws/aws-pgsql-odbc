@@ -664,6 +664,7 @@ void		logs_on_off(int cnopen, int, int);
 */
 typedef struct
 {
+	char		connect_string_in[MAX_CONNECT_STRING];
 	char		dsn[MEDIUM_REGISTRY_LEN];
 	char		desc[MEDIUM_REGISTRY_LEN];
 	char		drivername[MEDIUM_REGISTRY_LEN];

@@ -389,6 +389,10 @@ CC_Destructor(ConnectionClass *self)
 	}
 	MYLOG(0, "after free statement holders\n");
 
+	if (self->connInfo.enable_limitless) {
+		StopLimitlessMonitorService(self->connInfo.limitless_service_id);
+	}
+
 	NULL_THE_NAME(self->schemaIns);
 	NULL_THE_NAME(self->tableIns);
 	CC_conninfo_release(&self->connInfo);
@@ -1207,20 +1211,21 @@ void GetLimitlessServer(const ConnInfo *ci) {
 		return;
 	}
 
-	// TODO(micahdbak): use ci->limitless_mode to do the following in the background if lazy
-	
-	char connection_string[MAX_CONNECT_STRING]; // TODO(micahdbak): MAX_CONNECT_STRING = 4096, ref. in psqlodbc.h
-	makeConnectString(connection_string, ci, MAX_CONNECT_STRING);
-
 	LimitlessInstance db_instance;
 	db_instance.server = (char *)malloc(MEDIUM_REGISTRY_LEN);
 	db_instance.server_size = MEDIUM_REGISTRY_LEN;
 
 	int host_port = atoi(ci->port);
-	bool successful = GetLimitlessInstance(connection_string, host_port, ci->limitless_service_id, &db_instance);
+	#ifdef UNICODE
+	SQLWCHAR connStr[MAX_CONNECT_STRING];
+	utf8_to_ucs2(ci->connect_string_in, strlen(ci->connect_string_in), connStr, sizeof(connStr));
+	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, &db_instance);
+	#else
+	bool db_instance_ready = GetLimitlessInstance(ci->connect_string_in, host_port, ci->limitless_service_id, &db_instance);
+	#endif
 
-	if (!successful) {
-		return; // TODO(micahdbak): error handling
+	if (!db_instance_ready) {
+		return; // no writing to ci
 	}
 
 	STRCPY_FIXED(ci->server, db_instance.server);
