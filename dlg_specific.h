@@ -72,6 +72,12 @@ extern "C" {
 
 #define INI_SECRET_ID	"SecretID" /* Default secret id */
 
+/* Limitless */
+#define INI_LIMITLESS_ENABLED	            "LimitlessEnabled"
+#define INI_LIMITLESS_MODE		            "LimitlessMode"
+#define INI_LIMITLESS_MONITOR_INTERVAL_MS	"LimitlessMonitorIntervalMs"
+#define INI_LIMITLESS_SERVICE_ID	        "LimitlessServiceId"
+
 #define	INI_ABBREVIATE			"CX"
 #define INI_DEBUG			"Debug"		/* Debug flag */
 #define ABBR_DEBUG			"B2"
@@ -216,6 +222,9 @@ extern "C" {
 #define	SSLLBYTE_REQUIRE	'r'
 #define	SSLLBYTE_VERIFY		'v'
 
+#define LIMITLESS_LAZY	"lazy"
+#define LIMITLESS_IMMEDIATE	"immediate"
+
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 #define INI_XAOPT			"XaOpt"
 #endif /* _HANDLE_ENLIST_IN_DTC_ */
@@ -306,6 +315,8 @@ extern "C" {
 #define DEFAULT_SOCKET_TIMEOUT		"3000"
 #define DEFAULT_CONN_TIMEOUT		"5000"
 #define DEFAULT_RELAYING_PARTY_ID	"urn:amazon:webservices"
+#define DEFAULT_LIMITLESS_MODE		LIMITLESS_LAZY
+#define DEFAULT_LIMITLESS_MONITOR_INTERVAL_MS	500
 
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 #define DEFAULT_XAOPT			1
@@ -342,6 +353,10 @@ LRESULT CALLBACK ds_options3Proc(HWND hdlg,
 			   WPARAM wParam,
 			   LPARAM lParam);
 LRESULT CALLBACK manage_dsnProc(HWND hdlg,
+			   UINT wMsg,
+			   WPARAM wParam,
+			   LPARAM lParam);
+LRESULT CALLBACK limitless_optionsProc(HWND hdlg,
 			   UINT wMsg,
 			   WPARAM wParam,
 			   LPARAM lParam);
