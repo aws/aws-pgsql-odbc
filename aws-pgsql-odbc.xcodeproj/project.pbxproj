@@ -192,6 +192,7 @@
 		732C94202CB0381E0091B8EE /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		7369D18C2CB0627000CBF22B /* libawspgsqlodbca.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libawspgsqlodbca.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "aws-rds-odbc.xcodeproj"; path = "libs/aws-rds-odbc/aws-rds-odbc.xcodeproj"; sourceTree = "<group>"; };
+		73ABBC3A2D2D903600E34238 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -223,6 +224,7 @@
 		732C93562CB023170091B8EE = {
 			isa = PBXGroup;
 			children = (
+				73ABBC3A2D2D903600E34238 /* .gitignore */,
 				732C93D42CB034740091B8EE /* odbcapi30w.c */,
 				732C93D52CB034740091B8EE /* odbcapiw.c */,
 				732C93D62CB034740091B8EE /* win_unicode.c */,
@@ -682,6 +684,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					_DEBUG,
 					UNICODE_SUPPORT,
+					SQL_WCHART_CONVERT,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
@@ -724,7 +727,10 @@
 				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = UNICODE_SUPPORT;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					UNICODE_SUPPORT,
+					SQL_WCHART_CONVERT,
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
