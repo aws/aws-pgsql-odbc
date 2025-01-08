@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		731C5EFA2D287A73004D99E1 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 731C5EF92D287A73004D99E1 /* libc++.tbd */; };
+		731C5EFB2D287CC7004D99E1 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 731C5EF92D287A73004D99E1 /* libc++.tbd */; };
 		732C93A42CB034440091B8EE /* environ.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C93822CB034440091B8EE /* environ.h */; };
 		732C93A52CB034440091B8EE /* lobj.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C93862CB034440091B8EE /* lobj.h */; };
 		732C93A62CB034440091B8EE /* convert.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C937A2CB034440091B8EE /* convert.h */; };
@@ -60,6 +62,8 @@
 		732C93D92CB034740091B8EE /* win_unicode.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93D62CB034740091B8EE /* win_unicode.c */; };
 		732C941F2CB0380F0091B8EE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C941E2CB0380F0091B8EE /* CoreFoundation.framework */; };
 		732C94212CB0381E0091B8EE /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C94202CB0381E0091B8EE /* Security.framework */; };
+		733ED1042D286BE0001BAC9D /* libaws-rds-odbc-ansi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 736BC1852CCA8EFE006D0685 /* libaws-rds-odbc-ansi.a */; };
+		733ED1052D286BF7001BAC9D /* libaws-rds-odbc-unicode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 733ED0F02D28598C001BAC9D /* libaws-rds-odbc-unicode.a */; };
 		7369D14C2CB0627000CBF22B /* environ.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C93822CB034440091B8EE /* environ.h */; };
 		7369D14D2CB0627000CBF22B /* lobj.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C93862CB034440091B8EE /* lobj.h */; };
 		7369D14E2CB0627000CBF22B /* convert.h in Headers */ = {isa = PBXBuildFile; fileRef = 732C937A2CB034440091B8EE /* convert.h */; };
@@ -110,11 +114,16 @@
 		7369D1852CB0627000CBF22B /* bind.c in Sources */ = {isa = PBXBuildFile; fileRef = 732C93742CB034440091B8EE /* bind.c */; };
 		7369D1872CB0627000CBF22B /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C94202CB0381E0091B8EE /* Security.framework */; };
 		7369D1882CB0627000CBF22B /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 732C941E2CB0380F0091B8EE /* CoreFoundation.framework */; };
-		736BC1862CCA8F11006D0685 /* libaws-rds-odbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 736BC1852CCA8EFE006D0685 /* libaws-rds-odbc.a */; };
-		736BC1872CCA900D006D0685 /* libaws-rds-odbc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 736BC1852CCA8EFE006D0685 /* libaws-rds-odbc.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		733ED0EF2D28598C001BAC9D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 733ED0C52D285155001BAC9D;
+			remoteInfo = "aws-rds-odbc unicode";
+		};
 		736BC1842CCA8EFE006D0685 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */;
@@ -125,6 +134,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		731C5EF92D287A73004D99E1 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		732C935F2CB023170091B8EE /* libawspgsqlodbcw.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libawspgsqlodbcw.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		732C93732CB034440091B8EE /* bind.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bind.h; sourceTree = "<group>"; };
 		732C93742CB034440091B8EE /* bind.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = bind.c; sourceTree = "<group>"; };
@@ -182,6 +192,7 @@
 		732C94202CB0381E0091B8EE /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		7369D18C2CB0627000CBF22B /* libawspgsqlodbca.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libawspgsqlodbca.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "aws-rds-odbc.xcodeproj"; path = "libs/aws-rds-odbc/aws-rds-odbc.xcodeproj"; sourceTree = "<group>"; };
+		73ABBC3A2D2D903600E34238 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,9 +200,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				732C94212CB0381E0091B8EE /* Security.framework in Frameworks */,
 				732C941F2CB0380F0091B8EE /* CoreFoundation.framework in Frameworks */,
-				736BC1872CCA900D006D0685 /* libaws-rds-odbc.a in Frameworks */,
+				732C94212CB0381E0091B8EE /* Security.framework in Frameworks */,
+				731C5EFB2D287CC7004D99E1 /* libc++.tbd in Frameworks */,
+				733ED1052D286BF7001BAC9D /* libaws-rds-odbc-unicode.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,9 +211,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7369D1872CB0627000CBF22B /* Security.framework in Frameworks */,
 				7369D1882CB0627000CBF22B /* CoreFoundation.framework in Frameworks */,
-				736BC1862CCA8F11006D0685 /* libaws-rds-odbc.a in Frameworks */,
+				7369D1872CB0627000CBF22B /* Security.framework in Frameworks */,
+				731C5EFA2D287A73004D99E1 /* libc++.tbd in Frameworks */,
+				733ED1042D286BE0001BAC9D /* libaws-rds-odbc-ansi.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,7 +224,7 @@
 		732C93562CB023170091B8EE = {
 			isa = PBXGroup;
 			children = (
-				732C94132CB035CC0091B8EE /* wrapper */,
+				73ABBC3A2D2D903600E34238 /* .gitignore */,
 				732C93D42CB034740091B8EE /* odbcapi30w.c */,
 				732C93D52CB034740091B8EE /* odbcapiw.c */,
 				732C93D62CB034740091B8EE /* win_unicode.c */,
@@ -281,6 +294,7 @@
 		732C941D2CB0380E0091B8EE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				731C5EF92D287A73004D99E1 /* libc++.tbd */,
 				732C94202CB0381E0091B8EE /* Security.framework */,
 				732C941E2CB0380F0091B8EE /* CoreFoundation.framework */,
 				736BC1762CCA8E05006D0685 /* aws-rds-odbc.xcodeproj */,
@@ -291,7 +305,8 @@
 		736BC1812CCA8EFE006D0685 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				736BC1852CCA8EFE006D0685 /* libaws-rds-odbc.a */,
+				736BC1852CCA8EFE006D0685 /* libaws-rds-odbc-ansi.a */,
+				733ED0F02D28598C001BAC9D /* libaws-rds-odbc-unicode.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -407,7 +422,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 1620;
 				TargetAttributes = {
 					732C935E2CB023170091B8EE = {
 						CreatedOnToolsVersion = 16.0;
@@ -441,10 +456,17 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		736BC1852CCA8EFE006D0685 /* libaws-rds-odbc.a */ = {
+		733ED0F02D28598C001BAC9D /* libaws-rds-odbc-unicode.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = "libaws-rds-odbc.a";
+			path = "libaws-rds-odbc-unicode.a";
+			remoteRef = 733ED0EF2D28598C001BAC9D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		736BC1852CCA8EFE006D0685 /* libaws-rds-odbc-ansi.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libaws-rds-odbc-ansi.a";
 			remoteRef = 736BC1842CCA8EFE006D0685 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -528,8 +550,8 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -555,11 +577,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -573,12 +596,17 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = macosx;
+				OTHER_LDFLAGS = "";
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				SDKROOT = macosx15.2;
+				SHARED_PRECOMPS_DIR = "";
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
 		};
@@ -589,8 +617,8 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_MODULES = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
+				CLANG_ENABLE_MODULES = NO;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -616,11 +644,12 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -628,11 +657,15 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				SDKROOT = macosx;
+				OTHER_LDFLAGS = "";
+				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
+				SDKROOT = macosx15.2;
+				SHARED_PRECOMPS_DIR = "";
 			};
 			name = Release;
 		};
@@ -641,6 +674,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
@@ -648,16 +682,16 @@
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					UNICODE_SUPPORT,
 					_DEBUG,
+					UNICODE_SUPPORT,
+					SQL_WCHART_CONVERT,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
-					"/opt/homebrew/opt/openssl@3/include",
-					/opt/homebrew/opt/libpq/include,
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
+					"$(SRCROOT)/libs/aws-rds-odbc/src",
 					"$(SRCROOT)/libs/aws-rds-odbc/aws_sdk/install/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -666,16 +700,17 @@
 					/opt/homebrew/Cellar/unixodbc/2.3.12/lib,
 					/Applications/Postgres.app/Contents/Versions/17/lib,
 				);
-				OBJROOT = "$(SRCROOT)/xcode-build";
+				OBJROOT = "$(SRCROOT)/xcode_build_unicode";
 				OTHER_LDFLAGS = (
 					"-lpq",
 					"-lodbcinst",
 					"-lcurl",
 					"-lz",
+					"-liconv",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = "$(SRCROOT)/xcode-build";
+				SYMROOT = "$(SRCROOT)/xcode_build_unicode";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
@@ -685,20 +720,23 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
 				GCC_C_LANGUAGE_STANDARD = c17;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = UNICODE_SUPPORT;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					UNICODE_SUPPORT,
+					SQL_WCHART_CONVERT,
+				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
-					"/opt/homebrew/opt/openssl@3/include",
-					/opt/homebrew/opt/libpq/include,
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
+					"$(SRCROOT)/libs/aws-rds-odbc/src",
 					"$(SRCROOT)/libs/aws-rds-odbc/aws_sdk/install/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -707,16 +745,17 @@
 					/opt/homebrew/Cellar/unixodbc/2.3.12/lib,
 					/Applications/Postgres.app/Contents/Versions/17/lib,
 				);
-				OBJROOT = "$(SRCROOT)/xcode-build";
+				OBJROOT = "$(SRCROOT)/xcode_build_unicode";
 				OTHER_LDFLAGS = (
 					"-lpq",
 					"-lodbcinst",
 					"-lcurl",
 					"-lz",
+					"-liconv",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = "$(SRCROOT)/xcode-build";
+				SYMROOT = "$(SRCROOT)/xcode_build_unicode";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Release;
@@ -726,6 +765,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
@@ -735,11 +775,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = _DEBUG;
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
-					"/opt/homebrew/opt/openssl@3/include",
-					/opt/homebrew/opt/libpq/include,
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
+					"$(SRCROOT)/libs/aws-rds-odbc/src",
 					"$(SRCROOT)/libs/aws-rds-odbc/aws_sdk/install/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -748,16 +787,17 @@
 					/opt/homebrew/Cellar/unixodbc/2.3.12/lib,
 					/Applications/Postgres.app/Contents/Versions/17/lib,
 				);
-				OBJROOT = "$(SRCROOT)/xcode-build";
+				OBJROOT = "$(SRCROOT)/xcode_build_ansi";
 				OTHER_LDFLAGS = (
 					"-lpq",
 					"-lodbcinst",
 					"-lcurl",
 					"-lz",
+					"-liconv",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = "$(SRCROOT)/xcode-build";
+				SYMROOT = "$(SRCROOT)/xcode_build_ansi";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
@@ -767,6 +807,7 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
+				DEAD_CODE_STRIPPING = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
@@ -776,11 +817,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
-					"/opt/homebrew/opt/openssl@3/include",
-					/opt/homebrew/opt/libpq/include,
 					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
+					"$(SRCROOT)/libs/aws-rds-odbc/src",
 					"$(SRCROOT)/libs/aws-rds-odbc/aws_sdk/install/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -789,16 +829,17 @@
 					/opt/homebrew/Cellar/unixodbc/2.3.12/lib,
 					/Applications/Postgres.app/Contents/Versions/17/lib,
 				);
-				OBJROOT = "$(SRCROOT)/xcode-build";
+				OBJROOT = "$(SRCROOT)/xcode_build_ansi";
 				OTHER_LDFLAGS = (
 					"-lpq",
 					"-lodbcinst",
 					"-lcurl",
 					"-lz",
+					"-liconv",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = "$(SRCROOT)/xcode-build";
+				SYMROOT = "$(SRCROOT)/xcode_build_ansi";
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Release;

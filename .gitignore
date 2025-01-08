@@ -498,6 +498,7 @@ contents.xcworkspacedata
 *.swp
 *.swo
 *.tmp
+test/*.xcodeproj
 
 # IntelliJ IDEA
 .idea

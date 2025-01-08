@@ -170,7 +170,7 @@ SQLDriverConnectW(HDBC hdbc,
     if (SQL_SUCCESS == ret)
     {
         bool is_limitless = CheckLimitlessCluster(hdbc);
-        MYLOG(DETAIL_LOG_LEVEL, "Is limitless instance: %s", is_limitless ? "YES" : "NO");
+    	MYLOG(0, "Is limitless instance? %s\n", is_limitless ? "YES" : "NO");
     }
 
 	if (ret != SQL_ERROR && NULL != pCSO)

@@ -228,10 +228,6 @@ if test "$with_libpq" != yes; then
 			AC_MSG_ERROR([specified pg_config not found])
 		fi
 	fi
-else
-	if test "$MACOS_BUILD" == yes; then
-		LDFLAGS="$LDFLAGS -L/opt/homebrew/opt/libpq/lib -lpq"
-	fi
 fi
 
 #
