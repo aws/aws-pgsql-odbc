@@ -12,7 +12,7 @@ The following DSN fields on the DSN window should be filled when using Secret Ma
 
 | Field             | Connection Option | Value                                                   | Default Value | Sample Value                                                              |
 |-------------------|-------------------|---------------------------------------------------------|---------------|---------------------------------------------------------------------------|
-| Auth Type         | AuthType          | Should be `secrets-manager`                              | `database`    | `secrets-manager`                                                          |
+| Auth Type         | AuthType          | Should be `secrets-manager`                             | `database`    | `secrets-manager`                                                          |
 | Server            | Server            | PostgreSQL instance server name                         | Null          | `pg.us-east-1-rds.amazon.com`                                             |
 | Port              | Port              | Port that the database is listening on                  | Null          | 5432                                                                      |
 | Region            | Region            | The region of the Secret Manager                        | Null          | `us-east-1`                                                               |
