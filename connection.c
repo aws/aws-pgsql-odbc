@@ -45,6 +45,10 @@
 
 #include "pgapifunc.h"
 
+#include "dlg_specific.h"
+
+#include "unicode_support.h"
+
 #include <authentication/authentication_provider.h>
 #include <limitless/limitless_monitor_service.h>
 
@@ -1206,7 +1210,9 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
-void GetLimitlessServer(const ConnInfo *ci) {
+void GetLimitlessServer(ConnInfo *ci) {
+	MYLOG(0, "entering...enable_limitless=%d\n", ci->enable_limitless);
+
 	if (!ci->enable_limitless) {
 		return;
 	}
@@ -1216,18 +1222,26 @@ void GetLimitlessServer(const ConnInfo *ci) {
 	db_instance.server_size = MEDIUM_REGISTRY_LEN;
 
 	int host_port = atoi(ci->port);
-	#ifdef UNICODE
-	SQLWCHAR connStr[MAX_CONNECT_STRING];
-	utf8_to_ucs2(ci->connect_string_in, strlen(ci->connect_string_in), connStr, sizeof(connStr));
+	char connect_string_encoded[MAX_CONNECT_STRING];
+	ci->enable_limitless = 0; // the generated connect string must have limitless disabled
+	makeConnectString(connect_string_encoded, ci, MAX_CONNECT_STRING);
+	ci->enable_limitless = 1;
+	MYLOG(0, "LIMITLESS GENERATED CONNECT STRING: %s\n", connect_string_encoded);
+
+#ifdef UNICODE_SUPPORT
+	wchar_t connStr[MAX_CONNECT_STRING];
+	utf8_to_ucs2(connect_string_encoded, sizeof(connect_string_encoded), connStr, sizeof(connStr));
 	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, &db_instance);
-	#else
-	bool db_instance_ready = GetLimitlessInstance(ci->connect_string_in, host_port, ci->limitless_service_id, &db_instance);
-	#endif
+#else
+	bool db_instance_ready = GetLimitlessInstance(connect_string_encoded, host_port, ci->limitless_service_id, &db_instance);
+#endif
 
 	if (!db_instance_ready) {
+		MYLOG(0, "didn't get limitless server, but monitor has started\n");
 		return; // no writing to ci
 	}
 
+	MYLOG(0, "got limitless server endpoint from monitor %s\n", db_instance.server);
 	STRCPY_FIXED(ci->server, db_instance.server);
 	free(db_instance.server);
 }

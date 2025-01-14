@@ -140,8 +140,6 @@ PGAPI_DriverConnect(HDBC hdbc,
 #endif	/* FORCE_PASSWORD_DISPLAY */
 
 	ci = &(conn->connInfo);
-	strncpy(ci->connect_string_in, connStrIn, MAX_CONNECT_STRING - 1);
-	ci->connect_string_in[MAX_CONNECT_STRING - 1] = '\0'; // for safety
 
 	/* First parse the connect string and get the name of DSN or Driver */
 	if (!dconn_get_DSN_or_Driver(connStrIn, ci))
