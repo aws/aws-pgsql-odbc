@@ -294,12 +294,12 @@ ConfigDlgProc(HWND hdlg,
 			SetWindowLongPtr(hdlg, DWLP_USER, lParam);
 			CenterDialog(hdlg); /* Center dialog */
 
-			/* Initialize dialog fields */
-			SetDlgStuff(hdlg, ci);
-
 			/* Save drivername */
 			if (!(lpsetupdlg->ci.drivername[0]))
 				STRCPY_FIXED(lpsetupdlg->ci.drivername, lpsetupdlg->lpszDrvr);
+
+			/* Initialize dialog fields */
+			SetDlgStuff(hdlg, ci);
 
 			if (lpsetupdlg->fNewDSN || !ci->dsn[0])
 				ShowWindow(GetDlgItem(hdlg, IDC_MANAGEDSN), SW_HIDE);
