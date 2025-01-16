@@ -1223,9 +1223,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 
 	int host_port = atoi(ci->port);
 	char connect_string_encoded[MAX_CONNECT_STRING];
-	ci->limitless_enabled = 0; // the generated connect string must have limitless disabled
 	makeConnectString(connect_string_encoded, ci, MAX_CONNECT_STRING);
-	ci->limitless_enabled = 1;
 	MYLOG(0, "LIMITLESS GENERATED CONNECT STRING: %s\n", connect_string_encoded);
 
 #ifdef UNICODE_SUPPORT
