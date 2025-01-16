@@ -393,7 +393,7 @@ CC_Destructor(ConnectionClass *self)
 	}
 	MYLOG(0, "after free statement holders\n");
 
-	if (self->connInfo.enable_limitless) {
+	if (self->connInfo.limitless_enabled) {
 		StopLimitlessMonitorService(self->connInfo.limitless_service_id);
 	}
 
@@ -1211,9 +1211,9 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 }
 
 void GetLimitlessServer(ConnInfo *ci) {
-	MYLOG(0, "entering...enable_limitless=%d\n", ci->enable_limitless);
+	MYLOG(0, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
 
-	if (!ci->enable_limitless) {
+	if (!ci->limitless_enabled) {
 		return;
 	}
 
@@ -1223,9 +1223,9 @@ void GetLimitlessServer(ConnInfo *ci) {
 
 	int host_port = atoi(ci->port);
 	char connect_string_encoded[MAX_CONNECT_STRING];
-	ci->enable_limitless = 0; // the generated connect string must have limitless disabled
+	ci->limitless_enabled = 0; // the generated connect string must have limitless disabled
 	makeConnectString(connect_string_encoded, ci, MAX_CONNECT_STRING);
-	ci->enable_limitless = 1;
+	ci->limitless_enabled = 1;
 	MYLOG(0, "LIMITLESS GENERATED CONNECT STRING: %s\n", connect_string_encoded);
 
 #ifdef UNICODE_SUPPORT

@@ -323,9 +323,9 @@ getDriversDefaultsOfCi(const ConnInfo *ci, GLOBAL_VALUES *glbv)
 }
 
 static void limitless_optionsDlgEnable(HWND hdlg, const ConnInfo *ci) {
-	EnableWindow(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), ci->enable_limitless > 0);
-	EnableWindow(GetDlgItem(hdlg, IDC_LIMITLESS_MONITOR_INTERVAL_MS), ci->enable_limitless > 0);
-	EnableWindow(GetDlgItem(hdlg, IDC_LIMITLESS_SERVICE_ID), ci->enable_limitless > 0);
+	EnableWindow(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), ci->limitless_enabled > 0);
+	EnableWindow(GetDlgItem(hdlg, IDC_LIMITLESS_MONITOR_INTERVAL_MS), ci->limitless_enabled > 0);
+	EnableWindow(GetDlgItem(hdlg, IDC_LIMITLESS_SERVICE_ID), ci->limitless_enabled > 0);
 }
 
 static int
@@ -442,7 +442,7 @@ limitless_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
 			return 0;
 	}
 
-	CheckDlgButton(hdlg, IDC_ENABLE_LIMITLESS, ci->enable_limitless > 0);
+	CheckDlgButton(hdlg, IDC_ENABLE_LIMITLESS, ci->limitless_enabled > 0);
 	SetDlgItemInt(hdlg, IDC_LIMITLESS_MONITOR_INTERVAL_MS, ci->limitless_monitor_interval_ms, FALSE);
 	SetDlgItemText(hdlg, IDC_LIMITLESS_SERVICE_ID, ci->limitless_service_id);
 
@@ -517,7 +517,7 @@ MYLOG(3, "entering\n");
 static int
 limitless_options_update(HWND hdlg, ConnInfo *ci)
 {
-	ci->enable_limitless = IsDlgButtonChecked(hdlg, IDC_ENABLE_LIMITLESS);
+	ci->limitless_enabled = IsDlgButtonChecked(hdlg, IDC_ENABLE_LIMITLESS);
 	GetDlgItemText(hdlg, IDC_LIMITLESS_MODE, ci->limitless_mode, sizeof(ci->limitless_mode));
 	ci->limitless_monitor_interval_ms = GetDlgItemInt(hdlg, IDC_LIMITLESS_MONITOR_INTERVAL_MS, NULL, FALSE);
 	GetDlgItemText(hdlg, IDC_LIMITLESS_SERVICE_ID, ci->limitless_service_id, sizeof(ci->limitless_service_id));

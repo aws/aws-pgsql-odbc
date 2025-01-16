@@ -50,7 +50,7 @@ class ConnectionString {
                          m_read_timeout(-1), m_write_timeout(-1), m_auth_mode(""), m_auth_region(""), m_auth_host(""),
                          m_auth_port(-1), m_auth_expiration(-1), m_secret_id(""),
                          m_ssl_mode(""),
-                         m_enable_limitless(false), m_limitless_mode(""), m_limitless_monitor_interval_ms(-1), m_limitless_service_id(""),
+                         m_limitless_enabled(false), m_limitless_mode(""), m_limitless_monitor_interval_ms(-1), m_limitless_service_id(""),
 
                          is_set_uid(false), is_set_pwd(false), is_set_db(false), is_set_log_query(false),
                          is_set_failover_mode(false),
@@ -61,7 +61,7 @@ class ConnectionString {
                          is_set_read_timeout(false), is_set_write_timeout(false), is_set_auth_mode(false), is_set_auth_region(false),
                          is_set_auth_host(false), is_set_auth_port(false), is_set_auth_expiration(false), is_set_secret_id(false),
                          is_set_ssl_mode(false),
-                         is_set_enable_limitless(false), is_set_limitless_mode(false), is_set_limitless_monitor_interval_ms(false), is_set_limitless_service_id(false)
+                         is_set_limitless_enabled(false), is_set_limitless_mode(false), is_set_limitless_monitor_interval_ms(false), is_set_limitless_service_id(false)
         {};
 
     std::string get_connection_string() const {
@@ -147,8 +147,8 @@ class ConnectionString {
       if (is_set_ssl_mode) {
         length += sprintf(conn_in + length, "SSLmode=%s;", m_ssl_mode.c_str());
       }
-      if (is_set_enable_limitless) {
-        length += sprintf(conn_in + length, "ENABLELIMITLESS=%d;", m_enable_limitless);
+      if (is_set_limitless_enabled) {
+        length += sprintf(conn_in + length, "LIMITLESSENABLED=%d;", m_limitless_enabled);
       }
       if (is_set_limitless_mode) {
         length += sprintf(conn_in + length, "LIMITLESSMODE=%s;", m_limitless_mode.c_str());
@@ -180,7 +180,7 @@ class ConnectionString {
     std::string m_auth_mode, m_auth_region, m_auth_host, m_secret_id;
     int m_auth_port, m_auth_expiration;
     std::string m_ssl_mode;
-    bool m_enable_limitless;
+    bool m_limitless_enabled;
     std::string m_limitless_mode;
     int m_limitless_monitor_interval_ms;
     std::string m_limitless_service_id;
@@ -196,7 +196,7 @@ class ConnectionString {
     bool is_set_read_timeout, is_set_write_timeout;
     bool is_set_auth_mode, is_set_auth_region, is_set_auth_host, is_set_auth_port, is_set_auth_expiration, is_set_secret_id;
     bool is_set_ssl_mode;
-    bool is_set_enable_limitless, is_set_limitless_mode, is_set_limitless_monitor_interval_ms, is_set_limitless_service_id;
+    bool is_set_limitless_enabled, is_set_limitless_mode, is_set_limitless_monitor_interval_ms, is_set_limitless_service_id;
 
     void set_dsn(const std::string& dsn) {
       m_dsn = dsn;
@@ -340,9 +340,9 @@ class ConnectionString {
         is_set_ssl_mode = true;
     }
 
-    void set_enable_limitless(const bool& enable_limitless) {
-        m_enable_limitless = enable_limitless;
-        is_set_enable_limitless = true;
+    void set_limitless_enabled(const bool& limitless_enabled) {
+        m_limitless_enabled = limitless_enabled;
+        is_set_limitless_enabled = true;
     }
 
     void set_limitless_mode(const std::string& limitless_mode) {
@@ -512,8 +512,8 @@ class ConnectionStringBuilder {
         return *this;
     }
 
-    ConnectionStringBuilder& withEnableLimitless(const bool& enable_limitless) {
-      connection_string->set_enable_limitless(enable_limitless);
+    ConnectionStringBuilder& withEnableLimitless(const bool& limitless_enabled) {
+      connection_string->set_limitless_enabled(limitless_enabled);
       return *this;
     }
 
