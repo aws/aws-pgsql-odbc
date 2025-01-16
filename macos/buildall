@@ -42,7 +42,7 @@ export ROOT_REPO_PATH=$(cd "$(dirname "$0")/.."; pwd -P)
 # Build the AWS SDK
 echo "Building the AWS SDK"
 cd ${ROOT_REPO_PATH}/libs/aws-rds-odbc
-scripts/build_aws_sdk_macos ${CONFIGURATION}
+scripts/build_aws_sdk_macos Release
 if [ $? -ne 0 ]; then
   echo "AWS SDK build failed"
   exit 1
@@ -50,14 +50,24 @@ fi
 
 # Prep the aws-rds-odbc builds
 echo "Prepping the ansi aws-rds-odbc build"
-cmake -S . -B build_ansi
+if [ "${CONFIGURATION}" == "Debug" ]; then
+  cmake -S . -B build_ansi -DCMAKE_BUILD_TYPE=Debug
+else
+  cmake -S . -B build_ansi
+fi
+
 if [ $? -ne 0 ]; then
   echo "ansi aws-rds-odbc build prep failed"
   exit 1
 fi
 
 echo "Prepping the unicode aws-rds-odbc build"
-cmake -S . -B build_unicode -DUNICODE_BUILD=ON
+if [ "${CONFIGURATION}" == "Debug" ]; then
+  cmake -S . -B build_unicode -DUNICODE_BUILD=ON -DCMAKE_BUILD_TYPE=Debug
+else
+  cmake -S . -B build_unicode -DUNICODE_BUILD=ON
+fi
+
 if [ $? -ne 0 ]; then
   echo "unicode aws-rds-odbc build prep failed"
   exit 1
@@ -65,14 +75,14 @@ fi
 
 # Build aws-rds-odbc
 echo "Building ansi version of aws-rds-odbc"
-cmake --build build_ansi --config ${CONFIGURATION}
+cmake --build build_ansi
 if [ $? -ne 0 ]; then
   echo "ansi aws-rds-odbc build failed"
   exit 1
 fi
 
 echo "Building unicode version of aws-rds-odbc"
-cmake --build build_unicode --config ${CONFIGURATION}
+cmake --build build_unicode
 if [ $? -ne 0 ]; then
   echo "unicode aws-rds-odbc build failed"
   exit 1
@@ -87,7 +97,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-./configure --with-unixodbc=/opt/homebrew/bin/odbc_config --disable-dependency-tracking
+if [ "${CONFIGURATION}" == "Debug" ]; then
+  ./configure --with-unixodbc=/opt/homebrew/bin/odbc_config --disable-dependency-tracking --enable-debug
+else
+  ./configure --with-unixodbc=/opt/homebrew/bin/odbc_config --disable-dependency-tracking
+fi
 if [ $? -ne 0 ]; then
   echo "configure failed"
   exit 1

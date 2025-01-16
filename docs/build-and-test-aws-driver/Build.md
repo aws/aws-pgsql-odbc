@@ -13,6 +13,11 @@
 ### Prerequisites
 1. Download the CMake Windows x64 Installer from https://cmake.org/download/ and install CMake using the installer. When going through the install, ensure that adding CMake to the PATH is selected.
 1. Refer to [Install Microsoft Visual Studio](https://github.com/aws/aws-rds-odbc/blob/main/docs/InstallMicrosoftVisualStudio.md) to install Microsoft Visual Studio.
+1. Add the path to `msbuild.exe` to the Path user environment variable by doing the following inside PowerShell.
+    1. Change to the Visual Studio installation directory.
+       This is usually `C:\Program Files\Microsoft Visual Studio`.
+    1. Run `gci -r -fi msbuild.exe` and note the directory whose path ends with `MSBuild\Current\Bin`.
+    1. Add this directory for `msbuild.exe` to the Path user environment variable.
 1. Add the path to `dumpbin.exe` to the Path user environment variable by doing the following inside PowerShell.
     1. Change to the Visual Studio installation directory.
     This is usually `C:\Program Files\Microsoft Visual Studio`.
@@ -21,7 +26,7 @@
 1. Use the following steps inside PowerShell to install WiX.
    ```PowerShell
    dotnet tool install --global wix
-   wix extension add --global WixToolset.UI.wixext`
+   wix extension add --global WixToolset.UI.wixext
    ```
 1. Download and run the latest 17.x Windows x86-64 installer of PostgreSQL from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads. Accept all of the defaults during the installation. During the installation, make note of the directory used during the installation. This will be needed below.
 1. Run `.\editConfiguration.bat` to open the GUI to edit the PostgreSQL settings.

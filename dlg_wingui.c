@@ -18,6 +18,7 @@
  */
 /* Multibyte support	Eiji Tokuya 2001-03-15 */
 
+#include "resource.h"
 #include "dlg_specific.h"
 #include "misc.h" // strncpy_null
 #include "win_setup.h"
@@ -158,8 +159,12 @@ LRESULT CALLBACK ListBoxProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPar
 void
 SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 {
-	char	buff[MEDIUM_REGISTRY_LEN + 1];
+    char	buff[MEDIUM_REGISTRY_LEN + 1], strbuf[10], titlebuf[80];
 	int	i, dsplevel, selidx, dspcount;
+
+    LoadString(s_hModule, IDS_SETUP, strbuf, sizeof(strbuf));
+    snprintf(titlebuf, sizeof(titlebuf), "%s %s", ci->drivername, strbuf);
+    SetWindowText(hdlg, titlebuf);
 
 	/*
 	 * If driver attribute NOT present, then set the datasource name and

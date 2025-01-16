@@ -785,6 +785,7 @@ STRINGTABLE
 BEGIN
     IDC_LIMITLESS_MODE_LAZY "lazy"
     IDC_LIMITLESS_MODE_IMMEDIATE "immediate"
+    IDS_SETUP               "Setup"
 END
 
 #endif    // English (United States) resources

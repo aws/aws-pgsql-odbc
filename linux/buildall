@@ -42,7 +42,7 @@ export ROOT_REPO_PATH=$(cd "$(dirname "$0")/.."; pwd -P)
 # Build the AWS SDK
 echo "Building the AWS SDK"
 cd ${ROOT_REPO_PATH}/libs/aws-rds-odbc
-./scripts/build_aws_sdk_unix.sh ${CONFIGURATION}
+./scripts/build_aws_sdk_unix.sh Release
 if [ $? -ne 0 ]; then
   echo "AWS SDK build failed"
   exit 1
@@ -50,7 +50,11 @@ fi
 
 # Prep the aws-rds-odbc builds
 echo "Prepping the ansi aws-rds-odbc build"
-cmake -S . -B build_ansi > ./cmake.log 2>&1
+if [ "${CONFIGURATION}" == "Debug" ]; then
+  cmake -S . -B build_ansi -DCMAKE_BUILD_TYPE=Debug > ./cmake.log 2>&1
+else
+  cmake -S . -B build_ansi > ./cmake.log 2>&1
+fi
 if [ $? -ne 0 ]; then
   echo "ansi aws-rds-odbc build prep failed"
   echo "cmake.log:"
@@ -59,7 +63,11 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Prepping the unicode aws-rds-odbc build"
-cmake -S . -B build_unicode -DUNICODE_BUILD=ON > ./cmake.log 2>&1
+if [ "${CONFIGURATION}" == "Debug" ]; then
+  cmake -S . -B build_unicode -DUNICODE_BUILD=ON -DCMAKE_BUILD_TYPE=Debug > ./cmake.log 2>&1
+else
+  cmake -S . -B build_unicode -DUNICODE_BUILD=ON > ./cmake.log 2>&1
+fi
 if [ $? -ne 0 ]; then
   echo "unicode aws-rds-odbc build prep failed"
   echo "cmake.log:"
@@ -69,7 +77,7 @@ fi
 
 # Build aws-rds-odbc
 echo "Building ansi version of aws-rds-odbc"
-cmake --build build_ansi --config ${CONFIGURATION} > ./cmake.log 2>&1
+cmake --build build_ansi > ./cmake.log 2>&1
 if [ $? -ne 0 ]; then
   echo "ansi aws-rds-odbc build failed"
   echo "cmake.log:"
@@ -78,7 +86,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Building unicode version of aws-rds-odbc"
-cmake --build build_unicode --config ${CONFIGURATION} > ./cmake.log 2>&1
+cmake --build build_unicode > ./cmake.log 2>&1
 if [ $? -ne 0 ]; then
   echo "unicode aws-rds-odbc build failed"
   echo "cmake.log:"
@@ -95,7 +103,11 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-./configure
+if [ "${CONFIGURATION}" == "Debug" ]; then
+  ./configure --enable-debug
+else
+  ./configure
+fi
 if [ $? -ne 0 ]; then
   echo "configure failed"
   exit 1

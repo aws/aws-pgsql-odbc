@@ -1,5 +1,5 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Developer Studio generated include file.
+// Microsoft Visual C++ generated include file.
 // Used by psqlodbc.rc
 //
 #define IDS_BADDSN                      1
@@ -101,7 +101,7 @@
 #define IDC_OPTIONS                     1054
 #define DRV_OR_DSN                      1059
 #define DRV_DEBUG                       1060
-#define DS_OPTIONALERRORS		1061
+#define DS_OPTIONALERRORS               1061
 #define DS_LFCONVERSION                 1062
 #define DS_TRUEISMINUS1                 1063
 #define DS_UPDATABLECURSORS             1064
@@ -155,18 +155,18 @@
 #define IDC_AUTHTYPE                    1115
 #define IDC_APP_ID                      1116
 #define IDC_SECRET_ID                   1117
-
-#define DLG_OPTIONS_LIMITLESS               5000
-#define IDC_LIMITLESS_SETTINGS              5001
-#define IDC_ENABLE_LIMITLESS                5002
-#define IDC_LIMITLESS_MODE                  5003
-#define IDC_LIMITLESS_MONITOR_INTERVAL_MS   5004
-#define IDC_LIMITLESS_MODE_LAZY             5005
-#define IDC_LIMITLESS_MODE_IMMEDIATE        5006
-#define IDC_LIMITLESS_SERVICE_ID            5007
+#define DLG_OPTIONS_LIMITLESS           5000
+#define IDC_LIMITLESS_SETTINGS          5001
+#define IDC_ENABLE_LIMITLESS            5002
+#define IDC_LIMITLESS_MODE              5003
+#define IDC_LIMITLESS_MONITOR_INTERVAL_MS 5004
+#define IDC_LIMITLESS_MODE_LAZY         5005
+#define IDC_LIMITLESS_MODE_IMMEDIATE    5006
+#define IDC_LIMITLESS_SERVICE_ID        5007
+#define IDS_SETUP                       5008
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        109

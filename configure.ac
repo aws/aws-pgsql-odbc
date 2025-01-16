@@ -23,6 +23,27 @@ AC_DEFUN([AC_FULL_PATH], [
 AC_PROG_CC
 AC_PROG_CXX
 
+#
+# Add a debug option (no value required, enabled if present)
+#
+AC_ARG_ENABLE([debug],
+    [AS_HELP_STRING([--enable-debug], [enable debug mode (default is off)])],
+    [enable_debug=true],  # If --enable-debug is present, set to true
+    [enable_debug=false]  # If --enable-debug is absent, set to false
+)
+
+# Set CFLAGS and CXXFLAGS based on the debug option
+if test "$enable_debug" = "true"; then
+    CFLAGS="-g -O0 -fno-inline"
+    CXXFLAGS="-g -O0 -fno-inline"
+    AC_DEFINE([DEBUG], [1], [Enable debugging])
+fi
+
+# Output debugging status
+AM_CONDITIONAL([DEBUG_MODE], [test "$enable_debug" = "true"])
+AC_MSG_CHECKING([whether to enable debugging])
+AC_MSG_RESULT([$enable_debug])
+
 AM_CONDITIONAL([GCC], [test -n "$GCC"])
 
 # C++ language level
@@ -359,9 +380,6 @@ if test "$enable_pthreads" = yes; then
                                             [Define if you have PTHREAD_MUTEX_RECURSIVE_NP])])])
   fi
 fi
-
-# 8. Libltdl	This release doesn't need libltdl
-# AC_CHECK_LIB(ltdl, lt_dlopen)
 
 AC_MSG_NOTICE(["AWS_RDS_ODBC_PATH = ${AWS_RDS_ODBC_PATH}"])
 AC_MSG_NOTICE(["CFLAGS = ${CFLAGS}"])
