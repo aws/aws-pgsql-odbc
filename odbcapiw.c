@@ -167,12 +167,6 @@ SQLDriverConnectW(HDBC hdbc,
 							  (SQLCHAR *) szOut, maxlen,
 							  pCSO, fDriverCompletion);
 
-    if (SQL_SUCCESS == ret)
-    {
-        bool is_limitless = CheckLimitlessCluster(hdbc);
-    	MYLOG(0, "Is limitless instance? %s\n", is_limitless ? "YES" : "NO");
-    }
-
 	if (ret != SQL_ERROR && NULL != pCSO)
 	{
 		SQLLEN outlen = olen;
