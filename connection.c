@@ -34,6 +34,10 @@
 #include <arpa/inet.h>
 #endif
 
+#ifdef UNICODE_SUPPORT
+#include <wchar.h> // for wcslen
+#endif
+
 #include "environ.h"
 #include "statement.h"
 #include "qresult.h"
@@ -1222,13 +1226,62 @@ void GetLimitlessServer(ConnInfo *ci) {
 	db_instance.server_size = MEDIUM_REGISTRY_LEN;
 
 	int host_port = atoi(ci->port);
+	ci->limitless_enabled = 0;
 	char connect_string_encoded[MAX_CONNECT_STRING];
 	makeConnectString(connect_string_encoded, ci, MAX_CONNECT_STRING);
-	MYLOG(0, "LIMITLESS GENERATED CONNECT STRING: %s\n", connect_string_encoded);
-
+	ci->limitless_enabled = 1;
 #ifdef UNICODE_SUPPORT
 	wchar_t connStr[MAX_CONNECT_STRING];
 	utf8_to_ucs2(connect_string_encoded, sizeof(connect_string_encoded), connStr, sizeof(connStr));
+#endif
+
+	// double check that the server supports limitless; if not, disable monitoring for this connection
+	SQLHENV henv;
+	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
+    if (!SQL_SUCCEEDED(rc)) {
+		MYLOG(0, "error in SQLAllocHandle environment - disabling limitless\n");
+		ci->limitless_enabled = 0;
+		return;
+	}
+	SQLHDBC hdbc;
+    rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
+    if (!SQL_SUCCEEDED(rc)) {
+		MYLOG(0, "error in SQLAllocHandle connection - disabling limitless\n");
+		SQLFreeHandle(SQL_HANDLE_ENV, henv);
+		ci->limitless_enabled = 0;
+		return;
+	}
+
+#ifdef UNICODE_SUPPORT
+	SQLSMALLINT connect_string_len = wcslen(connStr), out_len;
+	rc = SQLDriverConnectW(hdbc, NULL, connStr, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
+#else
+	SQLSMALLINT connect_string_len = strlen(connect_string_encoded), out_len;
+	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
+#endif
+    if (!SQL_SUCCEEDED(rc)) {
+		MYLOG(0, "error with connecting - disabling limitless\n");
+		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+		SQLFreeHandle(SQL_HANDLE_ENV, henv);
+		ci->limitless_enabled = 0;
+		return;
+	}
+
+	if (!CheckLimitlessCluster(hdbc)) {
+		MYLOG(0, "provided endpoint is not a limitless cluster - disabling limitless\n");
+		SQLDisconnect(hdbc);
+		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+		SQLFreeHandle(SQL_HANDLE_ENV, henv);
+		ci->limitless_enabled = 0;
+		return;
+	}
+
+	// disconnect from this preliminary connection
+	SQLDisconnect(hdbc);
+	SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+	SQLFreeHandle(SQL_HANDLE_ENV, henv);
+
+#ifdef UNICODE_SUPPORT
 	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, &db_instance);
 #else
 	bool db_instance_ready = GetLimitlessInstance(connect_string_encoded, host_port, ci->limitless_service_id, &db_instance);
