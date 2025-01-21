@@ -10,7 +10,7 @@ ACLOCAL_AMFLAGS = -I config
 
 pkglib_LTLIBRARIES = psqlodbcw.la psqlodbca.la
 
-psqlodbcw_la_CFLAGS = -DUNICODE_SUPPORT # -DUNICODE_SUPPORTXX
+psqlodbcw_la_CPPFLAGS = -DUNICODE_SUPPORT -DSQL_WCHART_CONVERT
 
 if WITH_AWSRDSODBC
 # -module MUST be part of _LDFLAGS to prevent libtool reporting

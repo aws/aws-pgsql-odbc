@@ -688,7 +688,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
-					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
+					/opt/homebrew/opt/unixodbc/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
 					"$(SRCROOT)/libs/aws-rds-odbc/src",
@@ -702,8 +702,8 @@
 				);
 				OBJROOT = "$(SRCROOT)/xcode_build_unicode";
 				OTHER_LDFLAGS = (
-					"-lpq",
 					"-lodbcinst",
+					"-lpq",
 					"-lcurl",
 					"-lz",
 					"-liconv",
@@ -733,7 +733,7 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
 				HEADER_SEARCH_PATHS = (
-					/opt/homebrew/Cellar/unixodbc/2.3.12/include,
+					/opt/homebrew/opt/unixodbc/include,
 					/Applications/Postgres.app/Contents/Versions/17/include,
 					/Applications/Postgres.app/Contents/Versions/17/include/postgresql/internal,
 					"$(SRCROOT)/libs/aws-rds-odbc/src",
@@ -747,8 +747,8 @@
 				);
 				OBJROOT = "$(SRCROOT)/xcode_build_unicode";
 				OTHER_LDFLAGS = (
-					"-lpq",
 					"-lodbcinst",
+					"-lpq",
 					"-lcurl",
 					"-lz",
 					"-liconv",
@@ -789,8 +789,8 @@
 				);
 				OBJROOT = "$(SRCROOT)/xcode_build_ansi";
 				OTHER_LDFLAGS = (
-					"-lpq",
 					"-lodbcinst",
+					"-lpq",
 					"-lcurl",
 					"-lz",
 					"-liconv",
@@ -831,8 +831,8 @@
 				);
 				OBJROOT = "$(SRCROOT)/xcode_build_ansi";
 				OTHER_LDFLAGS = (
-					"-lpq",
 					"-lodbcinst",
+					"-lpq",
 					"-lcurl",
 					"-lz",
 					"-liconv",

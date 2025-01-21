@@ -216,12 +216,6 @@ SQLDriverConnect(HDBC hdbc,
 	ret = PGAPI_DriverConnect(hdbc, hwnd, szConnStrIn, cbConnStrIn,
 		szConnStrOut, cbConnStrOutMax, pcbConnStrOut, fDriverCompletion);
 
-    if (SQL_SUCCESS == ret)
-    {
-        bool is_limitless = CheckLimitlessCluster(hdbc);
-        MYLOG(0, "Is limitless instance? %s\n", is_limitless ? "YES" : "NO");
-    }
-
 	LEAVE_CONN_CS(conn);
 	return ret;
 }

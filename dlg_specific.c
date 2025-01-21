@@ -314,7 +314,7 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;AUTHTYPE=%s;" \
 		"UID=%s;PWD=%s;REGION=%s;TOKENEXPIRATION=%s;IDPENDPOINT=%s;IDPPORT=%s;IDPUSERNAME=%s;" \
 		"IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s;" \
-		"APPID=%s;SECRETID=%s;ENABLELIMITLESS=%d;LIMITLESSMODE=%s;LIMITLESSMONITORINTERVALMS=%u;" \
+		"APPID=%s;SECRETID=%s;LIMITLESSENABLED=%d;LIMITLESSMODE=%s;LIMITLESSMONITORINTERVALMS=%u;" \
 		"LIMITLESSSERVICEID=%s;",
 		got_dsn ? "DSN" : "DRIVER",
 		got_dsn ? ci->dsn : ci->drivername,
@@ -337,7 +337,7 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 		ci->federation_cfg.relaying_party_id,
 		ci->federation_cfg.app_id,
 		ci->secret_id,
-		ci->enable_limitless,
+		ci->limitless_enabled,
 		ci->limitless_mode,
 		ci->limitless_monitor_interval_ms,
 		ci->limitless_service_id);
@@ -692,7 +692,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 	else if (stricmp(attribute, INI_SECRET_ID) == 0)
 		STRCPY_FIXED(ci->secret_id, value);
 	else if (stricmp(attribute, INI_LIMITLESS_ENABLED) == 0)
-		ci->enable_limitless = atoi(value);
+		ci->limitless_enabled = atoi(value);
 	else if (stricmp(attribute, INI_LIMITLESS_MODE) == 0)
 		STRCPY_FIXED(ci->limitless_mode, value);
 	else if (stricmp(attribute, INI_LIMITLESS_MONITOR_INTERVAL_MS) == 0)
@@ -894,7 +894,7 @@ getCiDefaults(ConnInfo *ci)
 	STRCPY_FIXED(ci->federation_cfg.relaying_party_id, DEFAULT_RELAYING_PARTY_ID);
 
 	ci->secret_id[0] = '\0';
-	ci->enable_limitless = 0;
+	ci->limitless_enabled = 0;
 	STRCPY_FIXED(ci->limitless_mode, DEFAULT_LIMITLESS_MODE);
 	ci->limitless_monitor_interval_ms = DEFAULT_LIMITLESS_MONITOR_INTERVAL_MS;
 	ci->limitless_service_id[0] = '\0';
@@ -1097,7 +1097,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 		STRCPY_FIXED(ci->secret_id, temp);
 
 	if (SQLGetPrivateProfileString(DSN, INI_LIMITLESS_ENABLED, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
-		ci->enable_limitless = atoi(temp);
+		ci->limitless_enabled = atoi(temp);
 
 	if (SQLGetPrivateProfileString(DSN, INI_LIMITLESS_MODE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->limitless_mode, temp);
@@ -1254,7 +1254,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 		"authtype='%s',user='%s',passwd='%s',region='%s',token_expiration='%s',idp_endpoint='%s'," \
 		"idp_port='%s',idp_username='%s',idp_password='%s',idp_arn='%s',idp_role_arn=%s," \
 		"socket_timeout='%s',conn_timeout='%s',relaying_party_id='%s',app_id='%s',secret_id='%s'," \
-		"enable_limitless=%d,limitless_mode='%s',limitless_monitor_interval_ms=%u,limitless_service_id='%s'\n",
+		"limitless_enabled=%d,limitless_mode='%s',limitless_monitor_interval_ms=%u,limitless_service_id='%s'\n",
 		DSN,
 		ci->server,
 		ci->port,
@@ -1275,7 +1275,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 		ci->federation_cfg.relaying_party_id,
 		ci->federation_cfg.app_id,
 		ci->secret_id,
-		ci->enable_limitless,
+		ci->limitless_enabled,
 		ci->limitless_mode,
 		ci->limitless_monitor_interval_ms,
 		ci->limitless_service_id);
@@ -1491,7 +1491,7 @@ writeDSNinfo(const ConnInfo *ci)
 								 ci->secret_id,
 								 ODBC_INI);
 
-	ITOA_FIXED(temp, ci->enable_limitless);
+	ITOA_FIXED(temp, ci->limitless_enabled);
 	SQLWritePrivateProfileString(DSN,
 								 INI_LIMITLESS_ENABLED,
 								 temp,
@@ -2130,7 +2130,7 @@ CC_copy_conninfo(ConnInfo *ci, const ConnInfo *sci)
 	CORR_STRCPY(token_expiration);
 	CORR_STRCPY(secret_id);
 
-	CORR_VALCPY(enable_limitless);
+	CORR_VALCPY(limitless_enabled);
 	CORR_STRCPY(limitless_mode);
 	CORR_VALCPY(limitless_monitor_interval_ms);
 	CORR_STRCPY(limitless_service_id);
