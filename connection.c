@@ -1267,8 +1267,10 @@ void GetLimitlessServer(ConnInfo *ci) {
 		return;
 	}
 
-	if (!CheckLimitlessCluster(hdbc)) {
-		MYLOG(0, "provided endpoint is not a limitless cluster - disabling limitless\n");
+    if (CheckLimitlessCluster(hdbc)) {
+        MYLOG(0, "provided endpoint is a limitless cluster - enabling limitless\n");
+    } else {
+        MYLOG(0, "provided endpoint is not a limitless cluster - disabling limitless\n");
 		SQLDisconnect(hdbc);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
