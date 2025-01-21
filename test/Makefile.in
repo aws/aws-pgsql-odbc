@@ -10,6 +10,8 @@ OS_TYPE = @OS_TYPE@
 
 ifeq ($(OS_TYPE), linux)
 	include $(origdir)/tests-linux
+else ifeq ($(OS_TYPE), macos)
+	include $(origdir)/tests-macos
 else
 	include $(origdir)/tests
 endif
@@ -21,7 +23,7 @@ TESTNAMES = $(patsubst exe/%-test,%, $(TESTBINS))
 # Set by autoconf
 LDFLAGS = @LDFLAGS@
 CFLAGS = @CFLAGS@
-CPPFLAGS = @CPPFLAGS@ -I..	# config.h
+CPPFLAGS = @CPPFLAGS@ -DOS_TYPE_@OS_TYPE@ -I..	# config.h
 ODBC_CONFIG = @ODBC_CONFIG@
 PROVE = @PROVE@
 

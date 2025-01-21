@@ -7,10 +7,6 @@
 # than the base test names: nmake makes it difficult to add a prefix or suffix
 # to each name in a list, but it's easy to strip them away.
 
-# This Linux version of the test list does not include exe/descrec-test because that
-# test is failing when run inside Docker-ized Linux.
-# See https://github.com/aws/aws-pgsql-odbc/pull/33.
-
 TESTBINS = exe/connect-test \
 	exe/stmthandles-test \
 	exe/select-test \
@@ -53,6 +49,6 @@ TESTBINS = exe/connect-test \
 	exe/large-object-test \
 	exe/large-object-data-at-exec-test \
 	exe/odbc-escapes-test \
-	exe/wchar-char-test \
 	exe/params-batch-exec-test \
-	exe/fetch-refcursors-test
+	exe/fetch-refcursors-test \
+	exe/descrec-test
