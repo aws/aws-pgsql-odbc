@@ -5,6 +5,7 @@
 - [Unit Tests](#unit-tests)
     - [Windows](#windows)
     - [macOS](#macos)
+    - [Amazon Linux using Graviton](#amazon-linux-using-graviton)
 - [Integration Tests](#integration-tests)
     - [Prerequisites](#prerequisites-1)
     - [Community Tests](#community-tests)
@@ -95,6 +96,16 @@ fetch-refcursors ........... ok
 descrec .................... ok
 All tests successful.
 ```
+
+### Amazon Linux using Graviton
+
+1. Inside a bash shell, run the following, replacing `<aws-pgsql-odbc repo dir>` with the directory
+   where the [`aws-pgsql-odbc` GitHub repo](https://github.com/aws/aws-pgsql-odbc) is cloned.
+   ```bash
+   export AWS_PGSQL_ODBC_DIR=<aws-pgsql-odbc repo dir>
+   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib:${AWS_PGSQL_ODBC_DIR}/libs/aws-rds-odbc/build_ansi:${AWS_PGSQL_ODBC_DIR}/libs/aws-rds-odbc/aws_sdk/install/lib
+   ```
+1. Follow the steps under [macOS](#macOS) above.
 
 ## Integration Tests
 

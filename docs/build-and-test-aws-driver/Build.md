@@ -7,6 +7,9 @@
 - [macOS](#macos)
     - [Prerequisites](#prerequisites-1)
     - [Build the driver](#build-the-driver-1)
+- [Amazon Linux using Graviton](#amazon-linux-using-graviton)
+    - [Prerequisites](#prerequisites-2)
+    - [Build the driver](#build-the-driver-2)
 
 ## Windows
 
@@ -67,6 +70,42 @@ Inside PowerShell, run `.\windows\buildall.ps1`. This builds the following.
 
 ### Build the driver
 Inside a terminal, run `./macos/buildall Release`. This builds the following.
-- AWS SDK for C++
-- AWS RDS Library for ODBC Drivers(https://github.com/aws/aws-rds-odbc)
-- The driver
+- AWS SDK for C++.
+- AWS RDS Library for ODBC Drivers(https://github.com/aws/aws-rds-odbc).
+- Inside the `.libs` subdirectory, the ANSI driver `psqlodbca.so` and the Unicode driver `psqlodbcw.so`. 
+
+## Amazon Linux using Graviton
+### Prerequisites
+1. Run the following commands to install the required development tools and libraries.
+   ```bash
+   sudo dnf update -y
+   sudo dnf groupinstall "Development Tools" -y
+   sudo dnf install -y \
+     autoconf \
+     automake \
+     cmake \
+     gcc-c++ \
+     git \
+     libcurl-devel \
+     libpq-devel \
+     openssl-devel \
+     unixODBC \
+     unixODBC-devel
+   ```
+1. Configure git to connect to your GitHub account and clone this repository
+1. Run the following to download, build and install [iODBC Driver Manager](https://github.com/openlink/iODBC).
+   ```bash
+   wget https://github.com/openlink/iODBC/releases/download/v3.52.16/libiodbc-3.52.16.tar.gz
+   tar xzf libiodbc-3.52.16.tar.gz
+   cd libiodbc-3.52.16
+   ./configure
+   make
+   sudo make install
+   ```
+   
+### Build the driver
+Inside a bash shell, run `./linux/buildall Release`. This builds the following.
+- AWS SDK for C++.
+- AWS RDS Library for ODBC Drivers(https://github.com/aws/aws-rds-odbc).
+- Inside the `.libs` subdirectory, the ANSI driver `psqlodbca.so` and the Unicode driver `psqlodbcw.so`.
+
