@@ -128,7 +128,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\..\libs\aws-rds-odbc\build_ansi\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(IntDir)common.obj;odbc32.lib;odbccp32.lib;aws-rds-odbc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(IntDir)common.obj;odbc32.lib;odbccp32.lib;aws-rds-odbc-a.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
@@ -168,7 +168,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(ADD_LIBPATH);$(OutDir);%(AdditionalLibraryDirectories);$(ProjectDir)\..\libs\aws-rds-odbc\build_ansi\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(IntDir)common.obj;odbc32.lib;odbccp32.lib;aws-rds-odbc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(IntDir)common.obj;odbc32.lib;odbccp32.lib;aws-rds-odbc-a.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>

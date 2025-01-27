@@ -16,8 +16,8 @@ if WITH_AWSRDSODBC
 # -module MUST be part of _LDFLAGS to prevent libtool reporting
 # the following error: libtool library 'psqlodbcw.la' must begin with 'lib'
 # See https://www.gnu.org/software/automake/manual/html_node/Libtool-Modules.html.
-psqlodbcw_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_unicode -laws-rds-odbc
-psqlodbca_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_ansi -laws-rds-odbc
+psqlodbcw_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_unicode -laws-rds-odbc-w
+psqlodbca_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_ansi -laws-rds-odbc-a
 else
 psqlodbcw_la_LDFLAGS = -module
 psqlodbca_la_LDFLAGS = -module
