@@ -87,6 +87,7 @@ add_executable(
   # Test Suites
   connection_string_builder_test.cc
   iam_authentication_integration_test.cc
+  limitless_integration_test.cc
   secrets_manager_integration_test.cc
 )
 

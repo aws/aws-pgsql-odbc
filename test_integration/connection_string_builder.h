@@ -512,7 +512,7 @@ class ConnectionStringBuilder {
         return *this;
     }
 
-    ConnectionStringBuilder& withEnableLimitless(const bool& limitless_enabled) {
+    ConnectionStringBuilder& withLimitlessEnabled(const bool& limitless_enabled) {
       connection_string->set_limitless_enabled(limitless_enabled);
       return *this;
     }
