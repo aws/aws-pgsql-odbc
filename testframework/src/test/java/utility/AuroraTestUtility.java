@@ -314,6 +314,7 @@ public class AuroraTestUtility {
             .dbShardGroupIdentifier(shardIdentifier)
             .minACU(MIN_ACU)
             .maxACU(MAX_ACU)
+            .publiclyAccessible(true)
             .build();
     rdsClient.createDBShardGroup(shardGroupRequest);
 
@@ -371,6 +372,9 @@ public class AuroraTestUtility {
       ip = reader.readLine();
     } catch (Exception e) {
       throw new UnknownHostException("Unable to get IP");
+    }
+    if (StringUtils.isNullOrEmpty(ip)) {
+      throw new Error("Unable to get IP");
     }
     return ip;
   }

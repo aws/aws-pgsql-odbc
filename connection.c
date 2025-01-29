@@ -1251,12 +1251,13 @@ void GetLimitlessServer(ConnInfo *ci) {
 		ci->limitless_enabled = 0;
 		return;
 	}
+	SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
 	SQLHDBC hdbc;
     rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
     if (!SQL_SUCCEEDED(rc)) {
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed - disabling limitless\n");
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
+		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		return;
 	}
 
@@ -1269,9 +1270,9 @@ void GetLimitlessServer(ConnInfo *ci) {
 #endif
     if (!SQL_SUCCEEDED(rc)) {
 		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed - disabling limitless\n");
+		ci->limitless_enabled = 0;
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		ci->limitless_enabled = 0;
 		return;
 	}
 

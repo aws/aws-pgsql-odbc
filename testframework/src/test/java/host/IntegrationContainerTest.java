@@ -79,6 +79,7 @@ public class IntegrationContainerTest {
 
   private static final String DEFAULT_LIMITLESS_PREFIX = "postgres-odbc-limitless-";
   private static final String DEFAULT_APG_PREFIX = "postgres-odbc-apg-";
+  private static final String DEFAULT_LIMITLESS_DATABASE = "postgres_limitless";
 
   private static final ContainerHelper containerHelper = new ContainerHelper();
   private static final AuroraTestUtility auroraUtil = new AuroraTestUtility(REGION, ENDPOINT);
@@ -161,10 +162,7 @@ public class IntegrationContainerTest {
 
     testConfiguration = TestConfigurationEngine.LIMITLESS;
     setupLimitlessIntegrationTests(NETWORK);
-
-    // TODO: Update or replace with integration executable when integration
-    //       tests are added
-    // containerHelper.runExecutable(testContainer, "build/integration/bin", "integration");
+    containerHelper.runExecutable(testContainer, "build/bin", "integration");
   }
 
   @Test
@@ -187,7 +185,6 @@ public class IntegrationContainerTest {
         .withEnv("TEST_DSN", TEST_DSN)
         .withEnv("TEST_USERNAME", TEST_USERNAME)
         .withEnv("TEST_PASSWORD", TEST_PASSWORD)
-        .withEnv("TEST_DATABASE", TEST_DATABASE)
         .withEnv("POSTGRES_PORT", Integer.toString(POSTGRES_PORT))
         .withEnv("ODBCINI", ODBCINI_LOCATION)
         .withEnv("ODBCINST", ODBCINSTINI_LOCATION)
@@ -290,6 +287,21 @@ public class IntegrationContainerTest {
     }
   }
 
+  private void buildLimitlessTests() {
+    try {
+      System.out.println("cmake -S test_integration -B build -DTEST_LIMITLESS=TRUE");
+      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build", "-DTEST_LIMITLESS=TRUE");
+      System.out.println(result.getStdout());
+
+      System.out.println("cmake --build build");
+      result = testContainer.execInContainer("cmake", "--build", "build");
+
+      System.out.println(result.getStdout());
+    } catch (Exception e) {
+      fail("Test container failed during driver/test building process.");
+    }
+  }
+
   private void buildIntegrationTests() {
     try {
       System.out.println("cmake -S test_integration -B build");
@@ -338,20 +350,27 @@ public class IntegrationContainerTest {
         dbShardGroupIdentifier = DEFAULT_LIMITLESS_PREFIX + "shard-" + System.nanoTime();
       }
 
-      AuroraClusterInfo clusterInfo =
-          auroraUtil.createLimitlessCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, dbShardGroupIdentifier);
+      AuroraClusterInfo clusterInfo;
 
-      // Comment out getting public IP to not add & remove from EC2 whitelist
-      runnerIP = auroraUtil.getPublicIPAddress();
-      auroraUtil.ec2AuthorizeIP(runnerIP);
+      if (REUSE_CLUSTER && !dbClusterIdentifier.isEmpty()) {
+        clusterInfo = auroraUtil.getClusterInfo(dbClusterIdentifier);
+      } else {
+        clusterInfo =
+                auroraUtil.createLimitlessCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, dbShardGroupIdentifier);
+
+        // Comment out getting public IP to not add & remove from EC2 whitelist
+        runnerIP = auroraUtil.getPublicIPAddress();
+        auroraUtil.ec2AuthorizeIP(runnerIP);
+
+        String secretValue = auroraUtil.createSecretValue(clusterInfo.getClusterEndpoint(), TEST_USERNAME, TEST_PASSWORD);
+        secretsArn = auroraUtil.createSecrets("AWS-PGSQL-ODBC-Tests-" + clusterInfo.getClusterEndpoint(), secretValue);
+      }
 
       dbConnStrSuffix = clusterInfo.getClusterSuffix();
       dbHostCluster = clusterInfo.getClusterEndpoint();
       dbHostClusterRo = clusterInfo.getClusterROEndpoint();
 
       postgresInstances = clusterInfo.getInstances();
-      String secretValue = auroraUtil.createSecretValue(dbHostCluster, TEST_USERNAME, TEST_PASSWORD);
-      secretsArn = auroraUtil.createSecrets("AWS-PGSQL-ODBC-Tests-" + dbHostCluster, secretValue);
 
       proxyContainers = containerHelper.createProxyContainers(network, postgresInstances, PROXIED_DOMAIN_NAME_SUFFIX);
       for (ToxiproxyContainer container : proxyContainers) {
@@ -389,6 +408,7 @@ public class IntegrationContainerTest {
       .withEnv("PROXIED_DOMAIN_NAME_SUFFIX", PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("TEST_SERVER", dbHostCluster)
       .withEnv("TEST_RO_SERVER", dbHostClusterRo)
+      .withEnv("TEST_DATABASE", DEFAULT_LIMITLESS_DATABASE)
       .withEnv("DB_CONN_STR_SUFFIX", "." + dbConnStrSuffix)
       .withEnv("PROXIED_CLUSTER_TEMPLATE", "?." + dbConnStrSuffix + PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("SECRETS_ARN", secretsArn);
@@ -473,6 +493,7 @@ public class IntegrationContainerTest {
       .withEnv("PROXIED_DOMAIN_NAME_SUFFIX", PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("TEST_SERVER", dbHostCluster)
       .withEnv("TEST_RO_SERVER", dbHostClusterRo)
+      .withEnv("TEST_DATABASE", TEST_DATABASE)
       .withEnv("DB_CONN_STR_SUFFIX", "." + dbConnStrSuffix)
       .withEnv("PROXIED_CLUSTER_TEMPLATE", "?." + dbConnStrSuffix + PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("IAM_USER", TEST_IAM_USER)
@@ -514,6 +535,7 @@ public class IntegrationContainerTest {
     setupLimitlessTestContainer(network);
 
     buildDriver();
+    buildLimitlessTests();
   }
 
   private void setupIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
