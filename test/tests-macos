@@ -15,6 +15,7 @@ TESTBINS = exe/connect-test \
 	exe/multistmt-test \
 	exe/getresult-test \
 	exe/colattribute-test \
+	exe/result-conversions-test \
 	exe/prepare-test \
 	exe/premature-test \
 	exe/params-test \
@@ -41,6 +42,7 @@ TESTBINS = exe/connect-test \
 	exe/bulkoperations-test \
 	exe/catalogfunctions-test \
 	exe/bindcol-test \
+	exe/lfconversion-test \
 	exe/cte-test \
 	exe/errors-test \
 	exe/error-rollback-test \

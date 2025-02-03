@@ -54,31 +54,33 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLGetData failed", hstmt);
 	printf("strlen %d, SQLGetData claims %d\n\n", (int) strlen(buf), (int) ccharlen);
 
-	printf("reading to SQLWCHAR buffer...\n");
-	rc = SQLGetData(hstmt, 3, SQL_C_WCHAR, wbuf, sizeof(wbuf), &wcharlen);
-	CHECK_STMT_RESULT(rc, "SQLGetData failed", hstmt);
+	if (!IsAnsi()) {
+		printf("reading to SQLWCHAR buffer...\n");
+		rc = SQLGetData(hstmt, 3, SQL_C_WCHAR, wbuf, sizeof(wbuf), &wcharlen);
+		CHECK_STMT_RESULT(rc, "SQLGetData failed", hstmt);
 
-	/* On some platforms, SQLWCHAR != wchar_t, so we cannot use wcslen here */
-	for (i = 0; i < sizeof(wbuf) && wbuf[i] != 0; i++);
-	printf("len %d chars, SQLGetData claims %d bytes\n\n", i, (int) wcharlen);
+		/* On some platforms, SQLWCHAR != wchar_t, so we cannot use wcslen here */
+		for (i = 0; i < sizeof(wbuf) && wbuf[i] != 0; i++);
+		printf("len %d chars, SQLGetData claims %d bytes\n\n", i, (int) wcharlen);
 
-	printf("reading to SQLWCHAR buffer, with truncation...\n");
-	rc = SQLGetData(hstmt, 4, SQL_C_WCHAR, wbuf, 10, &wcharlen);
-	CHECK_STMT_RESULT(rc, "SQLGetData failed", hstmt);
+		printf("reading to SQLWCHAR buffer, with truncation...\n");
+		rc = SQLGetData(hstmt, 4, SQL_C_WCHAR, wbuf, 10, &wcharlen);
+		CHECK_STMT_RESULT(rc, "SQLGetData failed", hstmt);
 
-	for (i = 0; i < sizeof(wbuf) && wbuf[i] != 0; i++);
-	printf("len %d chars, SQLGetData claims %d bytes\n\n", i, (int) wcharlen);
+		for (i = 0; i < sizeof(wbuf) && wbuf[i] != 0; i++);
+		printf("len %d chars, SQLGetData claims %d bytes\n\n", i, (int) wcharlen);
 
-	/*
-	 * Read into a buffer that's slightly too small, so that it would fit
-	 * if it wasn't for the LF->CR+LF conversion.
-	 */
-	printf("reading to SQLWCHAR buffer, with LF->CR+LF conversion causing truncation...\n");
-	rc = SQLGetData(hstmt, 5, SQL_C_WCHAR, wbuf, 42, &wcharlen);
-	CHECK_STMT_RESULT(rc, "SQLGetData failed", hstmt);
+		/*
+		 * Read into a buffer that's slightly too small, so that it would fit
+		 * if it wasn't for the LF->CR+LF conversion.
+		 */
+		printf("reading to SQLWCHAR buffer, with LF->CR+LF conversion causing truncation...\n");
+		rc = SQLGetData(hstmt, 5, SQL_C_WCHAR, wbuf, 42, &wcharlen);
+		CHECK_STMT_RESULT(rc, "SQLGetData failed", hstmt);
 
-	for (i = 0; i < sizeof(wbuf) && wbuf[i] != 0; i++);
-	printf("len %d chars, SQLGetData claims %d bytes\n\n", i, (int) wcharlen);
+		for (i = 0; i < sizeof(wbuf) && wbuf[i] != 0; i++);
+		printf("len %d chars, SQLGetData claims %d bytes\n\n", i, (int) wcharlen);
+	}
 
 	/*
 	 * Print out the string, but on Unix we have to convert it to UTF-8 first.

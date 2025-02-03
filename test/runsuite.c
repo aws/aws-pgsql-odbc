@@ -239,11 +239,12 @@ rundiff(const char *testname, const char *inputdir)
 	int		outputno, no_spec;
 	char	   *result = NULL;
 	size_t		result_len;
+
 #ifdef	WIN32
 	const char	*expected_dir = "\\expected\\";
 	const char	*result_dir = "results\\";
 #else
-	const char	*expected_dir = "/expected/";
+	const char	*expected_dir = "/expected_ansi/";
 	const char	*result_dir = "results/";
 #endif
 	int		diff_rtn;
