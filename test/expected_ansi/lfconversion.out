@@ -1,0 +1,8 @@
+connected
+reading to char buffer...
+strlen 22, SQLGetData claims 22
+
+reading to char buffer, with truncation...
+strlen 9, SQLGetData claims 22
+
+disconnecting
