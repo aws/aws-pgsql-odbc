@@ -157,7 +157,7 @@ class ConnectionString {
         length += sprintf(conn_in + length, "LIMITLESSMONITORINTERVALMS=%d;", m_limitless_monitor_interval_ms);
       }
       if (is_set_limitless_service_id) {
-        length += sprintf(conn_in + length, "LIMITLESSSERVICEID=%s;", m_limitless_service_id);
+        length += sprintf(conn_in + length, "LIMITLESSSERVICEID=%s;", m_limitless_service_id.c_str());
       }
       snprintf(conn_in + length, sizeof(conn_in) - length, "\0");
 
