@@ -397,10 +397,6 @@ CC_Destructor(ConnectionClass *self)
 	}
 	MYLOG(0, "after free statement holders\n");
 
-	if (self->connInfo.limitless_enabled) {
-		StopLimitlessMonitorService(self->connInfo.limitless_service_id);
-	}
-
 	NULL_THE_NAME(self->schemaIns);
 	NULL_THE_NAME(self->tableIns);
 	CC_conninfo_release(&self->connInfo);
@@ -769,6 +765,11 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 	{
 		free(self->discardp);
 		self->discardp = NULL;
+	}
+
+	// stop/decrease reference count for the limitless monitor service if enabled
+	if (self->connInfo.limitless_enabled) {
+		StopLimitlessMonitorService(self->connInfo.limitless_service_id);
 	}
 
 	LEAVE_CONN_CS(self);
