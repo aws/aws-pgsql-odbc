@@ -168,10 +168,7 @@ public class IntegrationContainerTest {
 
     testConfiguration = TestConfigurationEngine.LIMITLESS;
     setupLimitlessIntegrationTests(NETWORK);
-
-    // TODO: Update or replace with integration executable when integration
-    //       tests are added
-    // containerHelper.runExecutable(testContainer, "build/integration/bin", "integration");
+    containerHelper.runExecutable(testContainer, "build/bin", "integration");
   }
 
   @Test
