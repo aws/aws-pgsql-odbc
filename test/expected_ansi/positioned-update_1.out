@@ -1,0 +1,31 @@
+connected
+Creating test table pos_update_test
+Opening a cursor for update, and fetching 10 rows
+exec cursor_type=1
+1	1
+2	2
+3	3
+4	4
+5	5
+
+Updating result set
+
+Re-fetching the rows in the result set
+NULL	NULL
+105	5
+4	4
+
+Querying the table again
+Result set:
+1	1
+2	2
+3	3
+4	4
+105	5
+7	7
+8	8
+9	9
+10	10
+
+Opening a cursor for update, and fetching 5000 rows
+disconnecting

@@ -1,0 +1,12 @@
+connected
+Result set metadata:
+b: VARCHAR(5) digits: 0, nullable
+Result set:
+2	yes	1
+Result set metadata:
+b: VARCHAR(5) digits: 0, nullable
+Result set:
+1	yeah	1
+2	yes	1
+3	true	1
+disconnecting
