@@ -47,7 +47,7 @@ AC_MSG_RESULT([$enable_debug])
 AM_CONDITIONAL([GCC], [test -n "$GCC"])
 
 # C++ language level
-CXXFLAGS="${CXXFLAGS} -std=c++17"
+CXXFLAGS="${CXXFLAGS} -std=c++20"
 
 # All AC_CHECK_SIZEOF() or AC_CHECK_TYPES() calls were move from 4.
 # unixODBC wants the following to get sane behavior for ODBCINT64
