@@ -54,6 +54,7 @@
 #include "unicode_support.h"
 
 #include <authentication/authentication_provider.h>
+#include <failover/failover_service.h>
 #include <limitless/limitless_monitor_service.h>
 #include <util/rds_logger_service.h>
 
@@ -773,6 +774,10 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 		StopLimitlessMonitorService(self->connInfo.limitless_service_id);
 	}
 
+	if (self->connInfo.enable_failover) {
+		stop_failover_service(self->connInfo.cluster_id);
+	}
+
 	LEAVE_CONN_CS(self);
 	MYLOG(MIN_LOG_LEVEL, "leaving\n");
 	return TRUE;
@@ -1115,22 +1120,14 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_connect_timeout);
 #endif
 	MYLOG(DETAIL_LOG_LEVEL, "          failover_enabled='%d',failover_mode='%s',host_pattern='%s',cluster_id='%s'," \
-		"topology_refresh='%u',failover_timeout='%u',failover_topology_refresh='%u',writer_reconnect_interval='%u'," \
-		"reader_connect_timeout='%u',host_connect_timeout='%u',host_read_write_timeout='%u'," \
-		"gather_perf_metrics='%d',gather_perf_metrics_per_instance='%d'\n",
-		 ci->enable_failover,
-		 ci->failover_mode,
-		 ci->host_pattern,
-		 ci->cluster_id,
-		 ci->topology_refresh,
-		 ci->failover_timeout,
-		 ci->failover_topology_refresh,
-		 ci->writer_reconnect_interval,
-		 ci->reader_connect_timeout,
-		 ci->host_connect_timeout,
-		 ci->host_read_write_timeout,
-		 ci->gather_perf_metrics,
-		 ci->gather_perf_metrics_per_instance);
+		"topology_refresh='%u',topology_high_refresh='%u',ignore_topology_refresh='%u'",
+		ci->enable_failover,
+		ci->failover_mode,
+		ci->host_pattern,
+		ci->cluster_id,
+		ci->topology_refresh,
+		ci->topology_high_refresh,
+		ci->ignore_topology_refresh);
 
     initialize_rds_logger(ci->log_dir);
 	return 1;
@@ -1396,6 +1393,22 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0)
 			return ret;
+	}
+
+	if (ci->enable_failover) {
+		bool successful_start = false;
+		char conn_str[MAX_CONNECT_STRING];
+		makeConnectString(conn_str, ci, MAX_CONNECT_STRING);
+#ifdef UNICODE_SUPPORT
+		wchar_t w_conn_str[MAX_CONNECT_STRING];
+		utf8_to_ucs2(conn_str, sizeof(conn_str), w_conn_str, sizeof(w_conn_str));
+		successful_start = start_failover_service(ci->cluster_id, AURORA_POSTGRES, w_conn_str);
+#else
+		successful_start = start_failover_service(ci->cluster_id, AURORA_POSTGRES, conn_str);
+#endif
+		if (!successful_start) {
+			MYLOG(0, "Failed to start Failover Service\n");
+		}
 	}
 
 	CC_set_translation(self);

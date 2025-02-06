@@ -3310,3 +3310,108 @@ MYLOG(MIN_LOG_LEVEL, "leaving cvtlen=" FORMAT_SIZE_T " ix(bl,of)=%d(%d,%d)\n", c
 
 	return COPY_OK;
 }
+
+// TODO, properly copy the values over
+void copy_statement(StatementClass* dest, StatementClass* src) {
+	// Connection
+    dest->hdbc = src->hdbc; // Pointer
+
+	// Results
+	dest->rhold = src->rhold; // Struct
+	dest->curres = src->curres; // Pointer
+	dest->parsed = src->parsed; // Pointer
+	dest->phstmt = src->phstmt; // Pointer
+
+	// Options	
+	dest->options = src->options; // Struct
+	dest->options_orig = src->options_orig; // Struct
+
+	// Descriptors
+	dest->ard = src->ard; // Pointer
+	dest->apd = src->apd; // Pointer
+	dest->ird = src->ird; // Pointer
+	dest->ipd = src->ipd; // Pointer
+	dest->ardi = src->ardi;
+	dest->irdi = src->irdi;
+	dest->apdi = src->apdi;
+	dest->ipdi = src->ipdi;
+
+	// Status
+    dest->status = src->status; // Struct
+    dest->__error_message = src->__error_message; // Pointer
+    dest->__error_number = src->__error_number;
+	dest->pgerror = src->pgerror; // Pointer
+
+	//
+	dest->currTuple = src->currTuple;
+	dest->gdata_info = src->gdata_info; // Struct
+	dest->save_rowset_size = src->save_rowset_size;
+	dest->rowset_start = src->rowset_start;
+	dest->bind_row = src->bind_row;
+	dest->current_col = src->current_col;
+	dest->last_fetch_count = src->last_fetch_count;
+	dest->lobj_fd = src->lobj_fd;
+	dest->statement = src->statement; // Pointer
+	dest->processed_statements = src->processed_statements; // Pointer
+
+	dest->ti = src->ti; // Double Pointer
+	dest->ntab = src->ntab;
+	dest->num_key_fields = src->num_key_fields;
+	dest->statement_type = src->statement_type;
+	dest->num_params = src->num_params;
+	dest->data_at_exec = src->data_at_exec;
+	dest->current_exec_param = src->current_exec_param;
+	dest->iflag = src->iflag;
+	dest->pdata_info = src->pdata_info; // Struct
+	dest->parse_status = src->parse_status;
+	dest->proc_return = src->proc_return;
+	dest->put_data = src->put_data;
+	dest->catalog_result = src->catalog_result;
+	dest->prepare = src->prepare;
+	dest->prepared = src->prepared;
+	dest->external = src->external;
+	dest->transition_status = src->transition_status;
+	dest->multi_statement = src->multi_statement;
+	dest->rb_or_tc = src->rb_or_tc;
+	dest->discard_output_params = src->discard_output_params;
+	dest->cancel_info = src->cancel_info;
+	dest->ref_CC_error = src->ref_CC_error;
+	dest->lock_CC_for_rb = src->lock_CC_for_rb;
+	dest->join_info = src->join_info;
+	dest->parse_method = src->parse_method;
+	dest->has_notice = src->has_notice;
+	dest->cursor_name = src->cursor_name;
+	dest->plan_name = src->plan_name; // Pointer
+	dest->stmt_with_params = src->stmt_with_params; // Pointer
+	dest->exec_start_row = src->exec_start_row;
+	dest->exec_end_row = src->exec_end_row;
+	dest->exec_current_row = src->exec_current_row;
+
+	dest->miscinfo = src->miscinfo;
+	dest->execinfo = src->execinfo;
+	dest->updatable = src->updatable;
+	dest->diag_row_count = src->diag_row_count;
+	dest->load_statement = src->load_statement; // Pointer
+	dest->from_pos = src->from_pos;
+	dest->load_from_pos = src->load_from_pos;
+	dest->where_pos = src->where_pos;
+	dest->last_fetch_count_include_ommitted = src->last_fetch_count_include_ommitted;
+	dest->stmt_time = src->stmt_time;
+	dest->localtime = src->localtime;
+	dest->use_server_side_prepare = src->use_server_side_prepare;
+	dest->batch_size = src->batch_size;
+	dest->exec_type = src->exec_type;
+	dest->count_of_deffered = src->count_of_deffered;
+	dest->stmt_deffered = src->stmt_deffered; // Unknown type - PQExpBufferData
+	dest->execute_delegate = src->execute_delegate; // Pointer
+	dest->execute_parent = src->execute_parent; // Pointer
+	dest->allocated_callbacks = src->allocated_callbacks;
+	dest->num_callbacks = src->num_callbacks;
+	dest->callbacks = src->callbacks; // Pointer
+
+	#if defined(WIN_MULTITHREAD_SUPPORT)
+	dest->cs;
+	#elif defined(POSIX_THREADMUTEX_SUPPORT)
+	dest->cs;
+	#endif /* WIN_MULTITHREAD_SUPPORT */
+}

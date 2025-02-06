@@ -484,15 +484,8 @@ static void failover_optionsDlgEnable(HWND hdlg, const ConnInfo *ci) {
 	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_HOST_PATTERN), ci->enable_failover > 0);
 	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_CLUSTER_ID), ci->enable_failover > 0);
 	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_TOPOLOGY_REFRESH_RATE), ci->enable_failover > 0);
-	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_FAILOVER_TIMEOUT), ci->enable_failover > 0);
-	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_FAILOVER_TOPOLOGY_REFRESH_RATE), ci->enable_failover > 0);
-	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_FAILOVER_WRITER_RECONNECT_INTERVAL), ci->enable_failover > 0);
-	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_FAILOVER_READER_CONNECT_TIMEOUT), ci->enable_failover > 0);
-	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_CONNECT_TIMEOUT), ci->enable_failover > 0);
-	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_NETWORK_TIMEOUT), ci->enable_failover > 0);
-
-	// Disable instance-specific metrics if performance metrics are not enabled
-	EnableWindow(GetDlgItem(hdlg, IDC_CHECK_GATHER_PERF_METRICS_PER_INSTANCE), ci->gather_perf_metrics > 0);
+	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_TOPOLOGY_HIGH_REFRESH_RATE), ci->enable_failover > 0);
+	EnableWindow(GetDlgItem(hdlg, IDC_EDIT_IGNORE_TOPOLOGY_REFRESH_RATE), ci->enable_failover > 0);
 }
 
 // Failover - Draw out GUI
@@ -523,8 +516,6 @@ failover_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
 
 	// Bool
 	CheckDlgButton(hdlg, IDC_CHECK_ENABLE_CLUSTER_FAILOVER, ci->enable_failover > 0);
-	CheckDlgButton(hdlg, IDC_CHECK_GATHER_PERF_METRICS, ci->gather_perf_metrics > 0);
-	CheckDlgButton(hdlg, IDC_CHECK_GATHER_PERF_METRICS_PER_INSTANCE, ci->gather_perf_metrics_per_instance > 0);
 	
 	// String (handle, resource id, source)
 	SetDlgItemText(hdlg, IDC_EDIT_FAILOVER_MODE, ci->failover_mode);
@@ -533,12 +524,8 @@ failover_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
 
 	// Ints (handle, resource id, source, is signed)
 	SetDlgItemInt(hdlg, IDC_EDIT_TOPOLOGY_REFRESH_RATE, ci->topology_refresh, FALSE);
-	SetDlgItemInt(hdlg, IDC_EDIT_FAILOVER_TIMEOUT, ci->failover_timeout, FALSE);
-	SetDlgItemInt(hdlg, IDC_EDIT_FAILOVER_TOPOLOGY_REFRESH_RATE, ci->failover_topology_refresh, FALSE);
-	SetDlgItemInt(hdlg, IDC_EDIT_FAILOVER_WRITER_RECONNECT_INTERVAL, ci->writer_reconnect_interval, FALSE);
-	SetDlgItemInt(hdlg, IDC_EDIT_FAILOVER_READER_CONNECT_TIMEOUT, ci->reader_connect_timeout, FALSE);
-	SetDlgItemInt(hdlg, IDC_EDIT_CONNECT_TIMEOUT, ci->host_connect_timeout, FALSE);
-	SetDlgItemInt(hdlg, IDC_EDIT_NETWORK_TIMEOUT, ci->host_read_write_timeout, FALSE);
+	SetDlgItemInt(hdlg, IDC_EDIT_TOPOLOGY_HIGH_REFRESH_RATE, ci->topology_high_refresh, FALSE);
+	SetDlgItemInt(hdlg, IDC_EDIT_IGNORE_TOPOLOGY_REFRESH_RATE, ci->ignore_topology_refresh, FALSE);
 
 	// Dropdown Menu for Failover Type
 	int i, selidx = 0;
@@ -626,20 +613,14 @@ failover_options_update(HWND hdlg, ConnInfo *ci)
 {
 	// Bool
 	ci->enable_failover = IsDlgButtonChecked(hdlg, IDC_CHECK_ENABLE_CLUSTER_FAILOVER);
-	ci->gather_perf_metrics = IsDlgButtonChecked(hdlg, IDC_CHECK_GATHER_PERF_METRICS);
-	ci->gather_perf_metrics_per_instance = IsDlgButtonChecked(hdlg, IDC_CHECK_GATHER_PERF_METRICS_PER_INSTANCE);
 	// String
 	GetDlgItemText(hdlg, IDC_EDIT_FAILOVER_MODE, ci->failover_mode, sizeof(ci->failover_mode));
 	GetDlgItemText(hdlg, IDC_EDIT_HOST_PATTERN, ci->host_pattern, sizeof(ci->host_pattern));
 	GetDlgItemText(hdlg, IDC_EDIT_CLUSTER_ID, ci->cluster_id, sizeof(ci->cluster_id));
 	// Ints
 	ci->topology_refresh = GetDlgItemInt(hdlg, IDC_EDIT_TOPOLOGY_REFRESH_RATE, NULL, FALSE);
-	ci->failover_timeout = GetDlgItemInt(hdlg, IDC_EDIT_FAILOVER_TIMEOUT, NULL, FALSE);
-	ci->failover_topology_refresh = GetDlgItemInt(hdlg, IDC_EDIT_FAILOVER_TOPOLOGY_REFRESH_RATE, NULL, FALSE);
-	ci->writer_reconnect_interval = GetDlgItemInt(hdlg, IDC_EDIT_FAILOVER_WRITER_RECONNECT_INTERVAL, NULL, FALSE);
-	ci->reader_connect_timeout = GetDlgItemInt(hdlg, IDC_EDIT_FAILOVER_READER_CONNECT_TIMEOUT, NULL, FALSE);
-	ci->host_connect_timeout = GetDlgItemInt(hdlg, IDC_EDIT_CONNECT_TIMEOUT, NULL, FALSE);
-	ci->host_read_write_timeout = GetDlgItemInt(hdlg, IDC_EDIT_NETWORK_TIMEOUT, NULL, FALSE);
+	ci->topology_high_refresh = GetDlgItemInt(hdlg, IDC_EDIT_TOPOLOGY_HIGH_REFRESH_RATE, NULL, FALSE);
+	ci->ignore_topology_refresh = GetDlgItemInt(hdlg, IDC_EDIT_IGNORE_TOPOLOGY_REFRESH_RATE, NULL, FALSE);
 
 	failover_optionsDlgEnable(hdlg, ci);
 	return 0;
@@ -855,13 +836,14 @@ failover_optionsProc(HWND hdlg,
 		// Button Presses
 		case WM_COMMAND:
 			ci = (ConnInfo *) GetWindowLongPtr(hdlg, DWLP_USER);
-			switch (GET_WM_COMMAND_ID(wParam, lParam))
+			int command_id = GET_WM_COMMAND_ID(wParam, lParam);
+			switch (command_id)
 			{
 				case IDOK:
 					failover_options_update(hdlg, ci);
 
 				case IDCANCEL:
-					EndDialog(hdlg, GET_WM_COMMAND_ID(wParam, lParam) == IDOK);
+					EndDialog(hdlg, command_id == IDOK);
 					return TRUE;
 
 				case IDAPPLY:
@@ -872,6 +854,16 @@ failover_optionsProc(HWND hdlg,
 				case IDDEFAULTS:
 					failover_optionsDraw(hdlg, ci, 0, FALSE);
 					break;
+
+                default:
+                    {
+                        int notificationCode = HIWORD(wParam);
+                        if (notificationCode == BN_CLICKED 
+							&& command_id == IDC_CHECK_ENABLE_CLUSTER_FAILOVER) {
+							failover_options_update(hdlg, ci);
+						}
+                    }
+                    break;
 			}
 	}
 

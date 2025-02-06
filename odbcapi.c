@@ -38,8 +38,6 @@
 #include "qresult.h"
 #include "loadlib.h"
 
-#include <limitless/limitless_monitor_service.h>
-
 BOOL	SC_connection_lost_check(StatementClass *stmt, const char *funcname)
 {
 	ConnectionClass	*conn = SC_get_conn(stmt);

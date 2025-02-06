@@ -33,6 +33,8 @@
 #include "lobj.h"
 #include "pgapifunc.h"
 
+#include <failover/failover_service.h>
+
 /*		Perform a Prepare on the SQL statement */
 RETCODE		SQL_API
 PGAPI_Prepare(HSTMT hstmt,
@@ -1188,6 +1190,19 @@ cleanup:
 MYLOG(MIN_LOG_LEVEL, "leaving %p retval=%d status=%d\n", stmt, retval, stmt->status);
 	SC_setInsertedTable(stmt, retval);
 #undef	return
+
+	if (SQL_ERROR == retval && conn->connInfo.enable_failover) {
+		PGAPI_FreeStmt(hstmt, SQL_DROP);
+		if (failover_connection(conn->connInfo.cluster_id, conn)) {
+			MYLOG(0, "Original connection terminated, failover triggered to new Connection.");
+			HSTMT new_hsmt;
+			PGAPI_AllocStmt(conn, &new_hsmt, 0);
+			StatementClass* new_stmt = (StatementClass *) new_hsmt;
+			SC_set_error(new_stmt, STMT_COMMUNICATION_ERROR, "Original connection lost. Connection failover successful", NULL);
+			copy_statement(stmt, new_stmt);
+		};
+	}
+
 	if (SQL_SUCCESS == retval &&
 	    STMT_OK > SC_get_errornumber(stmt))
 		retval = SQL_SUCCESS_WITH_INFO;
