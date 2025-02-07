@@ -141,7 +141,7 @@ protected:
 
     static void SetUpTestSuite() {
         const char *limitless_enabled = getenv("LIMITLESS_ENABLED");
-        if (limitless_enabled != nullptr || limitless_enabled[0] == '1')
+        if (limitless_enabled != nullptr && limitless_enabled[0] == '1')
             this->is_limitless_server = true;
     }
 

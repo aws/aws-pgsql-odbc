@@ -54,11 +54,18 @@ static std::string test_endpoint;
 
 class IamAuthenticationIntegrationTest : public testing::Test {
 protected:
+    bool is_limitless_server = false;
     ConnectionStringBuilder builder;
     SQLHENV env = nullptr;
     SQLHDBC dbc = nullptr;
 
     static void SetUpTestSuite() {
+        const char *limitless_enabled = getenv("LIMITLESS_ENABLED");
+        if (limitless_enabled != nullptr && limitless_enabled[0] == '1') {
+            this->is_limitless_server = true;
+            return;
+        }
+
         test_endpoint = std::getenv("TEST_SERVER");
         test_dsn = std::getenv("TEST_DSN");
         test_db = std::getenv("TEST_DATABASE");
@@ -126,6 +133,9 @@ protected:
     }
 
     void SetUp() override {
+        if (this->is_limitless_server)
+            return;
+        
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
         SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
@@ -152,6 +162,9 @@ protected:
 
 // Tests a simple IAM connection with all expected fields provided.
 TEST_F(IamAuthenticationIntegrationTest, SimpleIamConnection) {
+    if (this->is_limitless_server)
+        return;
+
     auto connection_string = builder
         .withServer(test_endpoint)
         .withUID(iam_user)
@@ -171,6 +184,9 @@ TEST_F(IamAuthenticationIntegrationTest, SimpleIamConnection) {
 // Tests that IAM connection will still connect via the provided port
 // when the auth port is not provided.
 TEST_F(IamAuthenticationIntegrationTest, PortWithNoAuthPort) {
+    if (this->is_limitless_server)
+        return;
+
     auto connection_string = builder
         .withServer(test_endpoint)
         .withUID(iam_user)
@@ -190,6 +206,9 @@ TEST_F(IamAuthenticationIntegrationTest, PortWithNoAuthPort) {
 // when given an IP address instead of a cluster name.
 // DISABLED - PG is unable to connect using the token generated from an IP address as the host
 TEST_F(IamAuthenticationIntegrationTest, DISABLED_ConnectToIpAddress) {
+    if (this->is_limitless_server)
+        return;
+
     auto ip_address = INTEGRATION_TEST_UTILS::host_to_IP(test_endpoint);
     
     auto connection_string = builder
@@ -210,6 +229,9 @@ TEST_F(IamAuthenticationIntegrationTest, DISABLED_ConnectToIpAddress) {
 // Tests that IAM connection will still connect
 // when given a wrong password (because the password gets replaced by the auth token).
 TEST_F(IamAuthenticationIntegrationTest, WrongPassword) {
+    if (this->is_limitless_server)
+        return;
+
     auto connection_string = builder
         .withServer(test_endpoint)
         .withUID(iam_user)
@@ -228,6 +250,9 @@ TEST_F(IamAuthenticationIntegrationTest, WrongPassword) {
 
 // Tests that the IAM connection will fail when provided a wrong user.
 TEST_F(IamAuthenticationIntegrationTest, WrongUser) {
+    if (this->is_limitless_server)
+        return;
+
     auto connection_string = builder
         .withServer(test_endpoint)
         .withUID("WRONG_USER")
@@ -251,6 +276,9 @@ TEST_F(IamAuthenticationIntegrationTest, WrongUser) {
 
 // Tests that the IAM connection will fail when provided an empty user.
 TEST_F(IamAuthenticationIntegrationTest, EmptyUser) {
+    if (this->is_limitless_server)
+        return;
+
     auto connection_string = builder
         .withServer(test_endpoint)
         .withAuthHost(test_endpoint)

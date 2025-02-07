@@ -357,7 +357,8 @@ public class IntegrationContainerTest {
       .withEnv("TEST_RO_SERVER", dbHostClusterRo)
       .withEnv("DB_CONN_STR_SUFFIX", "." + dbConnStrSuffix)
       .withEnv("PROXIED_CLUSTER_TEMPLATE", "?." + dbConnStrSuffix + PROXIED_DOMAIN_NAME_SUFFIX)
-      .withEnv("SECRETS_ARN", secretsArn);
+      .withEnv("SECRETS_ARN", secretsArn)
+      .withEnv("LIMITLESS_ENABLED", "1");
 
     // Add postgres instances & proxies to container env
     for (int i = 0; i < postgresInstances.size(); i++) {
@@ -476,6 +477,7 @@ public class IntegrationContainerTest {
     setupLimitlessTestContainer(network);
 
     buildDriver();
+    buildIntegrationTests();
   }
 
   private void setupIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
