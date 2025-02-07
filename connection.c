@@ -95,10 +95,10 @@ PGAPI_AllocConnect(HENV henv,
 	ConnectionClass *conn;
 	CSTR func = "PGAPI_AllocConnect";
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	conn = CC_Constructor();
-	MYLOG(0, "**** henv = %p, conn = %p\n", henv, conn);
+	MYLOG(MIN_LOG_LEVEL, "**** henv = %p, conn = %p\n", henv, conn);
 
 	if (!conn)
 	{
@@ -141,7 +141,7 @@ PGAPI_Connect(HDBC hdbc,
 	RETCODE	ret = SQL_SUCCESS;
 	char	fchar, *tmpstr;
 
-	MYLOG(0, "entering..cbDSN=%hi.\n", cbDSN);
+	MYLOG(MIN_LOG_LEVEL, "entering..cbDSN=%hi.\n", cbDSN);
 
 	if (!conn)
 	{
@@ -177,7 +177,7 @@ PGAPI_Connect(HDBC hdbc,
 		free(tmpstr);
 	}
 
-	MYLOG(0, "conn = %p (DSN='%s', UID='%s', PWD='%s')\n", conn, ci->dsn, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "");
+	MYLOG(MIN_LOG_LEVEL, "conn = %p (DSN='%s', UID='%s', PWD='%s')\n", conn, ci->dsn, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "");
 
 	if ((fchar = CC_connect(conn, NULL)) <= 0)
 	{
@@ -188,7 +188,7 @@ PGAPI_Connect(HDBC hdbc,
 	if (SQL_SUCCESS == ret && 2 == fchar)
 		ret = SQL_SUCCESS_WITH_INFO;
 
-	MYLOG(0, "leaving..%d.\n", ret);
+	MYLOG(MIN_LOG_LEVEL, "leaving..%d.\n", ret);
 
 	return ret;
 }
@@ -205,7 +205,7 @@ PGAPI_BrowseConnect(HDBC hdbc,
 	CSTR func = "PGAPI_BrowseConnect";
 	ConnectionClass *conn = (ConnectionClass *) hdbc;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	CC_set_error(conn, CONN_NOT_IMPLEMENTED_ERROR, "Function not implemented", func);
 	return SQL_ERROR;
@@ -220,7 +220,7 @@ PGAPI_Disconnect(HDBC hdbc)
 	CSTR func = "PGAPI_Disconnect";
 
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	if (!conn)
 	{
@@ -235,13 +235,13 @@ PGAPI_Disconnect(HDBC hdbc)
 	}
 
 	logs_on_off(-1, conn->connInfo.drivers.debug, conn->connInfo.drivers.commlog);
-	MYLOG(0, "about to CC_cleanup\n");
+	MYLOG(MIN_LOG_LEVEL, "about to CC_cleanup\n");
 
 	/* Close the connection and free statements */
 	CC_cleanup(conn, FALSE);
 
-	MYLOG(0, "done CC_cleanup\n");
-	MYLOG(0, "leaving...\n");
+	MYLOG(MIN_LOG_LEVEL, "done CC_cleanup\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving...\n");
 
 	return SQL_SUCCESS;
 }
@@ -254,7 +254,7 @@ PGAPI_FreeConnect(HDBC hdbc)
 	CSTR func = "PGAPI_FreeConnect";
 	EnvironmentClass *env;
 
-	MYLOG(0, "entering...hdbc=%p\n", hdbc);
+	MYLOG(MIN_LOG_LEVEL, "entering...hdbc=%p\n", hdbc);
 
 	if (!conn)
 	{
@@ -272,7 +272,7 @@ PGAPI_FreeConnect(HDBC hdbc)
 
 	CC_Destructor(conn);
 
-	MYLOG(0, "leaving...\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving...\n");
 
 	return SQL_SUCCESS;
 }
@@ -375,14 +375,14 @@ CC_Constructor()
 char
 CC_Destructor(ConnectionClass *self)
 {
-	MYLOG(0, "entering self=%p\n", self);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p\n", self);
 
 	if (self->status == CONN_EXECUTING)
 		return 0;
 
 	CC_cleanup(self, FALSE);			/* cleanup socket and statements */
 
-	MYLOG(0, "after CC_Cleanup\n");
+	MYLOG(MIN_LOG_LEVEL, "after CC_Cleanup\n");
 
 	/* Free up statement holders */
 	if (self->stmts)
@@ -395,7 +395,7 @@ CC_Destructor(ConnectionClass *self)
 		free(self->descs);
 		self->descs = NULL;
 	}
-	MYLOG(0, "after free statement holders\n");
+	MYLOG(MIN_LOG_LEVEL, "after free statement holders\n");
 
 	NULL_THE_NAME(self->schemaIns);
 	NULL_THE_NAME(self->tableIns);
@@ -406,7 +406,7 @@ CC_Destructor(ConnectionClass *self)
 	DELETE_CONNLOCK(self);
 	free(self);
 
-	MYLOG(0, "leaving\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving\n");
 
 	return 1;
 }
@@ -421,7 +421,7 @@ CC_cursor_count(ConnectionClass *self)
 				count = 0;
 	QResultClass		*res;
 
-	MYLOG(0, "self=%p, num_stmts=%d\n", self, self->num_stmts);
+	MYLOG(MIN_LOG_LEVEL, "self=%p, num_stmts=%d\n", self, self->num_stmts);
 
 	CONNLOCK_ACQUIRE(self);
 	for (i = 0; i < self->num_stmts; i++)
@@ -432,7 +432,7 @@ CC_cursor_count(ConnectionClass *self)
 	}
 	CONNLOCK_RELEASE(self);
 
-	MYLOG(0, "leaving %d\n", count);
+	MYLOG(MIN_LOG_LEVEL, "leaving %d\n", count);
 
 	return count;
 }
@@ -481,7 +481,7 @@ CC_begin(ConnectionClass *self)
 	if (!CC_is_in_trans(self))
 	{
 		QResultClass *res = CC_send_query(self, bgncmd, NULL, 0, NULL);
-		MYLOG(0, "  sending BEGIN!\n");
+		MYLOG(MIN_LOG_LEVEL, "  sending BEGIN!\n");
 
 		ret = QR_command_maybe_successful(res);
 		QR_Destructor(res);
@@ -505,7 +505,7 @@ CC_commit(ConnectionClass *self)
 		if (CC_is_in_trans(self))
 		{
 			QResultClass *res = CC_send_query(self, cmtcmd, NULL, 0, NULL);
-			MYLOG(0, "  sending COMMIT!\n");
+			MYLOG(MIN_LOG_LEVEL, "  sending COMMIT!\n");
 			ret = QR_command_maybe_successful(res);
 			QR_Destructor(res);
 		}
@@ -525,7 +525,7 @@ CC_abort(ConnectionClass *self)
 	if (CC_is_in_trans(self))
 	{
 		QResultClass *res = CC_send_query(self, rbkcmd, NULL, 0, NULL);
-		MYLOG(0, "  sending ABORT!\n");
+		MYLOG(MIN_LOG_LEVEL, "  sending ABORT!\n");
 		ret = QR_command_maybe_successful(res);
 		QR_Destructor(res);
 	}
@@ -542,7 +542,7 @@ CC_set_autocommit(ConnectionClass *self, BOOL on)
 	if ((on && currsts) ||
 	    (!on && !currsts))
 		return on;
-	MYLOG(0, " %d->%d\n", currsts, on);
+	MYLOG(MIN_LOG_LEVEL, " %d->%d\n", currsts, on);
 	if (CC_is_in_trans(self))
 		CC_commit(self);
 	if (on)
@@ -567,7 +567,7 @@ CC_clear_col_info(ConnectionClass *self, BOOL destroy)
 			/* Going through COL_INFO cache table and releasing coli objects. */
 			if (coli = self->col_info[i], NULL != coli)
 			{
-				MYLOG(0, "!!!refcnt %p:%d -> %d\n", coli, coli->refcnt, coli->refcnt - 1);
+				MYLOG(MIN_LOG_LEVEL, "!!!refcnt %p:%d -> %d\n", coli, coli->refcnt, coli->refcnt - 1);
 				coli->refcnt--;
 				if (coli->refcnt <= 0)
 				{
@@ -677,7 +677,7 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 	if (self->status == CONN_EXECUTING)
 		return FALSE;
 
-	MYLOG(0, "entering self=%p\n", self);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p\n", self);
 
 	ENTER_CONN_CS(self);
 	/* Cancel an ongoing transaction */
@@ -690,7 +690,7 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 		self->pqconn = NULL;
 	}
 
-	MYLOG(0, "after PQfinish\n");
+	MYLOG(MIN_LOG_LEVEL, "after PQfinish\n");
 
 	/* Free all the stmts on this connection */
 	for (i = 0; i < self->num_stmts; i++)
@@ -773,7 +773,7 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 	}
 
 	LEAVE_CONN_CS(self);
-	MYLOG(0, "leaving\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving\n");
 	return TRUE;
 }
 
@@ -864,7 +864,7 @@ handle_pgres_error(ConnectionClass *self, const PGresult *pgres,
 	{
 		const char *errmsg = "The connection has been lost";
 
-		MYLOG(0, "setting error message=%s\n", errmsg);
+		MYLOG(MIN_LOG_LEVEL, "setting error message=%s\n", errmsg);
 		QLOG(0, "\t%ssetting error message=%s\n", __FUNCTION__, errmsg);
 		if (CC_get_errornumber(self) <= 0)
 			CC_set_error(self, CONNECTION_COMMUNICATION_ERROR, errmsg, comment);
@@ -885,7 +885,7 @@ handle_pgres_error(ConnectionClass *self, const PGresult *pgres,
 	if (PG_VERSION_GE(self, 9.6))
 	{
 		errseverity_nonloc = PQresultErrorField(pgres, PG_DIAG_SEVERITY_NONLOCALIZED);
-		MYLOG(0, "PG_DIAG_SEVERITY_NONLOCALIZED=%s\n", SAFE_STR(errseverity_nonloc));
+		MYLOG(MIN_LOG_LEVEL, "PG_DIAG_SEVERITY_NONLOCALIZED=%s\n", SAFE_STR(errseverity_nonloc));
 	}
 	if (!error_not_a_notice)
 	{
@@ -961,7 +961,7 @@ handle_pgres_error(ConnectionClass *self, const PGresult *pgres,
 
 	if (!error_not_a_notice) /* warning, notice, log etc */
 	{
-		MYLOG(0, "notice message %s\n", errmsg);
+		MYLOG(MIN_LOG_LEVEL, "notice message %s\n", errmsg);
 		if (res)
 		{
 			if (QR_command_successful(res))
@@ -971,7 +971,7 @@ handle_pgres_error(ConnectionClass *self, const PGresult *pgres,
 		goto cleanup;
 	}
 
-	MYLOG(0, "error message=%s(" FORMAT_SIZE_T ")\n", errmsg, strlen(errmsg));
+	MYLOG(MIN_LOG_LEVEL, "error message=%s(" FORMAT_SIZE_T ")\n", errmsg, strlen(errmsg));
 
 	if (res)
 	{
@@ -1087,7 +1087,7 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 	}
 
 #ifdef FORCE_PASSWORD_DISPLAY
-	MYLOG(0, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s', " \
+	MYLOG(MIN_LOG_LEVEL, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s', " \
 		"region = '%s', token_expiration = '%s', idp_endpoint = '%s', idp_port = '%s', idp_username = '%s', idp_password = '%s', " \
 		"idp_arn = '%s', idp_role_arn = '%s',  socket_timeout = '%s', conn_timeout = '%s'\n", ci->dsn, ci->server, ci->port,
 		ci->database, ci->authtype, ci->username, ci->password.name, ci->region, ci->token_expiration,
@@ -1100,7 +1100,7 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_socket_timeout,
 		ci->federation_cfg.http_client_connect_timeout);
 #else
-	MYLOG(0, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s', " \
+	MYLOG(MIN_LOG_LEVEL, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s', " \
 		"region = '%s', token_expiration = '%s', idp_endpoint = '%s', idp_port = '%s', idp_username = '%s', idp_password = '%s', " \
 		"idp_arn = '%s', idp_role_arn = '%s',  socket_timeout = '%s', conn_timeout = '%s'\n", ci->dsn, ci->server, ci->port,
 		ci->database, ci->authtype, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "", ci->region, ci->token_expiration,
@@ -1129,7 +1129,7 @@ LIBPQ_CC_connect(ConnectionClass *self, char *salt_para)
 	CSTR		func = "LIBPQ_CC_connect";
 	QResultClass	*res;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	if (0 == CC_initial_log(self, func))
 		return 0;
@@ -1162,7 +1162,7 @@ typedef enum {
 // Get token for IAM, ADFS or OKTA authentication mode.
 TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	if (!ci) {
-		MYLOG(0, "Null ConnInfo pointer\n");
+		MYLOG(MIN_LOG_LEVEL, "Null ConnInfo pointer\n");
 		return TR_FAILURE;
 	}
 
@@ -1171,12 +1171,12 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 		port = 5432; // set to default port.
 	}
 
-	MYLOG(0, "auth type is %s\n", ci->authtype);
-	MYLOG(0, "server is %s\n", ci->server);
-	MYLOG(0, "region is %s\n", ci->region);
-	MYLOG(0, "port is %d\n", port);
-	MYLOG(0, "username is %s\n", ci->username);
-	MYLOG(0, "useCache is %d\n", useCache);
+	MYLOG(MIN_LOG_LEVEL, "auth type is %s\n", ci->authtype);
+	MYLOG(MIN_LOG_LEVEL, "server is %s\n", ci->server);
+	MYLOG(MIN_LOG_LEVEL, "region is %s\n", ci->region);
+	MYLOG(MIN_LOG_LEVEL, "port is %d\n", port);
+	MYLOG(MIN_LOG_LEVEL, "username is %s\n", ci->username);
+	MYLOG(MIN_LOG_LEVEL, "useCache is %d\n", useCache);
 
 	char* token = (char*) malloc(MAX_TOKEN_SIZE * sizeof(char));
 	// Fill in password to avoid crashing on token failures
@@ -1184,39 +1184,39 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	FederatedAuthType authType = GetFedAuthTypeEnum(ci->authtype);
 
 	if (useCache) {
-		MYLOG(0, "Trying Cache\n");
+		MYLOG(MIN_LOG_LEVEL, "Trying Cache\n");
 		if (!GetCachedToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, ci->port, ci->username)) {
-			MYLOG(0, "Cache Miss\n");
+			MYLOG(MIN_LOG_LEVEL, "Cache Miss\n");
 			if (!GenerateConnectAuthToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, port, ci->username, authType, ci->federation_cfg)) {
-				MYLOG(0, "Failed to generate a RDS connect auth token\n");
+				MYLOG(MIN_LOG_LEVEL, "Failed to generate a RDS connect auth token\n");
 				free(token);
 				return TR_FAILURE;
 			}
 			STRN_TO_NAME(ci->password, token, strlen(token));
-			MYLOG(0, "generated token length is %zu\n", strlen(ci->password.name));
+			MYLOG(MIN_LOG_LEVEL, "generated token length is %zu\n", strlen(ci->password.name));
 		}
 		else {
 			STRN_TO_NAME(ci->password, token, strlen(token));
-			MYLOG(0, "cached token length is %zu\n", strlen(ci->password.name));
+			MYLOG(MIN_LOG_LEVEL, "cached token length is %zu\n", strlen(ci->password.name));
 			free(token);
 			return TR_CACHED_TOKEN;
 		}
 	}
 	else {
 		if (!GenerateConnectAuthToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, port, ci->username, authType, ci->federation_cfg)) {
-			MYLOG(0, "Failed to generate a RDS connect auth token\n");
+			MYLOG(MIN_LOG_LEVEL, "Failed to generate a RDS connect auth token\n");
 			free(token);
 			return TR_FAILURE;
 		}
 		STRN_TO_NAME(ci->password, token, strlen(token));
-		MYLOG(0, "generated token length is %zu\n", strlen(ci->password.name));
+		MYLOG(MIN_LOG_LEVEL, "generated token length is %zu\n", strlen(ci->password.name));
 	}
 	free(token);
 	return TR_GENERATED_TOKEN;
 }
 
 void GetLimitlessServer(ConnInfo *ci) {
-	MYLOG(0, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
+	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
 
 	if (!ci->limitless_enabled) {
 		return;
@@ -1240,14 +1240,14 @@ void GetLimitlessServer(ConnInfo *ci) {
 	SQLHENV henv;
 	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
     if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(0, "error in SQLAllocHandle environment - disabling limitless\n");
+		MYLOG(MIN_LOG_LEVEL, "error in SQLAllocHandle environment - disabling limitless\n");
 		ci->limitless_enabled = 0;
 		return;
 	}
 	SQLHDBC hdbc;
     rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
     if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(0, "error in SQLAllocHandle connection - disabling limitless\n");
+		MYLOG(MIN_LOG_LEVEL, "error in SQLAllocHandle connection - disabling limitless\n");
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
 		return;
@@ -1261,7 +1261,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
 #endif
     if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(0, "error with connecting - disabling limitless\n");
+		MYLOG(MIN_LOG_LEVEL, "error with connecting - disabling limitless\n");
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
@@ -1269,9 +1269,9 @@ void GetLimitlessServer(ConnInfo *ci) {
 	}
 
     if (CheckLimitlessCluster(hdbc)) {
-        MYLOG(0, "provided endpoint is a limitless cluster - enabling limitless\n");
+        MYLOG(MIN_LOG_LEVEL, "provided endpoint is a limitless cluster - enabling limitless\n");
     } else {
-        MYLOG(0, "provided endpoint is not a limitless cluster - disabling limitless\n");
+        MYLOG(MIN_LOG_LEVEL, "provided endpoint is not a limitless cluster - disabling limitless\n");
 		SQLDisconnect(hdbc);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
@@ -1291,11 +1291,11 @@ void GetLimitlessServer(ConnInfo *ci) {
 #endif
 
 	if (!db_instance_ready) {
-		MYLOG(0, "didn't get limitless server, but monitor has started\n");
+		MYLOG(MIN_LOG_LEVEL, "didn't get limitless server, but monitor has started\n");
 		return; // no writing to ci
 	}
 
-	MYLOG(0, "got limitless server endpoint from monitor %s\n", db_instance.server);
+	MYLOG(MIN_LOG_LEVEL, "got limitless server endpoint from monitor %s\n", db_instance.server);
 	STRCPY_FIXED(ci->server, db_instance.server);
 	free(db_instance.server);
 }
@@ -1311,7 +1311,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	const char	*errmsg = NULL;
 	char custom_err[LARGE_REGISTRY_LEN];
 
-	MYLOG(0, "entering...sslmode=%s\n", self->connInfo.sslmode);
+	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
 	if (stricmp(ci->authtype, SECRET_MODE) == 0) {
 		Credentials credentials;
@@ -1320,11 +1320,11 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.username_size = MEDIUM_REGISTRY_LEN;
 		credentials.password_size = MEDIUM_REGISTRY_LEN;
 
-		MYLOG(0, "secret ID: %s, region: %s\n", ci->secret_id, ci->region);
+		MYLOG(MIN_LOG_LEVEL, "secret ID: %s, region: %s\n", ci->secret_id, ci->region);
 
 		bool successful = GetCredentialsFromSecretsManager(ci->secret_id, ci->region, &credentials);
 		if (!successful) {
-			MYLOG(0, "Could not get credentials from secrets manager\n");
+			MYLOG(MIN_LOG_LEVEL, "Could not get credentials from secrets manager\n");
 			CC_set_error(self, CONNECTION_COMMUNICATION_ERROR, "Unable to retrieve credentials from Secrets Manager", func);
 			return 0;
 		}
@@ -1450,11 +1450,11 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	if (CC_is_in_unicode_driver(self)
 	    && (CC_is_in_ansi_app(self) || 0 < ci->bde_environment))
 		self->unicode |= CONN_DISALLOW_WCHAR;
-MYLOG(0, "conn->unicode=%d Client Encoding='%s' (Code %d)\n", self->unicode, self->original_client_encoding, self->ccsc);
+MYLOG(MIN_LOG_LEVEL, "conn->unicode=%d Client Encoding='%s' (Code %d)\n", self->unicode, self->original_client_encoding, self->ccsc);
 	ret = 1;
 
 cleanup:
-	MYLOG(0, "leaving...%d\n", ret);
+	MYLOG(MIN_LOG_LEVEL, "leaving...%d\n", ret);
 	if (NULL != saverr)
 	{
 		if (ret > 0 && CC_get_errornumber(self) <= 0)
@@ -1474,7 +1474,7 @@ CC_add_statement(ConnectionClass *self, StatementClass *stmt)
 	int	i;
 	char	ret = TRUE;
 
-	MYLOG(0, "self=%p, stmt=%p\n", self, stmt);
+	MYLOG(MIN_LOG_LEVEL, "self=%p, stmt=%p\n", self, stmt);
 
 	CONNLOCK_ACQUIRE(self);
 	for (i = 0; i < self->num_stmts; i++)
@@ -1522,7 +1522,7 @@ CC_set_error_statements(ConnectionClass *self)
 {
 	int	i;
 
-	MYLOG(0, "entering self=%p\n", self);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p\n", self);
 
 	for (i = 0; i < self->num_stmts; i++)
 	{
@@ -1589,7 +1589,7 @@ int	CC_get_max_idlen(ConnectionClass *self)
 			len = self->max_identifier_length = QR_get_value_backend_int(res, 0, 0, FALSE);
 		QR_Destructor(res);
 	}
-MYLOG(0, "max_identifier_length=%d\n", len);
+MYLOG(MIN_LOG_LEVEL, "max_identifier_length=%d\n", len);
 	return len < 0 ? 0 : len;
 }
 
@@ -1624,7 +1624,7 @@ static int handle_show_results(const QResultClass *res)
 		if (strcmp(QR_get_fieldname(qres, 0), TRANSACTION_ISOLATION) == 0)
 		{
 			conn->server_isolation = isolation_str_to_enum(QR_get_value_backend_text(qres, 0, 0));
-			MYLOG(0, "isolation " FORMAT_UINTEGER " to be " FORMAT_UINTEGER "\n", conn->server_isolation, conn->isolation);
+			MYLOG(MIN_LOG_LEVEL, "isolation " FORMAT_UINTEGER " to be " FORMAT_UINTEGER "\n", conn->server_isolation, conn->isolation);
 			if (0 == conn->isolation)
 				conn->isolation = conn->server_isolation;
 			if (0 == conn->default_isolation)
@@ -1651,7 +1651,7 @@ SQLUINTEGER	CC_get_isolation(ConnectionClass *self)
 		isolation = self->server_isolation;
 	}
 	QR_Destructor(res);
-MYLOG(0, "isolation=" FORMAT_UINTEGER "\n", isolation);
+MYLOG(MIN_LOG_LEVEL, "isolation=" FORMAT_UINTEGER "\n", isolation);
 	return isolation;
 }
 
@@ -1687,7 +1687,7 @@ CC_get_error(ConnectionClass *self, int *number, char **message)
 {
 	int			rv;
 
-	MYLOG(0, "entering\n");
+	MYLOG(MIN_LOG_LEVEL, "entering\n");
 
 	CONNLOCK_ACQUIRE(self);
 
@@ -1700,7 +1700,7 @@ CC_get_error(ConnectionClass *self, int *number, char **message)
 
 	CONNLOCK_RELEASE(self);
 
-	MYLOG(0, "leaving\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving\n");
 
 	return rv;
 }
@@ -1843,7 +1843,7 @@ void	CC_on_abort(ConnectionClass *conn, unsigned int opt)
 {
 	BOOL	set_no_trans = FALSE;
 
-MYLOG(0, "entering opt=%x\n", opt);
+MYLOG(MIN_LOG_LEVEL, "entering opt=%x\n", opt);
 	CONNLOCK_ACQUIRE(conn);
 	if (0 != (opt & CONN_DEAD)) /* CONN_DEAD implies NO_TRANS also */
 		opt |= NO_TRANS;
@@ -1889,7 +1889,7 @@ MYLOG(0, "entering opt=%x\n", opt);
 
 void	CC_on_abort_partial(ConnectionClass *conn)
 {
-MYLOG(0, "entering\n");
+MYLOG(MIN_LOG_LEVEL, "entering\n");
 	CONNLOCK_ACQUIRE(conn);
 	ProcessRollback(conn, TRUE, TRUE);
 	CC_discard_marked_objects(conn);
@@ -2004,7 +2004,7 @@ CC_internal_rollback(ConnectionClass *self, int rollback_type, BOOL ignore_abort
 				if (ignore_abort)
 					CC_set_no_error_trans(self);
 				else
-					MYLOG(0, " return error\n");
+					MYLOG(MIN_LOG_LEVEL, " return error\n");
 			}
 			LIBPQ_update_transaction_status(self);
 			break;
@@ -2066,11 +2066,11 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 
 	if (appendq)
 	{
-		MYLOG(0, "conn=%p, query='%s'+'%s'\n", self, query, appendq);
+		MYLOG(MIN_LOG_LEVEL, "conn=%p, query='%s'+'%s'\n", self, query, appendq);
 	}
 	else
 	{
-		MYLOG(0, "conn=%p, query='%s'\n", self, query);
+		MYLOG(MIN_LOG_LEVEL, "conn=%p, query='%s'\n", self, query);
 	}
 
 	if (!self->pqconn)
@@ -2152,7 +2152,7 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 
 	/* append all these together, to avoid round-trips */
 	query_len = strlen(query);
-	MYLOG(0, "query_len=" FORMAT_SIZE_T "\n", query_len);
+	MYLOG(MIN_LOG_LEVEL, "query_len=" FORMAT_SIZE_T "\n", query_len);
 
 	initPQExpBuffer(&query_buf);
 	/* issue_begin, query_rollback and prepend_savepoint are exclusive */
@@ -2254,7 +2254,7 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 					nrarg.res = res;
 				}
 
-				MYLOG(0, " setting cmdbuffer = '%s'\n", cmdbuffer);
+				MYLOG(MIN_LOG_LEVEL, " setting cmdbuffer = '%s'\n", cmdbuffer);
 
 				my_trim(cmdbuffer); /* get rid of trailing space */
 				if (strnicmp(cmdbuffer, bgncmd, strlen(bgncmd)) == 0)
@@ -2338,7 +2338,7 @@ MYLOG(DETAIL_LOG_LEVEL, "Discarded a RELEASE result\n");
 					QR_set_rstatus(res, PORES_COMMAND_OK);
 				QR_set_command(res, cmdbuffer);
 				query_completed = TRUE;
-				MYLOG(0, " returning res = %p\n", res);
+				MYLOG(MIN_LOG_LEVEL, " returning res = %p\n", res);
 				break;
 
 			case PGRES_EMPTY_QUERY:
@@ -2383,7 +2383,7 @@ MYLOG(DETAIL_LOG_LEVEL, "Discarded a RELEASE result\n");
 							QR_nextr(res)->num_key_fields = stmt->num_key_fields;
 						}
 					}
-					MYLOG(0, " 'T' no result_in: res = %p\n", QR_nextr(res));
+					MYLOG(MIN_LOG_LEVEL, " 'T' no result_in: res = %p\n", QR_nextr(res));
 					res = QR_nextr(res);
 					nrarg.res = res;
 
@@ -2480,7 +2480,7 @@ MYLOG(DETAIL_LOG_LEVEL, "Discarded a RELEASE result\n");
 				handle_pgres_error(self, pgres, "send_query", res, TRUE);
 				CC_on_abort(self, CONN_DEAD);
 
-				MYLOG(0, " error - %s\n", CC_get_errormsg(self));
+				MYLOG(MIN_LOG_LEVEL, " error - %s\n", CC_get_errormsg(self));
 				ReadyToReturn = TRUE;
 				retres = NULL;
 				break;
@@ -2665,7 +2665,7 @@ CC_send_function(ConnectionClass *self, const char *fn_name, void *result_buf, i
 	Int4		intParamBufs[MAX_SEND_FUNC_ARGS];
 	Int8		int8ParamBufs[MAX_SEND_FUNC_ARGS];
 
-	MYLOG(0, "conn=%p, fn_name=%s, result_is_int=%d, nargs=%d\n", self, fn_name, result_is_int, nargs);
+	MYLOG(MIN_LOG_LEVEL, "conn=%p, fn_name=%s, result_is_int=%d, nargs=%d\n", self, fn_name, result_is_int, nargs);
 
 	/* Finish the pending extended query first */
 #define	return DONT_CALL_RETURN_FROM_HERE???
@@ -2675,7 +2675,7 @@ CC_send_function(ConnectionClass *self, const char *fn_name, void *result_buf, i
 			 func_param_str[nargs]);
 	for (i = 0; i < nargs; ++i)
 	{
-		MYLOG(0, "  arg[%d]: len = %d, isint = %d, integer = " FORMATI64 ", ptr = %p\n", i, args[i].len, args[i].isint, args[i].isint == 2 ? args[i].u.integer64 : args[i].u.integer, args[i].u.ptr);
+		MYLOG(MIN_LOG_LEVEL, "  arg[%d]: len = %d, isint = %d, integer = " FORMATI64 ", ptr = %p\n", i, args[i].len, args[i].isint, args[i].isint == 2 ? args[i].u.integer64 : args[i].u.integer, args[i].u.ptr);
 		/* integers are sent as binary, others as text */
 		if (args[i].isint == 2)
 		{
@@ -2707,7 +2707,7 @@ CC_send_function(ConnectionClass *self, const char *fn_name, void *result_buf, i
 						 paramTypes, (const char * const *) paramValues,
 						 paramLengths, paramFormats, 1);
 
-	MYLOG(0, "done sending function\n");
+	MYLOG(MIN_LOG_LEVEL, "done sending function\n");
 
 	if (PQresultStatus(pgres) == PGRES_TUPLES_OK)
 		QLOG(0, "\tok: - 'T' - %s\n", PQcmdStatus(pgres));
@@ -2736,7 +2736,7 @@ CC_send_function(ConnectionClass *self, const char *fn_name, void *result_buf, i
 			memcpy(&int8val, value, sizeof(Int8));
 			int8val = odbc_ntoh64(int8val);
 			memcpy(result_buf, &int8val, sizeof(Int8));
-MYLOG(0, "int8 result=" FORMATI64 "\n", int8val);
+MYLOG(MIN_LOG_LEVEL, "int8 result=" FORMATI64 "\n", int8val);
 		}
 		else if (result_is_int)
 		{
@@ -2774,7 +2774,7 @@ CC_send_settings(ConnectionClass *self, const char *set_query)
 	CSTR func = "CC_send_settings";
 
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	if (set_query == NULL) return TRUE;
 
@@ -2807,7 +2807,7 @@ CC_send_settings(ConnectionClass *self, const char *set_query)
 		if (!SQL_SUCCEEDED(result))
 			status = FALSE;
 
-		MYLOG(0, "result %d, status %d from '%s'\n", result, status, ptr);
+		MYLOG(MIN_LOG_LEVEL, "result %d, status %d from '%s'\n", result, status, ptr);
 
 #ifdef	HAVE_STRTOK_R
 		ptr = strtok_r(NULL, ";", &last);
@@ -2834,7 +2834,7 @@ CC_lookup_lo(ConnectionClass *self)
 	SQLRETURN	ret = SQL_SUCCESS;
 	QResultClass	*res;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	res = CC_send_query(self, "select oid, typbasetype from pg_type where typname = '"  PG_TYPE_LO_NAME "'",
 		NULL, READ_ONLY_QUERY, NULL);
@@ -2853,7 +2853,7 @@ CC_lookup_lo(ConnectionClass *self)
 			self->lobj_type = 0;
 	}
 	QR_Destructor(res);
-	MYLOG(0, "Got the large object oid: %d\n", self->lobj_type);
+	MYLOG(MIN_LOG_LEVEL, "Got the large object oid: %d\n", self->lobj_type);
 	return ret;
 }
 
@@ -2879,14 +2879,14 @@ CC_log_error(const char *func, const char *desc, const ConnectionClass *self)
 
 	if (self)
 	{
-		MYLOG(0, "CONN ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", func, desc, self->__error_number, NULLCHECK(self->__error_message));
+		MYLOG(MIN_LOG_LEVEL, "CONN ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", func, desc, self->__error_number, NULLCHECK(self->__error_message));
 		MYLOG(DETAIL_LOG_LEVEL, "            ------------------------------------------------------------\n");
 		MYLOG(DETAIL_LOG_LEVEL, "            henv=%p, conn=%p, status=%u, num_stmts=%d\n", self->henv, self, self->status, self->num_stmts);
 		MYLOG(DETAIL_LOG_LEVEL, "            pqconn=%p, stmts=%p, lobj_type=%d\n", self->pqconn, self->stmts, self->lobj_type);
 	}
 	else
 	{
-		MYLOG(0, "INVALID CONNECTION HANDLE ERROR: func=%s, desc='%s'\n", func, desc);
+		MYLOG(MIN_LOG_LEVEL, "INVALID CONNECTION HANDLE ERROR: func=%s, desc='%s'\n", func, desc);
 	}
 }
 
@@ -3022,7 +3022,7 @@ LIBPQ_connect(ConnectionClass *self)
 	char		keepalive_interval_str[20];
 	char		*errmsg = NULL;
 
-	MYLOG(0, "connecting to the database using %s as the server and pqopt={%s}\n", self->connInfo.server, SAFE_NAME(ci->pqopt));
+	MYLOG(MIN_LOG_LEVEL, "connecting to the database using %s as the server and pqopt={%s}\n", self->connInfo.server, SAFE_NAME(ci->pqopt));
 
 	if (NULL == (conninfoOption = PQconninfoParse(SAFE_NAME(ci->pqopt), &errmsg)))
 	{
@@ -3163,7 +3163,7 @@ LIBPQ_connect(ConnectionClass *self)
 	{
 		const char	*errmsg;
 
-		MYLOG(0, "password retry\n");
+		MYLOG(MIN_LOG_LEVEL, "password retry\n");
 		errmsg = PQerrorMessage(pqconn);
 		CC_set_error(self, CONNECTION_SERVER_NOT_REACHED, errmsg, func);
 		QLOG(0, "PQfinish: %p\n", pqconn);
@@ -3180,29 +3180,29 @@ LIBPQ_connect(ConnectionClass *self)
 MYLOG(DETAIL_LOG_LEVEL, "status=%d\n", pqret);
 		errmsg = PQerrorMessage(pqconn);
 		CC_set_error(self, CONNECTION_SERVER_NOT_REACHED, errmsg, func);
-		MYLOG(0, "Could not establish connection to the database; LIBPQ returned -> %s\n", errmsg);
+		MYLOG(MIN_LOG_LEVEL, "Could not establish connection to the database; LIBPQ returned -> %s\n", errmsg);
 		goto cleanup;
 	}
 
-	MYLOG(0, "libpq connection to the database established.\n");
+	MYLOG(MIN_LOG_LEVEL, "libpq connection to the database established.\n");
 	pversion = PQprotocolVersion(pqconn);
 	if (pversion < 3)
 	{
-		MYLOG(0, "Protocol version %d is not supported\n", pversion);
+		MYLOG(MIN_LOG_LEVEL, "Protocol version %d is not supported\n", pversion);
 		goto cleanup;
 	}
-	MYLOG(0, "protocol=%d\n", pversion);
+	MYLOG(MIN_LOG_LEVEL, "protocol=%d\n", pversion);
 
 	pversion = PQserverVersion(pqconn);
 	self->pg_version_major = pversion / 10000;
 	self->pg_version_minor = (pversion % 10000) / 100;
 	SPRINTF_FIXED(self->pg_version, "%d.%d.%d",  self->pg_version_major, self->pg_version_minor, pversion % 100);
 
-	MYLOG(0, "Server version=%s\n", self->pg_version);
+	MYLOG(MIN_LOG_LEVEL, "Server version=%s\n", self->pg_version);
 
 	if (!CC_get_username(self)[0])
 	{
-		MYLOG(0, "PQuser=%s\n", PQuser(pqconn));
+		MYLOG(MIN_LOG_LEVEL, "PQuser=%s\n", PQuser(pqconn));
 		STRCPY_FIXED(self->connInfo.username, PQuser(pqconn));
 	}
 
@@ -3222,7 +3222,7 @@ cleanup:
 		self->pqconn = NULL;
 	}
 
-	MYLOG(0, "leaving %d\n", ret);
+	MYLOG(MIN_LOG_LEVEL, "leaving %d\n", ret);
 	return ret;
 }
 
@@ -3550,7 +3550,7 @@ DLL_DECLARE int PgDtc_is_recovery_available(void *self, char *reason, int rsize)
 	nameSize = sizeof(loginUser);
 	if (GetUserNameEx(NameUserPrincipal, loginUser, &nameSize))
 	{
-		MYLOG(0, "loginUser=%s\n", loginUser);
+		MYLOG(MIN_LOG_LEVEL, "loginUser=%s\n", loginUser);
 	}
 	else
 	{
@@ -3558,16 +3558,16 @@ DLL_DECLARE int PgDtc_is_recovery_available(void *self, char *reason, int rsize)
 		switch (err)
 		{
 			case ERROR_NONE_MAPPED:
-				MYLOG(0, "The user name is unavailable in the specified format\n");
+				MYLOG(MIN_LOG_LEVEL, "The user name is unavailable in the specified format\n");
 				break;
 			case ERROR_NO_SUCH_DOMAIN:
-				MYLOG(0, "The domain controller is unavailable to perform the lookup\n");
+				MYLOG(MIN_LOG_LEVEL, "The domain controller is unavailable to perform the lookup\n");
 				break;
 			case ERROR_MORE_DATA:
-				MYLOG(0, "The buffer is too small\n");
+				MYLOG(MIN_LOG_LEVEL, "The buffer is too small\n");
 				break;
 			default:
-				MYLOG(0, "GetUserNameEx error=%d\n", err);
+				MYLOG(MIN_LOG_LEVEL, "GetUserNameEx error=%d\n", err);
 				break;
 		}
 	}
@@ -3801,7 +3801,7 @@ PgDtc_isolate(void *self, DWORD option)
 		CC_cleanup(sconn, TRUE);
 		if (newconn = CC_Copy(sconn), NULL == newconn)
 			return newconn;
-		MYLOG(0, "newconn=%p from %p\n", newconn, sconn);
+		MYLOG(MIN_LOG_LEVEL, "newconn=%p from %p\n", newconn, sconn);
 		CC_initialize(sconn, FALSE);
 		if (!disposingConn)
 			CC_copy_conninfo(&sconn->connInfo, &newconn->connInfo);
@@ -3821,7 +3821,7 @@ PgDtc_isolate(void *self, DWORD option)
 	sconn->asdum = NULL;
 	SYNC_AUTOCOMMIT(sconn);
 	CC_set_dtc_clear(sconn);
-	MYLOG(0, "generated connection=%p with %p\n", newconn, newconn->asdum);
+	MYLOG(MIN_LOG_LEVEL, "generated connection=%p with %p\n", newconn, newconn->asdum);
 
 	return newconn;
 }

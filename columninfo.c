@@ -85,7 +85,7 @@ CI_read_fields_from_pgres(ColumnInfoClass *self, PGresult *pgres)
 		new_adtid = PQftype(pgres, lf);
 		new_adtsize = PQfsize(pgres, lf);
 
-		MYLOG(0, "READING ATTTYPMOD\n");
+		MYLOG(MIN_LOG_LEVEL, "READING ATTTYPMOD\n");
 		new_atttypmod = PQfmod(pgres, lf);
 
 		/* Subtract the header length */

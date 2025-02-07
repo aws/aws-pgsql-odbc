@@ -67,7 +67,7 @@ PGAPI_AllocEnv(HENV * phenv)
 	CSTR func = "PGAPI_AllocEnv";
 	SQLRETURN	ret = SQL_SUCCESS;
 
-	MYLOG(0, "entering\n");
+	MYLOG(MIN_LOG_LEVEL, "entering\n");
 
 	/*
 	 * For systems on which none of the constructor-making
@@ -86,7 +86,7 @@ PGAPI_AllocEnv(HENV * phenv)
 		ret = SQL_ERROR;
 	}
 
-	MYLOG(0, "leaving phenv=%p\n", *phenv);
+	MYLOG(MIN_LOG_LEVEL, "leaving phenv=%p\n", *phenv);
 	return ret;
 }
 
@@ -98,11 +98,11 @@ PGAPI_FreeEnv(HENV henv)
 	SQLRETURN	ret = SQL_SUCCESS;
 	EnvironmentClass *env = (EnvironmentClass *) henv;
 
-	MYLOG(0, "entering env=%p\n", env);
+	MYLOG(MIN_LOG_LEVEL, "entering env=%p\n", env);
 
 	if (env && EN_Destructor(env))
 	{
-		MYLOG(0, "   ok\n");
+		MYLOG(MIN_LOG_LEVEL, "   ok\n");
 		goto cleanup;
 	}
 
@@ -205,7 +205,7 @@ ER_ReturnError(PG_ErrorInfo *pgerror,
 		return SQL_NO_DATA_FOUND;
 	error = pgerror;
 	msg = error->__error_message;
-	MYLOG(0, "entering status = %d, msg = #%s#\n", error->status, msg);
+	MYLOG(MIN_LOG_LEVEL, "entering status = %d, msg = #%s#\n", error->status, msg);
 	msglen = error->errsize;
 	/*
 	 *	Even though an application specifies a larger error message
@@ -260,7 +260,7 @@ ER_ReturnError(PG_ErrorInfo *pgerror,
 		strncpy_null((char *) szSqlState, error->sqlstate, 6);
 
 	error->errpos = stapos + wrtlen;
-	MYLOG(0, "	     szSqlState = '%s',len=%d, szError='%s'\n", szSqlState, pcblen, szErrorMsg);
+	MYLOG(MIN_LOG_LEVEL, "	     szSqlState = '%s',len=%d, szError='%s'\n", szSqlState, pcblen, szErrorMsg);
 	if (wrtlen < pcblen)
 		return SQL_SUCCESS_WITH_INFO;
 	else
@@ -285,14 +285,14 @@ PGAPI_ConnectError(HDBC hdbc,
 	BOOL	once_again = FALSE;
 	ssize_t		msglen;
 
-	MYLOG(0, "entering hdbc=%p <%d>\n", hdbc, cbErrorMsgMax);
+	MYLOG(MIN_LOG_LEVEL, "entering hdbc=%p <%d>\n", hdbc, cbErrorMsgMax);
 	if (RecNumber != 1 && RecNumber != -1)
 		return SQL_NO_DATA_FOUND;
 	if (cbErrorMsgMax < 0)
 		return SQL_ERROR;
 	if (CONN_EXECUTING == conn->status || !CC_get_error(conn, &status, &msg) || NULL == msg)
 	{
-		MYLOG(0, "CC_Get_error returned nothing.\n");
+		MYLOG(MIN_LOG_LEVEL, "CC_Get_error returned nothing.\n");
 		if (NULL != szSqlState)
 			strncpy_null((char *) szSqlState, "00000", SIZEOF_SQLSTATE);
 		if (NULL != pcbErrorMsg)
@@ -302,7 +302,7 @@ PGAPI_ConnectError(HDBC hdbc,
 
 		return SQL_NO_DATA_FOUND;
 	}
-	MYLOG(0, "CC_get_error: status = %d, msg = #%s#\n", status, msg);
+	MYLOG(MIN_LOG_LEVEL, "CC_get_error: status = %d, msg = #%s#\n", status, msg);
 
 	msglen = strlen(msg);
 	if (NULL != pcbErrorMsg)
@@ -389,7 +389,7 @@ PGAPI_ConnectError(HDBC hdbc,
 		}
 	}
 
-	MYLOG(0, "	     szSqlState = '%s',len=" FORMAT_SSIZE_T ", szError='%s'\n", szSqlState ? (char *) szSqlState : PRINT_NULL, msglen, szErrorMsg ? (char *) szErrorMsg : PRINT_NULL);
+	MYLOG(MIN_LOG_LEVEL, "	     szSqlState = '%s',len=" FORMAT_SSIZE_T ", szError='%s'\n", szSqlState ? (char *) szSqlState : PRINT_NULL, msglen, szErrorMsg ? (char *) szErrorMsg : PRINT_NULL);
 	if (once_again)
 	{
 		CC_set_errornumber(conn, status);
@@ -413,14 +413,14 @@ PGAPI_EnvError(HENV henv,
 	char		*msg = NULL;
 	int		status;
 
-	MYLOG(0, "entering henv=%p <%d>\n", henv, cbErrorMsgMax);
+	MYLOG(MIN_LOG_LEVEL, "entering henv=%p <%d>\n", henv, cbErrorMsgMax);
 	if (RecNumber != 1 && RecNumber != -1)
 		return SQL_NO_DATA_FOUND;
 	if (cbErrorMsgMax < 0)
 		return SQL_ERROR;
 	if (!EN_get_error(env, &status, &msg) || NULL == msg)
 	{
-		MYLOG(0, "EN_get_error: msg = #%s#\n", msg);
+		MYLOG(MIN_LOG_LEVEL, "EN_get_error: msg = #%s#\n", msg);
 
 		if (NULL != szSqlState)
 			pg_sqlstate_set(env, szSqlState, "00000", "00000");
@@ -431,7 +431,7 @@ PGAPI_EnvError(HENV henv,
 
 		return SQL_NO_DATA_FOUND;
 	}
-	MYLOG(0, "EN_get_error: status = %d, msg = #%s#\n", status, msg);
+	MYLOG(MIN_LOG_LEVEL, "EN_get_error: status = %d, msg = #%s#\n", status, msg);
 
 	if (NULL != pcbErrorMsg)
 		*pcbErrorMsg = (SQLSMALLINT) strlen(msg);
@@ -476,7 +476,7 @@ EN_Constructor(void)
 
 	if (WSAStartup(wVersionRequested, &wsaData))
 	{
-		MYLOG(0, " WSAStartup error\n");
+		MYLOG(MIN_LOG_LEVEL, " WSAStartup error\n");
 		return rv;
 	}
 	/* Verify that this is the minimum version of WinSock */
@@ -486,7 +486,7 @@ EN_Constructor(void)
 		;
 	else
 	{
-		MYLOG(0, " WSAStartup version=(%d,%d)\n",
+		MYLOG(MIN_LOG_LEVEL, " WSAStartup version=(%d,%d)\n",
 			LOBYTE(wsaData.wVersion), HIBYTE(wsaData.wVersion));
 		goto cleanup;
 	}
@@ -495,7 +495,7 @@ EN_Constructor(void)
 	rv = (EnvironmentClass *) malloc(sizeof(EnvironmentClass));
 	if (NULL == rv)
 	{
-		MYLOG(0, " malloc error\n");
+		MYLOG(MIN_LOG_LEVEL, " malloc error\n");
 		goto cleanup;
 	}
 	rv->errormsg = 0;
@@ -520,7 +520,7 @@ EN_Destructor(EnvironmentClass *self)
 	int		lf, nullcnt;
 	char		rv = 1;
 
-	MYLOG(0, "entering self=%p\n", self);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p\n", self);
 	if (!self)
 		return 0;
 
@@ -546,7 +546,7 @@ EN_Destructor(EnvironmentClass *self)
 	}
 	if (conns && nullcnt >= conns_count)
 	{
-		MYLOG(0, "clearing conns count=%d\n", conns_count);
+		MYLOG(MIN_LOG_LEVEL, "clearing conns count=%d\n", conns_count);
 		free(conns);
 		conns = NULL;
 		conns_count = 0;
@@ -558,7 +558,7 @@ EN_Destructor(EnvironmentClass *self)
 #ifdef WIN32
 	WSACleanup();
 #endif
-	MYLOG(0, "leaving rv=%d\n", rv);
+	MYLOG(MIN_LOG_LEVEL, "leaving rv=%d\n", rv);
 #ifdef	_MEMORY_DEBUG_
 	debug_memory_check();
 #endif   /* _MEMORY_DEBUG_ */
@@ -590,7 +590,7 @@ EN_add_connection(EnvironmentClass *self, ConnectionClass *conn)
 	ConnectionClass	**newa;
 	char	ret = FALSE;
 
-	MYLOG(0, "entering self = %p, conn = %p\n", self, conn);
+	MYLOG(MIN_LOG_LEVEL, "entering self = %p, conn = %p\n", self, conn);
 
 	ENTER_CONNS_CS;
 	for (i = 0; i < conns_count; i++)
@@ -600,7 +600,7 @@ EN_add_connection(EnvironmentClass *self, ConnectionClass *conn)
 			conn->henv = self;
 			conns[i] = conn;
 			ret = TRUE;
-			MYLOG(0, "       added at i=%d, conn->henv = %p, conns[i]->henv = %p\n", i, conn->henv, conns[i]->henv);
+			MYLOG(MIN_LOG_LEVEL, "       added at i=%d, conn->henv = %p, conns[i]->henv = %p\n", i, conn->henv, conns[i]->henv);
 			goto cleanup;
 		}
 	}
@@ -614,7 +614,7 @@ EN_add_connection(EnvironmentClass *self, ConnectionClass *conn)
 	newa[conns_count] = conn;
 	conns = newa;
 	ret = TRUE;
-	MYLOG(0, "       added at %d, conn->henv = %p, conns[%d]->henv = %p\n", conns_count, conn->henv, conns_count, conns[conns_count]->henv);
+	MYLOG(MIN_LOG_LEVEL, "       added at %d, conn->henv = %p, conns[%d]->henv = %p\n", conns_count, conn->henv, conns_count, conns[conns_count]->henv);
 	for (i = conns_count + 1; i < alloc; i++)
 		conns[i] = NULL;
 	conns_count = alloc;
@@ -646,7 +646,7 @@ void
 EN_log_error(const char *func, char *desc, EnvironmentClass *self)
 {
 	if (self)
-		MYLOG(0, "ENVIRON ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", func, desc, self->errornumber, self->errormsg);
+		MYLOG(MIN_LOG_LEVEL, "ENVIRON ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", func, desc, self->errornumber, self->errormsg);
 	else
-		MYLOG(0, "INVALID ENVIRON HANDLE ERROR: func=%s, desc='%s'\n", func, desc);
+		MYLOG(MIN_LOG_LEVEL, "INVALID ENVIRON HANDLE ERROR: func=%s, desc='%s'\n", func, desc);
 }

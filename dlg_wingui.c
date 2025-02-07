@@ -148,7 +148,7 @@ LRESULT CALLBACK ListBoxProc(HWND hdlg, UINT message, WPARAM wParam, LPARAM lPar
 			// Get the selected index
 			int selidx = SendMessage(hdlg, CB_GETCURSEL, 0, 0);
 
-			MYLOG(0, "selected index is %d\n", selidx);
+			MYLOG(MIN_LOG_LEVEL, "selected index is %d\n", selidx);
 
 			EnableWindows(selidx);
 		}
@@ -335,7 +335,7 @@ driver_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
 	const char * drivername = NULL;
 	GLOBAL_VALUES defval;
 
-MYLOG(0, "entering src=%d\n", src);
+MYLOG(MIN_LOG_LEVEL, "entering src=%d\n", src);
 	init_globals(&defval);
 	switch (src)
 	{
@@ -425,7 +425,7 @@ limitless_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
 	GLOBAL_VALUES defval;
 	char	buff[MEDIUM_REGISTRY_LEN + 1];
 
-	MYLOG(0, "entering src=%d\n", src);
+	MYLOG(MIN_LOG_LEVEL, "entering src=%d\n", src);
 	init_globals(&defval);
 	switch (src)
 	{
@@ -535,7 +535,7 @@ HMODULE DtcProc(const char *procname, FARPROC *proc)
 	*proc = NULL;
 	if (hmodule = LoadLibraryEx(GetXaLibPath(), NULL, LOAD_WITH_ALTERED_SEARCH_PATH), NULL != hmodule)
 	{
-MYLOG(0, "GetProcAddress for %s\n", procname);
+MYLOG(MIN_LOG_LEVEL, "GetProcAddress for %s\n", procname);
 		*proc = GetProcAddress(hmodule, procname);
 	}
 
@@ -580,7 +580,7 @@ global_optionsProc(HWND hdlg,
 	GLOBAL_VALUES	defval;
 
 // if (WM_INITDIALOG == wMsg || WM_COMMAND == wMsg)
-// MYLOG(0, "entering wMsg=%d\n", wMsg);
+// MYLOG(MIN_LOG_LEVEL, "entering wMsg=%d\n", wMsg);
 	init_globals(&defval);
 	switch (wMsg)
 	{
@@ -744,7 +744,7 @@ ds_options1Proc(HWND hdlg,
 	char	strbuf[128];
 
 // if (WM_INITDIALOG == wMsg || WM_COMMAND == wMsg)
-// MYLOG(0, "entering wMsg=%d in\n", wMsg);
+// MYLOG(MIN_LOG_LEVEL, "entering wMsg=%d in\n", wMsg);
 	switch (wMsg)
 	{
 		case WM_INITDIALOG:
@@ -826,7 +826,7 @@ ds_options_update(HWND hdlg, ConnInfo *ci)
 {
 	char		buf[128];
 
-	MYLOG(0, "entering got ci=%p\n", ci);
+	MYLOG(MIN_LOG_LEVEL, "entering got ci=%p\n", ci);
 
 	/* ExtraOptions */
 	GetDlgItemText(hdlg, DS_EXTRA_OPTIONS, buf, sizeof(buf));
@@ -936,7 +936,7 @@ ds_options2Proc(HWND hdlg,
 	BOOL		enable;
 
 // if (WM_INITDIALOG == wMsg || WM_COMMAND == wMsg)
-// MYLOG(0, "entering wMsg=%d in\n", wMsg);
+// MYLOG(MIN_LOG_LEVEL, "entering wMsg=%d in\n", wMsg);
 	switch (wMsg)
 	{
 		case WM_INITDIALOG:
@@ -1065,11 +1065,11 @@ ds_options2Proc(HWND hdlg,
 			switch (cmd = GET_WM_COMMAND_ID(wParam, lParam))
 			{
 				case DS_SHOWOIDCOLUMN:
-					MYLOG(0, "WM_COMMAND: DS_SHOWOIDCOLUMN\n");
+					MYLOG(MIN_LOG_LEVEL, "WM_COMMAND: DS_SHOWOIDCOLUMN\n");
 					EnableWindow(GetDlgItem(hdlg, DS_FAKEOIDINDEX), IsDlgButtonChecked(hdlg, DS_SHOWOIDCOLUMN));
 					return TRUE;
 				case DS_DISABLE_KEEPALIVE:
-					MYLOG(0, "WM_COMMAND: DS_SHOWOIDCOLUMN\n");
+					MYLOG(MIN_LOG_LEVEL, "WM_COMMAND: DS_SHOWOIDCOLUMN\n");
 					EnableWindow(GetDlgItem(hdlg, DS_KEEPALIVETIME), !IsDlgButtonChecked(hdlg, cmd));
 					EnableWindow(GetDlgItem(hdlg, DS_KEEPALIVEINTERVAL), !IsDlgButtonChecked(hdlg, cmd));
 					return TRUE;
@@ -1109,7 +1109,7 @@ ds_options3Draw(HWND hdlg, const ConnInfo *ci)
 	BOOL	enable = TRUE;
 	static BOOL defset = FALSE;
 
-MYLOG(0, "entering\n");
+MYLOG(MIN_LOG_LEVEL, "entering\n");
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 	switch (ci->xa_opt)
 	{
@@ -1155,7 +1155,7 @@ ds_options3_update(HWND hdlg, ConnInfo *ci)
 	PQCONNINFOPARSEPROC	pproc = NULL;
 	PQCONNINFOFREEPROC	fproc = NULL;
 
-	MYLOG(0, "entering got ci=%p\n", ci);
+	MYLOG(MIN_LOG_LEVEL, "entering got ci=%p\n", ci);
 
 	/* Datasource libpq parameters */
 	GetDlgItemText(hdlg, DS_LIBPQOPT, pqopt, sizeof(pqopt));
@@ -1205,7 +1205,7 @@ ds_options3Proc(HWND hdlg,
 	DWORD		cmd;
 
 if (WM_INITDIALOG == wMsg || WM_COMMAND == wMsg)
-MYLOG(0, "entering wMsg=%d\n", wMsg);
+MYLOG(MIN_LOG_LEVEL, "entering wMsg=%d\n", wMsg);
 	switch (wMsg)
 	{
 		case WM_INITDIALOG:

@@ -40,7 +40,7 @@ PGAPI_GetDiagRec(SQLSMALLINT HandleType, SQLHANDLE Handle,
 {
 	RETCODE		ret;
 
-	MYLOG(0, "entering type=%d rec=%d buffer=%d\n", HandleType, RecNumber, BufferLength);
+	MYLOG(MIN_LOG_LEVEL, "entering type=%d rec=%d buffer=%d\n", HandleType, RecNumber, BufferLength);
 	switch (HandleType)
 	{
 		case SQL_HANDLE_ENV:
@@ -67,7 +67,7 @@ PGAPI_GetDiagRec(SQLSMALLINT HandleType, SQLHANDLE Handle,
 		default:
 			ret = SQL_ERROR;
 	}
-	MYLOG(0, "leaving %d\n", ret);
+	MYLOG(MIN_LOG_LEVEL, "leaving %d\n", ret);
 	return ret;
 }
 
@@ -89,7 +89,7 @@ PGAPI_GetDiagField(SQLSMALLINT HandleType, SQLHANDLE Handle,
 	ssize_t		rtnlen = -1;
 	int		rtnctype = SQL_C_CHAR;
 
-	MYLOG(0, "entering rec=%d\n", RecNumber);
+	MYLOG(MIN_LOG_LEVEL, "entering rec=%d\n", RecNumber);
 	switch (HandleType)
 	{
 		case SQL_HANDLE_ENV:
@@ -193,7 +193,7 @@ PGAPI_GetDiagField(SQLSMALLINT HandleType, SQLHANDLE Handle,
 						ret = PGAPI_ConnectError(Handle, 1,
 											 NULL, NULL, msg,
 											 sizeof(msg), &pcbErrm, 0);
-						MYLOG(0, "pcbErrm=%d\n", pcbErrm);
+						MYLOG(MIN_LOG_LEVEL, "pcbErrm=%d\n", pcbErrm);
 					}
 					if (SQL_SUCCEEDED(ret))
 					{
@@ -394,7 +394,7 @@ MYLOG(DETAIL_LOG_LEVEL, "rc=" FORMAT_LEN "\n", rc);
 		if (StringLengthPtr)
 			*StringLengthPtr = (SQLSMALLINT) rtnlen;
 	}
-	MYLOG(0, "leaving %d\n", ret);
+	MYLOG(MIN_LOG_LEVEL, "leaving %d\n", ret);
 	return ret;
 }
 
@@ -408,7 +408,7 @@ PGAPI_GetConnectAttr(HDBC ConnectionHandle,
 	RETCODE	ret = SQL_SUCCESS;
 	SQLINTEGER	len = 4;
 
-	MYLOG(0, "entering " FORMAT_INTEGER "\n", Attribute);
+	MYLOG(MIN_LOG_LEVEL, "entering " FORMAT_INTEGER "\n", Attribute);
 	switch (Attribute)
 	{
 		case SQL_ATTR_ASYNC_ENABLE:
@@ -1668,7 +1668,7 @@ PGAPI_GetStmtAttr(HSTMT StatementHandle,
 	RETCODE		ret = SQL_SUCCESS;
 	SQLINTEGER	len = 0;
 
-	MYLOG(0, "entering Handle=%p " FORMAT_INTEGER "\n", StatementHandle, Attribute);
+	MYLOG(MIN_LOG_LEVEL, "entering Handle=%p " FORMAT_INTEGER "\n", StatementHandle, Attribute);
 	switch (Attribute)
 	{
 		case SQL_ATTR_FETCH_BOOKMARK_PTR:	/* 16 */
@@ -1771,7 +1771,7 @@ PGAPI_SetConnectAttr(HDBC ConnectionHandle,
 	BOOL	unsupported = FALSE;
 	int	newValue;
 
-	MYLOG(0, "entering for %p: " FORMAT_INTEGER " %p\n", ConnectionHandle, Attribute, Value);
+	MYLOG(MIN_LOG_LEVEL, "entering for %p: " FORMAT_INTEGER " %p\n", ConnectionHandle, Attribute, Value);
 	switch (Attribute)
 	{
 		case SQL_ATTR_METADATA_ID:
@@ -1780,20 +1780,20 @@ PGAPI_SetConnectAttr(HDBC ConnectionHandle,
 		case SQL_ATTR_ANSI_APP:
 			if (SQL_AA_FALSE != CAST_PTR(SQLINTEGER, Value))
 			{
-				MYLOG(0, "the application is ansi\n");
+				MYLOG(MIN_LOG_LEVEL, "the application is ansi\n");
 				if (CC_is_in_unicode_driver(conn)) /* the driver is unicode */
 					CC_set_in_ansi_app(conn); /* but the app is ansi */
 			}
 			else
 			{
-				MYLOG(0, "the application is unicode\n");
+				MYLOG(MIN_LOG_LEVEL, "the application is unicode\n");
 			}
 			/*return SQL_ERROR;*/
 			return SQL_SUCCESS;
 		case SQL_ATTR_ENLIST_IN_DTC:
 #ifdef	WIN32
 #ifdef	_HANDLE_ENLIST_IN_DTC_
-			MYLOG(0, "SQL_ATTR_ENLIST_IN_DTC %p request received\n", Value);
+			MYLOG(MIN_LOG_LEVEL, "SQL_ATTR_ENLIST_IN_DTC %p request received\n", Value);
 			if (conn->connInfo.xa_opt != 0)
 			{
 				/*
@@ -1825,11 +1825,11 @@ PGAPI_SetConnectAttr(HDBC ConnectionHandle,
 				logs_on_off(-1, conn->connInfo.drivers.debug, 0);
 				conn->connInfo.drivers.debug = newValue;
 				logs_on_off(1, conn->connInfo.drivers.debug, 0);
-				MYLOG(0, "debug => %d\n", conn->connInfo.drivers.debug);
+				MYLOG(MIN_LOG_LEVEL, "debug => %d\n", conn->connInfo.drivers.debug);
 			}
 			else if (newValue == 0 && conn->connInfo.drivers.debug > 0)
 			{
-				MYLOG(0, "debug => %d\n", newValue);
+				MYLOG(MIN_LOG_LEVEL, "debug => %d\n", newValue);
 				logs_on_off(-1, conn->connInfo.drivers.debug, 0);
 				conn->connInfo.drivers.debug = newValue;
 				logs_on_off(1, 0, 0);
@@ -1842,11 +1842,11 @@ PGAPI_SetConnectAttr(HDBC ConnectionHandle,
 				logs_on_off(-1, 0, conn->connInfo.drivers.commlog);
 				conn->connInfo.drivers.commlog = newValue;
 				logs_on_off(1, 0, conn->connInfo.drivers.commlog);
-				MYLOG(0, "commlog => %d\n", conn->connInfo.drivers.commlog);
+				MYLOG(MIN_LOG_LEVEL, "commlog => %d\n", conn->connInfo.drivers.commlog);
 			}
 			else if (newValue == 0 && conn->connInfo.drivers.commlog > 0)
 			{
-				MYLOG(0, "commlog => %d\n", newValue);
+				MYLOG(MIN_LOG_LEVEL, "commlog => %d\n", newValue);
 				logs_on_off(-1, 0, conn->connInfo.drivers.commlog);
 				conn->connInfo.drivers.debug = newValue;
 				logs_on_off(1, 0, 0);
@@ -1854,60 +1854,60 @@ PGAPI_SetConnectAttr(HDBC ConnectionHandle,
 			break;
 		case SQL_ATTR_PGOPT_PARSE:
 			conn->connInfo.drivers.parse = CAST_UPTR(SQLCHAR, Value);
-			MYLOG(0, "parse => %d\n", conn->connInfo.drivers.parse);
+			MYLOG(MIN_LOG_LEVEL, "parse => %d\n", conn->connInfo.drivers.parse);
 			break;
 		case SQL_ATTR_PGOPT_USE_DECLAREFETCH:
 			conn->connInfo.drivers.use_declarefetch = CAST_UPTR(SQLCHAR, Value);
 			ci_updatable_cursors_set(&conn->connInfo);
-			MYLOG(0, "declarefetch => %d\n", conn->connInfo.drivers.use_declarefetch);
+			MYLOG(MIN_LOG_LEVEL, "declarefetch => %d\n", conn->connInfo.drivers.use_declarefetch);
 			break;
 		case SQL_ATTR_PGOPT_SERVER_SIDE_PREPARE:
 			conn->connInfo.use_server_side_prepare = CAST_UPTR(SQLCHAR, Value);
-			MYLOG(0, "server_side_prepare => %d\n", conn->connInfo.use_server_side_prepare);
+			MYLOG(MIN_LOG_LEVEL, "server_side_prepare => %d\n", conn->connInfo.use_server_side_prepare);
 			break;
 		case SQL_ATTR_PGOPT_FETCH:
 			conn->connInfo.drivers.fetch_max = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "fetch => %d\n", conn->connInfo.drivers.fetch_max);
+			MYLOG(MIN_LOG_LEVEL, "fetch => %d\n", conn->connInfo.drivers.fetch_max);
 			break;
 		case SQL_ATTR_PGOPT_UNKNOWNSIZES:
 			conn->connInfo.drivers.unknown_sizes = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "unknown_sizes => %d\n", conn->connInfo.drivers.unknown_sizes);
+			MYLOG(MIN_LOG_LEVEL, "unknown_sizes => %d\n", conn->connInfo.drivers.unknown_sizes);
 			break;
 		case SQL_ATTR_PGOPT_TEXTASLONGVARCHAR:
 			conn->connInfo.drivers.text_as_longvarchar = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "text_as_longvarchar => %d\n", conn->connInfo.drivers.text_as_longvarchar);
+			MYLOG(MIN_LOG_LEVEL, "text_as_longvarchar => %d\n", conn->connInfo.drivers.text_as_longvarchar);
 			break;
 		case SQL_ATTR_PGOPT_UNKNOWNSASLONGVARCHAR:
 			conn->connInfo.drivers.unknowns_as_longvarchar = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "unknowns_as_long_varchar => %d\n", conn->connInfo.drivers.unknowns_as_longvarchar);
+			MYLOG(MIN_LOG_LEVEL, "unknowns_as_long_varchar => %d\n", conn->connInfo.drivers.unknowns_as_longvarchar);
 			break;
 		case SQL_ATTR_PGOPT_BOOLSASCHAR:
 			conn->connInfo.drivers.bools_as_char = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "bools_as_char => %d\n", conn->connInfo.drivers.bools_as_char);
+			MYLOG(MIN_LOG_LEVEL, "bools_as_char => %d\n", conn->connInfo.drivers.bools_as_char);
 			break;
 		case SQL_ATTR_PGOPT_MAXVARCHARSIZE:
 			conn->connInfo.drivers.max_varchar_size = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "max_varchar_size => %d\n", conn->connInfo.drivers.max_varchar_size);
+			MYLOG(MIN_LOG_LEVEL, "max_varchar_size => %d\n", conn->connInfo.drivers.max_varchar_size);
 			break;
 		case SQL_ATTR_PGOPT_MAXLONGVARCHARSIZE:
 			conn->connInfo.drivers.max_longvarchar_size = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "max_longvarchar_size => %d\n", conn->connInfo.drivers.max_longvarchar_size);
+			MYLOG(MIN_LOG_LEVEL, "max_longvarchar_size => %d\n", conn->connInfo.drivers.max_longvarchar_size);
 			break;
 		case SQL_ATTR_PGOPT_WCSDEBUG:
 			conn->connInfo.wcs_debug = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "wcs_debug => %d\n", conn->connInfo.wcs_debug);
+			MYLOG(MIN_LOG_LEVEL, "wcs_debug => %d\n", conn->connInfo.wcs_debug);
 			break;
 		case SQL_ATTR_PGOPT_MSJET:
 			conn->ms_jet = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "ms_jet => %d\n", conn->ms_jet);
+			MYLOG(MIN_LOG_LEVEL, "ms_jet => %d\n", conn->ms_jet);
 			break;
 		case SQL_ATTR_PGOPT_BATCHSIZE:
 			conn->connInfo.batch_size = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "batch size => %d\n", conn->connInfo.batch_size);
+			MYLOG(MIN_LOG_LEVEL, "batch size => %d\n", conn->connInfo.batch_size);
 			break;
 		case SQL_ATTR_PGOPT_IGNORETIMEOUT:
 			conn->connInfo.ignore_timeout = CAST_PTR(SQLINTEGER, Value);
-			MYLOG(0, "ignore_timeout => %d\n", conn->connInfo.ignore_timeout);
+			MYLOG(MIN_LOG_LEVEL, "ignore_timeout => %d\n", conn->connInfo.ignore_timeout);
 			break;
 		default:
 			if (Attribute < 65536)
@@ -1936,7 +1936,7 @@ PGAPI_GetDescField(SQLHDESC DescriptorHandle,
 	RETCODE		ret = SQL_SUCCESS;
 	DescriptorClass *desc = (DescriptorClass *) DescriptorHandle;
 
-	MYLOG(0, "entering h=%p rec=" FORMAT_SMALLI " field=" FORMAT_SMALLI " blen=" FORMAT_INTEGER "\n", DescriptorHandle, RecNumber, FieldIdentifier, BufferLength);
+	MYLOG(MIN_LOG_LEVEL, "entering h=%p rec=" FORMAT_SMALLI " field=" FORMAT_SMALLI " blen=" FORMAT_INTEGER "\n", DescriptorHandle, RecNumber, FieldIdentifier, BufferLength);
 	switch (DC_get_desc_type(desc))
 	{
 		case SQL_ATTR_APP_ROW_DESC:
@@ -1986,7 +1986,7 @@ PGAPI_SetDescField(SQLHDESC DescriptorHandle,
 	RETCODE		ret = SQL_SUCCESS;
 	DescriptorClass *desc = (DescriptorClass *) DescriptorHandle;
 
-	MYLOG(0, "entering h=%p(%d) rec=" FORMAT_SMALLI " field=" FORMAT_SMALLI " val=%p," FORMAT_INTEGER "\n", DescriptorHandle, DC_get_desc_type(desc), RecNumber, FieldIdentifier, Value, BufferLength);
+	MYLOG(MIN_LOG_LEVEL, "entering h=%p(%d) rec=" FORMAT_SMALLI " field=" FORMAT_SMALLI " val=%p," FORMAT_INTEGER "\n", DescriptorHandle, DC_get_desc_type(desc), RecNumber, FieldIdentifier, Value, BufferLength);
 	switch (DC_get_desc_type(desc))
 	{
 		case SQL_ATTR_APP_ROW_DESC:
@@ -2039,9 +2039,9 @@ PGAPI_SetDescRec(SQLHDESC DescriptorHandle,
 	RETCODE		ret = SQL_SUCCESS;
 	DescriptorClass *desc = (DescriptorClass *) DescriptorHandle;
 
-	MYLOG(0, "entering h=%p(%d) rec=" FORMAT_SMALLI " type=" FORMAT_SMALLI " sub=" FORMAT_SMALLI " len=" FORMAT_LEN " prec=" FORMAT_SMALLI " scale=" FORMAT_SMALLI " data=%p\n", 
+	MYLOG(MIN_LOG_LEVEL, "entering h=%p(%d) rec=" FORMAT_SMALLI " type=" FORMAT_SMALLI " sub=" FORMAT_SMALLI " len=" FORMAT_LEN " prec=" FORMAT_SMALLI " scale=" FORMAT_SMALLI " data=%p\n",
 			DescriptorHandle, DC_get_desc_type(desc), RecNumber, Type, SubType, Length, Precision, Scale, Data);
-	MYLOG(0, "str=%p ind=%p\n", StringLength, Indicator);
+	MYLOG(MIN_LOG_LEVEL, "str=%p ind=%p\n", StringLength, Indicator);
 
 	/* Descriptor handle must not be an IRD handle */
 	if (DC_get_desc_type(desc) == SQL_ATTR_IMP_ROW_DESC)
@@ -2119,8 +2119,8 @@ PGAPI_GetDescRec(SQLHDESC DescriptorHandle,
 	SQLSMALLINT strlen, typ, subtyp, prec, scal, null;
 	SQLLEN len;
 
-	MYLOG(0, "entering h=%p(%d) rec=" FORMAT_SMALLI " name=%p blen=" FORMAT_SMALLI "\n", DescriptorHandle, DC_get_desc_type(desc), RecNumber, Name, BufferLength);
-	MYLOG(0, "str=%p type=%p sub=%p len=%p prec=%p scale=%p null=%p\n", StringLength, Type, SubType, Length, Precision, Scale, Nullable);
+	MYLOG(MIN_LOG_LEVEL, "entering h=%p(%d) rec=" FORMAT_SMALLI " name=%p blen=" FORMAT_SMALLI "\n", DescriptorHandle, DC_get_desc_type(desc), RecNumber, Name, BufferLength);
+	MYLOG(MIN_LOG_LEVEL, "str=%p type=%p sub=%p len=%p prec=%p scale=%p null=%p\n", StringLength, Type, SubType, Length, Precision, Scale, Nullable);
 
 	/*
 		Get following descriptor fields:
@@ -2197,7 +2197,7 @@ PGAPI_SetStmtAttr(HSTMT StatementHandle,
 	CSTR func = "PGAPI_SetStmtAttr";
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "entering Handle=%p " FORMAT_INTEGER "," FORMAT_ULEN "(%p)\n", StatementHandle, Attribute, (SQLULEN) Value, Value);
+	MYLOG(MIN_LOG_LEVEL, "entering Handle=%p " FORMAT_INTEGER "," FORMAT_ULEN "(%p)\n", StatementHandle, Attribute, (SQLULEN) Value, Value);
 	switch (Attribute)
 	{
 		case SQL_ATTR_ENABLE_AUTO_IPD:	/* 15 */
@@ -2310,7 +2310,7 @@ RETCODE	bulk_ope_callback(RETCODE retcode, void *para)
 
 	if (s->need_data_callback)
 	{
-		MYLOG(0, "entering in\n");
+		MYLOG(MIN_LOG_LEVEL, "entering in\n");
 		s->processed++;
 		s->idx++;
 	}
@@ -2378,7 +2378,7 @@ PGAPI_BulkOperations(HSTMT hstmt, SQLSMALLINT operationX)
 	ConnectionClass	*conn;
 	BindInfoClass	*bookmark;
 
-	MYLOG(0, "entering operation = %d\n", operationX);
+	MYLOG(MIN_LOG_LEVEL, "entering operation = %d\n", operationX);
 	s.stmt = (StatementClass *) hstmt;
 	s.operation = operationX;
 	SC_clear_error(s.stmt);

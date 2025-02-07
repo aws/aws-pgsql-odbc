@@ -52,7 +52,7 @@ int get_convtype(void)
 				    '\0' == cdt[2] &&
 				    '\0' == cdt[3])
 				{
-					MYLOG(0, " UTF-16LE detected\n");
+					MYLOG(MIN_LOG_LEVEL, " UTF-16LE detected\n");
 					convtype = WCSTYPE_UTF16_LE;
 					use_wcs = TRUE;
 				}
@@ -67,7 +67,7 @@ int get_convtype(void)
 				    '\0' == cdt[6] &&
 				    '\0' == cdt[7])
 				{
-					MYLOG(0, " UTF32-LE detected\n");
+					MYLOG(MIN_LOG_LEVEL, " UTF32-LE detected\n");
 					convtype = WCSTYPE_UTF32_LE;
 					use_wcs = TRUE;
 				}
@@ -86,7 +86,7 @@ int get_convtype(void)
 		    '\0' == cdt[2] &&
 		    '\0' == cdt[3])
 		{
-			MYLOG(0, " C16_UTF-16LE detected\n");
+			MYLOG(MIN_LOG_LEVEL, " C16_UTF-16LE detected\n");
 			convtype = C16TYPE_UTF16_LE;
 			use_c16 = TRUE;
 		}
@@ -132,7 +132,7 @@ char *ucs2_to_utf8(const SQLWCHAR *ucs2str, SQLLEN ilen, SQLLEN *olen, BOOL lowe
 {
 	char *	utf8str;
 	int	len = 0;
-MYLOG(0, "%p ilen=" FORMAT_LEN " ", ucs2str, ilen);
+MYLOG(MIN_LOG_LEVEL, "%p ilen=" FORMAT_LEN " ", ucs2str, ilen);
 
 	if (!ucs2str)
 	{
@@ -429,7 +429,7 @@ char *ucs4_to_utf8(const UInt4 *ucs4str, SQLLEN ilen, SQLLEN *olen, BOOL lower_i
 {
 	char *	utf8str;
 	int	len = 0;
-MYLOG(0, " %p ilen=" FORMAT_LEN "\n", ucs4str, ilen);
+MYLOG(MIN_LOG_LEVEL, " %p ilen=" FORMAT_LEN "\n", ucs4str, ilen);
 
 	if (!ucs4str)
 	{
@@ -444,7 +444,7 @@ MYLOG(0, " %p ilen=" FORMAT_LEN "\n", ucs4str, ilen);
 	}
 	if (ilen < 0)
 		ilen = ucs4strlen(ucs4str);
-MYLOG(0, " newlen=" FORMAT_LEN "\n", ilen);
+MYLOG(MIN_LOG_LEVEL, " newlen=" FORMAT_LEN "\n", ilen);
 	utf8str = (char *) malloc(ilen * 4 + 1);
 	if (utf8str)
 	{
@@ -501,7 +501,7 @@ MYLOG(0, " newlen=" FORMAT_LEN "\n", ilen);
 					   ((byte4_mask2 & *wstr) >> 4) |
 					   ((byte4_mask3 & *wstr) << 10) |
 					   ((byte4_mask4 & *wstr) << 24);
-/* MYLOG(0, " %08x->%08x\n", *wstr, byte4code); */
+/* MYLOG(MIN_LOG_LEVEL, " %08x->%08x\n", *wstr, byte4code); */
 				if (little_endian)
 					memcpy(utf8str + len, (char *) &byte4code, sizeof(byte4code));
 				else
@@ -518,7 +518,7 @@ MYLOG(0, " newlen=" FORMAT_LEN "\n", ilen);
 		if (olen)
 			*olen = len;
 	}
-MYLOG(0, " olen=%d %s\n", len, utf8str ? utf8str : "");
+MYLOG(MIN_LOG_LEVEL, " olen=%d %s\n", len, utf8str ? utf8str : "");
 	return utf8str;
 }
 
@@ -544,7 +544,7 @@ SQLULEN utf8_to_ucs4_lf(const char *utf8str, SQLLEN ilen, BOOL lfconv,
 	SQLULEN		rtn, ocount, wcode;
 	const UCHAR *str;
 
-MYLOG(0, " ilen=" FORMAT_LEN " bufcount=" FORMAT_ULEN "\n", ilen, bufcount);
+MYLOG(MIN_LOG_LEVEL, " ilen=" FORMAT_LEN " bufcount=" FORMAT_ULEN "\n", ilen, bufcount);
 	if (!utf8str)
 		return 0;
 MYLOG(99, " string=%s\n", utf8str);
@@ -662,7 +662,7 @@ cleanup:
 	}
 	if (ocount < bufcount && ucs4str)
 		ucs4str[ocount] = 0;
-MYLOG(0, " ocount=" FORMAT_ULEN "\n", ocount);
+MYLOG(MIN_LOG_LEVEL, " ocount=" FORMAT_ULEN "\n", ocount);
 	return rtn;
 }
 
@@ -679,7 +679,7 @@ int ucs4_to_ucs2_lf(const unsigned int *ucs4str, SQLLEN ilen, SQLWCHAR *ucs2str,
 	UCHAR * const udt = (UCHAR *) &dmy_wchar;
 	unsigned int	uintdt;
 
-MYLOG(0, " ilen=" FORMAT_LEN " bufcount=%d\n", ilen, bufcount);
+MYLOG(MIN_LOG_LEVEL, " ilen=" FORMAT_LEN " bufcount=%d\n", ilen, bufcount);
 	if (ilen < 0)
 		ilen = ucs4strlen(ucs4str);
 	for (i = 0; i < ilen && (uintdt = ucs4str[i]); i++)
@@ -736,7 +736,7 @@ int ucs2_to_ucs4(const SQLWCHAR *ucs2str, SQLLEN ilen, unsigned int *ucs4str, in
 	unsigned int	dmy_uint;
 	UCHAR * const udt = (UCHAR *) &dmy_uint;
 
-MYLOG(0, " ilen=" FORMAT_LEN " bufcount=%d\n", ilen, bufcount);
+MYLOG(MIN_LOG_LEVEL, " ilen=" FORMAT_LEN " bufcount=%d\n", ilen, bufcount);
 	if (ilen < 0)
 		ilen = ucs2strlen(ucs2str);
 	udt[3] = 0;	/* always */
@@ -821,7 +821,7 @@ int msgtowstr(const char *inmsg, wchar_t *outmsg, int buflen)
 {
 	int	outlen = -1;
 
-MYLOG(0, " inmsg=%p buflen=%d\n", inmsg, buflen);
+MYLOG(MIN_LOG_LEVEL, " inmsg=%p buflen=%d\n", inmsg, buflen);
 #ifdef	WIN32
 	if (NULL == outmsg)
 		buflen = 0;
@@ -841,9 +841,9 @@ MYLOG(0, " inmsg=%p buflen=%d\n", inmsg, buflen);
 	if (outmsg && outlen >= buflen)
 	{
 		outmsg[buflen - 1] = 0;
-		MYLOG(0, " out=%dchars truncated to %d\n", outlen, buflen - 1);
+		MYLOG(MIN_LOG_LEVEL, " out=%dchars truncated to %d\n", outlen, buflen - 1);
 	}
-MYLOG(0, " buf=%dchars out=%dchars\n", buflen, outlen);
+MYLOG(MIN_LOG_LEVEL, " buf=%dchars out=%dchars\n", buflen, outlen);
 
 	return outlen;
 }
@@ -862,7 +862,7 @@ int wstrtomsg(const wchar_t *wstr, char *outmsg, int buflen)
 {
 	int	outlen = -1;
 
-MYLOG(0, " wstr=%p buflen=%d\n", wstr, buflen);
+MYLOG(MIN_LOG_LEVEL, " wstr=%p buflen=%d\n", wstr, buflen);
 #ifdef	WIN32
 	if (NULL == outmsg)
 		buflen = 0;
@@ -880,9 +880,9 @@ MYLOG(0, " wstr=%p buflen=%d\n", wstr, buflen);
 	if (outmsg && outlen >= buflen)
 	{
 		outmsg[buflen - 1] = 0;
-		MYLOG(0, " out=%dbytes truncated to %d\n", outlen, buflen - 1);
+		MYLOG(MIN_LOG_LEVEL, " out=%dbytes truncated to %d\n", outlen, buflen - 1);
 	}
-MYLOG(0, " buf=%dbytes outlen=%dbytes\n", buflen, outlen);
+MYLOG(MIN_LOG_LEVEL, " buf=%dbytes outlen=%dbytes\n", buflen, outlen);
 
 	return outlen;
 }
@@ -903,7 +903,7 @@ SQLLEN	mbstoc16_lf(char16_t *c16dt, const char *c8dt, size_t n, BOOL lf_conv)
 	const char	*cdt;
 	mbstate_t	mbst = initial_state;
 
-MYLOG(0, " c16dt=%p size=" FORMAT_SIZE_T "\n", c16dt, n);
+MYLOG(MIN_LOG_LEVEL, " c16dt=%p size=" FORMAT_SIZE_T "\n", c16dt, n);
 	for (i = 0, cdt = c8dt; i < n || (!c16dt); i++)
 	{
 		if (lf_conv && PG_LINEFEED == *cdt && i > 0 && PG_CARRIAGE_RETURN != cdt[-1])
@@ -937,7 +937,7 @@ SQLLEN	c16tombs(char *c8dt, const char16_t *c16dt, size_t n)
 	char	*cdt, c4byte[4];
 	mbstate_t	mbst = initial_state;
 
-MYLOG(0, " c8dt=%p size=" FORMAT_SIZE_T "u\n", c8dt, n);
+MYLOG(MIN_LOG_LEVEL, " c8dt=%p size=" FORMAT_SIZE_T "u\n", c8dt, n);
 	if (!c8dt)
 		n = 0;
 	for (i = 0, cdt = c8dt; c16dt[i] && (result < n || (!cdt)); i++)
@@ -1019,7 +1019,7 @@ SQLLEN bindpara_msg_to_utf8(const char *ldt, char **wcsbuf, SQLLEN used)
 	}
 
 	get_convtype();
-	MYLOG(0, " \n");
+	MYLOG(MIN_LOG_LEVEL, " \n");
 #if defined(__WCS_ISO10646__)
 	if (use_wcs)
 	{
@@ -1085,7 +1085,7 @@ SQLLEN bindpara_wchar_to_msg(const SQLWCHAR *utf16, char **wcsbuf, SQLLEN used)
 	}
 
 	get_convtype();
-MYLOG(0, "\n");
+MYLOG(MIN_LOG_LEVEL, "\n");
 #if defined(__WCS_ISO10646__)
 	if (use_wcs)
 	{
@@ -1135,7 +1135,7 @@ SQLLEN bindcol_hybrid_estimate(const char *ldt, BOOL lf_conv, char **wcsbuf)
 	SQLLEN	l = (-2);
 
 	get_convtype();
-	MYLOG(0, " lf_conv=%d\n", lf_conv);
+	MYLOG(MIN_LOG_LEVEL, " lf_conv=%d\n", lf_conv);
 #if defined(__WCS_ISO10646__)
 	if (use_wcs)
 	{
@@ -1186,7 +1186,7 @@ SQLLEN bindcol_hybrid_exec(SQLWCHAR *utf16, const char *ldt, size_t n, BOOL lf_c
 	SQLLEN	l = (-2);
 
 	get_convtype();
-	MYLOG(0, " size=" FORMAT_SIZE_T " lf_conv=%d\n", n, lf_conv);
+	MYLOG(MIN_LOG_LEVEL, " size=" FORMAT_SIZE_T " lf_conv=%d\n", n, lf_conv);
 #if defined(__WCS_ISO10646__)
 	if (use_wcs)
 	{
@@ -1248,7 +1248,7 @@ SQLLEN bindcol_localize_estimate(const char *utf8dt, BOOL lf_conv, char **wcsbuf
 	char *convalc = NULL;
 
 	get_convtype();
-	MYLOG(0, " lf_conv=%d\n", lf_conv);
+	MYLOG(MIN_LOG_LEVEL, " lf_conv=%d\n", lf_conv);
 #if defined(__WCS_ISO10646__)
 	if (use_wcs)
 	{
@@ -1278,7 +1278,7 @@ SQLLEN bindcol_localize_estimate(const char *utf8dt, BOOL lf_conv, char **wcsbuf
 	else if (NULL != convalc)
 		*wcsbuf = (char *) convalc;
 
-MYLOG(0, " return=" FORMAT_LEN "\n", l);
+MYLOG(MIN_LOG_LEVEL, " return=" FORMAT_LEN "\n", l);
 	return l;
 }
 
@@ -1287,7 +1287,7 @@ SQLLEN bindcol_localize_exec(char *ldt, size_t n, BOOL lf_conv, char **wcsbuf)
 	SQLLEN	l = (-2);
 
 	get_convtype();
-	MYLOG(0, " size=" FORMAT_SIZE_T "\n", n);
+	MYLOG(MIN_LOG_LEVEL, " size=" FORMAT_SIZE_T "\n", n);
 #if defined(__WCS_ISO10646__)
 	if (use_wcs)
 	{
@@ -1307,7 +1307,7 @@ SQLLEN bindcol_localize_exec(char *ldt, size_t n, BOOL lf_conv, char **wcsbuf)
 	free(*wcsbuf);
 	*wcsbuf = NULL;
 
-MYLOG(0, " return=" FORMAT_LEN "\n", l);
+MYLOG(MIN_LOG_LEVEL, " return=" FORMAT_LEN "\n", l);
 	return l;
 }
 

@@ -172,7 +172,7 @@ pg_true_type(const ConnectionClass *conn, OID type, OID basetype)
 static SQLSMALLINT
 get_interval_type(Int4 atttypmod, const char **name)
 {
-MYLOG(0, "entering atttypmod=%x\n", atttypmod);
+MYLOG(MIN_LOG_LEVEL, "entering atttypmod=%x\n", atttypmod);
 	if ((-1) == atttypmod)
 		return 0;
 	if (0 != (YEAR_BIT & atttypmod))
@@ -265,7 +265,7 @@ getCharColumnSizeX(const ConnectionClass *conn, OID type, int atttypmod, int adt
 	int		p = -1, maxsize;
 	const ConnInfo	*ci = &(conn->connInfo);
 
-	MYLOG(0, "entering type=%d, atttypmod=%d, adtsize_or=%d, unknown = %d\n", type, atttypmod, adtsize_or_longestlen, handle_unknown_size_as);
+	MYLOG(MIN_LOG_LEVEL, "entering type=%d, atttypmod=%d, adtsize_or=%d, unknown = %d\n", type, atttypmod, adtsize_or_longestlen, handle_unknown_size_as);
 
 	/* Assign Maximum size based on parameters */
 	switch (type)
@@ -316,7 +316,7 @@ MYLOG(DETAIL_LOG_LEVEL, "!!! adtsize_or_logngest=%d\n", adtsize_or_longestlen);
 MYLOG(DETAIL_LOG_LEVEL, "!!! catalog_result=%d\n", handle_unknown_size_as);
 	if (UNKNOWNS_AS_LONGEST == handle_unknown_size_as)
 	{
-		MYLOG(0, "LONGEST: p = %d\n", p);
+		MYLOG(MIN_LOG_LEVEL, "LONGEST: p = %d\n", p);
 		if (p > 0 &&
 		    (atttypmod < 0 || atttypmod > p))
 			return p;
@@ -370,7 +370,7 @@ getNumericDecimalDigitsX(const ConnectionClass *conn, OID type, int atttypmod, i
 {
 	Int4		default_decimal_digits = 6;
 
-	MYLOG(0, "entering type=%d, atttypmod=%d\n", type, atttypmod);
+	MYLOG(MIN_LOG_LEVEL, "entering type=%d, atttypmod=%d\n", type, atttypmod);
 
 	if (atttypmod < 0 && adtsize_or_longest < 0)
 		return default_decimal_digits;
@@ -389,7 +389,7 @@ getNumericColumnSizeX(const ConnectionClass *conn, OID type, int atttypmod, int 
 	Int4	default_column_size = 28;
 	const ConnInfo	*ci = &(conn->connInfo);
 
-	MYLOG(0, "entering type=%d, typmod=%d\n", type, atttypmod);
+	MYLOG(MIN_LOG_LEVEL, "entering type=%d, typmod=%d\n", type, atttypmod);
 
 	if (atttypmod > -1)
 		return (atttypmod >> 16) & 0xffff;
@@ -424,7 +424,7 @@ getNumericColumnSizeX(const ConnectionClass *conn, OID type, int atttypmod, int 
 static SQLSMALLINT
 getTimestampDecimalDigitsX(const ConnectionClass *conn, OID type, int atttypmod)
 {
-	MYLOG(0, "type=%d, atttypmod=%d\n", type, atttypmod);
+	MYLOG(MIN_LOG_LEVEL, "type=%d, atttypmod=%d\n", type, atttypmod);
 	return (atttypmod > -1 ? atttypmod : 6);
 }
 
@@ -433,7 +433,7 @@ getTimestampColumnSizeX(const ConnectionClass *conn, OID type, int atttypmod)
 {
 	Int4	fixed, scale;
 
-	MYLOG(0, "entering type=%d, atttypmod=%d\n", type, atttypmod);
+	MYLOG(MIN_LOG_LEVEL, "entering type=%d, atttypmod=%d\n", type, atttypmod);
 
 	switch (type)
 	{
@@ -462,7 +462,7 @@ getIntervalDecimalDigits(OID type, int atttypmod)
 {
 	Int4	prec;
 
-	MYLOG(0, "entering type=%d, atttypmod=%d\n", type, atttypmod);
+	MYLOG(MIN_LOG_LEVEL, "entering type=%d, atttypmod=%d\n", type, atttypmod);
 
 	if ((atttypmod & SECOND_BIT) == 0)
 		return 0;
@@ -474,7 +474,7 @@ getIntervalColumnSize(OID type, int atttypmod)
 {
 	Int4	ttl, leading_precision = 9, scale;
 
-	MYLOG(0, "entering type=%d, atttypmod=%d\n", type, atttypmod);
+	MYLOG(MIN_LOG_LEVEL, "entering type=%d, atttypmod=%d\n", type, atttypmod);
 
 	ttl = leading_precision;
 	switch (get_interval_type(atttypmod, NULL))
@@ -877,7 +877,7 @@ Int4	/* PostgreSQL restriction */
 pgtype_attr_column_size(const ConnectionClass *conn, OID type, int atttypmod, int adtsize_or_longest, int handle_unknown_size_as)
 {
 	const ConnInfo	*ci = &(conn->connInfo);
-MYLOG(0, "entering type=%d, atttypmod=%d, adtsize_or=%d, unknown = %d\n", type, atttypmod, adtsize_or_longest, handle_unknown_size_as);
+MYLOG(MIN_LOG_LEVEL, "entering type=%d, atttypmod=%d, adtsize_or=%d, unknown = %d\n", type, atttypmod, adtsize_or_longest, handle_unknown_size_as);
 
 	switch (type)
 	{

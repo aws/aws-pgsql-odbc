@@ -116,7 +116,7 @@ PGAPI_DriverConnect(HDBC hdbc,
 	int		reqs = 0;
 
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	if (!conn)
 	{
@@ -127,13 +127,13 @@ PGAPI_DriverConnect(HDBC hdbc,
 	connStrIn = make_string(szConnStrIn, cbConnStrIn, NULL, 0);
 
 #ifdef	FORCE_PASSWORD_DISPLAY
-	MYLOG(0, "**** fDriverCompletion=%d, connStrIn='%s'\n", fDriverCompletion, connStrIn);
+	MYLOG(MIN_LOG_LEVEL, "**** fDriverCompletion=%d, connStrIn='%s'\n", fDriverCompletion, connStrIn);
 #else
 	if (get_mylog())
 	{
 		char	*hide_str = hide_password(connStrIn, ';');
 
-		MYLOG(0, "**** fDriverCompletion=%d, connStrIn='%s'\n", fDriverCompletion, NULL_IF_NULL(hide_str));
+		MYLOG(MIN_LOG_LEVEL, "**** fDriverCompletion=%d, connStrIn='%s'\n", fDriverCompletion, NULL_IF_NULL(hide_str));
 		if (hide_str)
 			free(hide_str);
 	}
@@ -300,7 +300,7 @@ MYLOG(DETAIL_LOG_LEVEL, "before CC_connect\n");
 #ifdef	FORCE_PASSWORD_DISPLAY
 	if (cbConnStrOutMax > 0)
 	{
-		MYLOG(0, "szConnStrOut = '%s' len=" FORMAT_SSIZE_T ",%d\n", NULL_IF_NULL((char *) szConnStrOut), len, cbConnStrOutMax);
+		MYLOG(MIN_LOG_LEVEL, "szConnStrOut = '%s' len=" FORMAT_SSIZE_T ",%d\n", NULL_IF_NULL((char *) szConnStrOut), len, cbConnStrOutMax);
 	}
 #else
 	if (get_mylog())
@@ -309,13 +309,13 @@ MYLOG(DETAIL_LOG_LEVEL, "before CC_connect\n");
 
 		if (cbConnStrOutMax > 0)
 			hide_str = hide_password(szConnStrOut, ';');
-		MYLOG(0, "szConnStrOut = '%s' len=%d,%d\n", NULL_IF_NULL(hide_str), len, cbConnStrOutMax);
+		MYLOG(MIN_LOG_LEVEL, "szConnStrOut = '%s' len=%d,%d\n", NULL_IF_NULL(hide_str), len, cbConnStrOutMax);
 		if (hide_str)
 			free(hide_str);
 	}
 #endif /* FORCE_PASSWORD_DISPLAY */
 
-	MYLOG(0, "leaving %d\n", result);
+	MYLOG(MIN_LOG_LEVEL, "leaving %d\n", result);
 	return result;
 }
 
@@ -326,7 +326,7 @@ dconn_DoDialog(HWND hwnd, ConnInfo *ci)
 {
 	LRESULT			dialog_result;
 
-	MYLOG(0, "entering ci = %p\n", ci);
+	MYLOG(MIN_LOG_LEVEL, "entering ci = %p\n", ci);
 
 	if (hwnd)
 	{
@@ -335,7 +335,7 @@ dconn_DoDialog(HWND hwnd, ConnInfo *ci)
 		if (-1 == dialog_result)
 		{
 			int errc = GetLastError();
-			MYLOG(0, " LastError=%d\n", errc);
+			MYLOG(MIN_LOG_LEVEL, " LastError=%d\n", errc);
 		}
 		if (!dialog_result || (dialog_result == -1))
 			return SQL_NO_DATA_FOUND;
@@ -343,7 +343,7 @@ dconn_DoDialog(HWND hwnd, ConnInfo *ci)
 			return SQL_SUCCESS;
 	}
 
-	MYLOG(0, " No window specified\n");
+	MYLOG(MIN_LOG_LEVEL, " No window specified\n");
 	return SQL_ERROR;
 }
 
@@ -466,13 +466,13 @@ dconn_get_attributes(copyfunc func, const char *connect_string, ConnInfo *ci)
 	strtok_arg = our_connect_string;
 
 #ifdef	FORCE_PASSWORD_DISPLAY
-	MYLOG(0, "our_connect_string = '%s'\n", our_connect_string);
+	MYLOG(MIN_LOG_LEVEL, "our_connect_string = '%s'\n", our_connect_string);
 #else
 	if (get_mylog())
 	{
 		char	*hide_str = hide_password(our_connect_string, ';');
 
-		MYLOG(0, "our_connect_string = '%s'\n", hide_str);
+		MYLOG(MIN_LOG_LEVEL, "our_connect_string = '%s'\n", hide_str);
 		free(hide_str);
 	}
 #endif /* FORCE_PASSWORD_DISPLAY */
@@ -530,14 +530,14 @@ dconn_get_attributes(copyfunc func, const char *connect_string, ConnInfo *ci)
 					{
 						if (!delp)	/* error */
 						{
-							MYLOG(0, "closing bracket doesn't exist 1\n");
+							MYLOG(MIN_LOG_LEVEL, "closing bracket doesn't exist 1\n");
 							ret = FALSE;
 							goto cleanup;
 						}
 						closep = strchr(delp + 1, CLOSING_BRACKET);
 						if (!closep)	/* error */
 						{
-							MYLOG(0, "closing bracket doesn't exist 2\n");
+							MYLOG(MIN_LOG_LEVEL, "closing bracket doesn't exist 2\n");
 							ret = FALSE;
 							goto cleanup;
 						}
@@ -567,7 +567,7 @@ dconn_get_attributes(copyfunc func, const char *connect_string, ConnInfo *ci)
 							eoftok = TRUE;
 						break;
 					}
-MYLOG(0, "subsequent char to the closing bracket is %c value=%s\n", closep[1], value);
+MYLOG(MIN_LOG_LEVEL, "subsequent char to the closing bracket is %c value=%s\n", closep[1], value);
 					ret = FALSE;
 					goto cleanup;
 				}

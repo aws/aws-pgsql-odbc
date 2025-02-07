@@ -73,7 +73,7 @@ DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 			initialize_global_cs();
 #ifdef	PG_BIN
 			if (s_hLModule = LoadLibraryEx(PG_BIN "\\libpq.dll", NULL, LOAD_WITH_ALTERED_SEARCH_PATH), s_hLModule == NULL)
-				MYLOG(0, "libpq in the folder %s couldn't be loaded\n", PG_BIN);
+				MYLOG(MIN_LOG_LEVEL, "libpq in the folder %s couldn't be loaded\n", PG_BIN);
 #endif /* PG_BIN */
 			if (NULL == s_hLModule)
 			{
@@ -88,7 +88,7 @@ DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 					SPRINTF_FIXED(dllPath, "%s%slibpq.dll", drive, dir);
 					if (s_hLModule = LoadLibraryEx(dllPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH), s_hLModule == NULL)
 					{
-						MYLOG(0, "libpq in the folder %s%s couldn't be loaded\n", drive, dir);
+						MYLOG(MIN_LOG_LEVEL, "libpq in the folder %s%s couldn't be loaded\n", drive, dir);
 						SPRINTF_FIXED(message, "libpq in neither %s nor %s%s could be loaded", PG_BIN, drive, dir);
 					}
 				}
@@ -112,16 +112,16 @@ DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 			break;
 
 		case DLL_PROCESS_DETACH:
-			MYLOG(0, "DETACHING psqlsetup\n");
+			MYLOG(MIN_LOG_LEVEL, "DETACHING psqlsetup\n");
 			CleanupDelayLoadedDLLs();
 			if (NULL != s_hLModule)
 			{
-				MYLOG(0, "Freeing Library libpq\n");
+				MYLOG(MIN_LOG_LEVEL, "Freeing Library libpq\n");
 				FreeLibrary(s_hLModule);
 			}
 			if (NULL != s_hLModule2)
 			{
-				MYLOG(0, "Freeing Library %s\n", psqlodbc);
+				MYLOG(MIN_LOG_LEVEL, "Freeing Library %s\n", psqlodbc);
 				FreeLibrary(s_hLModule2);
 			}
 			finalize_global_cs();

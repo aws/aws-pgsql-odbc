@@ -305,7 +305,7 @@ makeConnectString(char *connect_string, const ConnInfo *ci, UWORD len)
 	BOOL		abbrev = (len < 1024) || 0 < ci->force_abbrev_connstr;
 	UInt4		flag;
 
-MYLOG(0, "%s row_versioning=%s\n", __FUNCTION__, ci->row_versioning);
+MYLOG(MIN_LOG_LEVEL, "%s row_versioning=%s\n", __FUNCTION__, ci->row_versioning);
 
 MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr, abbrev);
 	encode(ci->password, encoded_item, sizeof(encoded_item));
@@ -341,10 +341,10 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 		ci->limitless_mode,
 		ci->limitless_monitor_interval_ms,
 		ci->limitless_service_id);
-    MYLOG(0, "%s connect_string=%s\n", __FUNCTION__, connect_string);
+    MYLOG(MIN_LOG_LEVEL, "%s connect_string=%s\n", __FUNCTION__, connect_string);
 	if (olen < 0 || olen >= nlen)
 	{
-        MYLOG(0, "%s olen = %d || nlen = %d\n", __FUNCTION__, olen, nlen);
+        MYLOG(MIN_LOG_LEVEL, "%s olen = %d || nlen = %d\n", __FUNCTION__, olen, nlen);
 		connect_string[0] = '\0';
 		return;
 	}
@@ -654,7 +654,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		NULL_THE_NAME(ci->password);
 		ci->password = decode_or_remove_braces(value);
 #ifndef FORCE_PASSWORD_DISPLAY
-		MYLOG(0, "key='%s' value='%s'\n", attribute, value);
+		MYLOG(MIN_LOG_LEVEL, "key='%s' value='%s'\n", attribute, value);
 		printed = TRUE;
 #endif
 	}
@@ -673,7 +673,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 	else if (stricmp(attribute, INI_IDP_PASSWORD) == 0) {
 		STRCPY_FIXED(ci->federation_cfg.idp_password, value);
 #ifndef FORCE_PASSWORD_DISPLAY
-		MYLOG(0, "key='%s' value='%s'\n", attribute, value);
+		MYLOG(MIN_LOG_LEVEL, "key='%s' value='%s'\n", attribute, value);
 		printed = TRUE;
 #endif
 	}
@@ -720,7 +720,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 				/* ignore first part */
 			}
 			ci->rollback_on_error = atoi(ptr + 1);
-			MYLOG(0, "key='%s' value='%s' rollback_on_error=%d\n",
+			MYLOG(MIN_LOG_LEVEL, "key='%s' value='%s' rollback_on_error=%d\n",
 				attribute, value, ci->rollback_on_error);
 			printed = TRUE;
 		}
@@ -803,7 +803,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 				STRCPY_FIXED(ci->sslmode, SSLMODE_DISABLE);
 				break;
 		}
-		MYLOG(0, "key='%s' value='%s' set to '%s'\n",
+		MYLOG(MIN_LOG_LEVEL, "key='%s' value='%s' set to '%s'\n",
 				attribute, value, ci->sslmode);
 		printed = TRUE;
 	}
@@ -831,7 +831,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		{
 			setExtraOptions(ci, value, hex_format);
 		}
-		MYLOG(0, "key='%s' value='%s'(force_abbrev=%d bde=%d cvt_null_date=%x)\n",
+		MYLOG(MIN_LOG_LEVEL, "key='%s' value='%s'(force_abbrev=%d bde=%d cvt_null_date=%x)\n",
 			attribute, value, ci->force_abbrev_connstr, ci->bde_environment, ci->cvt_null_date_string);
 		printed = TRUE;
 	}
@@ -873,7 +873,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		found = FALSE;
 
 	if (!printed)
-		MYLOG(0, "key='%s' value='%s'%s\n", attribute,
+		MYLOG(MIN_LOG_LEVEL, "key='%s' value='%s'%s\n", attribute,
 			value, found ? NULL_STRING : " not found");
 
 	return found;
@@ -883,7 +883,7 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 static void
 getCiDefaults(ConnInfo *ci)
 {
-	MYLOG(0, "entering\n");
+	MYLOG(MIN_LOG_LEVEL, "entering\n");
 
 	STRCPY_FIXED(ci->authtype, DEFAULT_AUTHTYPE);
 	STRCPY_FIXED(ci->region, DEFAULT_REGION);
@@ -981,7 +981,7 @@ get_Ci_Drivers(const char *section, const char *filename, GLOBAL_VALUES *comval)
 
 void getDriversDefaults(const char *drivername, GLOBAL_VALUES *comval)
 {
-	MYLOG(0, "%p of the driver %s\n", comval, NULL_IF_NULL(drivername));
+	MYLOG(MIN_LOG_LEVEL, "%p of the driver %s\n", comval, NULL_IF_NULL(drivername));
 	get_Ci_Drivers(drivername, ODBCINST_INI, comval);
 	if (NULL != drivername)
 		STR_TO_NAME(comval->drivername, drivername);
@@ -1005,7 +1005,7 @@ getDSNinfo(ConnInfo *ci, const char *configDrvrname)
  *	If a driver keyword was present, then dont use a DSN and return.
  *	If DSN is null and no driver, then use the default datasource.
  */
-	MYLOG(0, "entering DSN=%s driver=%s&%s\n", DSN,
+	MYLOG(MIN_LOG_LEVEL, "entering DSN=%s driver=%s&%s\n", DSN,
 		ci->drivername, NULL_IF_NULL(configDrvrname));
 
 	getCiDefaults(ci);
@@ -1027,7 +1027,7 @@ getDSNinfo(ConnInfo *ci, const char *configDrvrname)
 
 	if (!drivername[0] && DSN[0])
 		getDriverNameFromDSN(DSN, (char *) drivername, sizeof(ci->drivername));
-MYLOG(0, "drivername=%s\n", drivername);
+MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	if (!drivername[0])
 		drivername = INVALID_DRIVER;
 	getDriversDefaults(drivername, &(ci->drivers));
@@ -1138,7 +1138,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 		{
 			*ptr = '\0';
 			ci->rollback_on_error = atoi(ptr + 1);
-			MYLOG(0, "rollback_on_error=%d\n", ci->rollback_on_error);
+			MYLOG(MIN_LOG_LEVEL, "rollback_on_error=%d\n", ci->rollback_on_error);
 		}
 	}
 
@@ -1243,7 +1243,7 @@ MYLOG(0, "drivername=%s\n", drivername);
 
 		sscanf(temp, "%x", &val);
 		replaceExtraOptions(ci, val, TRUE);
-		MYLOG(0, "force_abbrev=%d bde=%d cvt_null_date=%d\n", ci->force_abbrev_connstr, ci->bde_environment, ci->cvt_null_date_string);
+		MYLOG(MIN_LOG_LEVEL, "force_abbrev=%d bde=%d cvt_null_date=%d\n", ci->force_abbrev_connstr, ci->bde_environment, ci->cvt_null_date_string);
 	}
 
 	/* Allow override of odbcinst.ini parameters here */
@@ -1659,7 +1659,7 @@ get_Ci_Drivers(const char *section, const char *filename, GLOBAL_VALUES *comval)
 	BOOL	inst_position = (stricmp(filename, ODBCINST_INI) == 0);
 
 	if (0 != strcmp(ODBCINST_INI, filename))
-		MYLOG(0, "setting %s position of %s(%p)\n", filename, section, comval);
+		MYLOG(MIN_LOG_LEVEL, "setting %s position of %s(%p)\n", filename, section, comval);
 
 	/*
 	 * It's not appropriate to handle debug or commlog here.
@@ -1743,7 +1743,7 @@ get_Ci_Drivers(const char *section, const char *filename, GLOBAL_VALUES *comval)
 	if (strcmp(temp, ENTRY_TEST))
 		STRCPY_FIXED(comval->extra_systable_prefixes, temp);
 
-	MYLOG(0, "comval=%p comval->extra_systable_prefixes = '%s'\n", comval, comval->extra_systable_prefixes);
+	MYLOG(MIN_LOG_LEVEL, "comval=%p comval->extra_systable_prefixes = '%s'\n", comval, comval->extra_systable_prefixes);
 
 
 	/* Dont allow override of an override! */
@@ -1998,7 +1998,7 @@ char *extract_extra_attribute_setting(const pgNAME setting, const char *attr)
 		return NULL;
 	memcpy(rptr, sptr, len);
 	rptr[len] = '\0';
-	MYLOG(0, "extracted a %s '%s' from %s\n", attr, rptr, str);
+	MYLOG(MIN_LOG_LEVEL, "extracted a %s '%s' from %s\n", attr, rptr, str);
 	return rptr;
 }
 
@@ -2027,7 +2027,7 @@ CC_conninfo_release(ConnInfo *conninfo)
 void
 CC_conninfo_init(ConnInfo *conninfo, UInt4 option)
 {
-	MYLOG(0, "entering opt=%d\n", option);
+	MYLOG(MIN_LOG_LEVEL, "entering opt=%d\n", option);
 
 	if (0 != (CLEANUP_FOR_REUSE & option))
 		CC_conninfo_release(conninfo);
@@ -2098,7 +2098,7 @@ void	copy_globals(GLOBAL_VALUES *to, const GLOBAL_VALUES *from)
 	CORR_STRCPY(extra_systable_prefixes);
 	CORR_STRCPY(protocol);
 
-	MYLOG(0, "driver=%s\n", SAFE_NAME(to->drivername));
+	MYLOG(MIN_LOG_LEVEL, "driver=%s\n", SAFE_NAME(to->drivername));
 }
 
 void	finalize_globals(GLOBAL_VALUES *glbv)

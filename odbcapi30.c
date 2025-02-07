@@ -37,7 +37,7 @@ SQLAllocHandle(SQLSMALLINT HandleType,
 	RETCODE		ret;
 	ConnectionClass	*conn;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	switch (HandleType)
 	{
 		case SQL_HANDLE_ENV:
@@ -84,7 +84,7 @@ SQLBindParam(HSTMT StatementHandle,
 	StatementClass	*stmt = (StatementClass *) StatementHandle;
 	int			BufferLength = 512;		/* Is it OK ? */
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ENTER_STMT_CS(stmt);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);
@@ -101,7 +101,7 @@ SQLCloseCursor(HSTMT StatementHandle)
 	StatementClass	*stmt = (StatementClass *) StatementHandle;
 	RETCODE	ret;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -133,7 +133,7 @@ SQLColAttribute(SQLHSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass	*stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -156,7 +156,7 @@ SQLCopyDesc(SQLHDESC SourceDescHandle,
 {
 	RETCODE	ret;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ret = PGAPI_CopyDesc(SourceDescHandle, TargetDescHandle);
 	return ret;
 }
@@ -168,7 +168,7 @@ SQLEndTran(SQLSMALLINT HandleType, SQLHANDLE Handle,
 {
 	RETCODE	ret;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	switch (HandleType)
 	{
 		case SQL_HANDLE_ENV:
@@ -203,7 +203,7 @@ SQLFetchScroll(HSTMT StatementHandle,
 	SQLULEN *pcRow = irdopts->rowsFetched;
 	SQLLEN	bkmarkoff = 0;
 
-	MYLOG(0, "Entering %d," FORMAT_LEN "\n", FetchOrientation, FetchOffset);
+	MYLOG(MIN_LOG_LEVEL, "Entering %d," FORMAT_LEN "\n", FetchOrientation, FetchOffset);
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -216,7 +216,7 @@ SQLFetchScroll(HSTMT StatementHandle,
 		{
 			bkmarkoff = FetchOffset;
 			FetchOffset = *((Int4 *) stmt->options.bookmark_ptr);
-MYLOG(0, "bookmark=" FORMAT_LEN " FetchOffset = " FORMAT_LEN "\n", FetchOffset, bkmarkoff);
+MYLOG(MIN_LOG_LEVEL, "bookmark=" FORMAT_LEN " FetchOffset = " FORMAT_LEN "\n", FetchOffset, bkmarkoff);
 		}
 		else
 		{
@@ -235,7 +235,7 @@ MYLOG(0, "bookmark=" FORMAT_LEN " FetchOffset = " FORMAT_LEN "\n", FetchOffset, 
 	ret = DiscardStatementSvp(stmt,ret, FALSE);
 	LEAVE_STMT_CS(stmt);
 	if (ret != SQL_SUCCESS)
-		MYLOG(0, "leaving return = %d\n", ret);
+		MYLOG(MIN_LOG_LEVEL, "leaving return = %d\n", ret);
 	return ret;
 }
 
@@ -247,7 +247,7 @@ SQLFreeHandle(SQLSMALLINT HandleType, SQLHANDLE Handle)
 	StatementClass *stmt;
 	ConnectionClass *conn = NULL;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 
 	switch (HandleType)
 	{
@@ -293,7 +293,7 @@ SQLGetDescField(SQLHDESC DescriptorHandle,
 {
 	RETCODE	ret;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ret = PGAPI_GetDescField(DescriptorHandle, RecNumber, FieldIdentifier,
 			Value, BufferLength, StringLength);
 	return ret;
@@ -310,8 +310,8 @@ SQLGetDescRec(SQLHDESC DescriptorHandle,
 {
 	RETCODE		ret;
 
-	MYLOG(0, "Entering h=%p rec=%d name=%p blen=%d\n", DescriptorHandle, RecNumber, Name, BufferLength);
-	MYLOG(0, "str=%p type=%p sub=%p len=%p prec=%p scale=%p null=%p\n", StringLength, Type, SubType, Length, Precision, Scale, Nullable);
+	MYLOG(MIN_LOG_LEVEL, "Entering h=%p rec=%d name=%p blen=%d\n", DescriptorHandle, RecNumber, Name, BufferLength);
+	MYLOG(MIN_LOG_LEVEL, "str=%p type=%p sub=%p len=%p prec=%p scale=%p null=%p\n", StringLength, Type, SubType, Length, Precision, Scale, Nullable);
 	ret = PGAPI_GetDescRec(DescriptorHandle, RecNumber, Name, BufferLength,
 			StringLength, Type, SubType, Length, Precision,
 			Scale, Nullable);
@@ -327,7 +327,7 @@ SQLGetDiagField(SQLSMALLINT HandleType, SQLHANDLE Handle,
 {
 	RETCODE	ret;
 
-	MYLOG(0, "Entering Handle=(%u,%p) Rec=%d Id=%d info=(%p,%d)\n", HandleType, Handle, RecNumber, DiagIdentifier, DiagInfo, BufferLength);
+	MYLOG(MIN_LOG_LEVEL, "Entering Handle=(%u,%p) Rec=%d Id=%d info=(%p,%d)\n", HandleType, Handle, RecNumber, DiagIdentifier, DiagInfo, BufferLength);
 	ret = PGAPI_GetDiagField(HandleType, Handle, RecNumber, DiagIdentifier,
 				DiagInfo, BufferLength, StringLength);
 	return ret;
@@ -342,7 +342,7 @@ SQLGetDiagRec(SQLSMALLINT HandleType, SQLHANDLE Handle,
 {
 	RETCODE	ret;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ret = PGAPI_GetDiagRec(HandleType, Handle, RecNumber, Sqlstate,
 			NativeError, MessageText, BufferLength, TextLength);
 	return ret;
@@ -358,7 +358,7 @@ SQLGetEnvAttr(HENV EnvironmentHandle,
 	RETCODE	ret;
 	EnvironmentClass *env = (EnvironmentClass *) EnvironmentHandle;
 
-	MYLOG(0, "Entering " FORMAT_INTEGER "\n", Attribute);
+	MYLOG(MIN_LOG_LEVEL, "Entering " FORMAT_INTEGER "\n", Attribute);
 	ENTER_ENV_CS(env);
 	ret = SQL_SUCCESS;
 	switch (Attribute)
@@ -392,7 +392,7 @@ SQLGetConnectAttr(HDBC ConnectionHandle,
 {
 	RETCODE	ret;
 
-	MYLOG(0, "Entering " FORMAT_UINTEGER "\n", Attribute);
+	MYLOG(MIN_LOG_LEVEL, "Entering " FORMAT_UINTEGER "\n", Attribute);
 	CC_examine_global_transaction((ConnectionClass*) ConnectionHandle);
 	ENTER_CONN_CS((ConnectionClass *) ConnectionHandle);
 	CC_clear_error((ConnectionClass *) ConnectionHandle);
@@ -411,7 +411,7 @@ SQLGetStmtAttr(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass	*stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering Handle=%p " FORMAT_INTEGER "\n", StatementHandle, Attribute);
+	MYLOG(MIN_LOG_LEVEL, "Entering Handle=%p " FORMAT_INTEGER "\n", StatementHandle, Attribute);
 	ENTER_STMT_CS(stmt);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);
@@ -431,7 +431,7 @@ SQLSetConnectAttr(HDBC ConnectionHandle,
 	RETCODE	ret;
 	ConnectionClass *conn = (ConnectionClass *) ConnectionHandle;
 
-	MYLOG(0, "Entering " FORMAT_INTEGER "\n", Attribute);
+	MYLOG(MIN_LOG_LEVEL, "Entering " FORMAT_INTEGER "\n", Attribute);
 	CC_examine_global_transaction(conn);
 	ENTER_CONN_CS(conn);
 	CC_clear_error(conn);
@@ -449,7 +449,7 @@ SQLSetDescField(SQLHDESC DescriptorHandle,
 {
 	RETCODE		ret;
 
-	MYLOG(0, "Entering h=%p rec=%d field=%d val=%p\n", DescriptorHandle, RecNumber, FieldIdentifier, Value);
+	MYLOG(MIN_LOG_LEVEL, "Entering h=%p rec=%d field=%d val=%p\n", DescriptorHandle, RecNumber, FieldIdentifier, Value);
 	ret = PGAPI_SetDescField(DescriptorHandle, RecNumber, FieldIdentifier,
 				Value, BufferLength);
 	return ret;
@@ -466,8 +466,8 @@ SQLSetDescRec(SQLHDESC DescriptorHandle,
 {
 	RETCODE		ret;
 
-	MYLOG(0, "Entering h=%p rec=%d type=%d sub=%d len=" FORMAT_LEN " prec=%d scale=%d data=%p\n", DescriptorHandle, RecNumber, Type, SubType, Length, Precision, Scale, Data);
-	MYLOG(0, "str=%p ind=%p\n", StringLength, Indicator);
+	MYLOG(MIN_LOG_LEVEL, "Entering h=%p rec=%d type=%d sub=%d len=" FORMAT_LEN " prec=%d scale=%d data=%p\n", DescriptorHandle, RecNumber, Type, SubType, Length, Precision, Scale, Data);
+	MYLOG(MIN_LOG_LEVEL, "str=%p ind=%p\n", StringLength, Indicator);
 	ret = PGAPI_SetDescRec(DescriptorHandle, RecNumber, Type,
 			SubType, Length, Precision, Scale, Data,
 			StringLength, Indicator);
@@ -484,7 +484,7 @@ SQLSetEnvAttr(HENV EnvironmentHandle,
 	RETCODE	ret;
 	EnvironmentClass *env = (EnvironmentClass *) EnvironmentHandle;
 
-	MYLOG(0, "Entering att=" FORMAT_INTEGER "," FORMAT_ULEN "\n", Attribute, (SQLULEN) Value);
+	MYLOG(MIN_LOG_LEVEL, "Entering att=" FORMAT_INTEGER "," FORMAT_ULEN "\n", Attribute, (SQLULEN) Value);
 	ENTER_ENV_CS(env);
 	switch (Attribute)
 	{
@@ -545,7 +545,7 @@ SQLSetStmtAttr(HSTMT StatementHandle,
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 	RETCODE	ret;
 
-	MYLOG(0, "Entering Handle=%p " FORMAT_INTEGER "," FORMAT_ULEN "\n", StatementHandle, Attribute, (SQLULEN) Value);
+	MYLOG(MIN_LOG_LEVEL, "Entering Handle=%p " FORMAT_INTEGER "," FORMAT_ULEN "\n", StatementHandle, Attribute, (SQLULEN) Value);
 	ENTER_STMT_CS(stmt);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);
@@ -683,7 +683,7 @@ SQLBulkOperations(HSTMT hstmt, SQLSMALLINT operation)
 		return SQL_ERROR;
 
 	ENTER_STMT_CS(stmt);
-	MYLOG(0, "Entering Handle=%p %d\n", hstmt, operation);
+	MYLOG(MIN_LOG_LEVEL, "Entering Handle=%p %d\n", hstmt, operation);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);
 	ret = PGAPI_BulkOperations(hstmt, operation);

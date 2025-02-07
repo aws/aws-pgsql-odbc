@@ -33,7 +33,7 @@ SQLGetStmtAttrW(SQLHSTMT hstmt,
 	RETCODE	ret;
 	StatementClass	*stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ENTER_STMT_CS((StatementClass *) hstmt);
 	SC_clear_error((StatementClass *) hstmt);
 	StartRollbackState(stmt);
@@ -53,7 +53,7 @@ SQLSetStmtAttrW(SQLHSTMT hstmt,
 	RETCODE	ret;
 	StatementClass	*stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ENTER_STMT_CS(stmt);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);
@@ -73,7 +73,7 @@ SQLGetConnectAttrW(HDBC hdbc,
 {
 	RETCODE	ret;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	CC_examine_global_transaction((ConnectionClass *) hdbc);
 	ENTER_CONN_CS((ConnectionClass *) hdbc);
 	CC_clear_error((ConnectionClass *) hdbc);
@@ -92,7 +92,7 @@ SQLSetConnectAttrW(HDBC hdbc,
 	RETCODE	ret;
 	ConnectionClass *conn = (ConnectionClass *) hdbc;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	CC_examine_global_transaction(conn);
 	ENTER_CONN_CS(conn);
 	CC_clear_error(conn);
@@ -114,7 +114,7 @@ SQLSetDescFieldW(SQLHDESC DescriptorHandle, SQLSMALLINT RecNumber,
         char    *uval = NULL;
 	BOOL	val_alloced = FALSE;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (BufferLength > 0 || SQL_NTS == BufferLength)
 	{
 		switch (FieldIdentifier)
@@ -156,7 +156,7 @@ SQLGetDescFieldW(SQLHDESC hdesc, SQLSMALLINT iRecord, SQLSMALLINT iField,
 	SQLINTEGER		blen = 0, bMax,	*pcbV;
         char    *rgbV = NULL, *rgbVt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	switch (iField)
 	{
 		case SQL_DESC_BASE_COLUMN_NAME:
@@ -224,7 +224,7 @@ SQLGetDiagRecW(SQLSMALLINT fHandleType,
         SQLSMALLINT	buflen, tlen;
         char    qstr_ansi[8], *mtxt = NULL;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	buflen = 0;
         if (szErrorMsg && cbErrorMsgMax > 0)
 	{
@@ -282,7 +282,7 @@ SQLColAttributeW(SQLHSTMT	hstmt,
 	SQLSMALLINT	*rgbL, blen = 0, bMax;
         char    *rgbD = NULL, *rgbDt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -360,7 +360,7 @@ SQLGetDiagFieldW(SQLSMALLINT	fHandleType,
 	SQLSMALLINT	*rgbL, blen = 0, bMax;
 	char	   *rgbD = NULL, *rgbDt;
 
-	MYLOG(0, "Entering Handle=(%u,%p) Rec=%d Id=%d info=(%p,%d)\n", fHandleType,
+	MYLOG(MIN_LOG_LEVEL, "Entering Handle=(%u,%p) Rec=%d Id=%d info=(%p,%d)\n", fHandleType,
 			handle, iRecord, fDiagField, rgbDiagInfo, cbDiagInfoMax);
 	switch (fDiagField)
 	{
@@ -430,8 +430,8 @@ SQLGetDescRecW(SQLHDESC DescriptorHandle,
 	char		*NameA = NULL;
 	SQLSMALLINT	nlen;
 
-	MYLOG(0, "Entering h=%p rec=%d name=%p blen=%d\n", DescriptorHandle, RecNumber, Name, BufferLength);
-	MYLOG(0, "str=%p type=%p sub=%p len=%p prec=%p scale=%p null=%p\n", StringLength, Type, SubType, Length, Precision, Scale, Nullable);
+	MYLOG(MIN_LOG_LEVEL, "Entering h=%p rec=%d name=%p blen=%d\n", DescriptorHandle, RecNumber, Name, BufferLength);
+	MYLOG(MIN_LOG_LEVEL, "str=%p type=%p sub=%p len=%p prec=%p scale=%p null=%p\n", StringLength, Type, SubType, Length, Precision, Scale, Nullable);
 
 	if (BufferLength > 0)
 		NameA = malloc(BufferLength);
@@ -473,8 +473,8 @@ SQLSetDescRecW(SQLHDESC DescriptorHandle,
 	char    *uval = NULL;
 	BOOL	val_alloced = FALSE;
 
-	MYLOG(0, "Entering h=%p rec=%d type=%d sub=%d len=" FORMAT_LEN " prec=%d scale=%d data=%p\n", DescriptorHandle, RecNumber, Type, SubType, Length, Precision, Scale, Data);
-	MYLOG(0, "str=%p ind=%p\n", StringLength, Indicator);
+	MYLOG(MIN_LOG_LEVEL, "Entering h=%p rec=%d type=%d sub=%d len=" FORMAT_LEN " prec=%d scale=%d data=%p\n", DescriptorHandle, RecNumber, Type, SubType, Length, Precision, Scale, Data);
+	MYLOG(MIN_LOG_LEVEL, "str=%p ind=%p\n", StringLength, Indicator);
 	
 	if (Length > 0 || SQL_NTS == Length)
 	{

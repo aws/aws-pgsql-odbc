@@ -134,7 +134,7 @@ ConfigDSN(HWND hwnd,
 		}
 		else if (lpsetupdlg->ci.dsn[0])
 		{
-			MYLOG(0, "SetDSNAttributes\n");
+			MYLOG(MIN_LOG_LEVEL, "SetDSNAttributes\n");
 			fSuccess = SetDSNAttributes(hwnd, lpsetupdlg, NULL);
 		}
 		else
@@ -485,10 +485,10 @@ test_connection(HANDLE hwnd, ConnInfo *ci, BOOL withDTC)
 		ci->pqopt_in_str = TRUE;
 	makeConnectString(out_conn, ci, sizeof(out_conn));
 #ifdef	FORCE_PASSWORD_DISPLAY
-MYLOG(0, "conn_string=%s\n", out_conn);
+MYLOG(MIN_LOG_LEVEL, "conn_string=%s\n", out_conn);
 #else
 	char* hide_str = hide_password(out_conn, ';');
-	MYLOG(0, "conn_string=%s\n", hide_str);
+	MYLOG(MIN_LOG_LEVEL, "conn_string=%s\n", hide_str);
 	if (hide_str)
 		free(hide_str);
 #endif /* FORCE_PASSWORD_DISPLAY */
@@ -634,7 +634,7 @@ ParseAttributes(LPCSTR lpszAttributes, LPSETUPDLG lpsetupdlg)
 		/* lpsetupdlg->aAttr[iElement].fSupplied = TRUE; */
 		memcpy(value, lpszStart, MIN(lpsz - lpszStart + 1, MAXPGPATH));
 
-		MYLOG(0, "aszKey='%s', value='%s'\n", aszKey, value);
+		MYLOG(MIN_LOG_LEVEL, "aszKey='%s', value='%s'\n", aszKey, value);
 
 		/* Copy the appropriate value to the conninfo  */
 		copyConnAttributes(&lpsetupdlg->ci, aszKey, value);
