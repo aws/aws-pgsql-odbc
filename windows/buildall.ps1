@@ -49,6 +49,7 @@ Write-Host "Building the AWS SDK"
 & .\scripts\build_aws_sdk_win.ps1 x64 $Configuration OFF "Visual Studio 17 2022"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "AWS SDK build failed"
+    Set-Location $CURRENT_DIR
     exit $LASTEXITCODE
 }
 
@@ -62,6 +63,7 @@ if ($Configuration -eq "Debug") {
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ansi aws-rds-odbc build prep failed"
+    Set-Location $CURRENT_DIR
     exit $LASTEXITCODE
 }
 
@@ -74,6 +76,7 @@ if ($Configuration -eq "Debug") {
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "unicode aws-rds-odbc build prep failed"
+    Set-Location $CURRENT_DIR
     exit $LASTEXITCODE
 }
 
@@ -82,6 +85,7 @@ Write-Host "Building ansi version of aws-rds-odbc"
 cmake --build build_ansi --config $Configuration
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ansi aws-rds-odbc build failed"
+    Set-Location $CURRENT_DIR
     exit $LASTEXITCODE
 }
 
@@ -89,6 +93,7 @@ Write-Host "Building unicode version of aws-rds-odbc"
 cmake --build build_unicode --config $Configuration
 if ($LASTEXITCODE -ne 0) {
     Write-Host "unicode aws-rds-odbc build failed"
+    Set-Location $CURRENT_DIR
     exit $LASTEXITCODE
 }
 
