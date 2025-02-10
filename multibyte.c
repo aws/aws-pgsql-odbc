@@ -204,7 +204,7 @@ check_client_encoding(const pgNAME conn_settings)
 		return NULL;
 	memcpy(rptr, sptr, len);
 	rptr[len] = '\0';
-	MYLOG(0, "extracted a client_encoding '%s' from conn_settings\n", rptr);
+	MYLOG(MIN_LOG_LEVEL, "extracted a client_encoding '%s' from conn_settings\n", rptr);
 	return rptr;
 }
 
@@ -502,7 +502,7 @@ derive_locale_encoding(const char *dbencoding)
 		ptr++;
 		if ((enc_no= pg_char_to_encoding(ptr)) >= 0)
 			wenc = pg_encoding_to_char(enc_no);
-		MYLOG(0, "locale=%s enc=%s\n", loc, wenc ? wenc : "(null)");
+		MYLOG(MIN_LOG_LEVEL, "locale=%s enc=%s\n", loc, wenc ? wenc : "(null)");
 	}
 #endif /* WIN32 */
 	return wenc;

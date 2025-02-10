@@ -101,7 +101,7 @@ getNextToken(
 	/* skip leading delimiters */
 	while (isspace(*tstr) || *tstr == ',')
 	{
-		/* MYLOG(0, "skipping '%c'\n", *tstr); */
+		/* MYLOG(MIN_LOG_LEVEL, "skipping '%c'\n", *tstr); */
 		tstr++;
 	}
 
@@ -237,7 +237,7 @@ getNextToken(
 
 		if (ispunct(tchar) && tchar != '_')
 		{
-			MYLOG(0, "got ispunct: s[] = '%c'\n", tchar);
+			MYLOG(MIN_LOG_LEVEL, "got ispunct: s[] = '%c'\n", tchar);
 
 			if (out == 0)
 			{
@@ -251,7 +251,7 @@ getNextToken(
 			token[out++] = tchar;
 	} /* for */
 
-	/* MYLOG(0, "done -- s[] = '%c'\n", *tstr); */
+	/* MYLOG(MIN_LOG_LEVEL, "done -- s[] = '%c'\n", *tstr); */
 
 	token[out] = '\0';
 
@@ -330,7 +330,7 @@ MYLOG(DETAIL_LOG_LEVEL, "%d attnum=%d\n", k, attnum);
 			    atttypmod == fi->typmod)
 			{
 				getColInfo(col_info, fi, k);
-				MYLOG(0, "PARSE: searchColInfo by attnum=%d\n", attnum);
+				MYLOG(MIN_LOG_LEVEL, "PARSE: searchColInfo by attnum=%d\n", attnum);
 				return TRUE;
 			}
 		}
@@ -348,7 +348,7 @@ MYLOG(DETAIL_LOG_LEVEL, "%d col=%s\n", k, col);
 					STR_TO_NAME(fi->column_name, col);
 				getColInfo(col_info, fi, k);
 
-				MYLOG(0, "PARSE: \n");
+				MYLOG(MIN_LOG_LEVEL, "PARSE: \n");
 				return TRUE;
 			}
 		}
@@ -389,7 +389,7 @@ BOOL CheckPgClassInfo(StatementClass *stmt)
 	TABLE_INFO	*ti;
 	BOOL	hasoids = FALSE, hassubclass =FALSE, keyFound = FALSE;
 
-MYLOG(0, "Entering\n");
+MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (0 != SC_checked_hasoids(stmt))
 		return TRUE;
 	if (!stmt->ti || !stmt->ti[0])
@@ -622,7 +622,7 @@ ColAttSet(StatementClass *stmt, TABLE_INFO *rti)
 	int		i, num_fields;
 	BOOL		fi_reuse, updatable, call_xxxxx;
 
-MYLOG(0, "entering\n");
+MYLOG(MIN_LOG_LEVEL, "entering\n");
 
 	if (reloid = rti->table_oid, 0 == reloid)
 		return FALSE;
@@ -642,7 +642,7 @@ MYLOG(0, "entering\n");
 	}
 	setNumFields(irdflds, num_fields);
 	updatable = TI_is_updatable(rti);
-MYLOG(0, "updatable=%d tab=%d fields=%d", updatable, stmt->ntab, num_fields);
+MYLOG(MIN_LOG_LEVEL, "updatable=%d tab=%d fields=%d", updatable, stmt->ntab, num_fields);
 	if (updatable)
 	{
 		if (1 > stmt->ntab)
@@ -737,7 +737,7 @@ getCOLIfromTable(ConnectionClass *conn, pgNAME *schema_name, pgNAME table_name, 
 				if (!NAMEICMP(conn->col_info[colidx]->table_name, table_name) &&
 					!stricmp(SAFE_NAME(conn->col_info[colidx]->schema_name), curschema))
 				{
-					MYLOG(0, "FOUND col_info table='%s' current schema='%s'\n", PRINT_NAME(table_name), curschema);
+					MYLOG(MIN_LOG_LEVEL, "FOUND col_info table='%s' current schema='%s'\n", PRINT_NAME(table_name), curschema);
 					found = TRUE;
 					STR_TO_NAME(*schema_name, curschema);
 					break;
@@ -778,7 +778,7 @@ getCOLIfromTable(ConnectionClass *conn, pgNAME *schema_name, pgNAME table_name, 
 			if (!NAMEICMP(conn->col_info[colidx]->table_name, table_name) &&
 			    !NAMEICMP(conn->col_info[colidx]->schema_name, *schema_name))
 			{
-				MYLOG(0, "FOUND col_info table='%s' schema='%s'\n", PRINT_NAME(table_name), PRINT_NAME(*schema_name));
+				MYLOG(MIN_LOG_LEVEL, "FOUND col_info table='%s' schema='%s'\n", PRINT_NAME(table_name), PRINT_NAME(*schema_name));
 				found = TRUE;
 				break;
 			}
@@ -797,7 +797,7 @@ getColumnsInfo(ConnectionClass *conn, TABLE_INFO *wti, OID greloid, StatementCla
 	StatementClass	*col_stmt;
 	QResultClass	*res;
 
-	MYLOG(0, "entering Getting PG_Columns for table %u(%s)\n", greloid, PRINT_NAME(wti->table_name));
+	MYLOG(MIN_LOG_LEVEL, "entering Getting PG_Columns for table %u(%s)\n", greloid, PRINT_NAME(wti->table_name));
 
 	if (NULL == conn)
 		conn = SC_get_conn(stmt);
@@ -822,7 +822,7 @@ getColumnsInfo(ConnectionClass *conn, TABLE_INFO *wti, OID greloid, StatementCla
 							   NULL, 0,
 							   PODBC_NOT_SEARCH_PATTERN, 0, 0);
 
-	MYLOG(0, "        Past PG_Columns\n");
+	MYLOG(MIN_LOG_LEVEL, "        Past PG_Columns\n");
 	res = SC_get_ExecdOrParsed(col_stmt);
 	if (SQL_SUCCEEDED(result)
 		&& res != NULL && QR_get_num_cached_tuples(res) > 0)
@@ -832,7 +832,7 @@ getColumnsInfo(ConnectionClass *conn, TABLE_INFO *wti, OID greloid, StatementCla
 		int		 k, tmp_refcnt = 0;
 		time_t		acctime = 0;
 
-		MYLOG(0, "      Success\n");
+		MYLOG(MIN_LOG_LEVEL, "      Success\n");
 		if (greloid != 0)
 		{
 			/* We have reloid. Try to find appropriate coli object from connection COL_INFO cache. */
@@ -898,7 +898,7 @@ getColumnsInfo(ConnectionClass *conn, TABLE_INFO *wti, OID greloid, StatementCla
 				new_alloc = conn->coli_allocated * 2;
 				if (new_alloc <= conn->ntables)
 					new_alloc = COLI_INCR;
-				MYLOG(0, "PARSE: Allocating col_info at ntables=%d\n", conn->ntables);
+				MYLOG(MIN_LOG_LEVEL, "PARSE: Allocating col_info at ntables=%d\n", conn->ntables);
 
 				col_info = (COL_INFO **) realloc(conn->col_info, new_alloc * sizeof(COL_INFO *));
 				if (!col_info)
@@ -912,7 +912,7 @@ getColumnsInfo(ConnectionClass *conn, TABLE_INFO *wti, OID greloid, StatementCla
 			}
 
 			/* Allocating new COL_INFO object. */
-			MYLOG(0, "PARSE: malloc at conn->col_info[%d]\n", conn->ntables);
+			MYLOG(MIN_LOG_LEVEL, "PARSE: malloc at conn->col_info[%d]\n", conn->ntables);
 			coli = conn->col_info[conn->ntables] = (COL_INFO *) malloc(sizeof(COL_INFO));
 		}
 		if (!coli)
@@ -976,13 +976,13 @@ MYLOG(DETAIL_LOG_LEVEL, "#2 %p->table_name=%s(%u)\n", wti, PRINT_NAME(wti->table
 if (res && QR_get_num_cached_tuples(res) > 0)
 MYLOG(DETAIL_LOG_LEVEL, "oid item == %s\n", (const char *) QR_get_value_backend_text(res, 0, 3));
 
-		MYLOG(0, "Created col_info table='%s', ntables=%d\n", PRINT_NAME(wti->table_name), conn->ntables);
+		MYLOG(MIN_LOG_LEVEL, "Created col_info table='%s', ntables=%d\n", PRINT_NAME(wti->table_name), conn->ntables);
 		/* Associate a table from the statement with a SQLColumn info */
 		found = TRUE;
 		if (wti->col_info)
 		{
 			/* wti also has reference to COL_INFO object, so we must release it. */
-MYLOG(0, "!!!refcnt %p:%d -> %d\n", wti->col_info, wti->col_info->refcnt, wti->col_info->refcnt - 1);
+MYLOG(MIN_LOG_LEVEL, "!!!refcnt %p:%d -> %d\n", wti->col_info, wti->col_info->refcnt, wti->col_info->refcnt - 1);
 			wti->col_info->refcnt--;
 			if (wti->col_info->refcnt <= 0)
 			{
@@ -1052,7 +1052,7 @@ MYLOG(DETAIL_LOG_LEVEL, "fi=%p greloid=%d col_info=%p\n", wti, greloid, wti->col
 		{
 			if (conn->col_info[colidx]->table_oid == greloid)
 			{
-				MYLOG(0, "FOUND col_info table=%ul\n", greloid);
+				MYLOG(MIN_LOG_LEVEL, "FOUND col_info table=%ul\n", greloid);
 				found = TRUE;
 				wti->col_info = conn->col_info[colidx];
 				wti->col_info->refcnt++;
@@ -1174,7 +1174,7 @@ MYLOG(DETAIL_LOG_LEVEL, "key %s found at %p\n", keycolnam, fi + i);
 			}
 			if (i >= nfields)
 			{
-				MYLOG(0, "%s not found\n", keycolnam);
+				MYLOG(MIN_LOG_LEVEL, "%s not found\n", keycolnam);
 				break;
 			}
 			ret = PGAPI_Fetch(pstmt);
@@ -1203,7 +1203,7 @@ cleanup:
 
 static BOOL include_alias_wo_as(const char *token, const char *btoken)
 {
-MYLOG(0, "alias ? token=%s btoken=%s\n", token, btoken);
+MYLOG(MIN_LOG_LEVEL, "alias ? token=%s btoken=%s\n", token, btoken);
 	if ('\0' == btoken[0])
 		return FALSE;
 	else if (0 == stricmp(")", token))
@@ -1292,7 +1292,7 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 	IRDFields	*irdflds;
 	BOOL		updatable = TRUE, column_has_alias = FALSE, fupdatable;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	if (SC_parsed_status(stmt) != STMT_PARSE_NONE)
 	{
@@ -1337,7 +1337,7 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 		}
 		else
 			delimdsp[0] = '\0';
-		MYLOG(0, "unquoted=%d, quote=%d, dquote=%d, numeric=%d, delim='%s', token='%s', ptr='%s'\n", unquoted, quote, dquote, numeric, delimdsp, token, ptr);
+		MYLOG(MIN_LOG_LEVEL, "unquoted=%d, quote=%d, dquote=%d, numeric=%d, delim='%s', token='%s', ptr='%s'\n", unquoted, quote, dquote, numeric, delimdsp, token, ptr);
 
 		old_blevel = blevel;
 		if (unquoted && blevel == 0)
@@ -1349,13 +1349,13 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 					in_distinct = TRUE;
 					updatable = FALSE;
 
-					MYLOG(0, "DISTINCT\n");
+					MYLOG(MIN_LOG_LEVEL, "DISTINCT\n");
 					continue;
 				}
 				else if (!stricmp(token, "into"))
 				{
 					in_select = FALSE;
-					MYLOG(0, "INTO\n");
+					MYLOG(MIN_LOG_LEVEL, "INTO\n");
 					stmt->statement_type = STMT_TYPE_CREATE;
 					SC_set_parse_status(stmt, STMT_PARSE_FATAL);
 					goto cleanup;
@@ -1372,11 +1372,11 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 					if (stmt->from_pos < 0 &&
 						(!strnicmp(pptr, "from", 4)))
 					{
-						MYLOG(0, "First From\n");
+						MYLOG(MIN_LOG_LEVEL, "First From\n");
 						stmt->from_pos = pptr - stmt->statement;
 					}
 					else
-						MYLOG(0, "FROM\n");
+						MYLOG(MIN_LOG_LEVEL, "FROM\n");
 					continue;
 				}
 			} /* in_select && unquoted && blevel == 0 */
@@ -1393,7 +1393,7 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 
 				if (stmt->where_pos < 0)
 					stmt->where_pos = pptr - stmt->statement;
-				MYLOG(0, "%s...\n", token);
+				MYLOG(MIN_LOG_LEVEL, "%s...\n", token);
 				if (stricmp(token, "where") &&
 				    stricmp(token, "order"))
 				{
@@ -1412,12 +1412,12 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 				if (0 == blevel)
 				{
 					in_select = TRUE;
-					MYLOG(0, "SELECT\n");
+					MYLOG(MIN_LOG_LEVEL, "SELECT\n");
 					continue;
 				}
 				else
 				{
-					MYLOG(0, "SUBSELECT\n");
+					MYLOG(MIN_LOG_LEVEL, "SUBSELECT\n");
 					if (0 == subqlevel)
 						subqlevel = blevel;
 				}
@@ -1425,7 +1425,7 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 			else if (token[0] == '(')
 			{
 				blevel++;
-				MYLOG(0, "blevel++ -> %d\n", blevel);
+				MYLOG(MIN_LOG_LEVEL, "blevel++ -> %d\n", blevel);
 				/* aggregate function ? */
 				if (stoken[0] && updatable && 0 == subqlevel)
 				{
@@ -1442,7 +1442,7 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 			else if (token[0] == ')')
 			{
 				blevel--;
-				MYLOG(0, "blevel-- = %d\n", blevel);
+				MYLOG(MIN_LOG_LEVEL, "blevel-- = %d\n", blevel);
 				if (blevel < subqlevel)
 					subqlevel = 0;
 			}
@@ -1453,7 +1453,7 @@ parse_the_statement(StatementClass *stmt, BOOL check_hasoids, BOOL sqlsvr_check)
 		}
 		if (in_select)
 		{
-MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken, in_dot, in_field, wfi ? SAFE_NAME(wfi->column_alias) : "<null>");
+MYLOG(MIN_LOG_LEVEL, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken, in_dot, in_field, wfi ? SAFE_NAME(wfi->column_alias) : "<null>");
 			if (0 == blevel &&
 			    sqlsvr_check &&
 			    dquote &&
@@ -1480,20 +1480,20 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 			if (in_expr || in_func)
 			{
 				/* just eat the expression */
-				MYLOG(0, "in_expr=%d or func=%d\n", in_expr, in_func);
+				MYLOG(MIN_LOG_LEVEL, "in_expr=%d or func=%d\n", in_expr, in_func);
 
 				if (blevel == 0)
 				{
 					if (delim == ',')
 					{
-						MYLOG(0, "**** Got comma in_expr/func\n");
+						MYLOG(MIN_LOG_LEVEL, "**** Got comma in_expr/func\n");
 						in_func = FALSE;
 						in_expr = FALSE;
 						in_field = FALSE;
 					}
 					else if (unquoted && !stricmp(token, "as"))
 					{
-						MYLOG(0, "got AS in_expr\n");
+						MYLOG(MIN_LOG_LEVEL, "got AS in_expr\n");
 						in_func = FALSE;
 						in_expr = FALSE;
 						in_as = TRUE;
@@ -1505,12 +1505,12 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 
 			if (in_distinct)
 			{
-				MYLOG(0, "in distinct\n");
+				MYLOG(MIN_LOG_LEVEL, "in distinct\n");
 
 				if (unquoted && !stricmp(token, "on"))
 				{
 					in_on = TRUE;
-					MYLOG(0, "got on\n");
+					MYLOG(MIN_LOG_LEVEL, "got on\n");
 					continue;
 				}
 				if (in_on)
@@ -1519,7 +1519,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					in_on = FALSE;
 					continue;	/* just skip the unique on field */
 				}
-				MYLOG(0, "done distinct\n");
+				MYLOG(MIN_LOG_LEVEL, "done distinct\n");
 				in_distinct = FALSE;
 			} /* in_distinct */
 
@@ -1536,7 +1536,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					/* if (!(irdflds->nfields % FLD_INCR)) */
 					if (irdflds->nfields >= allocated_size)
 					{
-						MYLOG(0, "reallocing at nfld=%d\n", irdflds->nfields);
+						MYLOG(MIN_LOG_LEVEL, "reallocing at nfld=%d\n", irdflds->nfields);
 						new_size = irdflds->nfields + 1;
 						if (!allocateFields(irdflds, new_size))
 						{
@@ -1579,13 +1579,13 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 				}
 				else if (numeric)
 				{
-					MYLOG(0, "**** got numeric: nfld = %d\n", nfields);
+					MYLOG(MIN_LOG_LEVEL, "**** got numeric: nfld = %d\n", nfields);
 					if (NULL != wfi)
 						wfi->numeric = TRUE;
 				}
 				else if (0 == old_blevel && blevel > 0)
 				{				/* expression */
-					MYLOG(0, "got EXPRESSION\n");
+					MYLOG(MIN_LOG_LEVEL, "got EXPRESSION\n");
 					if (NULL != wfi)
 						wfi->expr = TRUE;
 					in_expr = TRUE;
@@ -1597,10 +1597,10 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					NULL_THE_NAME(wfi->before_dot);
 				}
 				if (NULL != wfi)
-					MYLOG(0, "got field='%s', dot='%s'\n", PRINT_NAME(wfi->column_name), PRINT_NAME(wfi->before_dot));
+					MYLOG(MIN_LOG_LEVEL, "got field='%s', dot='%s'\n", PRINT_NAME(wfi->column_name), PRINT_NAME(wfi->before_dot));
 
 				if (delim == ',')
-					MYLOG(0, "comma (1)\n");
+					MYLOG(MIN_LOG_LEVEL, "comma (1)\n");
 				else
 					in_field = TRUE;
 				nfields++;
@@ -1628,7 +1628,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 
 				if (delim == ',')
 				{
-					MYLOG(0, "in_dot: got comma\n");
+					MYLOG(MIN_LOG_LEVEL, "in_dot: got comma\n");
 					in_field = FALSE;
 				}
 				in_dot = FALSE;
@@ -1641,13 +1641,13 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 				if (NULL != wfi)
 				{
 					STRX_TO_NAME(wfi->column_alias, token);
-					MYLOG(0, "alias for field '%s' is '%s'\n", PRINT_NAME(wfi->column_name), PRINT_NAME(wfi->column_alias));
+					MYLOG(MIN_LOG_LEVEL, "alias for field '%s' is '%s'\n", PRINT_NAME(wfi->column_name), PRINT_NAME(wfi->column_alias));
 				}
 				in_as = FALSE;
 				in_field = FALSE;
 
 				if (delim == ',')
-					MYLOG(0, "comma(2)\n");
+					MYLOG(MIN_LOG_LEVEL, "comma(2)\n");
 				continue;
 			}
 
@@ -1664,7 +1664,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					 * name will have the function name -- maybe useful some
 					 * day
 					 */
-					MYLOG(0, "**** got function = '%s'\n", PRINT_NAME(wfi->column_name));
+					MYLOG(MIN_LOG_LEVEL, "**** got function = '%s'\n", PRINT_NAME(wfi->column_name));
 				}
 				continue;
 			}
@@ -1672,7 +1672,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 			if (token[0] == '.')
 			{
 				in_dot = TRUE;
-				MYLOG(0, "got dot\n");
+				MYLOG(MIN_LOG_LEVEL, "got dot\n");
 				continue;
 			}
 
@@ -1680,7 +1680,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 			if (!stricmp(token, "as"))
 			{
 				in_as = TRUE;
-				MYLOG(0, "got AS\n");
+				MYLOG(MIN_LOG_LEVEL, "got AS\n");
 				continue;
 			}
 
@@ -1694,10 +1694,10 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					NULL_THE_NAME(wfi->column_name);
 					wfi->column_size = 0;
 				}
-				MYLOG(0, "*** setting expression\n");
+				MYLOG(MIN_LOG_LEVEL, "*** setting expression\n");
 			}
 			else
-				MYLOG(0, "*** may be an alias for a field\n");
+				MYLOG(MIN_LOG_LEVEL, "*** may be an alias for a field\n");
 			if (0 == blevel && ',' == delim)
 			{
 				in_expr = in_func = in_field = FALSE;
@@ -1754,13 +1754,13 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					;
 				else if (0 == stricmp(token, "select"))
 				{
-					MYLOG(0, "got subquery lvl=%d\n", blevel);
+					MYLOG(MIN_LOG_LEVEL, "got subquery lvl=%d\n", blevel);
 					is_table_name = FALSE;
 					is_subquery = TRUE;
 				}
 				else if ('(' == ptr[0])
 				{
-					MYLOG(0, "got srf? = '%s'\n", token);
+					MYLOG(MIN_LOG_LEVEL, "got srf? = '%s'\n", token);
 					is_table_name = FALSE;
 				}
 				if (NULL != wti)
@@ -1769,7 +1769,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					{
 						STRX_TO_NAME(wti->table_name, token);
 						lower_the_name(GET_NAME(wti->table_name), conn, dquote);
-						MYLOG(0, "got table = '%s'\n", PRINT_NAME(wti->table_name));
+						MYLOG(MIN_LOG_LEVEL, "got table = '%s'\n", PRINT_NAME(wti->table_name));
 					}
 					else
 					{
@@ -1781,7 +1781,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 				if (0 == blevel && delim == ',')
 				{
 					out_table = TRUE;
-					MYLOG(0, "more than 1 tables\n");
+					MYLOG(MIN_LOG_LEVEL, "more than 1 tables\n");
 				}
 				else
 				{
@@ -1867,13 +1867,13 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					if (NULL != wti)
 					{
 						STRX_TO_NAME(wti->table_alias, token);
-						MYLOG(0, "alias for table '%s' is '%s'\n", PRINT_NAME(wti->table_name), PRINT_NAME(wti->table_alias));
+						MYLOG(MIN_LOG_LEVEL, "alias for table '%s' is '%s'\n", PRINT_NAME(wti->table_name), PRINT_NAME(wti->table_alias));
 					}
 					in_table = FALSE;
 					if (delim == ',')
 					{
 						out_table = TRUE;
-						MYLOG(0, "more than 1 tables\n");
+						MYLOG(MIN_LOG_LEVEL, "more than 1 tables\n");
 					}
 				}
 			}
@@ -1970,8 +1970,8 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 			wfi->ti = ti[0];
 	}
 
-	MYLOG(0, "--------------------------------------------\n");
-	MYLOG(0, "nfld=%d, ntab=%d\n", irdflds->nfields, stmt->ntab);
+	MYLOG(MIN_LOG_LEVEL, "--------------------------------------------\n");
+	MYLOG(MIN_LOG_LEVEL, "nfld=%d, ntab=%d\n", irdflds->nfields, stmt->ntab);
 	if (0 == stmt->ntab)
 	{
 		SC_set_parse_status(stmt, STMT_PARSE_FATAL);
@@ -1981,15 +1981,15 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 	for (i = 0; i < (int) irdflds->nfields; i++)
 	{
 		wfi = fi[i];
-		MYLOG(0, "Field %d:  expr=%d, func=%d, quote=%d, dquote=%d, numeric=%d, name='%s', alias='%s', dot='%s'\n", i, wfi->expr, wfi->func, wfi->quote, wfi->dquote, wfi->numeric, PRINT_NAME(wfi->column_name), PRINT_NAME(wfi->column_alias), PRINT_NAME(wfi->before_dot));
+		MYLOG(MIN_LOG_LEVEL, "Field %d:  expr=%d, func=%d, quote=%d, dquote=%d, numeric=%d, name='%s', alias='%s', dot='%s'\n", i, wfi->expr, wfi->func, wfi->quote, wfi->dquote, wfi->numeric, PRINT_NAME(wfi->column_name), PRINT_NAME(wfi->column_alias), PRINT_NAME(wfi->before_dot));
 		if (wfi->ti)
-			MYLOG(0, "     ----> table_name='%s', table_alias='%s'\n", PRINT_NAME(wfi->ti->table_name), PRINT_NAME(wfi->ti->table_alias));
+			MYLOG(MIN_LOG_LEVEL, "     ----> table_name='%s', table_alias='%s'\n", PRINT_NAME(wfi->ti->table_name), PRINT_NAME(wfi->ti->table_alias));
 	}
 
 	for (i = 0; i < stmt->ntab; i++)
 	{
 		wti = ti[i];
-		MYLOG(0, "Table %d: name='%s', alias='%s'\n", i, PRINT_NAME(wti->table_name), PRINT_NAME(wti->table_alias));
+		MYLOG(MIN_LOG_LEVEL, "Table %d: name='%s', alias='%s'\n", i, PRINT_NAME(wti->table_name), PRINT_NAME(wti->table_alias));
 	}
 
 	/*
@@ -2014,7 +2014,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 		goto cleanup;
 	}
 
-	MYLOG(0, "Done PG_Columns\n");
+	MYLOG(MIN_LOG_LEVEL, "Done PG_Columns\n");
 
 	/*
 	 * Now resolve the fields to point to column info
@@ -2043,7 +2043,7 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 						cols,
 						increased_cols;
 
-			MYLOG(0, "expanding field %d\n", i);
+			MYLOG(MIN_LOG_LEVEL, "expanding field %d\n", i);
 
 			total_cols = 0;
 
@@ -2062,13 +2062,13 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 			/* Allocate some more field pointers if necessary */
 			new_size = irdflds->nfields + increased_cols;
 
-			MYLOG(0, "k=%d, increased_cols=%d, allocated_size=%d, new_size=%d\n", k, increased_cols, allocated_size, new_size);
+			MYLOG(MIN_LOG_LEVEL, "k=%d, increased_cols=%d, allocated_size=%d, new_size=%d\n", k, increased_cols, allocated_size, new_size);
 
 			if (new_size > allocated_size)
 			{
 				int	new_alloc = new_size;
 
-				MYLOG(0, "need more cols: new_alloc = %d\n", new_alloc);
+				MYLOG(MIN_LOG_LEVEL, "need more cols: new_alloc = %d\n", new_alloc);
 				if (!allocateFields(irdflds, new_alloc))
 				{
 					SC_set_parse_status(stmt, STMT_PARSE_FATAL);
@@ -2084,14 +2084,14 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 			 */
 			for (j = irdflds->nfields - 1; j > i; j--)
 			{
-				MYLOG(0, "copying field %d to %d\n", j, increased_cols + j);
+				MYLOG(MIN_LOG_LEVEL, "copying field %d to %d\n", j, increased_cols + j);
 				fi[increased_cols + j] = fi[j];
 			}
-			MYLOG(0, "done copying fields\n");
+			MYLOG(MIN_LOG_LEVEL, "done copying fields\n");
 
 			/* Set the new number of fields */
 			irdflds->nfields += increased_cols;
-			MYLOG(0, "irdflds->nfields now at %d\n", irdflds->nfields);
+			MYLOG(MIN_LOG_LEVEL, "irdflds->nfields now at %d\n", irdflds->nfields);
 
 
 			/* copy the new field info */
@@ -2109,11 +2109,11 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					FIELD_INFO	*afi;
 					BOOL		reuse = TRUE;
 
-					MYLOG(0, "creating field info: n=%d\n", n);
+					MYLOG(MIN_LOG_LEVEL, "creating field info: n=%d\n", n);
 					/* skip malloc (already did it for the Star) */
 					if (k > 0 || n > 0)
 					{
-						MYLOG(0, "allocating field info at %d\n", n + i);
+						MYLOG(MIN_LOG_LEVEL, "allocating field info at %d\n", n + i);
 						fi[n + i] = (FIELD_INFO *) malloc(sizeof(FIELD_INFO));
 						if (fi[n + i] == NULL)
 						{
@@ -2127,16 +2127,16 @@ MYLOG(0, "blevel=%d btoken=%s in_dot=%d in_field=%d tbname=%s\n", blevel, btoken
 					FI_Constructor(afi, reuse);
 					afi->ti = the_ti;
 
-					MYLOG(0, "about to copy at %d\n", n + i);
+					MYLOG(MIN_LOG_LEVEL, "about to copy at %d\n", n + i);
 
 					getColInfo(the_ti->col_info, afi, n);
 					afi->updatable = fupdatable;
 
-					MYLOG(0, "done copying\n");
+					MYLOG(MIN_LOG_LEVEL, "done copying\n");
 				}
 
 				i += cols;
-				MYLOG(0, "i now at %d\n", i);
+				MYLOG(MIN_LOG_LEVEL, "i now at %d\n", i);
 			}
 		}
 
@@ -2200,7 +2200,7 @@ cleanup:
 		parse = FALSE;
 	}
 
-	MYLOG(0, "laving parse=%d, parse_status=%d\n", parse, SC_parsed_status(stmt));
+	MYLOG(MIN_LOG_LEVEL, "laving parse=%d, parse_status=%d\n", parse, SC_parsed_status(stmt));
 	return parse;
 }
 

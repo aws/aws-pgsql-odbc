@@ -271,7 +271,7 @@ logs_on_off(int cnopen, int mylog_onoff, int qlog_onoff)
 	else if (getGlobalCommlog() > 0)
 		qlog_on = getGlobalCommlog();
 	LEAVE_QLOG_CS;
-MYLOG(0, "mylog_on=%d qlog_on=%d\n", mylog_on, qlog_on);
+MYLOG(MIN_LOG_LEVEL, "mylog_on=%d qlog_on=%d\n", mylog_on, qlog_on);
 }
 
 #ifdef	WIN32

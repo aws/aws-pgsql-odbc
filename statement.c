@@ -186,7 +186,7 @@ PGAPI_AllocStmt(HDBC hdbc,
 	StatementClass *stmt;
 	ARDFields	*ardopts;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	if (!conn)
 	{
@@ -196,7 +196,7 @@ PGAPI_AllocStmt(HDBC hdbc,
 
 	stmt = SC_Constructor(conn);
 
-	MYLOG(0, "**** : hdbc = %p, stmt = %p\n", hdbc, stmt);
+	MYLOG(MIN_LOG_LEVEL, "**** : hdbc = %p, stmt = %p\n", hdbc, stmt);
 
 	if (!stmt)
 	{
@@ -245,7 +245,7 @@ PGAPI_FreeStmt(HSTMT hstmt,
 	CSTR func = "PGAPI_FreeStmt";
 	StatementClass *stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "entering...hstmt=%p, fOption=%hi\n", hstmt, fOption);
+	MYLOG(MIN_LOG_LEVEL, "entering...hstmt=%p, fOption=%hi\n", hstmt, fOption);
 
 	if (!stmt)
 	{
@@ -488,7 +488,7 @@ SC_Destructor(StatementClass *self)
 	CSTR func	= "SC_Destructor";
 	QResultClass	*res = SC_get_Result(self);
 
-	MYLOG(0, "entering self=%p, self->result=%p, self->hdbc=%p\n", self, res, self->hdbc);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p, self->result=%p, self->hdbc=%p\n", self, res, self->hdbc);
 	SC_clear_error(self);
 	if (STMT_EXECUTING == self->status)
 	{
@@ -542,7 +542,7 @@ SC_Destructor(StatementClass *self)
 	DELETE_STMT_CS(self);
 	free(self);
 
-	MYLOG(0, "leaving\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving\n");
 
 	return cRet;
 }
@@ -552,7 +552,7 @@ SC_init_Result(StatementClass *self)
 {
 	self->rhold.first = self->rhold.last = NULL;
 	self->curres = NULL;
-	MYLOG(0, "leaving(%p)\n", self);
+	MYLOG(MIN_LOG_LEVEL, "leaving(%p)\n", self);
 }
 
 void
@@ -562,7 +562,7 @@ SC_set_Result(StatementClass *self, QResultClass *first)
 	{
 		QResultClass *last = NULL, *res;
 
-		MYLOG(0, "(%p, %p)\n", self, first);
+		MYLOG(MIN_LOG_LEVEL, "(%p, %p)\n", self, first);
 		QR_Destructor(self->parsed);
 		self->parsed = NULL;
 		QR_Destructor(self->rhold.first);
@@ -579,7 +579,7 @@ SC_set_ResultHold(StatementClass *self, QResultHold rhold)
 {
 	if (rhold.first != self->rhold.first)
 	{
-		MYLOG(0, "(%p, {%p, %p})\n", self, rhold.first, rhold.last);
+		MYLOG(MIN_LOG_LEVEL, "(%p, {%p, %p})\n", self, rhold.first, rhold.last);
 		QR_Destructor(self->parsed);
 		self->parsed = NULL;
 		QR_Destructor(self->rhold.first);
@@ -816,7 +816,7 @@ BOOL	SC_opencheck(StatementClass *self, const char *func)
 	 */
 	if (self->prepare && self->status == STMT_DESCRIBED)
 	{
-		MYLOG(0, "self->prepare && self->status == STMT_DESCRIBED\n");
+		MYLOG(MIN_LOG_LEVEL, "self->prepare && self->status == STMT_DESCRIBED\n");
 		return FALSE;
 	}
 	if (res = SC_get_Curres(self), NULL != res)
@@ -872,7 +872,7 @@ SC_recycle_statement(StatementClass *self)
 	CSTR	func = "SC_recycle_statement";
 	ConnectionClass *conn;
 
-	MYLOG(0, "entering self=%p\n", self);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p\n", self);
 
 	SC_clear_error(self);
 	/* This would not happen */
@@ -982,7 +982,7 @@ SC_scanQueryAndCountParams(const char *query, const ConnectionClass *conn,
 	SQLSMALLINT	num_p;
 	encoded_str	encstr;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 	num_p = 0;
 	if (proc_return)
 		*proc_return = 0;
@@ -1140,7 +1140,7 @@ SC_scanQueryAndCountParams(const char *query, const ConnectionClass *conn,
 	if (multi_st)
 		*multi_st = multi;
 
-	MYLOG(0, "leaving...num_p=%d multi=%d\n", num_p, multi);
+	MYLOG(MIN_LOG_LEVEL, "leaving...num_p=%d multi=%d\n", num_p, multi);
 }
 
 /*
@@ -1154,7 +1154,7 @@ SC_describe(StatementClass *self)
 {
 	Int4		num_fields = -1;
 	QResultClass	*res;
-	MYLOG(0, "entering status = %d\n", self->status);
+	MYLOG(MIN_LOG_LEVEL, "entering status = %d\n", self->status);
 
 	res = SC_get_ExecdOrParsed(self);
 	if (NULL != res)
@@ -1166,7 +1166,7 @@ SC_describe(StatementClass *self)
 	}
 	if (self->status == STMT_READY)
 	{
-MYLOG(0, "              preprocess: status = READY\n");
+MYLOG(MIN_LOG_LEVEL, "              preprocess: status = READY\n");
 
 		self->miscinfo = 0;
 		self->execinfo = 0;
@@ -1702,7 +1702,7 @@ MYLOG(DETAIL_LOG_LEVEL, "entering statement=%p res=%p ommitted=0\n", self, res);
 		return SQL_ERROR;
 	coli = QR_get_fields(res);	/* the column info */
 
-	MYLOG(0, "fetch_cursor=%d, %p->total_read=" FORMAT_LEN "\n", SC_is_fetchcursor(self), res, res->num_total_read);
+	MYLOG(MIN_LOG_LEVEL, "fetch_cursor=%d, %p->total_read=" FORMAT_LEN "\n", SC_is_fetchcursor(self), res, res->num_total_read);
 
 	useCursor = (SC_is_fetchcursor(self) && (NULL != QR_get_cursor(res)));
 	if (!useCursor)
@@ -1718,7 +1718,7 @@ MYLOG(DETAIL_LOG_LEVEL, "entering statement=%p res=%p ommitted=0\n", self, res);
 			return SQL_NO_DATA_FOUND;
 		}
 
-		MYLOG(0, "**** : non-cursor_result\n");
+		MYLOG(MIN_LOG_LEVEL, "**** : non-cursor_result\n");
 		(self->currTuple)++;
 	}
 	else
@@ -1727,7 +1727,7 @@ MYLOG(DETAIL_LOG_LEVEL, "entering statement=%p res=%p ommitted=0\n", self, res);
 		retval = QR_next_tuple(res, self);
 		if (retval < 0)
 		{
-			MYLOG(0, "**** : end_tuples\n");
+			MYLOG(MIN_LOG_LEVEL, "**** : end_tuples\n");
 			if (QR_get_cursor(res) &&
 			    SQL_CURSOR_FORWARD_ONLY == self->options.cursor_type &&
 			    QR_once_reached_eof(res))
@@ -1801,7 +1801,7 @@ MYLOG(DETAIL_LOG_LEVEL, "stmt=%p ommitted++\n", self);
 		extend_getdata_info(gdata, opts->allocated, TRUE);
 	for (lf = 0; lf < num_cols; lf++)
 	{
-		MYLOG(0, "fetch: cols=%d, lf=%d, opts = %p, opts->bindings = %p, buffer[] = %p\n", num_cols, lf, opts, opts->bindings, opts->bindings[lf].buffer);
+		MYLOG(MIN_LOG_LEVEL, "fetch: cols=%d, lf=%d, opts = %p, opts->bindings = %p, buffer[] = %p\n", num_cols, lf, opts, opts->bindings, opts->bindings[lf].buffer);
 
 		/* reset for SQLGetData */
 		GETDATA_RESET(gdata->gdata[lf]);
@@ -1816,7 +1816,7 @@ MYLOG(DETAIL_LOG_LEVEL, "stmt=%p ommitted++\n", self);
 			type = CI_get_oid(coli, lf);		/* speed things up */
 			atttypmod = CI_get_atttypmod(coli, lf);	/* speed things up */
 
-			MYLOG(0, "type = %d, atttypmod = %d\n", type, atttypmod);
+			MYLOG(MIN_LOG_LEVEL, "type = %d, atttypmod = %d\n", type, atttypmod);
 
 			if (useCursor)
 				value = QR_get_value_backend(res, lf);
@@ -1828,11 +1828,11 @@ MYLOG(DETAIL_LOG_LEVEL, "curt=" FORMAT_LEN "\n", curt);
 				value = QR_get_value_backend_row(res, curt, lf);
 			}
 
-			MYLOG(0, "value = '%s'\n", (value == NULL) ? "<NULL>" : value);
+			MYLOG(MIN_LOG_LEVEL, "value = '%s'\n", (value == NULL) ? "<NULL>" : value);
 
 			retval = copy_and_convert_field_bindinfo(self, type, atttypmod, value, lf);
 
-			MYLOG(0, "copy_and_convert: retval = %d\n", retval);
+			MYLOG(MIN_LOG_LEVEL, "copy_and_convert: retval = %d\n", retval);
 
 			switch (retval)
 			{
@@ -1930,7 +1930,7 @@ SC_execute(StatementClass *self)
 	if (CONN_EXECUTING == conn->status)
 	{
 		SC_set_error(self, STMT_SEQUENCE_ERROR, "Connection is already in use.", func);
-		MYLOG(0, "problem with connection\n");
+		MYLOG(MIN_LOG_LEVEL, "problem with connection\n");
 		goto cleanup;
 	}
 	is_in_trans = CC_is_in_trans(conn);
@@ -1980,7 +1980,7 @@ SC_execute(StatementClass *self)
 	}
 	if (issue_begin)
 	{
-		MYLOG(0, "   about to begin a transaction on statement = %p\n", self);
+		MYLOG(MIN_LOG_LEVEL, "   about to begin a transaction on statement = %p\n", self);
 		qflag |= GO_INTO_TRANSACTION;
 	}
 
@@ -2049,7 +2049,7 @@ SC_execute(StatementClass *self)
 		QResultClass *first;
 
 		qflag |= (SQL_CONCUR_READ_ONLY != self->options.scroll_concurrency ? CREATE_KEYSET : 0);
-		MYLOG(0, "       Sending SELECT statement on stmt=%p, cursor_name='%s' qflag=%d," FORMAT_UINTEGER "\n", self, SC_cursor_name(self), qflag, self->options.scroll_concurrency);
+		MYLOG(MIN_LOG_LEVEL, "       Sending SELECT statement on stmt=%p, cursor_name='%s' qflag=%d," FORMAT_UINTEGER "\n", self, SC_cursor_name(self), qflag, self->options.scroll_concurrency);
 
 		/* send the declare/select */
 		if (useCursor)
@@ -2111,12 +2111,12 @@ SC_execute(StatementClass *self)
 			if (first && SC_is_with_hold(self))
 				QR_set_withhold(first);
 		}
-		MYLOG(0, "     done sending the query:\n");
+		MYLOG(MIN_LOG_LEVEL, "     done sending the query:\n");
 	}
 	else
 	{
 		/* not a SELECT statement so don't use a cursor */
-		MYLOG(0, "      it's NOT a select statement: stmt=%p\n", self);
+		MYLOG(MIN_LOG_LEVEL, "      it's NOT a select statement: stmt=%p\n", self);
 		rhold = CC_send_query_append(conn, self->stmt_with_params, NULL, qflag, SC_get_ancestor(self), NULL);
 	}
 
@@ -2143,7 +2143,7 @@ SC_execute(StatementClass *self)
 	if (CONN_DOWN != conn->status)
 		conn->status = oldstatus;
 	self->status = STMT_FINISHED;
-MYLOG(0, "set %p STMT_FINISHED\n", self);
+MYLOG(MIN_LOG_LEVEL, "set %p STMT_FINISHED\n", self);
 	LEAVE_INNER_CONN_CS(func_cs_count, conn);
 
 	/* Check the status of the result */
@@ -2442,7 +2442,7 @@ RETCODE dequeueNeedDataCallback(RETCODE retcode, StatementClass *stmt)
 	void			*data;
 	int			i, cnt;
 
-	MYLOG(0, "entering ret=%d count=%d\n", retcode, stmt->num_callbacks);
+	MYLOG(MIN_LOG_LEVEL, "entering ret=%d count=%d\n", retcode, stmt->num_callbacks);
 	if (SQL_NEED_DATA == retcode)
 		return retcode;
 	if (stmt->num_callbacks <= 0)
@@ -2493,7 +2493,7 @@ SC_log_error(const char *func, const char *desc, const StatementClass *self)
 			head = "STATEMENT ERROR";
 			QLOG(level, "%s: func=%s, desc='%s', errnum=%d, errmsg='%s'\n",head, func, desc, self->__error_number, NULLCHECK(self->__error_message));
 		}
-		MYLOG(0, "%s: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", head, func, desc, self->__error_number, NULLCHECK(self->__error_message));
+		MYLOG(MIN_LOG_LEVEL, "%s: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", head, func, desc, self->__error_number, NULLCHECK(self->__error_message));
 		if (SC_get_errornumber(self) > 0)
 		{
 			QLOG(level, "                 ------------------------------------------------------------\n");
@@ -2524,7 +2524,7 @@ SC_log_error(const char *func, const char *desc, const StatementClass *self)
 	}
 	else
 	{
-		MYLOG(0, "INVALID STATEMENT HANDLE ERROR: func=%s, desc='%s'\n", func, desc);
+		MYLOG(MIN_LOG_LEVEL, "INVALID STATEMENT HANDLE ERROR: func=%s, desc='%s'\n", func, desc);
 	}
 }
 
@@ -2644,7 +2644,7 @@ libpq_bind_and_exec(StatementClass *stmt)
 #endif /* NOT_USED */
 
 	/* 1. Bind */
-	MYLOG(0, "bind stmt=%p\n", stmt);
+	MYLOG(MIN_LOG_LEVEL, "bind stmt=%p\n", stmt);
 	if (!build_libpq_bind_params(stmt,
 								 &nParams,
 								 &paramTypes,
@@ -2658,7 +2658,7 @@ libpq_bind_and_exec(StatementClass *stmt)
 	}
 
 	/* 2. Execute */
-	MYLOG(0, "execute stmt=%p\n", stmt);
+	MYLOG(MIN_LOG_LEVEL, "execute stmt=%p\n", stmt);
 	if (!SC_is_fetchcursor(stmt))
 	{
 		if (stmt->prepared == NOT_YET_PREPARED ||
@@ -2682,7 +2682,7 @@ libpq_bind_and_exec(StatementClass *stmt)
 		}
 
 		pstmt = stmt->processed_statements;
-		QLOG(0, "PQexecParams: %p '%s' nParams=%d\n", conn->pqconn, pstmt->query, nParams);
+		QLOG(MIN_LOG_LEVEL, "PQexecParams: %p '%s' nParams=%d\n", conn->pqconn, pstmt->query, nParams);
 		log_params(nParams, paramTypes, (const UCHAR * const *) paramValues, paramLengths, paramFormats, resultFormat);
 		/* set notice receiver */
 		newres = add_libpq_notice_receiver(stmt, &nrarg);
@@ -2709,7 +2709,7 @@ libpq_bind_and_exec(StatementClass *stmt)
 		plan_name = stmt->plan_name ? stmt->plan_name : NULL_STRING;
 
 		/* already prepared */
-		QLOG(0, "PQexecPrepared: %p plan=%s nParams=%d\n", conn->pqconn, plan_name, nParams);
+		QLOG(MIN_LOG_LEVEL, "PQexecPrepared: %p plan=%s nParams=%d\n", conn->pqconn, plan_name, nParams);
 		log_params(nParams, paramTypes, (const UCHAR * const *) paramValues, paramLengths, paramFormats, resultFormat);
 		/* set notice receiver */
 		newres = add_libpq_notice_receiver(stmt, &nrarg);
@@ -2736,7 +2736,7 @@ MYLOG(DETAIL_LOG_LEVEL, "get_Result=%p %p\n", res, SC_get_Result(stmt));
 			/* portal query command, no tuples returned */
 			/* read in the return message from the backend */
 			cmdtag = PQcmdStatus(pgres);
-			QLOG(0, "\tok: - 'C' - %s\n", cmdtag);
+			QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", cmdtag);
 			QR_set_command(res, cmdtag);
 			if (QR_command_successful(res))
 				QR_set_rstatus(res, PORES_COMMAND_OK);
@@ -2776,7 +2776,7 @@ MYLOG(DETAIL_LOG_LEVEL, "get_Result=%p %p\n", res, SC_get_Result(stmt));
 			CC_set_error(conn, CONNECTION_BACKEND_CRAZY, "Unexpected protocol character from backend (send_query)", func);
 			CC_on_abort(conn, CONN_DEAD);
 
-			QLOG(0, "PQexecXxxx error: - (%d) - %s\n", pgresstatus, CC_get_errormsg(conn));
+			QLOG(MIN_LOG_LEVEL, "PQexecXxxx error: - (%d) - %s\n", pgresstatus, CC_get_errormsg(conn));
 			break;
 	}
 
@@ -2825,7 +2825,7 @@ ParseWithLibpq(StatementClass *stmt, const char *plan_name,
 	BOOL		retval = FALSE;
 	PGresult   *pgres = NULL;
 
-	MYLOG(0, "entering plan_name=%s query=%s\n", plan_name, query);
+	MYLOG(MIN_LOG_LEVEL, "entering plan_name=%s query=%s\n", plan_name, query);
 	if (!RequestStart(stmt, conn, func))
 		return FALSE;
 
@@ -2863,7 +2863,7 @@ ParseWithLibpq(StatementClass *stmt, const char *plan_name,
 				break;
 			}
 		}
-MYLOG(0, "sta_pidx=%d end_pidx=%d num_p=%d\n", sta_pidx, end_pidx, num_params);
+MYLOG(MIN_LOG_LEVEL, "sta_pidx=%d end_pidx=%d num_p=%d\n", sta_pidx, end_pidx, num_params);
 	}
 
 	/*
@@ -2883,7 +2883,7 @@ MYLOG(0, "sta_pidx=%d end_pidx=%d num_p=%d\n", sta_pidx, end_pidx, num_params);
 			goto cleanup;
 		}
 
-		MYLOG(0, "ipdopts->allocated: %d\n", ipdopts->allocated);
+		MYLOG(MIN_LOG_LEVEL, "ipdopts->allocated: %d\n", ipdopts->allocated);
 		j = 0;
 		for (i = sta_pidx; i <= end_pidx; i++)
 		{
@@ -2907,7 +2907,7 @@ MYLOG(0, "sta_pidx=%d end_pidx=%d num_p=%d\n", sta_pidx, end_pidx, num_params);
 		conn->unnamed_prepared_stmt = NULL;
 
 	/* Prepare */
-	QLOG(0, "PQprepare: %p '%s' plan=%s nParams=%d\n", conn->pqconn, query, plan_name, num_params);
+	QLOG(MIN_LOG_LEVEL, "PQprepare: %p '%s' plan=%s nParams=%d\n", conn->pqconn, query, plan_name, num_params);
 	pgres = PQprepare(conn->pqconn, plan_name, query, num_params, paramTypes);
 	if (PQresultStatus(pgres) != PGRES_COMMAND_OK)
 	{
@@ -2915,7 +2915,7 @@ MYLOG(0, "sta_pidx=%d end_pidx=%d num_p=%d\n", sta_pidx, end_pidx, num_params);
 		goto cleanup;
 	}
 	cstatus = PQcmdStatus(pgres);
-	QLOG(0, "\tok: - 'C' - %s\n", cstatus);
+	QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", cstatus);
 	if (stmt->plan_name)
 		SC_set_prepared(stmt, PREPARED_PERMANENTLY);
 	else
@@ -2964,7 +2964,7 @@ ParseAndDescribeWithLibpq(StatementClass *stmt, const char *plan_name,
 	Oid			oid;
 	SQLSMALLINT paramType;
 
-	MYLOG(0, "entering plan_name=%s query=%s\n", plan_name, query_param);
+	MYLOG(MIN_LOG_LEVEL, "entering plan_name=%s query=%s\n", plan_name, query_param);
 	if (!RequestStart(stmt, conn, func))
 		return NULL;
 
@@ -2985,13 +2985,13 @@ ParseAndDescribeWithLibpq(StatementClass *stmt, const char *plan_name,
 		goto cleanup;
 
 	/* Describe */
-	QLOG(0, "\tPQdescribePrepared: %p plan_name=%s\n", conn->pqconn, plan_name);
+	QLOG(MIN_LOG_LEVEL, "\tPQdescribePrepared: %p plan_name=%s\n", conn->pqconn, plan_name);
 
 	pgres = PQdescribePrepared(conn->pqconn, plan_name);
 	switch (PQresultStatus(pgres))
 	{
 		case PGRES_COMMAND_OK:
-			QLOG(0, "\tok: - 'C' - %s\n", PQcmdStatus(pgres));
+			QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", PQcmdStatus(pgres));
 			/* expected */
 			break;
 		case PGRES_NONFATAL_ERROR:
@@ -3005,7 +3005,7 @@ ParseAndDescribeWithLibpq(StatementClass *stmt, const char *plan_name,
 			CC_set_error(conn, CONNECTION_BACKEND_CRAZY, "Unexpected result from PQdescribePrepared", func);
 			CC_on_abort(conn, CONN_DEAD);
 
-			MYLOG(0, "PQdescribePrepared: error - %s\n", CC_get_errormsg(conn));
+			MYLOG(MIN_LOG_LEVEL, "PQdescribePrepared: error - %s\n", CC_get_errormsg(conn));
 			goto cleanup;
 	}
 
@@ -3016,7 +3016,7 @@ MYLOG(DETAIL_LOG_LEVEL, "num_params=%d info=%d\n", stmt->num_params, num_p);
 	{
 		int	i;
 
-		QLOG(0, "\tnParams=%d", num_p);
+		QLOG(MIN_LOG_LEVEL, "\tnParams=%d", num_p);
 		for (i = 0; i < num_p; i++)
 			QPRINTF(0, " %u", PQparamtype(pgres, i));
 		QPRINTF(0, "\n");
@@ -3028,7 +3028,7 @@ MYLOG(DETAIL_LOG_LEVEL, "num_params=%d info=%d\n", stmt->num_params, num_p);
 		num_discard_params = stmt->proc_return;
 	if (num_p + num_discard_params != (int) stmt->num_params)
 	{
-		MYLOG(0, "ParamInfo unmatch num_params(=%d) != info(=%d)+discard(=%d)\n", stmt->num_params, num_p, num_discard_params);
+		MYLOG(MIN_LOG_LEVEL, "ParamInfo unmatch num_params(=%d) != info(=%d)+discard(=%d)\n", stmt->num_params, num_p, num_discard_params);
 		/* stmt->num_params = (Int2) num_p + num_discard_params; it's possible in case of multi command queries */
 	}
 	ipdopts = SC_get_IPDF(stmt);
@@ -3041,7 +3041,7 @@ MYLOG(DETAIL_LOG_LEVEL, "num_params=%d info=%d\n", stmt->num_params, num_p);
 		SC_param_next(stmt, &pidx, NULL, NULL);
 		if (pidx >= stmt->num_params)
 		{
-			MYLOG(0, "%dth parameter's position(%d) is out of bound[%d]\n", i, pidx, stmt->num_params);
+			MYLOG(MIN_LOG_LEVEL, "%dth parameter's position(%d) is out of bound[%d]\n", i, pidx, stmt->num_params);
 			break;
 		}
 		oid = PQparamtype(pgres, i);
@@ -3141,7 +3141,7 @@ BOOL	SC_SetExecuting(StatementClass *self, BOOL on)
 	{
 		self->cancel_info = 0;
 		self->status = STMT_FINISHED;
-MYLOG(0, "set %p STMT_FINISHED\n", self);
+MYLOG(MIN_LOG_LEVEL, "set %p STMT_FINISHED\n", self);
 		exeSet = TRUE;
 	}
 	LEAVE_COMMON_CS;
@@ -3267,10 +3267,10 @@ PG_BM	SC_Resolve_bookmark(const ARDFields *opts, Int4 idx)
 			cpylen = sizeof(pg_bm);
 		else if (*used >= 12)
 			cpylen = 12;
-		MYLOG(0, "used=" FORMAT_LEN " cpylen=" FORMAT_SIZE_T "\n", *used, cpylen);
+		MYLOG(MIN_LOG_LEVEL, "used=" FORMAT_LEN " cpylen=" FORMAT_SIZE_T "\n", *used, cpylen);
 	}
 	memcpy(&pg_bm, CALC_BOOKMARK_ADDR(bookmark, offset, bind_size, idx), cpylen);
-MYLOG(0, "index=%d block=%d off=%d\n", pg_bm.index, pg_bm.keys.blocknum, pg_bm.keys.offset);
+MYLOG(MIN_LOG_LEVEL, "index=%d block=%d off=%d\n", pg_bm.index, pg_bm.keys.blocknum, pg_bm.keys.offset);
 	pg_bm.index = SC_resolve_int4_bookmark(pg_bm.index);
 
 	return pg_bm;
@@ -3284,7 +3284,7 @@ int	SC_Create_bookmark(StatementClass *self, BindInfoClass *bookmark, Int4 bind_
 	size_t		cvtlen = sizeof(Int4);
 	PG_BM		pg_bm;
 
-MYLOG(0, "entering type=%d buflen=" FORMAT_LEN " buf=%p\n", bookmark->returntype, bookmark->buflen, bookmark->buffer);
+MYLOG(MIN_LOG_LEVEL, "entering type=%d buflen=" FORMAT_LEN " buf=%p\n", bookmark->returntype, bookmark->buflen, bookmark->buffer);
 	memset(&pg_bm, 0, sizeof(pg_bm));
 	if (SQL_C_BOOKMARK == bookmark->returntype)
 		;
@@ -3306,7 +3306,7 @@ MYLOG(0, "entering type=%d buflen=" FORMAT_LEN " buf=%p\n", bookmark->returntype
 			used = LENADDR_SHIFT(used, bind_row * sizeof(SQLLEN));
 		*used = cvtlen;
 	}
-MYLOG(0, "leaving cvtlen=" FORMAT_SIZE_T " ix(bl,of)=%d(%d,%d)\n", cvtlen, pg_bm.index, pg_bm.keys.blocknum, pg_bm.keys.offset);
+MYLOG(MIN_LOG_LEVEL, "leaving cvtlen=" FORMAT_SIZE_T " ix(bl,of)=%d(%d,%d)\n", cvtlen, pg_bm.index, pg_bm.keys.blocknum, pg_bm.keys.offset);
 
 	return COPY_OK;
 }

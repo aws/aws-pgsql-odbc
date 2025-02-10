@@ -62,7 +62,7 @@ SQLBindCol(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ENTER_STMT_CS(stmt);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);
@@ -76,7 +76,7 @@ SQLBindCol(HSTMT StatementHandle,
 RETCODE		SQL_API
 SQLCancel(HSTMT StatementHandle)
 {
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	/* Not that neither ENTER_STMT_CS nor StartRollbackState is called */
 	/* SC_clear_error((StatementClass *) StatementHandle); maybe this neither */
 	if (SC_connection_lost_check((StatementClass *) StatementHandle, __FUNCTION__))
@@ -108,7 +108,7 @@ SQLColumns(HSTMT StatementHandle,
 	ConnInfo *ci = &(SC_get_conn(stmt)->connInfo);
 	UWORD	flag	= PODBC_SEARCH_PUBLIC_SCHEMA;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -185,7 +185,7 @@ SQLConnect(HDBC ConnectionHandle,
 	RETCODE	ret;
 	ConnectionClass *conn = (ConnectionClass *) ConnectionHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	CC_examine_global_transaction(conn);
 	ENTER_CONN_CS(conn);
 	CC_clear_error(conn);
@@ -209,7 +209,7 @@ SQLDriverConnect(HDBC hdbc,
 	RETCODE	ret;
 	ConnectionClass *conn = (ConnectionClass *) hdbc;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	CC_examine_global_transaction(conn);
 	ENTER_CONN_CS(conn);
 	CC_clear_error(conn);
@@ -230,7 +230,7 @@ SQLBrowseConnect(HDBC hdbc,
 	RETCODE	ret;
 	ConnectionClass *conn = (ConnectionClass *) hdbc;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	CC_examine_global_transaction(conn);
 	ENTER_CONN_CS(conn);
 	CC_clear_error(conn);
@@ -247,7 +247,7 @@ SQLDataSources(HENV EnvironmentHandle,
 			   SQLCHAR *Description, SQLSMALLINT BufferLength2,
 			   SQLSMALLINT *NameLength2)
 {
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 
 	/*
 	 * return PGAPI_DataSources(EnvironmentHandle, Direction, ServerName,
@@ -267,7 +267,7 @@ SQLDescribeCol(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -289,7 +289,7 @@ SQLDisconnect(HDBC ConnectionHandle)
 	RETCODE	ret;
 	ConnectionClass *conn = (ConnectionClass *) ConnectionHandle;
 
-	MYLOG(0, "Entering for %p\n", ConnectionHandle);
+	MYLOG(MIN_LOG_LEVEL, "Entering for %p\n", ConnectionHandle);
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 	if (CC_is_in_global_trans(conn))
 		CALL_DtcOnDisconnect(conn);
@@ -311,7 +311,7 @@ SQLExecDirect(HSTMT StatementHandle,
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 	UWORD	flag = 0;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -339,7 +339,7 @@ SQLExecute(HSTMT StatementHandle)
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 	UWORD	flag = 0;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -370,7 +370,7 @@ SQLFetch(HSTMT StatementHandle)
 	SQLUSMALLINT *rowStatusArray = irdopts->rowStatusArray;
 	SQLULEN *pcRow = irdopts->rowsFetched;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -396,7 +396,7 @@ SQLFreeStmt(HSTMT StatementHandle,
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 	ConnectionClass *conn = NULL;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 
 	if (stmt)
 	{
@@ -436,7 +436,7 @@ SQLGetCursorName(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ENTER_STMT_CS(stmt);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);
@@ -457,7 +457,7 @@ SQLGetData(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -478,7 +478,7 @@ SQLGetFunctions(HDBC ConnectionHandle,
 	RETCODE	ret;
 	ConnectionClass *conn = (ConnectionClass *) ConnectionHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	CC_examine_global_transaction(conn);
 	ENTER_CONN_CS(conn);
 	CC_clear_error(conn);
@@ -503,7 +503,7 @@ SQLGetInfo(HDBC ConnectionHandle,
 	CC_examine_global_transaction(conn);
 	ENTER_CONN_CS(conn);
 	CC_clear_error(conn);
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if ((ret = PGAPI_GetInfo(ConnectionHandle, InfoType, InfoValue,
 				BufferLength, StringLength)) == SQL_ERROR)
 		CC_log_error("SQLGetInfo(30)", "", conn);
@@ -520,7 +520,7 @@ SQLGetTypeInfo(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check((StatementClass *) StatementHandle, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -546,7 +546,7 @@ SQLNumResultCols(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -566,7 +566,7 @@ SQLParamData(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -587,7 +587,7 @@ SQLPrepare(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -613,7 +613,7 @@ SQLPutData(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -632,7 +632,7 @@ SQLRowCount(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -654,7 +654,7 @@ SQLSetCursorName(HSTMT StatementHandle,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ENTER_STMT_CS(stmt);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);
@@ -672,7 +672,7 @@ SQLSetParam(HSTMT StatementHandle,
 			SQLSMALLINT ParameterScale, PTR ParameterValue,
 			SQLLEN *StrLen_or_Ind)
 {
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	SC_clear_error((StatementClass *) StatementHandle);
 
 	/*
@@ -698,7 +698,7 @@ SQLSpecialColumns(HSTMT StatementHandle,
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 	SQLCHAR *ctName = CatalogName, *scName = SchemaName, *tbName = TableName;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -764,7 +764,7 @@ SQLStatistics(HSTMT StatementHandle,
 	StatementClass *stmt = (StatementClass *) StatementHandle;
 	SQLCHAR *ctName = CatalogName, *scName = SchemaName, *tbName = TableName;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -831,7 +831,7 @@ SQLTables(HSTMT StatementHandle,
 	SQLCHAR *ctName = CatalogName, *scName = SchemaName, *tbName = TableName;
 	UWORD	flag = 0;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -906,7 +906,7 @@ SQLColumnPrivileges(HSTMT hstmt,
 		*tbName = szTableName, *clName = szColumnName;
 	UWORD	flag = 0;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -981,7 +981,7 @@ SQLDescribeParam(HSTMT hstmt,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1009,7 +1009,7 @@ SQLExtendedFetch(HSTMT hstmt,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1056,7 +1056,7 @@ SQLForeignKeys(HSTMT hstmt,
 		*pktbName = szPkTableName, *fkctName = szFkCatalogName,
 		*fkscName = szFkSchemaName, *fktbName = szFkTableName;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1141,7 +1141,7 @@ SQLMoreResults(HSTMT hstmt)
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1166,7 +1166,7 @@ SQLNativeSql(HDBC hdbc,
 	RETCODE	ret;
 	ConnectionClass *conn = (ConnectionClass *) hdbc;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	CC_examine_global_transaction(conn);
 	ENTER_CONN_CS(conn);
 	CC_clear_error(conn);
@@ -1184,7 +1184,7 @@ SQLNumParams(HSTMT hstmt,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1213,7 +1213,7 @@ SQLPrimaryKeys(HSTMT hstmt,
 	SQLCHAR	*ctName = szCatalogName, *scName = szSchemaName,
 		*tbName = szTableName;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1283,7 +1283,7 @@ SQLProcedureColumns(HSTMT hstmt,
 		*prName = szProcName, *clName = szColumnName;
 	UWORD	flag = 0;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1362,7 +1362,7 @@ SQLProcedures(HSTMT hstmt,
 		*prName = szProcName;
 	UWORD	flag = 0;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1427,7 +1427,7 @@ SQLSetPos(HSTMT hstmt,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1457,7 +1457,7 @@ SQLTablePrivileges(HSTMT hstmt,
 		*tbName = szTableName;
 	UWORD	flag = 0;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	if (SC_connection_lost_check(stmt, __FUNCTION__))
 		return SQL_ERROR;
 
@@ -1527,7 +1527,7 @@ SQLBindParameter(HSTMT hstmt,
 	RETCODE	ret;
 	StatementClass *stmt = (StatementClass *) hstmt;
 
-	MYLOG(0, "Entering\n");
+	MYLOG(MIN_LOG_LEVEL, "Entering\n");
 	ENTER_STMT_CS(stmt);
 	SC_clear_error(stmt);
 	StartRollbackState(stmt);

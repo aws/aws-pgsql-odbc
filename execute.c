@@ -44,7 +44,7 @@ PGAPI_Prepare(HSTMT hstmt,
 	RETCODE	retval = SQL_SUCCESS;
 	BOOL	prepared;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 #define	return	DONT_CALL_RETURN_FROM_HERE???
 	/* StartRollbackState(self); */
@@ -60,30 +60,30 @@ PGAPI_Prepare(HSTMT hstmt,
 	switch (self->status)
 	{
 		case STMT_DESCRIBED:
-			MYLOG(0, "**** STMT_DESCRIBED, recycle\n");
+			MYLOG(MIN_LOG_LEVEL, "**** STMT_DESCRIBED, recycle\n");
 			SC_recycle_statement(self); /* recycle the statement, but do
 										 * not remove parameter bindings */
 			break;
 
 		case STMT_FINISHED:
-			MYLOG(0, "**** STMT_FINISHED, recycle\n");
+			MYLOG(MIN_LOG_LEVEL, "**** STMT_FINISHED, recycle\n");
 			SC_recycle_statement(self); /* recycle the statement, but do
 										 * not remove parameter bindings */
 			break;
 
 		case STMT_ALLOCATED:
-			MYLOG(0, "**** STMT_ALLOCATED, copy\n");
+			MYLOG(MIN_LOG_LEVEL, "**** STMT_ALLOCATED, copy\n");
 			self->status = STMT_READY;
 			break;
 
 		case STMT_READY:
-			MYLOG(0, "**** STMT_READY, change SQL\n");
+			MYLOG(MIN_LOG_LEVEL, "**** STMT_READY, change SQL\n");
 			if (NOT_YET_PREPARED != prepared)
 				SC_recycle_statement(self); /* recycle the statement */
 			break;
 
 		case STMT_EXECUTING:
-			MYLOG(0, "**** STMT_EXECUTING, error!\n");
+			MYLOG(MIN_LOG_LEVEL, "**** STMT_EXECUTING, error!\n");
 
 			SC_set_error(self, STMT_SEQUENCE_ERROR, "PGAPI_Prepare(): The handle does not point to a statement that is ready to be executed", func);
 
@@ -145,7 +145,7 @@ PGAPI_ExecDirect(HSTMT hstmt,
 	CSTR func = "PGAPI_ExecDirect";
 	const ConnectionClass	*conn = SC_get_conn(stmt);
 
-	MYLOG(0, "entering...%x\n", flag);
+	MYLOG(MIN_LOG_LEVEL, "entering...%x\n", flag);
 
 	if (result = SC_initialize_and_recycle(stmt), SQL_SUCCESS != result)
 		return result;
@@ -162,7 +162,7 @@ MYLOG(DETAIL_LOG_LEVEL, "a2\n");
 		return SQL_ERROR;
 	}
 
-	MYLOG(0, "**** hstmt=%p, statement='%s'\n", hstmt, stmt->statement);
+	MYLOG(MIN_LOG_LEVEL, "**** hstmt=%p, statement='%s'\n", hstmt, stmt->statement);
 
 	if (0 != (flag & PODBC_WITH_HOLD))
 		SC_set_with_hold(stmt);
@@ -186,11 +186,11 @@ MYLOG(DETAIL_LOG_LEVEL, "a2\n");
 		return SQL_ERROR;
 	}
 
-	MYLOG(0, "calling PGAPI_Execute...\n");
+	MYLOG(MIN_LOG_LEVEL, "calling PGAPI_Execute...\n");
 
 	result = PGAPI_Execute(hstmt, flag);
 
-	MYLOG(0, "leaving %hd\n", result);
+	MYLOG(MIN_LOG_LEVEL, "leaving %hd\n", result);
 	return result;
 }
 
@@ -442,7 +442,7 @@ RETCODE	Exec_with_parameters_resolved(StatementClass *stmt, EXEC_TYPE exec_type,
 
 	*exec_end = FALSE;
 	conn = SC_get_conn(stmt);
-	MYLOG(0, "copying statement params: trans_status=%d, len=" FORMAT_SIZE_T ", stmt='%s'\n", conn->transact_status, strlen(stmt->statement), stmt->statement);
+	MYLOG(MIN_LOG_LEVEL, "copying statement params: trans_status=%d, len=" FORMAT_SIZE_T ", stmt='%s'\n", conn->transact_status, strlen(stmt->statement), stmt->statement);
 
 #define	return	DONT_CALL_RETURN_FROM_HERE???
 #define	RETURN(code)	{ retval = code; goto cleanup; }
@@ -483,12 +483,12 @@ MYLOG(DETAIL_LOG_LEVEL, "prepare_before_exec=%d srv=%d\n", prepare_before_exec, 
 			exec_type = DIRECT_EXEC;
 	}
 
-	MYLOG(0, "   stmt_with_params = '%s'\n", stmt->stmt_with_params);
+	MYLOG(MIN_LOG_LEVEL, "   stmt_with_params = '%s'\n", stmt->stmt_with_params);
 
 	/*
 	 *	The real execution.
 	 */
-MYLOG(0, "about to begin SC_execute exec_type=%d\n", exec_type);
+MYLOG(MIN_LOG_LEVEL, "about to begin SC_execute exec_type=%d\n", exec_type);
 	ipdopts = SC_get_IPDF(stmt);
 	apdopts = SC_get_APDF(stmt);
 	if (start_row = stmt->exec_start_row, start_row < 0)
@@ -561,7 +561,7 @@ MYLOG(0, "about to begin SC_execute exec_type=%d\n", exec_type);
 	}
 	if (retval == SQL_ERROR)
 	{
-MYLOG(0, "count_of_deffered=%d\n", count_of_deffered);
+MYLOG(MIN_LOG_LEVEL, "count_of_deffered=%d\n", count_of_deffered);
 		param_status_batch_update(ipdopts, SQL_PARAM_ERROR, stmt->exec_current_row, count_of_deffered);
 		stmt->exec_current_row = -1;
 		*exec_end = TRUE;
@@ -593,7 +593,7 @@ MYLOG(0, "count_of_deffered=%d\n", count_of_deffered);
 				ipdopts->param_status_ptr[status_row] = SQL_PARAM_SUCCESS;
 				break;
 			case SQL_SUCCESS_WITH_INFO:
-MYLOG(0, "count_of_deffered=%d has_notice=%d\n", count_of_deffered, stmt->has_notice);
+MYLOG(MIN_LOG_LEVEL, "count_of_deffered=%d has_notice=%d\n", count_of_deffered, stmt->has_notice);
 				param_status_batch_update(ipdopts, (count_of_deffered > 0 && !stmt->has_notice) ? SQL_PARAM_SUCCESS : SQL_PARAM_SUCCESS_WITH_INFO, status_row, count_of_deffered);
 				break;
 			default:
@@ -800,7 +800,7 @@ DiscardStatementSvp(StatementClass *stmt, RETCODE ret, BOOL errorOnly)
 MYLOG(DETAIL_LOG_LEVEL, "entering %p->accessed=%d is_in=%d is_rb=%d is_tc=%d\n", conn, CC_accessed_db(conn),
 CC_is_in_trans(conn), SC_is_rb_stmt(stmt), SC_is_tc_stmt(stmt));
 	if (stmt->lock_CC_for_rb)
-		MYLOG(0, "in_progress=%u previous=%d\n", conn->opt_in_progress, conn->opt_previous);
+		MYLOG(MIN_LOG_LEVEL, "in_progress=%u previous=%d\n", conn->opt_in_progress, conn->opt_previous);
 	switch (ret)
 	{
 		case SQL_NEED_DATA:
@@ -934,7 +934,7 @@ PGAPI_Execute(HSTMT hstmt, UWORD flag)
 	BOOL	exec_end = FALSE, recycled = FALSE, recycle = TRUE;
 	SQLSMALLINT	num_params;
 
-	MYLOG(0, "entering...%x %p status=%d\n", flag, stmt, stmt->status);
+	MYLOG(MIN_LOG_LEVEL, "entering...%x %p status=%d\n", flag, stmt, stmt->status);
 
 	stmt->has_notice = 0;
 	conn = SC_get_conn(stmt);
@@ -951,13 +951,13 @@ PGAPI_Execute(HSTMT hstmt, UWORD flag)
 		SC_recycle_statement(stmt);
 	}
 
-	MYLOG(0, "clear errors...\n");
+	MYLOG(MIN_LOG_LEVEL, "clear errors...\n");
 
 	SC_clear_error(stmt);
 	if (!stmt->statement)
 	{
 		SC_set_error(stmt, STMT_NO_STMTSTRING, "This handle does not have a SQL statement stored in it", func);
-		MYLOG(0, "problem with handle\n");
+		MYLOG(MIN_LOG_LEVEL, "problem with handle\n");
 		return SQL_ERROR;
 	}
 
@@ -989,7 +989,7 @@ PGAPI_Execute(HSTMT hstmt, UWORD flag)
 	 */
 	else if (stmt->status == STMT_FINISHED)
 	{
-		MYLOG(0, "recycling statement (should have been done by app)...\n");
+		MYLOG(MIN_LOG_LEVEL, "recycling statement (should have been done by app)...\n");
 /******** Is this really NEEDED ? ******/
 		SC_recycle_statement(stmt);
 		recycled = TRUE;
@@ -999,7 +999,7 @@ PGAPI_Execute(HSTMT hstmt, UWORD flag)
 		(stmt->status != STMT_ALLOCATED && stmt->status != STMT_READY))
 	{
 		SC_set_error(stmt, STMT_STATUS_ERROR, "The handle does not point to a statement that is ready to be executed", func);
-		MYLOG(0, "problem with statement\n");
+		MYLOG(MIN_LOG_LEVEL, "problem with statement\n");
 		retval = SQL_ERROR;
 		goto cleanup;
 	}
@@ -1032,7 +1032,7 @@ PGAPI_Execute(HSTMT hstmt, UWORD flag)
 		    SQL_CONCUR_READ_ONLY == stmt->options.scroll_concurrency &&
 		    stmt->batch_size > 1)
 			maybeBatch = TRUE;
-MYLOG(0, "prepare=%d prepared=%d  batch_size=%d start_row=" FORMAT_LEN "end_row=" FORMAT_LEN " => maybeBatch=%d\n", stmt->prepare, stmt->prepared, stmt->batch_size, start_row, end_row, maybeBatch);
+MYLOG(MIN_LOG_LEVEL, "prepare=%d prepared=%d  batch_size=%d start_row=" FORMAT_LEN "end_row=" FORMAT_LEN " => maybeBatch=%d\n", stmt->prepare, stmt->prepared, stmt->batch_size, start_row, end_row, maybeBatch);
 		if (NOT_YET_PREPARED == stmt->prepared)
 		{
 			if (maybeBatch)
@@ -1045,7 +1045,7 @@ MYLOG(0, "prepare=%d prepared=%d  batch_size=%d start_row=" FORMAT_LEN "end_row=
 					break;
 			}
 		}
-MYLOG(0, "prepareParameters was %s called, prepare state:%d\n", shouldParse == nCallParse ? "" : "not", stmt->prepare);
+MYLOG(MIN_LOG_LEVEL, "prepareParameters was %s called, prepare state:%d\n", shouldParse == nCallParse ? "" : "not", stmt->prepare);
 
 		if (shouldParse == nCallParse &&
 		    PREPARE_BY_THE_DRIVER == stmt->prepare)
@@ -1058,7 +1058,7 @@ MYLOG(0, "prepareParameters was %s called, prepare state:%d\n", shouldParse == n
 		else
 			stmt->exec_type = DIRECT_EXEC;
 
-MYLOG(0, "prepare=%d maybeBatch=%d exec_type=%d\n", stmt->prepare, maybeBatch, stmt->exec_type);
+MYLOG(MIN_LOG_LEVEL, "prepare=%d maybeBatch=%d exec_type=%d\n", stmt->prepare, maybeBatch, stmt->exec_type);
 		if (ipdopts->param_processed_ptr)
 			*ipdopts->param_processed_ptr = 0;
 		/*
@@ -1153,7 +1153,7 @@ next_param_row:
 			/* Check for data at execution parameters */
 			if (apdopts->parameters[i].data_at_exec)
 			{
-				MYLOG(0, "The " FORMAT_LEN "th parameter of " FORMAT_LEN "-row is data at exec(" FORMAT_LEN ")\n", i, current_row, pcVal ? (*pcVal) : -1);
+				MYLOG(MIN_LOG_LEVEL, "The " FORMAT_LEN "th parameter of " FORMAT_LEN "-row is data at exec(" FORMAT_LEN ")\n", i, current_row, pcVal ? (*pcVal) : -1);
 				if (stmt->data_at_exec < 0)
 					stmt->data_at_exec = 1;
 				else
@@ -1185,7 +1185,7 @@ next_param_row:
 		goto next_param_row;
 	}
 cleanup:
-MYLOG(0, "leaving %p retval=%d status=%d\n", stmt, retval, stmt->status);
+MYLOG(MIN_LOG_LEVEL, "leaving %p retval=%d status=%d\n", stmt, retval, stmt->status);
 	SC_setInsertedTable(stmt, retval);
 #undef	return
 	if (SQL_SUCCESS == retval &&
@@ -1205,7 +1205,7 @@ PGAPI_Transact(HENV henv,
 	char		ok;
 	int			lf;
 
-	MYLOG(0, "entering hdbc=%p, henv=%p\n", hdbc, henv);
+	MYLOG(MIN_LOG_LEVEL, "entering hdbc=%p, henv=%p\n", hdbc, henv);
 
 	if (hdbc == SQL_NULL_HDBC && henv == SQL_NULL_HENV)
 	{
@@ -1244,7 +1244,7 @@ PGAPI_Transact(HENV henv,
 	/* If manual commit and in transaction, then proceed. */
 	if (CC_loves_visible_trans(conn) && CC_is_in_trans(conn))
 	{
-		MYLOG(0, "sending on conn %p '%d'\n", conn, fType);
+		MYLOG(MIN_LOG_LEVEL, "sending on conn %p '%d'\n", conn, fType);
 
 		ok = (SQL_COMMIT == fType) ? CC_commit(conn) : CC_abort(conn);
 		if (!ok)
@@ -1267,7 +1267,7 @@ PGAPI_Cancel(HSTMT hstmt)		/* Statement to cancel. */
 	ConnectionClass *conn;
 	RETCODE		ret = SQL_SUCCESS;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	/* Check if this can handle canceling in the middle of a SQLPutData? */
 	if (!stmt)
@@ -1363,7 +1363,7 @@ PGAPI_NativeSql(HDBC hdbc,
 	ConnectionClass *conn = (ConnectionClass *) hdbc;
 	RETCODE		result;
 
-	MYLOG(0, "entering...cbSqlStrIn=" FORMAT_INTEGER "\n", cbSqlStrIn);
+	MYLOG(MIN_LOG_LEVEL, "entering...cbSqlStrIn=" FORMAT_INTEGER "\n", cbSqlStrIn);
 
 	ptr = (cbSqlStrIn == 0) ? "" : make_string(szSqlStrIn, cbSqlStrIn, NULL, 0);
 	if (!ptr)
@@ -1413,13 +1413,13 @@ PGAPI_ParamData(HSTMT hstmt,
 	Int2		num_p;
 	ConnectionClass	*conn = NULL;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	conn = SC_get_conn(stmt);
 
 	estmt = stmt->execute_delegate ? stmt->execute_delegate : stmt;
 	apdopts = SC_get_APDF(estmt);
-	MYLOG(0, "\tdata_at_exec=%d, params_alloc=%d\n", estmt->data_at_exec, apdopts->allocated);
+	MYLOG(MIN_LOG_LEVEL, "\tdata_at_exec=%d, params_alloc=%d\n", estmt->data_at_exec, apdopts->allocated);
 
 #define	return	DONT_CALL_RETURN_FROM_HERE???
 	if (SC_AcceptedCancelRequest(stmt))
@@ -1528,7 +1528,7 @@ MYLOG(DETAIL_LOG_LEVEL, "return SQL_NEED_DATA\n");
 cleanup:
 #undef	return
 	SC_setInsertedTable(stmt, retval);
-	MYLOG(0, "leaving %d\n", retval);
+	MYLOG(MIN_LOG_LEVEL, "leaving %d\n", retval);
 	return retval;
 }
 
@@ -1558,7 +1558,7 @@ PGAPI_PutData(HSTMT hstmt,
 	SQLLEN		putlen;
 	BOOL		lenset = FALSE, handling_lo = FALSE;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 #define	return	DONT_CALL_RETURN_FROM_HERE???
 	if (SC_AcceptedCancelRequest(stmt))
@@ -1639,7 +1639,7 @@ PGAPI_PutData(HSTMT hstmt,
 
 	if (!estmt->put_data)
 	{							/* first call */
-		MYLOG(0, "(1) cbValue = " FORMAT_LEN "\n", cbValue);
+		MYLOG(MIN_LOG_LEVEL, "(1) cbValue = " FORMAT_LEN "\n", cbValue);
 
 		estmt->put_data = TRUE;
 
@@ -1699,7 +1699,7 @@ PGAPI_PutData(HSTMT hstmt,
 			}
 
 			retval = odbc_lo_write(conn, estmt->lobj_fd, putbuf, (Int4) putlen);
-			MYLOG(0, "lo_write: cbValue=" FORMAT_LEN ", wrote %d bytes\n", putlen, retval);
+			MYLOG(MIN_LOG_LEVEL, "lo_write: cbValue=" FORMAT_LEN ", wrote %d bytes\n", putlen, retval);
 		}
 		else
 		{
@@ -1717,14 +1717,14 @@ PGAPI_PutData(HSTMT hstmt,
 	else
 	{
 		/* calling SQLPutData more than once */
-		MYLOG(0, "(>1) cbValue = " FORMAT_LEN "\n", cbValue);
+		MYLOG(MIN_LOG_LEVEL, "(>1) cbValue = " FORMAT_LEN "\n", cbValue);
 
 		/* if (current_iparam->SQLType == SQL_LONGVARBINARY) */
 		if (handling_lo)
 		{
 			/* the large object fd is in EXEC_buffer */
 			retval = odbc_lo_write(conn, estmt->lobj_fd, putbuf, (Int4) putlen);
-			MYLOG(0, "lo_write(2): cbValue = " FORMAT_LEN ", wrote %d bytes\n", putlen, retval);
+			MYLOG(MIN_LOG_LEVEL, "lo_write(2): cbValue = " FORMAT_LEN ", wrote %d bytes\n", putlen, retval);
 
 			*current_pdata->EXEC_used += putlen;
 		}
@@ -1738,7 +1738,7 @@ PGAPI_PutData(HSTMT hstmt,
 				char *buffer;
 
 				for (allocsize = (1 << 4); allocsize <= used; allocsize <<= 1) ;
-				MYLOG(0, "        cbValue = " FORMAT_LEN ", old_pos = " FORMAT_LEN ", *used = " FORMAT_LEN "\n", putlen, old_pos, used);
+				MYLOG(MIN_LOG_LEVEL, "        cbValue = " FORMAT_LEN ", old_pos = " FORMAT_LEN ", *used = " FORMAT_LEN "\n", putlen, old_pos, used);
 
 				/* dont lose the old pointer in case out of memory */
 				buffer = realloc(current_pdata->EXEC_buffer, allocsize);

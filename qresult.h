@@ -179,14 +179,14 @@ do { \
 } while (0)
 #define	QR_set_next_in_cache(self, number) \
 do { \
-	MYLOG(1, "set the number to " FORMAT_LEN " to read next\n", number); \
+	MYLOG(TUPLE_LOG_LEVEL, "set the number to " FORMAT_LEN " to read next\n", number); \
 	self->fetch_number = number; \
 } while (0)
 #define	QR_inc_next_in_cache(self) \
 do { \
-	MYLOG(1, "increased the number " FORMAT_LEN, self->fetch_number); \
+	MYLOG(TUPLE_LOG_LEVEL, "increased the number " FORMAT_LEN, self->fetch_number); \
 	self->fetch_number++; \
-	MYLOG(1, "to " FORMAT_LEN " to next read\n", self->fetch_number); \
+	MYLOG(TUPLE_LOG_LEVEL, "to " FORMAT_LEN " to next read\n", self->fetch_number); \
 } while (0)
 
 #define	QR_concat(self, a)	((self)->lnext=(a))

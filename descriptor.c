@@ -55,7 +55,7 @@ void    TI_ClearObject(TABLE_INFO *ti)
 		COL_INFO *coli = ti->col_info;
 		if (coli)
 		{
-MYLOG(0, "!!!refcnt %p:%d -> %d\n", coli, coli->refcnt, coli->refcnt - 1);
+MYLOG(MIN_LOG_LEVEL, "!!!refcnt %p:%d -> %d\n", coli, coli->refcnt, coli->refcnt - 1);
 			coli->refcnt--;
 			if (coli->refcnt <= 1 && 0 == coli->acc_time) /* acc_time == 0 means the table is dropped */
 			{
@@ -355,7 +355,7 @@ char CC_add_descriptor(ConnectionClass *self, DescriptorClass *desc)
 	int	new_num_descs;
 	DescriptorClass **descs;
 
-	MYLOG(0, "entering self=%p, desc=%p\n", self, desc);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p, desc=%p\n", self, desc);
 
 	for (i = 0; i < self->num_descs; i++)
 	{
@@ -394,7 +394,7 @@ PGAPI_AllocDesc(HDBC ConnectionHandle,
 	RETCODE	ret = SQL_SUCCESS;
 	DescriptorClass	*desc;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	desc = (DescriptorClass *) malloc(sizeof(DescriptorClass));
 	if (desc)
@@ -424,7 +424,7 @@ PGAPI_FreeDesc(SQLHDESC DescriptorHandle)
 	DescriptorClass *desc = (DescriptorClass *) DescriptorHandle;
 	RETCODE	ret = SQL_SUCCESS;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 	DC_Destructor(desc);
 	if (!desc->deschd.embedded)
 	{
@@ -540,14 +540,14 @@ PGAPI_CopyDesc(SQLHDESC SourceDescHandle,
 	APDFields	*apd_src, *apd_tgt;
 	IPDFields	*ipd_src, *ipd_tgt;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 	src = (DescriptorClass *) SourceDescHandle;
 	target = (DescriptorClass *) TargetDescHandle;
 	srchd = &(src->deschd);
 	targethd = &(target->deschd);
 	if (!srchd->type_defined)
 	{
-		MYLOG(0, "source type undefined\n");
+		MYLOG(MIN_LOG_LEVEL, "source type undefined\n");
 		DC_set_error(target, DESC_EXEC_ERROR, "source handle type undefined");
 		return ret;
 	}
@@ -556,7 +556,7 @@ PGAPI_CopyDesc(SQLHDESC SourceDescHandle,
 MYLOG(DETAIL_LOG_LEVEL, "source type=%d -> target type=%d\n", srchd->desc_type, targethd->desc_type);
 		if (SQL_ATTR_IMP_ROW_DESC == targethd->desc_type)
 		{
-			MYLOG(0, "can't modify IRD\n");
+			MYLOG(MIN_LOG_LEVEL, "can't modify IRD\n");
 			DC_set_error(target, DESC_EXEC_ERROR, "can't copy to IRD");
 			return ret;
 		}
@@ -564,7 +564,7 @@ MYLOG(DETAIL_LOG_LEVEL, "source type=%d -> target type=%d\n", srchd->desc_type, 
 		{
 			if (targethd->embedded)
 			{
-				MYLOG(0, "src type != target type\n");
+				MYLOG(MIN_LOG_LEVEL, "src type != target type\n");
 				DC_set_error(target, DESC_EXEC_ERROR, "copying different type descriptor to embedded one");
 				return ret;
 			}
@@ -608,7 +608,7 @@ MYPRINTF(DETAIL_LOG_LEVEL, " offset_ptr=%p\n", ard_tgt->row_offset_ptr);
 			IPDFields_copy(ipd_src, ipd_tgt);
 			break;
 		default:
-			MYLOG(0, "invalid descriptor handle type=%d\n", srchd->desc_type);
+			MYLOG(MIN_LOG_LEVEL, "invalid descriptor handle type=%d\n", srchd->desc_type);
 			DC_set_error(target, DESC_EXEC_ERROR, "invalid descriptor type");
 			ret = SQL_ERROR;
 	}
@@ -740,7 +740,7 @@ DC_log_error(const char *func, const char *desc, const DescriptorClass *self)
 #define nullcheck(a) (a ? a : "(NULL)")
 	if (self)
 	{
-		MYLOG(0, "DESCRIPTOR ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", func, desc, self->deschd.__error_number, nullcheck(self->deschd.__error_message));
+		MYLOG(MIN_LOG_LEVEL, "DESCRIPTOR ERROR: func=%s, desc='%s', errnum=%d, errmsg='%s'\n", func, desc, self->deschd.__error_number, nullcheck(self->deschd.__error_message));
 	}
 }
 
@@ -759,7 +759,7 @@ PGAPI_DescError(SQLHDESC hdesc,
 	DescriptorClass *desc = (DescriptorClass *) hdesc;
 	DescriptorHeader *deschd = &(desc->deschd);
 
-	MYLOG(0, "entering RecN=%hd\n", RecNumber);
+	MYLOG(MIN_LOG_LEVEL, "entering RecN=%hd\n", RecNumber);
 	deschd->pgerror = DC_create_errorinfo(desc);
 	return ER_ReturnError(deschd->pgerror, RecNumber, szSqlState,
 				pfNativeError, szErrorMsg, cbErrorMsgMax,

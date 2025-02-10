@@ -48,7 +48,7 @@ PGAPI_BindParameter(HSTMT hstmt,
 	IPDFields	*ipdopts;
 	PutDataInfo	*pdata_info;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	if (!stmt)
 	{
@@ -135,7 +135,7 @@ PGAPI_BindParameter(HSTMT hstmt,
 	if (stmt->status == STMT_DESCRIBED)
 		SC_recycle_statement(stmt);
 
-	MYLOG(0, "ipar=%d, paramType=%d, fCType=%d, fSqlType=%d, cbColDef=" FORMAT_ULEN ", ibScale=%d,", ipar, fParamType, fCType, fSqlType, cbColDef, ibScale);
+	MYLOG(MIN_LOG_LEVEL, "ipar=%d, paramType=%d, fCType=%d, fSqlType=%d, cbColDef=" FORMAT_ULEN ", ibScale=%d,", ipar, fParamType, fCType, fSqlType, cbColDef, ibScale);
 	MYPRINTF(0, "rgbValue=%p(" FORMAT_LEN "), pcbValue=%p\n", rgbValue, cbValueMax, pcbValue);
 
 	return SQL_SUCCESS;
@@ -158,10 +158,10 @@ PGAPI_BindCol(HSTMT hstmt,
 	BindInfoClass	*bookmark;
 	RETCODE		ret = SQL_SUCCESS;
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
-	MYLOG(0, "**** : stmt = %p, icol = %d\n", stmt, icol);
-	MYLOG(0, "**** : fCType=%d rgb=%p valusMax=" FORMAT_LEN " pcb=%p\n", fCType, rgbValue, cbValueMax, pcbValue);
+	MYLOG(MIN_LOG_LEVEL, "**** : stmt = %p, icol = %d\n", stmt, icol);
+	MYLOG(MIN_LOG_LEVEL, "**** : fCType=%d rgb=%p valusMax=" FORMAT_LEN " pcb=%p\n", fCType, rgbValue, cbValueMax, pcbValue);
 
 	if (!stmt)
 	{
@@ -281,7 +281,7 @@ MYLOG(DETAIL_LOG_LEVEL, "Bind column 0 is type %d not of type SQL_C_BOOKMARK\n",
 		}
 		opts->bindings[icol].scale = 0;
 
-		MYLOG(0, "       bound buffer[%d] = %p\n", icol, opts->bindings[icol].buffer);
+		MYLOG(MIN_LOG_LEVEL, "       bound buffer[%d] = %p\n", icol, opts->bindings[icol].buffer);
 	}
 
 cleanup:
@@ -314,7 +314,7 @@ PGAPI_DescribeParam(HSTMT hstmt,
 	OID		pgtype;
 	ConnectionClass	*conn;
 
-	MYLOG(0, "entering...%d\n", ipar);
+	MYLOG(MIN_LOG_LEVEL, "entering...%d\n", ipar);
 
 	if (!stmt)
 	{
@@ -422,7 +422,7 @@ PGAPI_NumParams(HSTMT hstmt,
 	StatementClass *stmt = (StatementClass *) hstmt;
 	CSTR func = "PGAPI_NumParams";
 
-	MYLOG(0, "entering...\n");
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
 
 	if (!stmt)
 	{
@@ -490,7 +490,7 @@ extend_parameter_bindings(APDFields *self, int num_params)
 {
 	ParameterInfoClass *new_bindings;
 
-	MYLOG(0, "entering ... self=%p, parameters_allocated=%d, num_params=%d,%p\n", self, self->allocated, num_params, self->parameters);
+	MYLOG(MIN_LOG_LEVEL, "entering ... self=%p, parameters_allocated=%d, num_params=%d,%p\n", self, self->allocated, num_params, self->parameters);
 
 	/*
 	 * if we have too few, allocate room for more, and copy the old
@@ -501,7 +501,7 @@ extend_parameter_bindings(APDFields *self, int num_params)
 		new_bindings = (ParameterInfoClass *) realloc(self->parameters, sizeof(ParameterInfoClass) * num_params);
 		if (!new_bindings)
 		{
-			MYLOG(0, "unable to create %d new bindings from %d old bindings\n", num_params, self->allocated);
+			MYLOG(MIN_LOG_LEVEL, "unable to create %d new bindings from %d old bindings\n", num_params, self->allocated);
 
 			if (self->parameters)
 				free(self->parameters);
@@ -515,7 +515,7 @@ extend_parameter_bindings(APDFields *self, int num_params)
 		self->allocated = num_params;
 	}
 
-	MYLOG(0, "leaving %p\n", self->parameters);
+	MYLOG(MIN_LOG_LEVEL, "leaving %p\n", self->parameters);
 }
 
 void
@@ -523,7 +523,7 @@ extend_iparameter_bindings(IPDFields *self, int num_params)
 {
 	ParameterImplClass *new_bindings;
 
-	MYLOG(0, "entering ... self=%p, parameters_allocated=%d, num_params=%d\n", self, self->allocated, num_params);
+	MYLOG(MIN_LOG_LEVEL, "entering ... self=%p, parameters_allocated=%d, num_params=%d\n", self, self->allocated, num_params);
 
 	/*
 	 * if we have too few, allocate room for more, and copy the old
@@ -534,7 +534,7 @@ extend_iparameter_bindings(IPDFields *self, int num_params)
 		new_bindings = (ParameterImplClass *) realloc(self->parameters, sizeof(ParameterImplClass) * num_params);
 		if (!new_bindings)
 		{
-			MYLOG(0, "unable to create %d new bindings from %d old bindings\n", num_params, self->allocated);
+			MYLOG(MIN_LOG_LEVEL, "unable to create %d new bindings from %d old bindings\n", num_params, self->allocated);
 
 			if (self->parameters)
 				free(self->parameters);
@@ -549,14 +549,14 @@ extend_iparameter_bindings(IPDFields *self, int num_params)
 		self->allocated = num_params;
 	}
 
-	MYLOG(0, "leaving %p\n", self->parameters);
+	MYLOG(MIN_LOG_LEVEL, "leaving %p\n", self->parameters);
 }
 
 void
 reset_a_parameter_binding(APDFields *self, int ipar)
 {
 
-	MYLOG(0, "entering ... self=%p, parameters_allocated=%d, ipar=%d\n", self, self->allocated, ipar);
+	MYLOG(MIN_LOG_LEVEL, "entering ... self=%p, parameters_allocated=%d, ipar=%d\n", self, self->allocated, ipar);
 
 	if (ipar < 1 || ipar > self->allocated)
 		return;
@@ -575,7 +575,7 @@ reset_a_parameter_binding(APDFields *self, int ipar)
 void
 reset_a_iparameter_binding(IPDFields *self, int ipar)
 {
-	MYLOG(0, "entering ... self=%p, parameters_allocated=%d, ipar=%d\n", self, self->allocated, ipar);
+	MYLOG(MIN_LOG_LEVEL, "entering ... self=%p, parameters_allocated=%d, ipar=%d\n", self, self->allocated, ipar);
 
 	if (ipar < 1 || ipar > self->allocated)
 		return;
@@ -640,7 +640,7 @@ CountParameters(const StatementClass *self, Int2 *inputCount, Int2 *ioCount, Int
 void
 APD_free_params(APDFields *apdopts, char option)
 {
-	MYLOG(0, "entering self=%p\n", apdopts);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p\n", apdopts);
 
 	if (!apdopts->parameters)
 		return;
@@ -652,7 +652,7 @@ APD_free_params(APDFields *apdopts, char option)
 		apdopts->allocated = 0;
 	}
 
-	MYLOG(0, "leaving\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving\n");
 }
 
 void
@@ -660,7 +660,7 @@ PDATA_free_params(PutDataInfo *pdata, char option)
 {
 	int			i;
 
-	MYLOG(0, "entering self=%p\n", pdata);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p\n", pdata);
 
 	if (!pdata->pdata)
 		return;
@@ -686,7 +686,7 @@ PDATA_free_params(PutDataInfo *pdata, char option)
 		pdata->allocated = 0;
 	}
 
-	MYLOG(0, "leaving\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving\n");
 }
 
 /*
@@ -695,7 +695,7 @@ PDATA_free_params(PutDataInfo *pdata, char option)
 void
 IPD_free_params(IPDFields *ipdopts, char option)
 {
-	MYLOG(0, "entering self=%p\n", ipdopts);
+	MYLOG(MIN_LOG_LEVEL, "entering self=%p\n", ipdopts);
 
 	if (!ipdopts->parameters)
 		return;
@@ -708,7 +708,7 @@ IPD_free_params(IPDFields *ipdopts, char option)
 		ipdopts->allocated = 0;
 	}
 
-	MYLOG(0, "leaving\n");
+	MYLOG(MIN_LOG_LEVEL, "leaving\n");
 }
 
 void
@@ -717,7 +717,7 @@ extend_column_bindings(ARDFields *self, int num_columns)
 	BindInfoClass *new_bindings;
 	int			i;
 
-	MYLOG(0, "entering ... self=%p, bindings_allocated=%d, num_columns=%d\n", self, self->allocated, num_columns);
+	MYLOG(MIN_LOG_LEVEL, "entering ... self=%p, bindings_allocated=%d, num_columns=%d\n", self, self->allocated, num_columns);
 
 	/*
 	 * if we have too few, allocate room for more, and copy the old
@@ -728,7 +728,7 @@ extend_column_bindings(ARDFields *self, int num_columns)
 		new_bindings = create_empty_bindings(num_columns);
 		if (!new_bindings)
 		{
-			MYLOG(0, "unable to create %d new bindings from %d old bindings\n", num_columns, self->allocated);
+			MYLOG(MIN_LOG_LEVEL, "unable to create %d new bindings from %d old bindings\n", num_columns, self->allocated);
 
 			if (self->bindings)
 			{
@@ -761,7 +761,7 @@ extend_column_bindings(ARDFields *self, int num_columns)
 	/* SQLExecDirect(...)  # returns 5 cols */
 	/* SQLExecDirect(...)  # returns 10 cols  (now OK) */
 
-	MYLOG(0, "leaving %p\n", self->bindings);
+	MYLOG(MIN_LOG_LEVEL, "leaving %p\n", self->bindings);
 }
 
 void
@@ -769,7 +769,7 @@ reset_a_column_binding(ARDFields *self, int icol)
 {
 	BindInfoClass	*bookmark;
 
-	MYLOG(0, "entering ... self=%p, bindings_allocated=%d, icol=%d\n", self, self->allocated, icol);
+	MYLOG(MIN_LOG_LEVEL, "entering ... self=%p, bindings_allocated=%d, icol=%d\n", self, self->allocated, icol);
 
 	if (icol > self->allocated)
 		return;
@@ -867,7 +867,7 @@ extend_getdata_info(GetDataInfo *self, int num_columns, BOOL shrink)
 {
 	GetDataClass	*new_gdata;
 
-	MYLOG(0, "entering ... self=%p, gdata_allocated=%d, num_columns=%d\n", self, self->allocated, num_columns);
+	MYLOG(MIN_LOG_LEVEL, "entering ... self=%p, gdata_allocated=%d, num_columns=%d\n", self, self->allocated, num_columns);
 
 	/*
 	 * if we have too few, allocate room for more, and copy the old
@@ -878,7 +878,7 @@ extend_getdata_info(GetDataInfo *self, int num_columns, BOOL shrink)
 		new_gdata = create_empty_gdata(num_columns);
 		if (!new_gdata)
 		{
-			MYLOG(0, "unable to create %d new gdata from %d old gdata\n", num_columns, self->allocated);
+			MYLOG(MIN_LOG_LEVEL, "unable to create %d new gdata from %d old gdata\n", num_columns, self->allocated);
 
 			if (self->gdata)
 			{
@@ -919,7 +919,7 @@ extend_getdata_info(GetDataInfo *self, int num_columns, BOOL shrink)
 	 * about it by unbinding those columns.
 	 */
 
-	MYLOG(0, "leaving %p\n", self->gdata);
+	MYLOG(MIN_LOG_LEVEL, "leaving %p\n", self->gdata);
 }
 void	reset_a_getdata_info(GetDataInfo *gdata_info, int icol)
 {
@@ -946,7 +946,7 @@ extend_putdata_info(PutDataInfo *self, int num_params, BOOL shrink)
 {
 	PutDataClass	*new_pdata;
 
-	MYLOG(0, "entering ... self=%p, parameters_allocated=%d, num_params=%d\n", self, self->allocated, num_params);
+	MYLOG(MIN_LOG_LEVEL, "entering ... self=%p, parameters_allocated=%d, num_params=%d\n", self, self->allocated, num_params);
 
 	/*
 	 * if we have too few, allocate room for more, and copy the old
@@ -956,13 +956,13 @@ extend_putdata_info(PutDataInfo *self, int num_params, BOOL shrink)
 	{
 		if (self->allocated <= 0 && self->pdata)
 		{
-			MYLOG(0, "??? pdata is not null while allocated == 0\n");
+			MYLOG(MIN_LOG_LEVEL, "??? pdata is not null while allocated == 0\n");
 			self->pdata = NULL;
 		}
 		new_pdata = (PutDataClass *) realloc(self->pdata, sizeof(PutDataClass) * num_params);
 		if (!new_pdata)
 		{
-			MYLOG(0, "unable to create %d new pdata from %d old pdata\n", num_params, self->allocated);
+			MYLOG(MIN_LOG_LEVEL, "unable to create %d new pdata from %d old pdata\n", num_params, self->allocated);
 
 			self->pdata = NULL;
 			self->allocated = 0;
@@ -988,7 +988,7 @@ extend_putdata_info(PutDataInfo *self, int num_params, BOOL shrink)
 		}
 	}
 
-	MYLOG(0, "leaving %p\n", self->pdata);
+	MYLOG(MIN_LOG_LEVEL, "leaving %p\n", self->pdata);
 }
 void	reset_a_putdata_info(PutDataInfo *pdata_info, int ipar)
 {
