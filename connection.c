@@ -892,12 +892,12 @@ handle_pgres_error(ConnectionClass *self, const PGresult *pgres,
 		if (errseverity_nonloc)
 		{
 			if (stricmp(errseverity_nonloc, "NOTICE") != 0)
-				level = 1;
+				level = TUPLE_LOG_LEVEL;
 		}
 		else if (errseverity)
 		{
 			if (stricmp(errseverity, "NOTICE") != 0)
-				level = 1;
+				level = TUPLE_LOG_LEVEL;
 		}
 	}
 	errprimary = PQresultErrorField(pgres, PG_DIAG_MESSAGE_PRIMARY);
