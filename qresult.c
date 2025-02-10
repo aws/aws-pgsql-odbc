@@ -611,7 +611,7 @@ QR_from_PGresult(QResultClass *self, StatementClass *stmt, ConnectionClass *conn
 
 	/* at first read in the number of fields that are in the query */
 	new_num_fields = PQnfields(*pgres);
-	QLOG(0, "\tnFields: %d\n", new_num_fields);
+	QLOG(MIN_LOG_LEVEL, "\tnFields: %d\n", new_num_fields);
 
 	/* according to that allocate memory */
 	QR_set_num_fields(self, new_num_fields);
@@ -642,7 +642,7 @@ QR_from_PGresult(QResultClass *self, StatementClass *stmt, ConnectionClass *conn
 		if (new_atttypmod < 0)
 			new_atttypmod = -1;
 
-		QLOG(0, "\tfieldname='%s', adtid=%d, adtsize=%d, atttypmod=%d (rel,att)=(%d,%d)\n", new_field_name, new_adtid, new_adtsize, new_atttypmod, new_relid, new_attid);
+		QLOG(MIN_LOG_LEVEL, "\tfieldname='%s', adtid=%d, adtsize=%d, atttypmod=%d (rel,att)=(%d,%d)\n", new_field_name, new_adtid, new_adtsize, new_atttypmod, new_relid, new_attid);
 
 		CI_set_field_info(QR_get_fields(self), lf, new_field_name, new_adtid, new_adtsize, new_atttypmod, new_relid, new_attid);
 
@@ -1348,7 +1348,7 @@ nextrow:
 	switch (resStatus)
 	{
 		case PGRES_TUPLES_OK:
-			QLOG(0, "\tok: - 'T' - %s\n", PQcmdStatus(*pgres));
+			QLOG(MIN_LOG_LEVEL, "\tok: - 'T' - %s\n", PQcmdStatus(*pgres));
 			break;
 		case PGRES_SINGLE_TUPLE:
 			break;

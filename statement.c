@@ -2682,7 +2682,7 @@ libpq_bind_and_exec(StatementClass *stmt)
 		}
 
 		pstmt = stmt->processed_statements;
-		QLOG(0, "PQexecParams: %p '%s' nParams=%d\n", conn->pqconn, pstmt->query, nParams);
+		QLOG(MIN_LOG_LEVEL, "PQexecParams: %p '%s' nParams=%d\n", conn->pqconn, pstmt->query, nParams);
 		log_params(nParams, paramTypes, (const UCHAR * const *) paramValues, paramLengths, paramFormats, resultFormat);
 		/* set notice receiver */
 		newres = add_libpq_notice_receiver(stmt, &nrarg);
@@ -2709,7 +2709,7 @@ libpq_bind_and_exec(StatementClass *stmt)
 		plan_name = stmt->plan_name ? stmt->plan_name : NULL_STRING;
 
 		/* already prepared */
-		QLOG(0, "PQexecPrepared: %p plan=%s nParams=%d\n", conn->pqconn, plan_name, nParams);
+		QLOG(MIN_LOG_LEVEL, "PQexecPrepared: %p plan=%s nParams=%d\n", conn->pqconn, plan_name, nParams);
 		log_params(nParams, paramTypes, (const UCHAR * const *) paramValues, paramLengths, paramFormats, resultFormat);
 		/* set notice receiver */
 		newres = add_libpq_notice_receiver(stmt, &nrarg);
@@ -2736,7 +2736,7 @@ MYLOG(DETAIL_LOG_LEVEL, "get_Result=%p %p\n", res, SC_get_Result(stmt));
 			/* portal query command, no tuples returned */
 			/* read in the return message from the backend */
 			cmdtag = PQcmdStatus(pgres);
-			QLOG(0, "\tok: - 'C' - %s\n", cmdtag);
+			QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", cmdtag);
 			QR_set_command(res, cmdtag);
 			if (QR_command_successful(res))
 				QR_set_rstatus(res, PORES_COMMAND_OK);
@@ -2776,7 +2776,7 @@ MYLOG(DETAIL_LOG_LEVEL, "get_Result=%p %p\n", res, SC_get_Result(stmt));
 			CC_set_error(conn, CONNECTION_BACKEND_CRAZY, "Unexpected protocol character from backend (send_query)", func);
 			CC_on_abort(conn, CONN_DEAD);
 
-			QLOG(0, "PQexecXxxx error: - (%d) - %s\n", pgresstatus, CC_get_errormsg(conn));
+			QLOG(MIN_LOG_LEVEL, "PQexecXxxx error: - (%d) - %s\n", pgresstatus, CC_get_errormsg(conn));
 			break;
 	}
 
@@ -2907,7 +2907,7 @@ MYLOG(MIN_LOG_LEVEL, "sta_pidx=%d end_pidx=%d num_p=%d\n", sta_pidx, end_pidx, n
 		conn->unnamed_prepared_stmt = NULL;
 
 	/* Prepare */
-	QLOG(0, "PQprepare: %p '%s' plan=%s nParams=%d\n", conn->pqconn, query, plan_name, num_params);
+	QLOG(MIN_LOG_LEVEL, "PQprepare: %p '%s' plan=%s nParams=%d\n", conn->pqconn, query, plan_name, num_params);
 	pgres = PQprepare(conn->pqconn, plan_name, query, num_params, paramTypes);
 	if (PQresultStatus(pgres) != PGRES_COMMAND_OK)
 	{
@@ -2915,7 +2915,7 @@ MYLOG(MIN_LOG_LEVEL, "sta_pidx=%d end_pidx=%d num_p=%d\n", sta_pidx, end_pidx, n
 		goto cleanup;
 	}
 	cstatus = PQcmdStatus(pgres);
-	QLOG(0, "\tok: - 'C' - %s\n", cstatus);
+	QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", cstatus);
 	if (stmt->plan_name)
 		SC_set_prepared(stmt, PREPARED_PERMANENTLY);
 	else
@@ -2985,13 +2985,13 @@ ParseAndDescribeWithLibpq(StatementClass *stmt, const char *plan_name,
 		goto cleanup;
 
 	/* Describe */
-	QLOG(0, "\tPQdescribePrepared: %p plan_name=%s\n", conn->pqconn, plan_name);
+	QLOG(MIN_LOG_LEVEL, "\tPQdescribePrepared: %p plan_name=%s\n", conn->pqconn, plan_name);
 
 	pgres = PQdescribePrepared(conn->pqconn, plan_name);
 	switch (PQresultStatus(pgres))
 	{
 		case PGRES_COMMAND_OK:
-			QLOG(0, "\tok: - 'C' - %s\n", PQcmdStatus(pgres));
+			QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", PQcmdStatus(pgres));
 			/* expected */
 			break;
 		case PGRES_NONFATAL_ERROR:
@@ -3016,7 +3016,7 @@ MYLOG(DETAIL_LOG_LEVEL, "num_params=%d info=%d\n", stmt->num_params, num_p);
 	{
 		int	i;
 
-		QLOG(0, "\tnParams=%d", num_p);
+		QLOG(MIN_LOG_LEVEL, "\tnParams=%d", num_p);
 		for (i = 0; i < num_p; i++)
 			QPRINTF(0, " %u", PQparamtype(pgres, i));
 		QPRINTF(0, "\n");

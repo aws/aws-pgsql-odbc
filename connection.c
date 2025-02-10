@@ -613,7 +613,7 @@ CC_determine_locale_encoding(ConnectionClass *self)
 	const char *dbencoding = PQparameterStatus(self->pqconn, "client_encoding");
 	const char *encoding;
 
-	QLOG(0, "PQparameterStatus(%p, \"client_encoding\")=%s\n", self->pqconn, SAFE_STR(dbencoding));
+	QLOG(MIN_LOG_LEVEL, "PQparameterStatus(%p, \"client_encoding\")=%s\n", self->pqconn, SAFE_STR(dbencoding));
 	if (self->locale_encoding) /* already set */
                 return;
 	encoding = derive_locale_encoding(dbencoding);
@@ -685,7 +685,7 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 	/* even if we are in auto commit. */
 	if (self->pqconn)
 	{
-		QLOG(0, "PQfinish: %p\n", self->pqconn);
+		QLOG(MIN_LOG_LEVEL, "PQfinish: %p\n", self->pqconn);
 		PQfinish(self->pqconn);
 		self->pqconn = NULL;
 	}
@@ -865,7 +865,7 @@ handle_pgres_error(ConnectionClass *self, const PGresult *pgres,
 		const char *errmsg = "The connection has been lost";
 
 		MYLOG(MIN_LOG_LEVEL, "setting error message=%s\n", errmsg);
-		QLOG(0, "\t%ssetting error message=%s\n", __FUNCTION__, errmsg);
+		QLOG(MIN_LOG_LEVEL, "\t%ssetting error message=%s\n", __FUNCTION__, errmsg);
 		if (CC_get_errornumber(self) <= 0)
 			CC_set_error(self, CONNECTION_COMMUNICATION_ERROR, errmsg, comment);
 		if (res)
@@ -1049,7 +1049,7 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		, _MSC_VER
 #endif /* _MSC_VER */
 		);
-	QLOG(0, "%s", vermsg);
+	QLOG(MIN_LOG_LEVEL, "%s", vermsg);
 	MYLOG(DETAIL_LOG_LEVEL, "Global Options: fetch=%d, unknown_sizes=%d, max_varchar_size=%d, max_longvarchar_size=%d\n",
 		 ci->drivers.fetch_max,
 		 ci->drivers.unknown_sizes,
@@ -1561,7 +1561,7 @@ char CC_get_escape(const ConnectionClass *self)
 	scf = PQparameterStatus(self->pqconn, "standard_conforming_strings");
 	if (self != conn)
 	{
-		QLOG(0, "PQparameterStatus(%p, \"standard_conforming_strings\")=%s\n", self->pqconn, SAFE_STR(scf));
+		QLOG(MIN_LOG_LEVEL, "PQparameterStatus(%p, \"standard_conforming_strings\")=%s\n", self->pqconn, SAFE_STR(scf));
 		conn = self;
 	}
 	if (scf == NULL)
@@ -1865,7 +1865,7 @@ MYLOG(MIN_LOG_LEVEL, "entering opt=%x\n", opt);
 		if (conn->pqconn)
 		{
 			CONNLOCK_RELEASE(conn);
-			QLOG(0, "PQfinish: %p\n", conn->pqconn);
+			QLOG(MIN_LOG_LEVEL, "PQfinish: %p\n", conn->pqconn);
 			PQfinish(conn->pqconn);
 			CONNLOCK_ACQUIRE(conn);
 			conn->pqconn = NULL;
@@ -1928,7 +1928,7 @@ CC_from_PGresult(QResultClass *res, StatementClass *stmt,
 
 	if (!QR_from_PGresult(res, stmt, conn, cursor, pgres))
 	{
-		QLOG(0, "\tGetting result from PGresult failed\n");
+		QLOG(MIN_LOG_LEVEL, "\tGetting result from PGresult failed\n");
 		success = FALSE;
 		if (0 >= CC_get_errornumber(conn))
 		{
@@ -1962,12 +1962,12 @@ CC_internal_rollback(ConnectionClass *self, int rollback_type, BOOL ignore_abort
 	{
 		case PER_STATEMENT_ROLLBACK:
 			GenerateSvpCommand(self, INTERNAL_ROLLBACK_OPERATION, cmd, sizeof(cmd));
-			QLOG(0, "PQexec: %p '%s'\n", self->pqconn, cmd);
+			QLOG(MIN_LOG_LEVEL, "PQexec: %p '%s'\n", self->pqconn, cmd);
 			pgres = PQexec(self->pqconn, cmd);
 			switch (PQresultStatus(pgres))
 			{
 				case PGRES_COMMAND_OK:
-					QLOG(0, "\tok: - 'C' - %s\n", PQcmdStatus(pgres));
+					QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", PQcmdStatus(pgres));
 				case PGRES_NONFATAL_ERROR:
 					ret = 1;
 					if (ignore_abort)
@@ -1982,7 +1982,7 @@ CC_internal_rollback(ConnectionClass *self, int rollback_type, BOOL ignore_abort
 		case PER_QUERY_ROLLBACK:
 			SPRINTF_FIXED(cmd, "%s TO %s;%s %s"
 				, rbkcmd, per_query_svp , rlscmd, per_query_svp);
-			QLOG(0, "PQsendQuery: %p '%s'\n", self->pqconn, cmd);
+			QLOG(MIN_LOG_LEVEL, "PQsendQuery: %p '%s'\n", self->pqconn, cmd);
 			PQsendQuery(self->pqconn, cmd);
 			ret = 0;
 			while (self->pqconn && (pgres = PQgetResult(self->pqconn)) != NULL)
@@ -1990,7 +1990,7 @@ CC_internal_rollback(ConnectionClass *self, int rollback_type, BOOL ignore_abort
 				switch (PQresultStatus(pgres))
 				{
 					case PGRES_COMMAND_OK:
-						QLOG(0, "\tok: - 'C' - %s\n", PQcmdTuples(pgres));
+						QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", PQcmdTuples(pgres));
 						ret = 1;
 						break;
 					case PGRES_NONFATAL_ERROR:
@@ -2196,11 +2196,11 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 	nrarg.stmt = stmt;
 	PQsetNoticeReceiver(self->pqconn, receive_libpq_notice, &nrarg);
 
-	QLOG(0, "PQsendQuery: %p '%s'\n", self->pqconn, query_buf.data);
+	QLOG(MIN_LOG_LEVEL, "PQsendQuery: %p '%s'\n", self->pqconn, query_buf.data);
 	if (!PQsendQuery(self->pqconn, query_buf.data))
 	{
 		char *errmsg = PQerrorMessage(self->pqconn);
-		QLOG(0, "\nCommunication Error: %s\n", SAFE_STR(errmsg));
+		QLOG(MIN_LOG_LEVEL, "\nCommunication Error: %s\n", SAFE_STR(errmsg));
 		CC_set_error(self, CONNECTION_COMMUNICATION_ERROR, errmsg, func);
 		goto cleanup;
 	}
@@ -2238,7 +2238,7 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 				/* portal query command, no tuples returned */
 				/* read in the return message from the backend */
 				cmdbuffer = PQcmdStatus(pgres);
-				QLOG(0, "\tok: - 'C' - %s\n", cmdbuffer);
+				QLOG(MIN_LOG_LEVEL, "\tok: - 'C' - %s\n", cmdbuffer);
 
 				if (query_completed)	/* allow for "show" style notices */
 				{
@@ -2361,7 +2361,7 @@ MYLOG(DETAIL_LOG_LEVEL, "Discarded a RELEASE result\n");
 				query_completed = TRUE;
 				break;
 			case PGRES_TUPLES_OK:
-				QLOG(0, "\tok: - 'T' - %s\n", PQcmdStatus(pgres));
+				QLOG(MIN_LOG_LEVEL, "\tok: - 'T' - %s\n", PQcmdStatus(pgres));
 			case PGRES_SINGLE_TUPLE:
 				if (query_completed)
 				{
@@ -2511,7 +2511,7 @@ MYLOG(DETAIL_LOG_LEVEL, " rollback_on_error=%d CC_is_in_trans=%d discard_next_sa
 		}
 		else if (CC_is_in_error_trans(self))
 		{
-			QLOG(0, "PQexec: %p '%s'\n", self->pqconn, rbkcmd);
+			QLOG(MIN_LOG_LEVEL, "PQexec: %p '%s'\n", self->pqconn, rbkcmd);
 			pgres = PQexec(self->pqconn, rbkcmd);
 		}
 		/*
@@ -2702,7 +2702,7 @@ CC_send_function(ConnectionClass *self, const char *fn_name, void *result_buf, i
 		}
 	}
 
-	QLOG(0, "PQexecParams: %p '%s' nargs=%d\n", self->pqconn, sqlbuffer, nargs);
+	QLOG(MIN_LOG_LEVEL, "PQexecParams: %p '%s' nargs=%d\n", self->pqconn, sqlbuffer, nargs);
 	pgres = PQexecParams(self->pqconn, sqlbuffer, nargs,
 						 paramTypes, (const char * const *) paramValues,
 						 paramLengths, paramFormats, 1);
@@ -2710,7 +2710,7 @@ CC_send_function(ConnectionClass *self, const char *fn_name, void *result_buf, i
 	MYLOG(MIN_LOG_LEVEL, "done sending function\n");
 
 	if (PQresultStatus(pgres) == PGRES_TUPLES_OK)
-		QLOG(0, "\tok: - 'T' - %s\n", PQcmdStatus(pgres));
+		QLOG(MIN_LOG_LEVEL, "\tok: - 'T' - %s\n", PQcmdStatus(pgres));
 	else
 	{
 		handle_pgres_error(self, pgres, "send_query", NULL, TRUE);
@@ -2725,7 +2725,7 @@ CC_send_function(ConnectionClass *self, const char *fn_name, void *result_buf, i
 
 	*actual_result_len = PQgetlength(pgres, 0, 0);
 
-	QLOG(0, "\tgot result with length: %d\n", *actual_result_len);
+	QLOG(MIN_LOG_LEVEL, "\tgot result with length: %d\n", *actual_result_len);
 
 	if (*actual_result_len > 0)
 	{
@@ -3134,7 +3134,7 @@ LIBPQ_connect(ConnectionClass *self)
 	{
 		const char **popt, **pval;
 
-		QLOG(0, "PQconnectdbParams:");
+		QLOG(MIN_LOG_LEVEL, "PQconnectdbParams:");
 		for (popt = opts, pval = vals; *popt; popt++, pval++)
 		{
 #ifdef FORCE_PASSWORD_DISPLAY
@@ -3166,7 +3166,7 @@ LIBPQ_connect(ConnectionClass *self)
 		MYLOG(MIN_LOG_LEVEL, "password retry\n");
 		errmsg = PQerrorMessage(pqconn);
 		CC_set_error(self, CONNECTION_SERVER_NOT_REACHED, errmsg, func);
-		QLOG(0, "PQfinish: %p\n", pqconn);
+		QLOG(MIN_LOG_LEVEL, "PQfinish: %p\n", pqconn);
 		PQfinish(pqconn);
 		self->pqconn = NULL;
 		self->connInfo.password_required = TRUE;
@@ -3216,7 +3216,7 @@ cleanup:
 	{
 		if (self->pqconn)
 		{
-			QLOG(0, "PQfinish: %p\n", self->pqconn);
+			QLOG(MIN_LOG_LEVEL, "PQfinish: %p\n", self->pqconn);
 			PQfinish(self->pqconn);
 		}
 		self->pqconn = NULL;
