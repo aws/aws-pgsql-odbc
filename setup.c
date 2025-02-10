@@ -466,6 +466,7 @@ test_connection(HANDLE hwnd, ConnInfo *ci, BOOL withDTC)
 	SQLSMALLINT	str_len;
 	char		dsn_1st;
 	BOOL		connected = FALSE;
+    UINT        connection_test_icon = MB_ICONINFORMATION;
 #ifdef	UNICODE_SUPPORT
 	SQLWCHAR	wout_conn[MAX_CONNECT_STRING_LEN];
 	SQLWCHAR	szMsg[SQL_MAX_MESSAGE_LENGTH];
@@ -570,7 +571,11 @@ MYLOG(0, "conn_string=%s\n", out_conn);
 cleanup:
 	if (NULL != ermsg && NULL != hwnd)
 	{
-		MESSAGEBOXFUNC(hwnd, ermsg, _T("Connection Test"), MB_ICONEXCLAMATION | MB_OK);
+        if (!connected)
+        {
+            connection_test_icon = MB_ICONEXCLAMATION;
+        }
+        MESSAGEBOXFUNC(hwnd, ermsg, _T("Connection Test"), connection_test_icon | MB_OK);
 	}
 
 #undef _T
