@@ -75,20 +75,28 @@ FetchContent_MakeAvailable(toxiproxy)
 
 enable_testing()
 
+set(TEST_UTILITIES
+    connection_string_builder.h
+    integration_test_utils.cc
+    integration_test_utils.h
+)
+
+set(TEST_SUITE
+    connection_string_builder_test.cc
+    iam_authentication_integration_test.cc
+    secrets_manager_integration_test.cc
+)
+
+IF (TEST_LIMITLESS)
+    list(APPEND TEST_SUITE limitless_integration_test.cc)
+endif()
+
 add_executable(
   # Executable Name
   ${PROJECT_NAME}
 
-  # Runner / Utility
-  connection_string_builder.h
-  integration_test_utils.cc
-  integration_test_utils.h
-
-  # Test Suites
-  connection_string_builder_test.cc
-  iam_authentication_integration_test.cc
-  limitless_integration_test.cc
-  secrets_manager_integration_test.cc
+  ${TEST_UTILITIES}
+  ${TEST_SUITE}
 )
 
 include(GoogleTest)

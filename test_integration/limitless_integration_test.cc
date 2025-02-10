@@ -137,21 +137,14 @@ protected:
     ConnectionStringBuilder builder;
     SQLHENV env = nullptr;
     SQLHDBC dbc = nullptr;
-    bool is_limitless_server = false;
 
     static void SetUpTestSuite() {
-        const char *limitless_enabled = getenv("LIMITLESS_ENABLED");
-        if (limitless_enabled != nullptr && limitless_enabled[0] == '1')
-            this->is_limitless_server = true;
     }
 
     static void TearDownTestSuite() {
     }
 
     void SetUp() override {
-        if (!this->is_limitless_server)
-            return;
-        
         get_preferred_endpoint(); // query endpoint directly to get the newest preferred endpoint
         
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
@@ -179,9 +172,6 @@ protected:
 };
 
 TEST_F(LimitlessIntegrationTest, SingleConnection) {
-    if (!this->is_limitless_server)
-        return;
-
     auto connection_string = builder
         .withLimitlessEnabled(true)
         .withLimitlessMode("immediate")
@@ -205,9 +195,6 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
 }
 
 TEST_F(LimitlessIntegrationTest, MultipleConnections) {
-    if (!this->is_limitless_server)
-        return;
-
     auto connection_string = builder
         .withLimitlessEnabled(true)
         .withLimitlessMode("immediate")

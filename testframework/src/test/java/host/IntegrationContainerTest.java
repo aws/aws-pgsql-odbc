@@ -264,6 +264,21 @@ public class IntegrationContainerTest {
     }
   }
 
+  private void buildLimitlessTests() {
+    try {
+      System.out.println("cmake -S test_integration -B build -DTEST_LIMITLESS=TRUE");
+      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build", "-DTEST_LIMITLESS=TRUE");
+      System.out.println(result.getStdout());
+
+      System.out.println("cmake --build build");
+      result = testContainer.execInContainer("cmake", "--build", "build");
+
+      System.out.println(result.getStdout());
+    } catch (Exception e) {
+      fail("Test container failed during driver/test building process.");
+    }
+  }
+
   private void buildIntegrationTests() {
     try {
       System.out.println("cmake -S test_integration -B build");
@@ -357,8 +372,7 @@ public class IntegrationContainerTest {
       .withEnv("TEST_RO_SERVER", dbHostClusterRo)
       .withEnv("DB_CONN_STR_SUFFIX", "." + dbConnStrSuffix)
       .withEnv("PROXIED_CLUSTER_TEMPLATE", "?." + dbConnStrSuffix + PROXIED_DOMAIN_NAME_SUFFIX)
-      .withEnv("SECRETS_ARN", secretsArn)
-      .withEnv("LIMITLESS_ENABLED", "1");
+      .withEnv("SECRETS_ARN", secretsArn);
 
     // Add postgres instances & proxies to container env
     for (int i = 0; i < postgresInstances.size(); i++) {
@@ -477,7 +491,7 @@ public class IntegrationContainerTest {
     setupLimitlessTestContainer(network);
 
     buildDriver();
-    buildIntegrationTests();
+    buildLimitlessTests();
   }
 
   private void setupIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {

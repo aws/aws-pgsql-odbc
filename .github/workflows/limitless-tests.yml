@@ -1,4 +1,4 @@
-name: Integration Tests
+name: Limitless Integration Tests
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
       - main
   pull_request:
     branches:
-      - '**'
+      - '*'
     paths-ignore:
       - '**/*.md'
       - '**/*.jpg'
@@ -22,13 +22,9 @@ on:
 env:
   BUILD_TYPE: Release
 
-concurrency:
-  group: environment-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  integration-tests:
-    name: Integration Tests 
+  limitless-integration-tests:
+    name: Limitless Integration Tests
     runs-on: ubuntu-latest
     env:
       CMAKE_GENERATOR: Unix Makefiles
@@ -46,10 +42,6 @@ jobs:
           ref: main
           path: ./libs/aws-rds-odbc
           token: ${{secrets.CLONE_PAT}}
-
-      - name: Initialize submodules
-        run: |
-          git submodule update --init --recursive
 
       - name: 'Set up JDK'
         uses: actions/setup-java@v4
@@ -78,10 +70,13 @@ jobs:
           echo "TEMP_AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
           echo "TEMP_AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: 'Run Integration Tests'
         working-directory: ${{ github.workspace }}/testframework
         run: |
-          ./gradlew --no-parallel --no-daemon test-integration --info
+          ./gradlew --no-parallel --no-daemon test-limitless --info
         env:
           TEST_DSN: awspgsqlodbc
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}

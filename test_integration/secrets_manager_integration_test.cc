@@ -49,8 +49,6 @@
 
 class SecretsManagerIntegrationTest : public testing::Test {
    protected:
-    bool is_limitless_server = false;
-
     std::string SECRETS_ARN = std::getenv("SECRETS_ARN");
     char* dsn = std::getenv("TEST_DSN");
 
@@ -66,19 +64,12 @@ class SecretsManagerIntegrationTest : public testing::Test {
     std::string connection_string;
 
     static void SetUpTestSuite() {
-        const char *limitless_enabled = getenv("LIMITLESS_ENABLED");
-        if (limitless_enabled != nullptr && limitless_enabled[0] == '1') {
-            this->is_limitless_server = true;
-        }
     }
 
     static void TearDownTestSuite() {
     }
 
     void SetUp() override {
-        if (this->is_limitless_server)
-            return;
-
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
         SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
@@ -99,9 +90,6 @@ class SecretsManagerIntegrationTest : public testing::Test {
 };
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
-    if (this->is_limitless_server)
-        return;
-
     connection_string = builder
                             .withDSN(dsn)
                             .withServer(DB_SERVER_URL)
@@ -116,9 +104,6 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
 }
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
-    if (this->is_limitless_server)
-        return;
-
     connection_string = builder
                             .withDSN(dsn)
                             .withServer(DB_SERVER_URL)
@@ -134,9 +119,6 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
 // Passing in a wrong region should still work in retrieving secrets
 // A full secret ARN will contain the proper region
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
-    if (this->is_limitless_server)
-        return;
-
     connection_string = builder
                             .withDSN(dsn)
                             .withServer(DB_SERVER_URL)
@@ -151,9 +133,6 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
 }
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
-    if (this->is_limitless_server)
-        return;
-
     connection_string = builder
                             .withDSN(dsn)
                             .withServer(DB_SERVER_URL)
