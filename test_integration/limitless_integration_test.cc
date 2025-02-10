@@ -33,6 +33,8 @@
 #include <windows.h>
 #endif
 
+#include <cmath>
+
 #include <sql.h>
 #include <sqlext.h>
 
@@ -53,18 +55,7 @@ static unsigned int test_port;
 static std::string test_endpoint;
 static std::string preferred_endpoint;
 
-#include <iostream>
-
 void get_preferred_endpoint() {
-    test_endpoint = std::getenv("TEST_SERVER");
-    test_dsn = std::getenv("TEST_DSN");
-    test_db = std::getenv("TEST_DATABASE");
-    test_user = std::getenv("TEST_USERNAME");
-    test_pwd = std::getenv("TEST_PASSWORD");
-    // Cast to remove const
-    test_port = INTEGRATION_TEST_UTILS::str_to_int(
-        INTEGRATION_TEST_UTILS::get_env_var("POSTGRES_PORT", (char*) "5432"));
-
     auto conn_str_builder = ConnectionStringBuilder();
     auto conn_str = conn_str_builder
         .withDSN(test_dsn)
@@ -139,6 +130,14 @@ protected:
     SQLHDBC dbc = nullptr;
 
     static void SetUpTestSuite() {
+        test_endpoint = std::getenv("TEST_SERVER");
+        test_dsn = std::getenv("TEST_DSN");
+        test_db = std::getenv("TEST_DATABASE");
+        test_user = std::getenv("TEST_USERNAME");
+        test_pwd = std::getenv("TEST_PASSWORD");
+        // Cast to remove const
+        test_port = INTEGRATION_TEST_UTILS::str_to_int(
+            INTEGRATION_TEST_UTILS::get_env_var("POSTGRES_PORT", (char*) "5432"));
     }
 
     static void TearDownTestSuite() {
