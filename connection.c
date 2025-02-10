@@ -1242,14 +1242,14 @@ void GetLimitlessServer(ConnInfo *ci) {
 	SQLHENV henv;
 	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
     if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "error in SQLAllocHandle environment - disabling limitless\n");
+		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed - disabling limitless\n");
 		ci->limitless_enabled = 0;
 		return;
 	}
 	SQLHDBC hdbc;
     rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
     if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "error in SQLAllocHandle connection - disabling limitless\n");
+		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed - disabling limitless\n");
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
 		return;
@@ -1263,18 +1263,18 @@ void GetLimitlessServer(ConnInfo *ci) {
 	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
 #endif
     if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "error with connecting - disabling limitless\n");
+		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed - disabling limitless\n");
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
 		return;
 	}
 
-
-    if (CheckLimitlessCluster(hdbc)) {
-        MYLOG(MIN_LOG_LEVEL, "provided endpoint is a limitless cluster - enabling limitless\n");
-    } else {
-        MYLOG(MIN_LOG_LEVEL, "provided endpoint is not a limitless cluster - disabling limitless\n");
+	MYLOG(MIN_LOG_LEVEL, "before CheckLimitlessCluster\n");
+	if (CheckLimitlessCluster(hdbc)) {
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
+	} else {
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
 		SQLDisconnect(hdbc);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
@@ -1287,6 +1287,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 	SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 	SQLFreeHandle(SQL_HANDLE_ENV, henv);
 
+	MYLOG(MIN_LOG_LEVEL, "before GetLimitlessInstance\n");
 #ifdef UNICODE_SUPPORT
 	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, &db_instance);
 #else
@@ -1294,11 +1295,11 @@ void GetLimitlessServer(ConnInfo *ci) {
 #endif
 
 	if (!db_instance_ready) {
-		MYLOG(MIN_LOG_LEVEL, "didn't get limitless server, but monitor has started\n");
+		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance returned false. Not using router endpoint.\n");
 		return; // no writing to ci
 	}
 
-	MYLOG(MIN_LOG_LEVEL, "got limitless server endpoint from monitor %s\n", db_instance.server);
+	MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance router endpoint: %s\n", db_instance.server);
 	STRCPY_FIXED(ci->server, db_instance.server);
 	free(db_instance.server);
 }
