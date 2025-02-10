@@ -1161,6 +1161,8 @@ typedef enum {
 
 // Get token for IAM, ADFS or OKTA authentication mode.
 TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
+	MYLOG(MIN_LOG_LEVEL, "entering...\n");
+
 	if (!ci) {
 		MYLOG(MIN_LOG_LEVEL, "Null ConnInfo pointer\n");
 		return TR_FAILURE;
@@ -1267,6 +1269,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 		ci->limitless_enabled = 0;
 		return;
 	}
+
 
     if (CheckLimitlessCluster(hdbc)) {
         MYLOG(MIN_LOG_LEVEL, "provided endpoint is a limitless cluster - enabling limitless\n");
@@ -1450,7 +1453,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	if (CC_is_in_unicode_driver(self)
 	    && (CC_is_in_ansi_app(self) || 0 < ci->bde_environment))
 		self->unicode |= CONN_DISALLOW_WCHAR;
-MYLOG(MIN_LOG_LEVEL, "conn->unicode=%d Client Encoding='%s' (Code %d)\n", self->unicode, self->original_client_encoding, self->ccsc);
+
+	MYLOG(MIN_LOG_LEVEL, "conn->unicode=%d Client Encoding='%s' (Code %d)\n", self->unicode, self->original_client_encoding, self->ccsc);
 	ret = 1;
 
 cleanup:
@@ -1589,7 +1593,8 @@ int	CC_get_max_idlen(ConnectionClass *self)
 			len = self->max_identifier_length = QR_get_value_backend_int(res, 0, 0, FALSE);
 		QR_Destructor(res);
 	}
-MYLOG(MIN_LOG_LEVEL, "max_identifier_length=%d\n", len);
+
+	MYLOG(MIN_LOG_LEVEL, "max_identifier_length=%d\n", len);
 	return len < 0 ? 0 : len;
 }
 
@@ -1651,7 +1656,7 @@ SQLUINTEGER	CC_get_isolation(ConnectionClass *self)
 		isolation = self->server_isolation;
 	}
 	QR_Destructor(res);
-MYLOG(MIN_LOG_LEVEL, "isolation=" FORMAT_UINTEGER "\n", isolation);
+	MYLOG(MIN_LOG_LEVEL, "isolation=" FORMAT_UINTEGER "\n", isolation);
 	return isolation;
 }
 
@@ -1781,7 +1786,7 @@ static void CC_clear_cursors(ConnectionClass *self, BOOL on_abort)
 						QR_set_cursor(res, NULL);
 					QR_Destructor(wres);
 					CONNLOCK_ACQUIRE(self);
-MYLOG(DETAIL_LOG_LEVEL, "%p->permanent -> %d %p\n", res, QR_is_permanent(res), QR_get_cursor(res));
+					MYLOG(DETAIL_LOG_LEVEL, "%p->permanent -> %d %p\n", res, QR_is_permanent(res), QR_get_cursor(res));
 				}
 				else
 					QR_set_permanent(res);
@@ -1843,7 +1848,7 @@ void	CC_on_abort(ConnectionClass *conn, unsigned int opt)
 {
 	BOOL	set_no_trans = FALSE;
 
-MYLOG(MIN_LOG_LEVEL, "entering opt=%x\n", opt);
+	MYLOG(MIN_LOG_LEVEL, "entering opt=%x\n", opt);
 	CONNLOCK_ACQUIRE(conn);
 	if (0 != (opt & CONN_DEAD)) /* CONN_DEAD implies NO_TRANS also */
 		opt |= NO_TRANS;
@@ -1889,7 +1894,7 @@ MYLOG(MIN_LOG_LEVEL, "entering opt=%x\n", opt);
 
 void	CC_on_abort_partial(ConnectionClass *conn)
 {
-MYLOG(MIN_LOG_LEVEL, "entering\n");
+	MYLOG(MIN_LOG_LEVEL, "entering\n");
 	CONNLOCK_ACQUIRE(conn);
 	ProcessRollback(conn, TRUE, TRUE);
 	CC_discard_marked_objects(conn);
@@ -2279,7 +2284,7 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 					{
 						discard_next_savepoint = FALSE;
 						discard_next_release = TRUE;
-MYLOG(DETAIL_LOG_LEVEL, "Discarded a SAVEPOINT result\n");
+						MYLOG(DETAIL_LOG_LEVEL, "Discarded a SAVEPOINT result\n");
 						break; /* discard the result */
 					}
 					if (SAVEPOINT_IN_PROGRESS == self->internal_op)
@@ -2303,7 +2308,7 @@ MYLOG(DETAIL_LOG_LEVEL, "Discarded a SAVEPOINT result\n");
 				{
 					if (discard_next_release)
 					{
-MYLOG(DETAIL_LOG_LEVEL, "Discarded a RELEASE result\n");
+						MYLOG(DETAIL_LOG_LEVEL, "Discarded a RELEASE result\n");
 						discard_next_release = FALSE;
 						break; /* discard the result */
 					}
@@ -2501,7 +2506,7 @@ cleanup:
 		PQclear(pgres);
 		pgres = NULL;
 	}
-MYLOG(DETAIL_LOG_LEVEL, " rollback_on_error=%d CC_is_in_trans=%d discard_next_savepoint=%d query_rollback=%d\n", rollback_on_error, CC_is_in_trans(self), discard_next_savepoint, query_rollback);
+	MYLOG(DETAIL_LOG_LEVEL, " rollback_on_error=%d CC_is_in_trans=%d discard_next_savepoint=%d query_rollback=%d\n", rollback_on_error, CC_is_in_trans(self), discard_next_savepoint, query_rollback);
 	if (rollback_on_error && CC_is_in_trans(self) && !discard_next_savepoint)
 	{
 		if (query_rollback)
@@ -2579,7 +2584,7 @@ MYLOG(DETAIL_LOG_LEVEL, " rollback_on_error=%d CC_is_in_trans=%d discard_next_sa
 					CC_set_errornumber(self, CONN_ERROR_IGNORED);
 					if (retres)
 						QR_set_rstatus(retres, PORES_NONFATAL_ERROR);
-MYLOG(DETAIL_LOG_LEVEL, " ignored abort_on_conn\n");
+					MYLOG(DETAIL_LOG_LEVEL, " ignored abort_on_conn\n");
 				}
 				else if (retres)
 				{
@@ -2736,7 +2741,7 @@ CC_send_function(ConnectionClass *self, const char *fn_name, void *result_buf, i
 			memcpy(&int8val, value, sizeof(Int8));
 			int8val = odbc_ntoh64(int8val);
 			memcpy(result_buf, &int8val, sizeof(Int8));
-MYLOG(MIN_LOG_LEVEL, "int8 result=" FORMATI64 "\n", int8val);
+			MYLOG(MIN_LOG_LEVEL, "int8 result=" FORMATI64 "\n", int8val);
 		}
 		else if (result_is_int)
 		{
@@ -3177,7 +3182,7 @@ LIBPQ_connect(ConnectionClass *self)
 	if (CONNECTION_OK != pqret)
 	{
 		const char	*errmsg;
-MYLOG(DETAIL_LOG_LEVEL, "status=%d\n", pqret);
+		MYLOG(DETAIL_LOG_LEVEL, "status=%d\n", pqret);
 		errmsg = PQerrorMessage(pqconn);
 		CC_set_error(self, CONNECTION_SERVER_NOT_REACHED, errmsg, func);
 		MYLOG(MIN_LOG_LEVEL, "Could not establish connection to the database; LIBPQ returned -> %s\n", errmsg);
