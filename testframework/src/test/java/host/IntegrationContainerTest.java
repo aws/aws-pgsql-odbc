@@ -191,7 +191,6 @@ public class IntegrationContainerTest {
         .withEnv("TEST_DSN", TEST_DSN)
         .withEnv("TEST_USERNAME", TEST_USERNAME)
         .withEnv("TEST_PASSWORD", TEST_PASSWORD)
-        .withEnv("TEST_DATABASE", TEST_DATABASE)
         .withEnv("POSTGRES_PORT", Integer.toString(POSTGRES_PORT))
         .withEnv("ODBCINI", ODBCINI_LOCATION)
         .withEnv("ODBCINST", ODBCINSTINI_LOCATION)
@@ -370,6 +369,7 @@ public class IntegrationContainerTest {
       .withEnv("PROXIED_DOMAIN_NAME_SUFFIX", PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("TEST_SERVER", dbHostCluster)
       .withEnv("TEST_RO_SERVER", dbHostClusterRo)
+      .withEnv("TEST_DATABASE", "postgres_limitless")
       .withEnv("DB_CONN_STR_SUFFIX", "." + dbConnStrSuffix)
       .withEnv("PROXIED_CLUSTER_TEMPLATE", "?." + dbConnStrSuffix + PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("SECRETS_ARN", secretsArn);
@@ -451,6 +451,7 @@ public class IntegrationContainerTest {
       .withEnv("PROXIED_DOMAIN_NAME_SUFFIX", PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("TEST_SERVER", dbHostCluster)
       .withEnv("TEST_RO_SERVER", dbHostClusterRo)
+      .withEnv("TEST_DATABASE", TEST_DATABASE)
       .withEnv("DB_CONN_STR_SUFFIX", "." + dbConnStrSuffix)
       .withEnv("PROXIED_CLUSTER_TEMPLATE", "?." + dbConnStrSuffix + PROXIED_DOMAIN_NAME_SUFFIX)
       .withEnv("IAM_USER", TEST_IAM_USER)
