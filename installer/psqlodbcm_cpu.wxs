@@ -54,10 +54,10 @@
     <!-- PostgreSQL -->
     <File Name="awspsqlodbca.dll" Source="$(BINBASE)\$(ANSIFOLDER)\awspsqlodbca.dll">
       <CopyFile DestinationName="awspsqlodbca.dll" />
-      <ODBCDriver Id="Psqlodbc_9.0_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL ($(Platform))">
+      <ODBCDriver Id="Awspsqlodbc_1.0_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL ($(Platform))">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
-      <ODBCDriver Id="Psqlodbc_11_newid_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL">
+      <ODBCDriver Id="Awspsqlodbc_11_newid_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
     </File>
@@ -68,10 +68,10 @@
 <?endif ?>
     <File Name="awspsqlodbcw.dll" Source="$(BINBASE)\$(UNICODEFOLDER)\awspsqlodbcw.dll">
       <CopyFile DestinationName="awspsqlodbcw.dll" />
-      <ODBCDriver Id="Psqlodbc_9.0_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL ($(Platform))">
+      <ODBCDriver Id="Awspsqlodbc_1.0_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL ($(Platform))">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
-      <ODBCDriver Id="Psqlodbc_11_newid_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL">
+      <ODBCDriver Id="Awspsqlodbc_11_newid_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
     </File>

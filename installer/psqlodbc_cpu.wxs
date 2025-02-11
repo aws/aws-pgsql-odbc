@@ -26,7 +26,7 @@
   <?define INSTBASE = $(Platform) ?>
 <?endif?>
 
-<?define MERGEM = "$(INSTBASE)\psqlodbc_$(Platform).msm" ?>
+<?define MERGEM = "$(INSTBASE)\awspsqlodbc_$(Platform).msm" ?>
 
 <!-- Product details -->
 
@@ -56,7 +56,7 @@
             <Component Id="registration" Guid="$(CIDREG)">
               <RegistryValue KeyPath="yes" Type="string" Root="HKLM" Key="Software\$(PKGNAME)" Name="Version" Value="$(VERSION)" />
             </Component>
-            <Merge Id="psqlodbcm" DiskId="1" Language="1033" SourceFile="$(MERGEM)" />
+            <Merge Id="awspsqlodbcm" DiskId="1" Language="1033" SourceFile="$(MERGEM)" />
           </Directory>
           <Directory Id="DOCSDIR" Name="docs" FileSource="../docs">
             <Component Id="docs" Guid="$(CIDDOC)">
@@ -86,10 +86,10 @@
 
 <!-- Features -->
 
-    <Feature Id="psqlodbc" Title="$(PKGNAME)" Level="1" Description="AWS ANSI ODBC Driver for PostgreSQL" ConfigurableDirectory="BASEDIR" Display="expand">
+    <Feature Id="awspsqlodbc" Title="$(PKGNAME)" Level="1" Description="AWS ANSI ODBC Driver for PostgreSQL" ConfigurableDirectory="BASEDIR" Display="expand">
       <Feature Id="binaries" Title="ODBC Driver" Level="1" Description="The ODBC driver and supporting libraries.">
         <ComponentRef Id="registration" />
-        <MergeRef Id="psqlodbcm" />
+        <MergeRef Id="awspsqlodbcm" />
       </Feature>
 
       <Feature Id="docs" Title="Documentation" Level="4" Description="Documentation and release notes.">
@@ -98,7 +98,7 @@
       </Feature>
 
     </Feature>
-    <Media Id="1" EmbedCab="yes" Cabinet="psqlodbc.cab" CompressionLevel="high"/>
+    <Media Id="1" EmbedCab="yes" Cabinet="awspsqlodbc.cab" CompressionLevel="high"/>
 
 <!-- UI -->
 

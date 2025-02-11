@@ -235,7 +235,7 @@ function buildInstaller([string]$CPUTYPE)
 		$env:Path += ";$WIX/bin"
 	}
 	# The subdirectory to install into
-	$SUBLOC=$VERSION.substring(0, 2) + $VERSION.substring(3, 2)
+	$SUBLOC=$VERSION.substring(0, 1) + $VERSION.substring(2, 2)
 
 	#
 	$maxmem=10
@@ -272,7 +272,7 @@ function buildInstaller([string]$CPUTYPE)
 		Write-Host ".`nBuilding awspsqlodbc/$SUBLOC merge module..."
 		$BINBASE = GetObjbase ".."
 		$INSTBASE = GetObjbase ".\$CPUTYPE" "installer\$CPUTYPE"
-		wix build --nologo -arch $CPUTYPE $libpqRelArgs -d "VERSION=$VERSION" -d "SUBLOC=$SUBLOC" -d "LIBPQBINDIR=$LIBPQBINDIR" -d "LIBPQMSVCDLL=$LIBPQMSVCDLL" -d "LIBPQMSVCSYS=$LIBPQMSVCSYS" -d "PODBCMSVCDLL=$PODBCMSVCDLL" -d "PODBCMSVPDLL=$PODBCMSVPDLL" -d "PODBCMSVCSYS=$PODBCMSVCSYS" -d "PODBCMSVPSYS=$PODBCMSVPSYS" -d "NoPDB=$NoPDB" -d "BINBASE=$BINBASE" -o $INSTBASE\psqlodbc_$CPUTYPE.msm psqlodbcm_cpu.wxs
+		wix build --nologo -arch $CPUTYPE $libpqRelArgs -d "VERSION=$VERSION" -d "SUBLOC=$SUBLOC" -d "LIBPQBINDIR=$LIBPQBINDIR" -d "LIBPQMSVCDLL=$LIBPQMSVCDLL" -d "LIBPQMSVCSYS=$LIBPQMSVCSYS" -d "PODBCMSVCDLL=$PODBCMSVCDLL" -d "PODBCMSVPDLL=$PODBCMSVPDLL" -d "PODBCMSVCSYS=$PODBCMSVCSYS" -d "PODBCMSVPSYS=$PODBCMSVPSYS" -d "NoPDB=$NoPDB" -d "BINBASE=$BINBASE" -o $INSTBASE\awspsqlodbc_$CPUTYPE.msm psqlodbcm_cpu.wxs
 		if ($LASTEXITCODE -ne 0) {
 			throw "Failed to build merge module"
 		}
