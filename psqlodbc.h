@@ -396,15 +396,15 @@ SQLULEN ucs2strlen(const SQLWCHAR *);
 #endif   /* DBMS_NAME */
 #ifdef WIN32
 #ifdef	UNICODE_SUPPORT
-#define DRIVER_FILE_NAME			"PSQLODBC35W.DLL"
+#define DRIVER_FILE_NAME			"AWSPSQLODBCW.DLL"
 #else
-#define DRIVER_FILE_NAME			"PSQLODBC30A.DLL"
+#define DRIVER_FILE_NAME			"AWSPSQLODBCA.DLL"
 #endif   /* UNICODE_SUPPORT */
 #else
 #ifdef  UNICODE_SUPPORT
-#define DRIVER_FILE_NAME                        "psqlodbcw.so"
+#define DRIVER_FILE_NAME                        "awspsqlodbcw.so"
 #else
-#define DRIVER_FILE_NAME                        "psqlodbca.so"
+#define DRIVER_FILE_NAME                        "awspsqlodbca.so"
 #endif
 #endif   /* WIN32 */
 BOOL isMsAccess(void);

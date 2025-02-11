@@ -45,6 +45,8 @@ windows-local.mak
 /config.status
 /configure
 /libtool
+/awspsqlodbca.la
+/awspsqlodbcw.la
 /psqlodbca.la
 /psqlodbcw.la
 /stamp-h1

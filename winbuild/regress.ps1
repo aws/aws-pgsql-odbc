@@ -391,14 +391,14 @@ if ($Ansi) {
 	$testdriver="postgres_deva"
 	$testdsn="psqlodbc_test_dsn_ansi"
 	$ansi_dir_part="ANSI"
-	$dllname="psqlsetupa.dll"
+	$dllname="awspsqlodbca.dll"
 	$setup="psqlsetupa.dll"
 } else {
 	write-host ** testing unicode driver **
 	$testdriver="postgres_devw"
 	$testdsn="psqlodbc_test_dsn"
 	$ansi_dir_part="Unicode"
-	$dllname="psqlsetup.dll"
+	$dllname="awspsqlodbcw.dll"
 	$setup="psqlsetup.dll"
 }
 if ($DriverConfiguration -ieq "Debug") {

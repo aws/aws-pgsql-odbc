@@ -46,13 +46,13 @@
 #ifdef	UNICODE_SUPPORT
 CSTR	pgenlist = "pgenlist";
 CSTR	pgenlistdll = "pgenlist.dll";
-CSTR	psqlodbc = "psqlodbc35w";
-CSTR	psqlodbcdll = "psqlodbc35w.dll";
+CSTR	psqlodbc = "awspsqlodbcw";
+CSTR	psqlodbcdll = "awspsqlodbcw.dll";
 #else
 CSTR	pgenlist = "pgenlista";
 CSTR	pgenlistdll = "pgenlista.dll";
-CSTR	psqlodbc = "psqlodbc30a";
-CSTR	psqlodbcdll = "psqlodbc30a.dll";
+CSTR	psqlodbc = "awspsqlodbca";
+CSTR	psqlodbcdll = "awspsqlodbca.dll";
 #endif /* UNICODE_SUPPORT */
 #if defined(_MSC_VER) && (_MSC_VER >= 1200)
 #define	_MSC_DELAY_LOAD_IMPORT

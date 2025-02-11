@@ -7,7 +7,7 @@
 outini=odbc.ini
 outinstini=odbcinst.ini
 
-drvr=../.libs/psqlodbcw
+drvr=../.libs/awspsqlodbcw
 driver=${drvr}.so
 if test ! -e $driver ; then
 	driver=${drvr}.dll
@@ -17,7 +17,7 @@ if test ! -e $driver ; then
 	fi
 fi
 
-drvra=../.libs/psqlodbca
+drvra=../.libs/awspsqlodbca
 drivera=${drvra}.so
 if test ! -e $drivera ; then
 	drivera=${drvra}.dll

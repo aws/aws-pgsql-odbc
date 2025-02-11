@@ -250,7 +250,7 @@ by creating a file called "windows-local.mak".
     </tr>
   <tr>
     <td>ANSI_VERSION</td>
-    <td>no (If set to "yes", output dll name to psqlodbc30a.dll)</td>
+    <td>no (If set to "yes", output dll name to awspsqlodbca.dll)</td>
   </tr>
   <tr>
     <td>MSDTC</td>
@@ -259,7 +259,7 @@ by creating a file called "windows-local.mak".
   </table></p>
 
 <ol>
-<li>UNICODE is the default (psqlodbc35w.dll), unless ANSI_VERSION is selected (psqlodbc30a.dll)</li>
+<li>UNICODE is the default (awspsqlodbcw.dll), unless ANSI_VERSION is selected (awspsqlodbca.dll)</li>
 <li>libpq.dll is mandatory.</li>
 <li>If MSDTC == Yes, "pgxalib.dll" is created.</li>
 <li>If MSDTC is enabled, ANSI_VERSION also creates "pgenlista.dll", or UNICODE creates "pgenlist.dll".</li>
@@ -304,7 +304,7 @@ The default build settings will create the following driver:
 <ol>
 <li>UNICODE support.
 <li>libpq is mandatory.
-<li>The driver filename is "psqlodbc35w.dll".</li></ol>
+<li>The driver filename is "awspsqlodbcw.dll".</li></ol>
 
 </body>
 </html>

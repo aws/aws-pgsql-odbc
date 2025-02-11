@@ -1,10 +1,10 @@
 
 
 # All the driver files that will be included in the installer
-DRIVER_FILES = ../$(TARGET_CPU)_Unicode_$(CFG)/psqlodbc35w.dll \
+DRIVER_FILES = ../$(TARGET_CPU)_Unicode_$(CFG)/awspsqlodbcw.dll \
 	../$(TARGET_CPU)_Unicode_$(CFG)/pgxalib.dll \
 	../$(TARGET_CPU)_Unicode_$(CFG)/pgenlist.dll \
-	../$(TARGET_CPU)_ANSI_$(CFG)/psqlodbc30a.dll \
+	../$(TARGET_CPU)_ANSI_$(CFG)/awspsqlodbca.dll \
 	../$(TARGET_CPU)_ANSI_$(CFG)/pgxalib.dll \
 	../$(TARGET_CPU)_ANSI_$(CFG)/pgenlista.dll
 

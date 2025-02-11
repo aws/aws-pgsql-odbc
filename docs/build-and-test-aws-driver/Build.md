@@ -82,7 +82,7 @@ Inside PowerShell, run `.\windows\buildall.ps1`. This builds the following:
 Inside a terminal, run `./macos/buildall Release`. This builds the following:
 - [AWS SDK for C++](https://github.com/aws/aws-sdk-cpp).
 - [AWS RDS Library for ODBC Drivers](https://github.com/aws/aws-rds-odbc).
-- Inside the `.libs` subdirectory, the ANSI driver `psqlodbca.so` and the Unicode driver `psqlodbcw.so`.
+- Inside the `.libs` subdirectory, the ANSI driver `awspsqlodbca.so` and the Unicode driver `awspsqlodbcw.so`.
 
 ## Amazon Linux using Graviton
 ### Prerequisites
@@ -121,4 +121,4 @@ Inside a terminal, run `./macos/buildall Release`. This builds the following:
 Inside a bash shell, run `./linux/buildall Release`. This builds the following:
 - [AWS SDK for C++](https://github.com/aws/aws-sdk-cpp).
 - [AWS RDS Library for ODBC Drivers](https://github.com/aws/aws-rds-odbc).
-- Inside the `.libs` subdirectory, the ANSI driver `psqlodbca.so` and the Unicode driver `psqlodbcw.so`.
+- Inside the `.libs` subdirectory, the ANSI driver `awspsqlodbca.so` and the Unicode driver `awspsqlodbcw.so`.

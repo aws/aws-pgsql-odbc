@@ -2,7 +2,7 @@
 .SYNOPSIS
     Build all dlls of psqlodbc project using MSbuild.
 .DESCRIPTION
-    Build psqlodbc35w.dll, psqlodbc30a.dll, pgenlist.dll, pgenlista.dll
+    Build awspsqlodbcw.dll, awspsqlodbca.dll, pgenlist.dll, pgenlista.dll
     and pgxalib.dll for both x86 and x64 platforms.
 .PARAMETER Target
     Specify the target of MSBuild. "Build"(default), "Rebuild" or

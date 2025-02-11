@@ -8,19 +8,19 @@ AUTOMAKE_OPTIONS = 1.8 foreign
 
 ACLOCAL_AMFLAGS = -I config
 
-pkglib_LTLIBRARIES = psqlodbcw.la psqlodbca.la
+pkglib_LTLIBRARIES = awspsqlodbcw.la awspsqlodbca.la
 
-psqlodbcw_la_CPPFLAGS = -DUNICODE_SUPPORT -DSQL_WCHART_CONVERT
+awspsqlodbcw_la_CPPFLAGS = -DUNICODE_SUPPORT -DSQL_WCHART_CONVERT
 
 if WITH_AWSRDSODBC
 # -module MUST be part of _LDFLAGS to prevent libtool reporting
-# the following error: libtool library 'psqlodbcw.la' must begin with 'lib'
+# the following error: libtool library 'awspsqlodbcw.la' must begin with 'lib'
 # See https://www.gnu.org/software/automake/manual/html_node/Libtool-Modules.html.
-psqlodbcw_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_unicode -laws-rds-odbc-w
-psqlodbca_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_ansi -laws-rds-odbc-a
+awspsqlodbcw_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_unicode -laws-rds-odbc-w
+awspsqlodbca_la_LDFLAGS = -module -L@AWS_RDS_ODBC_PATH@/build_ansi -laws-rds-odbc-a
 else
-psqlodbcw_la_LDFLAGS = -module
-psqlodbca_la_LDFLAGS = -module
+awspsqlodbcw_la_LDFLAGS = -module
+awspsqlodbca_la_LDFLAGS = -module
 endif
 
 AM_CFLAGS = @CFLAGS@
@@ -28,7 +28,7 @@ AM_CPPFLAGS = @CPPFLAGS@
 AM_CXXFLAGS = @CXXFLAGS@
 AM_LDFLAGS = @LDFLAGS@ -no-undefined -avoid-version -export-symbols-regex '^SQL'
 
-psqlodbca_la_SOURCES = \
+awspsqlodbca_la_SOURCES = \
 	info.c bind.c columninfo.c connection.c convert.c drvconn.c \
 	environ.c execute.c lobj.c misc.c options.c \
 	pgtypes.c psqlodbc.c qresult.c results.c parse.c \
@@ -42,7 +42,7 @@ psqlodbca_la_SOURCES = \
 	psqlodbc.h qresult.h resource.h statement.h tuple.h \
 	version.h pgenlist.h mylog.h xalibname.h
 
-psqlodbcw_la_SOURCES = $(psqlodbca_la_SOURCES) \
+awspsqlodbcw_la_SOURCES = $(awspsqlodbca_la_SOURCES) \
 	odbcapi30w.c odbcapiw.c win_unicode.c
 
 

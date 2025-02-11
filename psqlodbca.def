@@ -1,4 +1,4 @@
-LIBRARY psqlodbc30a
+LIBRARY awspsqlodbca
 EXPORTS
 ;SQLAllocConnect @1
 ;SQLAllocEnv @2

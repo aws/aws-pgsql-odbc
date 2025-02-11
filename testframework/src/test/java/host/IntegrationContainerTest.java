@@ -199,7 +199,7 @@ public class IntegrationContainerTest {
         .withEnv("ODBCINI", ODBCINI_LOCATION)
         .withEnv("ODBCINST", ODBCINSTINI_LOCATION)
         .withEnv("ODBCSYSINI", "/app/build/test")
-        .withEnv("TEST_DRIVER", "/app/.libs/psqlodbcw.so");
+        .withEnv("TEST_DRIVER", "/app/.libs/awspsqlodbcw.so");
   }
 
   private void installPrerequisites() throws Exception {

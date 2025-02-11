@@ -1,4 +1,4 @@
-LIBRARY psqlodbc35w
+LIBRARY awspsqlodbcw
 EXPORTS
 ;;SQLAllocConnect @1
 ;;SQLAllocEnv @2

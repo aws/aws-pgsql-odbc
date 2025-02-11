@@ -83,8 +83,8 @@ jobs:
         with:
           name: installers-macos
           path: |
-            ./.libs/psqlodbca.so
-            ./.libs/psqlodbcw.so
+            ./.libs/awspsqlodbca.so
+            ./.libs/awspsqlodbcw.so
           retention-days: 5
           if-no-files-found: error
 
