@@ -1,20 +1,22 @@
 # Building the AWS ODBC Driver for PostgreSQL
 
 ## Table of Contents
-- [Windows](#windows)
+- [Building the AWS ODBC Driver for PostgreSQL](#building-the-aws-odbc-driver-for-postgresql)
+  - [Table of Contents](#table-of-contents)
+  - [Windows](#windows)
     - [Prerequisites](#prerequisites)
     - [Build the driver](#build-the-driver)
-- [macOS](#macos)
+  - [macOS](#macos)
     - [Prerequisites](#prerequisites-1)
     - [Build the driver](#build-the-driver-1)
-- [Amazon Linux using Graviton](#amazon-linux-using-graviton)
+  - [Amazon Linux using Graviton](#amazon-linux-using-graviton)
     - [Prerequisites](#prerequisites-2)
     - [Build the driver](#build-the-driver-2)
 
 ## Windows
 
 ### Prerequisites
-1. Download the CMake Windows x64 Installer from https://cmake.org/download/ and install CMake using the installer. When going through the install, ensure that adding CMake to the PATH is selected.
+1. Download and install CMake using [CMake Windows x64 Installer](https://cmake.org/download/). When going through the install, ensure that adding CMake to the PATH is selected.
 1. Refer to [Install Microsoft Visual Studio](https://github.com/aws/aws-rds-odbc/blob/main/docs/InstallMicrosoftVisualStudio.md) to install Microsoft Visual Studio.
 1. Add the path to `msbuild.exe` to the Path user environment variable by doing the following inside PowerShell.
     1. Change to the Visual Studio installation directory.
@@ -38,9 +40,13 @@
 ![Configure PostgreSQL directories](../img/ConfigurePostgreSQLDirectories.png?raw=true "Configure PostgreSQL directories")
 
 ### Build the driver
-Inside PowerShell, run `.\windows\buildall.ps1`. This builds the following.
-- AWS SDK for C++
-- AWS RDS Library for ODBC Drivers(https://github.com/aws/aws-rds-odbc)
+> [!NOTE]\
+> This driver requires the [AWS RDS Library for ODBC Drivers](https://github.com/aws/aws-rds-odbc), before building the driver, ensure the library is available at the `libs` directory of this project.
+> If the AWS RDS Library does not exist, run `git submodule update --init --recursive` to clone it.
+
+Inside PowerShell, run `.\windows\buildall.ps1`. This builds the following:
+- [AWS SDK for C++](https://github.com/aws/aws-sdk-cpp)
+- [AWS RDS Library for ODBC Drivers](https://github.com/aws/aws-rds-odbc)
 - The driver
 - The Windows installer for the driver
 
@@ -69,10 +75,14 @@ Inside PowerShell, run `.\windows\buildall.ps1`. This builds the following.
    ```
 
 ### Build the driver
-Inside a terminal, run `./macos/buildall Release`. This builds the following.
-- AWS SDK for C++.
-- AWS RDS Library for ODBC Drivers(https://github.com/aws/aws-rds-odbc).
-- Inside the `.libs` subdirectory, the ANSI driver `psqlodbca.so` and the Unicode driver `psqlodbcw.so`. 
+> [!NOTE]\
+> This driver requires the [AWS RDS Library for ODBC Drivers](https://github.com/aws/aws-rds-odbc), before building the driver, ensure the library is available at the `libs` directory of this project.
+> If the AWS RDS Library does not exist, run `git submodule update --init --recursive` to clone it.
+
+Inside a terminal, run `./macos/buildall Release`. This builds the following:
+- [AWS SDK for C++](https://github.com/aws/aws-sdk-cpp).
+- [AWS RDS Library for ODBC Drivers](https://github.com/aws/aws-rds-odbc).
+- Inside the `.libs` subdirectory, the ANSI driver `psqlodbca.so` and the Unicode driver `psqlodbcw.so`.
 
 ## Amazon Linux using Graviton
 ### Prerequisites
@@ -104,8 +114,11 @@ Inside a terminal, run `./macos/buildall Release`. This builds the following.
    ```
    
 ### Build the driver
-Inside a bash shell, run `./linux/buildall Release`. This builds the following.
-- AWS SDK for C++.
-- AWS RDS Library for ODBC Drivers(https://github.com/aws/aws-rds-odbc).
-- Inside the `.libs` subdirectory, the ANSI driver `psqlodbca.so` and the Unicode driver `psqlodbcw.so`.
+> [!NOTE]\
+> This driver requires the [AWS RDS Library for ODBC Drivers](https://github.com/aws/aws-rds-odbc), before building the driver, ensure the library is available at the `libs` directory of this project.
+> If the AWS RDS Library does not exist, run `git submodule update --init --recursive` to clone it.
 
+Inside a bash shell, run `./linux/buildall Release`. This builds the following:
+- [AWS SDK for C++](https://github.com/aws/aws-sdk-cpp).
+- [AWS RDS Library for ODBC Drivers](https://github.com/aws/aws-rds-odbc).
+- Inside the `.libs` subdirectory, the ANSI driver `psqlodbca.so` and the Unicode driver `psqlodbcw.so`.

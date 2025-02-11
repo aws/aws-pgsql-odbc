@@ -16,7 +16,7 @@ Add-Type -AssemblyName presentationframework
 [xml]$XAML = @'
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="470" Width="539" BorderBrush="Black" Margin="30,0,0,0">
+        Title="Windows Build Configuration" Height="470" Width="539" BorderBrush="Black" Margin="30,0,0,0">
     <Grid>
         <StackPanel Height="600" HorizontalAlignment="Left" Margin="42,29,0,0" Name="stackPanel1" VerticalAlignment="Top" Width="431" Opacity="1">
             <StackPanel Orientation="Horizontal" Height="50">
@@ -117,7 +117,7 @@ $buttonEnd_clicked.Invoke({
 $button_click =
 {
     ($sender, $e) = $this, $_
-    # senderi$thisj
+    # senderï¿½i$thisï¿½j
 	[void] [Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
 	$d = New-Object Windows.Forms.FolderBrowserDialog
 	if ($d.ShowDialog() -eq "OK") {
@@ -139,7 +139,7 @@ for ($i = 1; $i -lt 17; $i++)
 $button_click2 =
 {
     ($sender, $e) = $this, $_
-    # senderi$thisj
+    # senderï¿½i$thisï¿½j
 	[void] [Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms')
 	$d = New-Object Windows.Forms.OpenFileDialog
 	$d.InitialDirectory = $scriptPath

@@ -23,7 +23,7 @@
 .PARAMETER MSToolsVersion
     This option is deprecated. MSBuild ToolsVersion is detemrined
     automatically unless this option is specified. Currently "4.0",
-    "12.0" or "14.0" is available.
+    "12.0", "14.0" OR "17.0" is available.
 .PARAMETER Configuration
     Specify "Release"(default) or "Debug".
 .PARAMETER BuildConfigPath
@@ -63,7 +63,7 @@ Param(
 [ValidateSet("Win32", "x64", "both")]
 [string]$Platform="both",
 [string]$Toolset,
-[ValidateSet("", "4.0", "12.0", "14.0")]
+[ValidateSet("", "4.0", "12.0", "14.0", "17.0")]
 [string]$MSToolsVersion,
 [ValidateSet("Debug", "Release")]
 [String]$Configuration="Release",
