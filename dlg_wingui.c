@@ -827,7 +827,7 @@ failover_optionsProc(HWND hdlg,
 			ci = (ConnInfo *) lParam;
 			// Window Name
 			char	fbuf[64];
-			STRCPY_FIXED(fbuf, "FAILOVER SETTINGS (%s)");
+			STRCPY_FIXED(fbuf, "Failover Settings (%s)");
 			SPRINTF_FIXED(strbuf, fbuf, ci->dsn);
 			SetWindowText(hdlg, strbuf);
 			// Draw Window Options
