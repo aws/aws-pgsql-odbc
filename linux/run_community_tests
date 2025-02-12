@@ -31,5 +31,5 @@
 
 export ROOT_REPO_PATH=$(cd "$(dirname "$0")/.."; pwd -P)
 cd ${ROOT_REPO_PATH}/test
-ldd ${ROOT_REPO_PATH}/.libs/psqlodbcw.so
+ldd ${ROOT_REPO_PATH}/.libs/awspsqlodbcw.so
 make installcheck

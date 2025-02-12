@@ -32,7 +32,7 @@ Set record = view.Fetch
 Do While Not record Is Nothing
 
 	filename = record.StringData(3)
-	pos = InStr(filename, "|psqlodbc")
+	pos = InStr(filename, "|awspsqlodbc")
 
 	If (pos > 0) Then
 

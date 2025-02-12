@@ -55,9 +55,9 @@ static void finalize_global_cs(void)
 }
 
 #ifdef	UNICODE_SUPPORT
-CSTR	psqlodbc = "psqlodbc35w";
+CSTR	psqlodbc = "awspsqlodbcw";
 #else
-CSTR	psqlodbc = "psqlodbc30a";
+CSTR	psqlodbc = "awspsqlodbca";
 #endif
 
 

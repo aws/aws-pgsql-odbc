@@ -7,7 +7,7 @@ To run the regression tests, you must have a PostgreSQL server running and
 accepting connections from the host where you run the regression tests.
 
 By default in Linux, the regression tests use the driver built from the
-parent directory, ../.libs/psqlodbcw.so, for the tests. You can edit
+parent directory, ../.libs/awspsqlodbcw.so, for the tests. You can edit
 odbcinst.ini in this directory to test a different version.
 
 Running the tests

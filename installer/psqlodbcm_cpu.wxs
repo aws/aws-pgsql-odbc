@@ -52,32 +52,32 @@
     <Directory Id="INSTALLFOLDER" />
 
     <!-- PostgreSQL -->
-    <File Name="psqlodbc30a.dll" Source="$(BINBASE)\$(ANSIFOLDER)\psqlodbc30a.dll">
-      <CopyFile DestinationName="psqlodbc30a.dll" />
-      <ODBCDriver Id="Psqlodbc_9.0_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL ($(Platform))">
+    <File Name="awspsqlodbca.dll" Source="$(BINBASE)\$(ANSIFOLDER)\awspsqlodbca.dll">
+      <CopyFile DestinationName="awspsqlodbca.dll" />
+      <ODBCDriver Id="Awspsqlodbc_1.0_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL ($(Platform))">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
-      <ODBCDriver Id="Psqlodbc_11_newid_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL">
+      <ODBCDriver Id="Awspsqlodbc_11_newid_Driver_ANSI" Name="AWS ANSI ODBC Driver for PostgreSQL">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
     </File>
     <File Name="pgenlista.dll" Source="$(BINBASE)\$(ANSIFOLDER)\pgenlista.dll" />
 <?if $(NoPDB) != True ?>
-    <File Name="psqlodbc30a.pdb" Source="$(BINBASE)\$(ANSIFOLDER)\psqlodbc30a.pdb" />
+    <File Name="awspsqlodbca.pdb" Source="$(BINBASE)\$(ANSIFOLDER)\awspsqlodbca.pdb" />
     <File Name="pgenlista.pdb" Source="$(BINBASE)\$(ANSIFOLDER)\pgenlista.pdb" />
 <?endif ?>
-    <File Name="psqlodbc35w.dll" Source="$(BINBASE)\$(UNICODEFOLDER)\psqlodbc35w.dll">
-      <CopyFile DestinationName="psqlodbc35w.dll" />
-      <ODBCDriver Id="Psqlodbc_9.0_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL ($(Platform))">
+    <File Name="awspsqlodbcw.dll" Source="$(BINBASE)\$(UNICODEFOLDER)\awspsqlodbcw.dll">
+      <CopyFile DestinationName="awspsqlodbcw.dll" />
+      <ODBCDriver Id="Awspsqlodbc_1.0_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL ($(Platform))">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
-      <ODBCDriver Id="Psqlodbc_11_newid_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL">
+      <ODBCDriver Id="Awspsqlodbc_11_newid_Driver" Name="AWS Unicode ODBC Driver for PostgreSQL">
         <Property Id="CPTimeout" Value="60" />
       </ODBCDriver>
     </File>
     <File Name="pgenlist.dll" Source="$(BINBASE)\$(UNICODEFOLDER)\pgenlist.dll" />
 <?if $(NoPDB) != True ?>
-    <File Name="psqlodbc35w.pdb" Source="$(BINBASE)\$(UNICODEFOLDER)\psqlodbc35w.pdb" />
+    <File Name="awspsqlodbcw.pdb" Source="$(BINBASE)\$(UNICODEFOLDER)\awspsqlodbcw.pdb" />
     <File Name="pgenlist.pdb" Source="$(BINBASE)\$(UNICODEFOLDER)\pgenlist.pdb" />
 <?endif ?>
 

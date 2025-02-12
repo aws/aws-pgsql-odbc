@@ -112,8 +112,8 @@ jobs:
           
       - name: Verify the builds
         run: |
-          dltest .libs/psqlodbca.so
-          dltest .libs/psqlodbcw.so
+          dltest .libs/awspsqlodbca.so
+          dltest .libs/awspsqlodbcw.so
       
       - name: Run the tests
         run: |
@@ -123,16 +123,16 @@ jobs:
       - name: Upload the ANSI driver
         uses: actions/upload-artifact@v4
         with:
-          name: psqlodbca.so
-          path: ./.libs/psqlodbca.so
+          name: awspsqlodbca.so
+          path: ./.libs/awspsqlodbca.so
           retention-days: 5
           if-no-files-found: error
   
       - name: Upload the Unicode driver
         uses: actions/upload-artifact@v4
         with:
-          name: psqlodbcw.so
-          path: ./.libs/psqlodbcw.so
+          name: awspsqlodbcw.so
+          path: ./.libs/awspsqlodbcw.so
           retention-days: 5
           if-no-files-found: error
     

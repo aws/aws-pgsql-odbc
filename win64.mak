@@ -1,7 +1,7 @@
 #
 # File:			win64.mak
 #
-# Description:		psqlodbc35w Unicode 64bit version Makefile.
+# Description:		awspsqlodbcw Unicode 64bit version Makefile.
 #			(can be built using platform SDK's buildfarm)
 #
 # Configurations:	Debug, Release
@@ -115,9 +115,9 @@ INC_OPT = $(INC_OPT) /I "$(ADD_INC)"
 !ENDIF
 
 !IF "$(ANSI_VERSION)" == "yes"
-MAINLIB = psqlodbc30a
+MAINLIB = awspsqlodbca
 !ELSE
-MAINLIB = psqlodbc35w
+MAINLIB = awspsqlodbcw
 !ENDIF
 MAINDLL = $(MAINLIB).dll
 XALIB = pgxalib

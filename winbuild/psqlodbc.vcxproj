@@ -100,13 +100,13 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(ANSI_VERSION)'=='yes'">
-    <TargetName>psqlodbc30a</TargetName>
+    <TargetName>awspsqlodbca</TargetName>
     <TargetType>ANSI</TargetType>
     <MAINDEF>$(srcPath)psqlodbca.def</MAINDEF>
     <DTCDLL>pgenlista</DTCDLL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(ANSI_VERSION)'!='yes'">
-    <TargetName>psqlodbc35w</TargetName>
+    <TargetName>awspsqlodbcw</TargetName>
     <TargetType>Unicode</TargetType>
     <MAINDEF>$(srcPath)psqlodbc.def</MAINDEF>
     <DTCDLL>pgenlist</DTCDLL>

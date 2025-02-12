@@ -261,13 +261,13 @@ PG_LIB
 
 ANSI_VERSION
 
-`no (If set to "yes", output dll name to psqlodbc30a.dll)`
+`no (If set to "yes", output dll name to awspsqlodbca.dll)`
 
 MSDTC
 
 `yes`
 
-1.  UNICODE is the default (psqlodbc35w.dll), unless ANSI_VERSION is selected (psqlodbc30a.dll)
+1.  UNICODE is the default (awspsqlodbcw.dll), unless ANSI_VERSION is selected (awspsqlodbca.dll)
 2.  libpq.dll is mandatory.
 3.  If MSDTC == Yes, `pgxalib.dll` is created.
 4.  If MSDTC is enabled, ANSI_VERSION also creates `pgenlista.dll`, or UNICODE creates `pgenlist.dll`.
@@ -291,7 +291,7 @@ The default build settings will create the following driver:
 
 1.  UNICODE support.
 2.  libpq is mandatory.
-3.  The driver filename is `psqlodbc35w.dll`.
+3.  The driver filename is `awspsqlodbcw.dll`.
 
 The build in Visual Studio could fail for the first time run. It is because the two projects has dependency on each other. The error could be like this. After rerun the build could succeed.
 

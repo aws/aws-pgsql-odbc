@@ -88,8 +88,8 @@
   <PropertyGroup Condition="'$(ANSI_VERSION)'=='yes'">
     <TargetName>psqlsetupa</TargetName>
     <TargetType>ANSI</TargetType>
-    <CALL_LIB>psqlodbc30a.lib</CALL_LIB>
-    <DELAY_LOAD_DLLS>psqlodbc30a.dll;pgenlista.dll</DELAY_LOAD_DLLS>
+    <CALL_LIB>awspsqlodbca.lib</CALL_LIB>
+    <DELAY_LOAD_DLLS>awspsqlodbca.dll;pgenlista.dll</DELAY_LOAD_DLLS>
     <ADD_DEFINES>
     </ADD_DEFINES>
     <RSC_DEFINES>
@@ -98,8 +98,8 @@
   <PropertyGroup Condition="'$(ANSI_VERSION)'!='yes'">
     <TargetName>psqlsetup</TargetName>
     <TargetType>Unicode</TargetType>
-    <CALL_LIB>psqlodbc35w.lib</CALL_LIB>
-    <DELAY_LOAD_DLLS>psqlodbc35w.dll;pgenlist.dll</DELAY_LOAD_DLLS>
+    <CALL_LIB>awspsqlodbcw.lib</CALL_LIB>
+    <DELAY_LOAD_DLLS>awspsqlodbcw.dll;pgenlist.dll</DELAY_LOAD_DLLS>
     <ADD_DEFINES>UNICODE_SUPPORT</ADD_DEFINES>
     <RSC_DEFINES>UNICODE_SUPPORT</RSC_DEFINES>
   </PropertyGroup>

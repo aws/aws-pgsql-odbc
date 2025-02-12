@@ -81,12 +81,12 @@
   <PropertyGroup Condition="'$(ANSI_VERSION)'=='yes'">
     <TargetName>pgenlista</TargetName>
     <TargetType>ANSI</TargetType>
-    <DriverName>psqlodbc30a</DriverName>
+    <DriverName>awspsqlodbca</DriverName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(ANSI_VERSION)'!='yes'">
     <TargetName>pgenlist</TargetName>
     <TargetType>Unicode</TargetType>
-    <DriverName>psqlodbc35w</DriverName>
+    <DriverName>awspsqlodbcw</DriverName>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='Win32'">

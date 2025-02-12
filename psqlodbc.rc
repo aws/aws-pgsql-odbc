@@ -292,8 +292,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 17,0,0,4
- PRODUCTVERSION 17,0,0,4
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
  FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -308,16 +308,17 @@ BEGIN
     BEGIN
         BLOCK "041104e4"
         BEGIN
-            VALUE "Comments", "PostgreSQL ANSI ODBC driver Japanese"
-            VALUE "CompanyName", "PostgreSQL Global Development Group"
-            VALUE "FileDescription", "PostgreSQL ODBC Driver (Japanese)"
-            VALUE "FileVersion", "17.00.0004"
-            VALUE "InternalName", "psqlodbc30a"
+            VALUE "Comments", "AWS ANSI ODBC driver for PostgreSQL Japanese"
+            VALUE "CompanyName", "Amazon.com Inc. or affiliates."
+            VALUE "FileDescription", "AWS ANSI ODBC driver for PostgreSQL (Japanese)"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "awspsqlodbca"
+            VALUE "LegalCopyright", "Modifications Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. Copyright (c) 1995, 2018, Oracle and/or its affiliates.\\0"
             VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoft・ｽE・ｽ・ｽE・ｽ is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
-            VALUE "OriginalFilename", "psqlodbc30a.dll"
+            VALUE "OriginalFilename", "awspsqlodbca.dll"
             VALUE "PrivateBuild", "for Japanese by Hiroshi Inoue & Hiroshi Saito"
-            VALUE "ProductName", "PostgreSQL"
-            VALUE "ProductVersion", "17.00.0004"
+            VALUE "ProductName", "AWSpsqlODBC"
+            VALUE "ProductVersion", "1.0.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -658,8 +659,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 17,0,0,4
- PRODUCTVERSION 17,0,0,4
+ FILEVERSION 1,0,0,0
+ PRODUCTVERSION 1,0,0,0
  FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -674,16 +675,16 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "Comments", "PostgreSQL ANSI ODBC driver"
-            VALUE "CompanyName", "PostgreSQL Global Development Group"
-            VALUE "FileDescription", "PostgreSQL ODBC Driver (English)"
-            VALUE "FileVersion", "17.00.0004"
-            VALUE "InternalName", "psqlodbc30a"
-            VALUE "LegalCopyright", "Copyright "
+            VALUE "Comments", "AWS ANSI ODBC driver for PostgreSQL"
+            VALUE "CompanyName", "Amazon.com Inc. or affiliates."
+            VALUE "FileDescription", "AWS ANSI ODBC driver for PostgreSQL (English)"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "awspsqlodbca"
+            VALUE "LegalCopyright", "Modifications Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved. Copyright (c) 1995, 2018, Oracle and/or its affiliates.\\0"
             VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoft? is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
-            VALUE "OriginalFilename", "psqlodbc30a.dll"
-            VALUE "ProductName", "PostgreSQL"
-            VALUE "ProductVersion", "17.00.0004"
+            VALUE "OriginalFilename", "awspsqlodbca.dll"
+            VALUE "ProductName", "AWSpsqlODBC"
+            VALUE "ProductVersion", "1.0.0.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -785,6 +786,10 @@ STRINGTABLE
 BEGIN
     IDC_LIMITLESS_MODE_LAZY "lazy"
     IDC_LIMITLESS_MODE_IMMEDIATE "immediate"
+END
+
+STRINGTABLE
+BEGIN
     IDS_SETUP               "Setup"
 END
 
