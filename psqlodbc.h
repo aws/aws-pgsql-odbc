@@ -689,7 +689,8 @@ typedef struct
 	char		limitless_mode[MEDIUM_REGISTRY_LEN];
 	Int4		limitless_monitor_interval_ms;
 	char		limitless_service_id[MEDIUM_REGISTRY_LEN];
-	char		password_required;
+    char        log_dir[MEDIUM_REGISTRY_LEN];
+    char        password_required;
 	char		conn_settings_in_str;
 	char		pqopt_in_str;
 	pgNAME		conn_settings;

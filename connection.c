@@ -55,6 +55,7 @@
 
 #include <authentication/authentication_provider.h>
 #include <limitless/limitless_monitor_service.h>
+#include <util/rds_logger_service.h>
 
 #define	SAFE_STR(s)	(NULL != (s) ? (s) : "(null)")
 
@@ -1114,6 +1115,7 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_connect_timeout);
 #endif
 
+    initialize_rds_logger(ci->log_dir);
 	return 1;
 }
 
