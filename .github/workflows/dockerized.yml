@@ -43,6 +43,10 @@ jobs:
           path: ./libs/aws-rds-odbc
           token: ${{secrets.CLONE_PAT}}
 
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive
+
       - name: 'Set up JDK'
         uses: actions/setup-java@v4
         with:
