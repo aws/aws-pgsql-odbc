@@ -11,7 +11,7 @@ on:
     - '!REL-*-mimalloc'
   pull_request:
     branches:
-    - "*"
+    - "**"
   
 env:
   # Configuration type to build.
