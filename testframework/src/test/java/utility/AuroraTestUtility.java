@@ -328,6 +328,7 @@ public class AuroraTestUtility {
             .dbShardGroupIdentifier(shardIdentifier)
             .minACU(MIN_ACU)
             .maxACU(MAX_ACU)
+            .publiclyAccessible(true)
             .build();
     rdsClient.createDBShardGroup(shardGroupRequest);
 
