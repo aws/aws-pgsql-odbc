@@ -314,7 +314,7 @@ jobs:
         shell: cmd
         run: |
           dotnet tool install --global wix
-          wix extension add --global WixToolset.UI.wixext/5.0.0
+          wix extension add --global WixToolset.UI.wixext/5.0.2
   
       - name: Cache AWS SDK libraries
         id: cache-dynamic-aws-sdk

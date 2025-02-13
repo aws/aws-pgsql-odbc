@@ -9,7 +9,7 @@ WiX may be downloaded from:
 In addition to the base package, the UI extension is required:
 
   dotnet tool install --global wix
-  wix extension add --global WixToolset.UI.wixext/5.0.0
+  wix extension add --global WixToolset.UI.wixext/5.0.2
 
 
 HOW TO BUILD

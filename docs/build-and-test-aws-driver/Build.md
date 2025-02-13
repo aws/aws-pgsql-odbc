@@ -31,7 +31,7 @@
 1. Use the following steps inside PowerShell to install WiX.
    ```PowerShell
    dotnet tool install --global wix
-   wix extension add --global WixToolset.UI.wixext/5.0.0
+   wix extension add --global WixToolset.UI.wixext/5.0.2
    ```
 1. Download and run the latest 17.x Windows x86-64 installer of PostgreSQL from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads. Accept all of the defaults during the installation. During the installation, make note of the directory used during the installation. This will be needed below.
 1. Run `.\editConfiguration.bat` to open the GUI to edit the PostgreSQL settings.
