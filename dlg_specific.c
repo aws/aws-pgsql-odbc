@@ -18,10 +18,12 @@
 /* Multibyte support	Eiji Tokuya 2001-03-15 */
 
 #include <ctype.h>
+
 #include "dlg_specific.h"
 #include "misc.h"
-
 #include "pgapifunc.h"
+
+#include <limitless/limitless_monitor_service.h>
 
 #define	NULL_IF_NULL(a) ((a) ? ((const char *)(a)) : "(null)")
 CSTR	ENTRY_TEST = " @@@ ";
