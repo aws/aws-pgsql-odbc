@@ -1193,7 +1193,8 @@ MYLOG(MIN_LOG_LEVEL, "leaving %p retval=%d status=%d\n", stmt, retval, stmt->sta
 
 	if (SQL_ERROR == retval && conn->connInfo.enable_failover) {
 		PGAPI_FreeStmt(hstmt, SQL_DROP);
-		if (failover_connection(conn->connInfo.cluster_id, conn)) {
+		// TODO: sql_state parameter needs to be something other than ""
+		if (failover_connection(conn->connInfo.cluster_id, conn, "")) {
 			MYLOG(0, "Original connection terminated, failover triggered to new Connection.");
 			HSTMT new_hsmt;
 			PGAPI_AllocStmt(conn, &new_hsmt, 0);
