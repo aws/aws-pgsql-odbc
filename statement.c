@@ -1307,7 +1307,9 @@ static const struct
 	{ STMT_COUNT_FIELD_INCORRECT, "07002", "07002" },
 	{ STMT_INVALID_NULL_ARG, "HY009", "S1009" },
 	{ STMT_NO_RESPONSE, "08S01", "08S01" },
-	{ STMT_COMMUNICATION_ERROR, "08S01", "08S01" }
+	{ STMT_COMMUNICATION_ERROR, "08S01", "08S01" },
+    { STMT_FAILOVER_SUCCESS_ERROR, "08S02", "08S02" }, /* The active SQL connection has changed. */
+    { STMT_UNKNOWN_TRANSACTION_ERROR, "08007", "08007" }, /* Transaction resolution unknown. */
 };
 
 static PG_ErrorInfo *
@@ -3414,4 +3416,14 @@ void copy_statement(StatementClass* dest, StatementClass* src) {
 	#elif defined(POSIX_THREADMUTEX_SUPPORT)
 	dest->cs;
 	#endif /* WIN_MULTITHREAD_SUPPORT */
+}
+
+char *SC_get_sqlstate(StatementClass *self) {
+    int rc = self->__error_number;
+    rc -= LOWEST_STMT_ERROR;
+    if (rc < 0 ||
+        rc >= sizeof(Statement_sqlstate) / sizeof(Statement_sqlstate[0])) {
+        rc = 1 - LOWEST_STMT_ERROR;
+    }
+    return Statement_sqlstate[rc].ver3str;
 }
