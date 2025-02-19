@@ -59,7 +59,7 @@ Inside PowerShell, run `.\windows\buildall.ps1`. This builds the following:
    ```
 1. Run the following command to install the build dependencies.
    ```bash
-   brew install autoconf automake cmake curl googletest libtool libpq unixodbc zlib
+   brew install autoconf automake cmake curl googletest libtool libpq unixodbc zlib gflags postgresql
    ```
 1. Install the Xcode Command Line tools using one of the following methods.
    1. Install Xcode from the App Store
@@ -71,7 +71,7 @@ Inside PowerShell, run `.\windows\buildall.ps1`. This builds the following:
    [iODBC Driver Manager: iODBC Downloads](https://www.iodbc.org/wiki/iodbcWiki/Downloads). When the installation is complete, add `/Library/Application Support/iODBC/bin` to the `PATH` environment variable.
    Example:
    ```Bash
-   export PATH=PATH:/Library/Application Support/iODBC/bin`
+   export PATH=$PATH:/Library/Application\ Support/iODBC/bin
    ```
 
 ### Build the driver
