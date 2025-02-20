@@ -458,7 +458,7 @@ limitless_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
 		SendDlgItemMessage(hdlg, IDC_LIMITLESS_MODE, CB_ADDSTRING, 0, (WPARAM)buff);
 	}
 	SendDlgItemMessage(hdlg, IDC_LIMITLESS_MODE, CB_SETCURSEL, selidx, (WPARAM)0);
-	SetWindowSubclass(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), ListBoxProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), DefSubclassProc, 0, 0);
 
 	limitless_optionsDlgEnable(hdlg, ci);
 
