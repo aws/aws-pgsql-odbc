@@ -318,7 +318,7 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 		"IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s;" \
 		"APPID=%s;SECRETID=%s;" \
 		"LIMITLESSENABLED=%d;LIMITLESSMODE=%s;LIMITLESSMONITORINTERVALMS=%u;LIMITLESSSERVICEID=%s;" \
-		"ENABLECLUSTERFAILOVER=%d;FAILOVERMODE=%s;HOSTPATTERN=%s;TOPOLOGYREFRESHRATE=%u;TOPOLOGYHIGHREFRESHRATE=%u;IGNORETOPOLOGYREQUEST=%u;",
+		"ENABLECLUSTERFAILOVER=%d;FAILOVERMODE=%s;READERHOSTSELECTORSTRATEGY=%s;HOSTPATTERN=%s;CLUSTER_ID=%s;TOPOLOGYREFRESHRATE=%u;TOPOLOGYHIGHREFRESHRATE=%u;IGNORETOPOLOGYREQUEST=%u;FAILOVERTIMEOUT=%u",
 		got_dsn ? "DSN" : "DRIVER",
 		got_dsn ? ci->dsn : ci->drivername,
 		ci->database,
@@ -346,11 +346,13 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 		ci->limitless_service_id,
 		ci->enable_failover,
 		ci->failover_mode,
+		ci->reader_host_selector_strategy,
 		ci->host_pattern,
 		ci->cluster_id,
 		ci->topology_refresh,
 		ci->topology_high_refresh,
-		ci->ignore_topology_refresh
+		ci->ignore_topology_refresh,
+		ci->failover_timeout
 		);
     MYLOG(MIN_LOG_LEVEL, "%s connect_string=%s\n", __FUNCTION__, connect_string);
 	if (olen < 0 || olen >= nlen)
@@ -887,6 +889,8 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		ci->enable_failover = atoi(value);
 	else if (stricmp(attribute, INI_FAILOVER_MODE) == 0)
 		STRCPY_FIXED(ci->failover_mode, value);
+    else if (stricmp(attribute, INI_READER_STRATEGY) == 0)
+        STRCPY_FIXED(ci->reader_host_selector_strategy, value);
 	else if (stricmp(attribute, INI_HOST_PATTERN) == 0)
 		STRCPY_FIXED(ci->host_pattern, value);
 	else if (stricmp(attribute, INI_CLUSTER_ID) == 0)
@@ -897,6 +901,8 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		ci->topology_high_refresh = atoi(value);
 	else if (stricmp(attribute, INI_IGNORE_TOPOLOGY_REQUEST_RATE) == 0)
 		ci->ignore_topology_refresh = atoi(value);
+    else if (stricmp(attribute, INI_FAILOVER_TIMEOUT) == 0)
+        ci->failover_timeout = atoi(value);
 	else
 		found = FALSE;
 
@@ -966,10 +972,10 @@ getCiDefaults(ConnInfo *ci)
 	ci->xa_opt = DEFAULT_XAOPT;
 #endif /* _HANDLE_ENLIST_IN_DTC_ */
 	// Failover - Set default values in Connection Info
-	STRCPY_FIXED(ci->failover_mode, DEFAULT_FAILOVER_MODE);
 	ci->topology_refresh = DEFAULT_TOPOLOGY_REFRESH;
 	ci->topology_high_refresh = DEFAULT_TOPOLOGY_HIGH_REFRESH;
 	ci->ignore_topology_refresh = DEFAULT_IGNORE_TOPOLOGY_REQUEST;
+	ci->failover_timeout = DEFAULT_FAILOVER_TIMEOUT;
 }
 
 int
@@ -1286,9 +1292,10 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	// Failover - Load values from profile into Connection Info
 	if (SQLGetPrivateProfileString(DSN, INI_ENABLE_CLUSTER_FAILOVER, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		ci->enable_failover = atoi(temp);
-
 	if (SQLGetPrivateProfileString(DSN, INI_FAILOVER_MODE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->failover_mode, temp);
+    if (SQLGetPrivateProfileString(DSN, INI_READER_STRATEGY, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+        STRCPY_FIXED(ci->reader_host_selector_strategy, temp);
 	if (SQLGetPrivateProfileString(DSN, INI_HOST_PATTERN, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->host_pattern, temp);
 	if (SQLGetPrivateProfileString(DSN, INI_CLUSTER_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
@@ -1300,8 +1307,10 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 		ci->topology_high_refresh = atoi(temp);
 	if (SQLGetPrivateProfileString(DSN, INI_IGNORE_TOPOLOGY_REQUEST_RATE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		ci->ignore_topology_refresh = atoi(temp);
+    if (SQLGetPrivateProfileString(DSN, INI_FAILOVER_TIMEOUT, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+      ci->failover_timeout = atoi(temp);
 
-	/* Allow override of odbcinst.ini parameters here */
+    /* Allow override of odbcinst.ini parameters here */
 	get_Ci_Drivers(DSN, ODBC_INI, &(ci->drivers));
 	STR_TO_NAME(ci->drivers.drivername, drivername);
 
@@ -1339,15 +1348,17 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 		 ci->show_oid_column,
 		 ci->fake_oid_index,
 		 ci->show_system_tables);
-	MYLOG(DETAIL_LOG_LEVEL, "          failover_enabled='%d',failover_mode='%s',host_pattern='%s',cluster_id='%s'," \
-		"topology_refresh='%u',topology_high_refresh='%u',ignore_topology_refresh='%u'\n",
+	MYLOG(DETAIL_LOG_LEVEL, "          failover_enabled='%d',failover_mode='%s',reader_host_selector_strategy='%s',host_pattern='%s',cluster_id='%s'," \
+		"topology_refresh='%u',topology_high_refresh='%u',ignore_topology_refresh='%u',failover_timeout='%u'\n",
 		 ci->enable_failover,
 		 ci->failover_mode,
+		 ci->reader_host_selector_strategy,
 		 ci->host_pattern,
 		 ci->cluster_id,
 		 ci->topology_refresh,
 		 ci->topology_high_refresh,
-		 ci->ignore_topology_refresh);
+		 ci->ignore_topology_refresh,
+		 ci->failover_timeout);
 	{
 #ifdef	NOT_USED
 		char	*enc = (char *) check_client_encoding(ci->conn_settings);
@@ -1704,7 +1715,7 @@ writeDSNinfo(const ConnInfo *ci)
 								 INI_FETCHREFCURSORS,
 								 temp,
 								 ODBC_INI);
-	// Failover - Write Connection Info values into Proifle
+	// Failover - Write Connection Info values into Profile
 	// Bool
 	ITOA_FIXED(temp, ci->enable_failover);
 	SQLWritePrivateProfileString(DSN,
@@ -1715,6 +1726,10 @@ writeDSNinfo(const ConnInfo *ci)
 	SQLWritePrivateProfileString(DSN,
 								 INI_FAILOVER_MODE,
 								 ci->failover_mode,
+								 ODBC_INI);
+    SQLWritePrivateProfileString(DSN,
+								 INI_READER_STRATEGY,
+								 ci->reader_host_selector_strategy,
 								 ODBC_INI);
 	SQLWritePrivateProfileString(DSN,
 								 INI_HOST_PATTERN,
@@ -1738,6 +1753,10 @@ writeDSNinfo(const ConnInfo *ci)
 	ITOA_FIXED(temp, ci->ignore_topology_refresh);
 	SQLWritePrivateProfileString(DSN,
 								 INI_IGNORE_TOPOLOGY_REQUEST_RATE,
+								 temp,
+								 ODBC_INI);
+	SQLWritePrivateProfileString(DSN,
+								 INI_FAILOVER_TIMEOUT,
 								 temp,
 								 ODBC_INI);
 #ifdef	_HANDLE_ENLIST_IN_DTC_
@@ -2284,11 +2303,13 @@ CC_copy_conninfo(ConnInfo *ci, const ConnInfo *sci)
 	// Failover - Copy Connection Info to another Connection Info
 	CORR_VALCPY(enable_failover);
 	CORR_STRCPY(failover_mode);
+	CORR_STRCPY(reader_host_selector_strategy);
 	CORR_STRCPY(host_pattern);
 	CORR_STRCPY(cluster_id);
 	CORR_VALCPY(topology_refresh);
 	CORR_VALCPY(topology_high_refresh);
 	CORR_VALCPY(ignore_topology_refresh);
+	CORR_VALCPY(failover_timeout);
 
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 	CORR_VALCPY(xa_opt);

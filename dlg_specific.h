@@ -328,20 +328,26 @@ extern "C" {
 /* Failover */
 #define INI_ENABLE_CLUSTER_FAILOVER          	"EnableClusterFailover"
 #define INI_FAILOVER_MODE                      	"FailoverMode"
+#define INI_READER_STRATEGY                     "ReaderHostSelectorStrategy"
 #define INI_HOST_PATTERN                       	"HostPattern"
 #define INI_CLUSTER_ID                         	"ClusterId"
 #define INI_TOPOLOGY_REFRESH_RATE              	"TopologyRefreshRate"
 #define INI_TOPOLOGY_HIGH_REFRESH_RATE          "TopologyHighRefreshRate"
 #define INI_IGNORE_TOPOLOGY_REQUEST_RATE        "IgnoreTopologyRequest"
+#define INI_FAILOVER_TIMEOUT                    "FailoverTimeout"
 
 #define FAILOVER_READER_OR_WRITER	"READER_OR_WRITER"
 #define FAILOVER_STRICT_READER		"STRICT_READER"
 #define FAILOVER_STRICT_WRITER		"STRICT_WRITER"
 
-#define DEFAULT_FAILOVER_MODE				FAILOVER_READER_OR_WRITER
+#define READER_STRATEGY_RANDOM "RANDOM"
+#define READER_STRATEGY_ROUND_ROBIN "ROUND_ROBIN"
+#define READER_STRATEGY_HIGHEST_WEIGHT "HIGHEST_WEIGHT"
+
 #define DEFAULT_TOPOLOGY_REFRESH			30000 // 30s
 #define DEFAULT_TOPOLOGY_HIGH_REFRESH		10000 // 10s
 #define DEFAULT_IGNORE_TOPOLOGY_REQUEST		30000 // 30s
+#define DEFAULT_FAILOVER_TIMEOUT		    300000 // 300s
 
 /*	prototypes */
 

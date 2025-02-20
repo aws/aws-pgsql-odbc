@@ -1119,15 +1119,17 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_socket_timeout,
 		ci->federation_cfg.http_client_connect_timeout);
 #endif
-	MYLOG(DETAIL_LOG_LEVEL, "          failover_enabled='%d',failover_mode='%s',host_pattern='%s',cluster_id='%s'," \
-		"topology_refresh='%u',topology_high_refresh='%u',ignore_topology_refresh='%u'",
+	MYLOG(DETAIL_LOG_LEVEL, "          failover_enabled='%d',failover_mode='%s',reader_host_selector_strategy='%s',host_pattern='%s',cluster_id='%s'," \
+		"topology_refresh='%u',topology_high_refresh='%u',ignore_topology_refresh='%u',failover_timeout='%u'",
 		ci->enable_failover,
 		ci->failover_mode,
+		ci->reader_host_selector_strategy,
 		ci->host_pattern,
 		ci->cluster_id,
 		ci->topology_refresh,
 		ci->topology_high_refresh,
-		ci->ignore_topology_refresh);
+		ci->ignore_topology_refresh,
+		ci->failover_timeout);
 
     initialize_rds_logger(ci->log_dir);
 	return 1;
@@ -1395,7 +1397,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 			return ret;
 	}
 
-	if (ci->enable_failover) {
+ 	if (ci->enable_failover) {
 		bool successful_start = false;
 		char conn_str[MAX_CONNECT_STRING];
 		makeConnectString(conn_str, ci, MAX_CONNECT_STRING);
