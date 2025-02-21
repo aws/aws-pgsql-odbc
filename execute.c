@@ -1193,14 +1193,17 @@ MYLOG(MIN_LOG_LEVEL, "leaving %p retval=%d status=%d\n", stmt, retval, stmt->sta
 
 	if (SQL_ERROR == retval && conn->connInfo.enable_failover) {
         const char *sqlstate = SC_get_sqlstate(stmt);
-	    PGAPI_FreeStmt(hstmt, SQL_DROP);
-        if (failover_connection(conn->connInfo.cluster_id, conn, sqlstate)) {
-			HSTMT new_hsmt;
-			PGAPI_AllocStmt(conn, &new_hsmt, 0);
+        FailoverResult res = failover_connection(conn->connInfo.cluster_id, sqlstate);
+        if (res.connection_changed) {
+            PGAPI_FreeStmt(hstmt, SQL_DROP); // TODO(karezche) verify if this is required
+            HSTMT new_hsmt;
+			PGAPI_AllocStmt(res.hdbc, &new_hsmt, 0);
 			StatementClass* new_stmt = (StatementClass *) new_hsmt;
 			SC_set_error(new_stmt, STMT_FAILOVER_SUCCESS_ERROR, "The active connection has changed due to a connection failure. Please re-configure session state if required.", NULL);
 			copy_statement(stmt, new_stmt);
-		};
+        } else {
+			SC_set_error(stmt, STMT_COMMUNICATION_ERROR, "Failoved failed.", NULL);
+        }
 	}
 
 	if (SQL_SUCCESS == retval &&
