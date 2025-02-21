@@ -97,13 +97,12 @@ void get_preferred_endpoint() {
     EXPECT_TRUE(row_count > 0);
 
     SQLCHAR preferred_router[2049] = {0};
-    int64_t greatest_weight = 0; // arbitrarily large value
+    float least_load_value = 999999.0f;
 
     while (SQL_SUCCEEDED(SQLFetch(stmt))) {
-        const double weight_scaling = 10;
-        int64_t weight = std::round(weight_scaling - (atof(reinterpret_cast<const char *>(load_value)) * weight_scaling));
-        if (weight > greatest_weight) {
-            greatest_weight = weight;
+        float _load_value = atof(reinterpret_cast<const char *>(load_value));
+        if (_load_value < least_load_value) {
+            least_load_value = _load_value;
             strncpy((char *)preferred_router, (char *)router_endpoint_value, 2049);
         }
     }
@@ -146,8 +145,6 @@ protected:
     }
 
     void SetUp() override {
-        get_preferred_endpoint(); // query endpoint directly to get the newest preferred endpoint
-        
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
         SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
@@ -181,6 +178,7 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
 
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
+    get_preferred_endpoint(); // query endpoint directly to get the newest preferred endpoint
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
         conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
@@ -211,10 +209,12 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
 }
 
 TEST_F(LimitlessIntegrationTest, MultipleConnections) {
-    auto connection_string = builder
+    auto connection_string_1 = builder
+        .withLimitlessEnabled(false).build();
+    auto connection_string_2 = builder
         .withLimitlessEnabled(true)
         .withLimitlessMode("immediate")
-        .withLimitlessMonitorIntervalMs(30 * 1000) 
+        .withLimitlessMonitorIntervalMs(1000) 
         .withLimitlessServiceId("test_id").build();
 
     std::vector<SQLHDBC> dbcs;
@@ -227,7 +227,7 @@ TEST_F(LimitlessIntegrationTest, MultipleConnections) {
         SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_DBC, env, &_dbc);
         EXPECT_EQ(SQL_SUCCESS, rc);
         if (rc != SQL_SUCCESS) return;
-        rc = SQLDriverConnect(_dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
+        rc = SQLDriverConnect(_dbc, nullptr, AS_SQLCHAR(connection_string_1.c_str()), SQL_NTS,
             conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
         EXPECT_EQ(SQL_SUCCESS, rc);
         if (rc != SQL_SUCCESS) return;
@@ -236,13 +236,13 @@ TEST_F(LimitlessIntegrationTest, MultipleConnections) {
     }
 
     // sleep so that the monitor will get a new endpoint
-    std::this_thread::sleep_for(std::chrono::milliseconds(30 * 1000));
-    get_preferred_endpoint(); // query endpoint directly to get the newest preferred endpoint
+    std::this_thread::sleep_for(std::chrono::milliseconds(4 * 1000));
 
     // open a new connection
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
+    get_preferred_endpoint(); // query endpoint directly to get the newest preferred endpoint
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string_2.c_str()), SQL_NTS,
         conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
     if (rc != SQL_SUCCESS) return;
