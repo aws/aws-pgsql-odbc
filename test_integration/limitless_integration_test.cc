@@ -202,6 +202,8 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
     SQLCHAR server_name[256];
     rc = SQLGetInfo(dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), &len);
     EXPECT_EQ(SQL_SUCCESS, rc);
+    std::cout << server_name << std::endl;
+    std::cout << preferred_endpoint << std::endl;
     EXPECT_TRUE(std::string((const char *)server_name) == preferred_endpoint);
 
     rc = SQLDisconnect(dbc);
@@ -250,6 +252,8 @@ TEST_F(LimitlessIntegrationTest, MultipleConnections) {
     rc = SQLGetInfo(dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), &len);
     EXPECT_EQ(SQL_SUCCESS, rc);
     if (rc != SQL_SUCCESS) return;
+    std::cout << server_name << std::endl;
+    std::cout << preferred_endpoint << std::endl;
     EXPECT_TRUE(std::string((const char *)server_name) == preferred_endpoint);
 
     rc = SQLDisconnect(dbc);
