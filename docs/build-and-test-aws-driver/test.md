@@ -11,7 +11,7 @@
     - [Community Tests](#community-tests)
 
 ## Prerequisites
-Follow the instructions inside [Building the AWS ODBC Driver for PostgreSQL](./Build.md) to build the driver.
+Follow the instructions inside [Building the AWS ODBC Driver for PostgreSQL](./build) to build the driver.
 
 ## Unit Tests
 
@@ -140,10 +140,10 @@ Run `.\gradlew --no-parallel test-community --info`
 Running the community tests will take several minutes to complete. The latest timings
 are below.
 
-|System|Time to complete|
-|-|-|
-|Apple M3 Max Macbook Pro with 36 GB of memory|17m 43s|
-|HP EliteBook with Intel Core Ultra 1.7GHz and 32 GB of memory|33m 25s|
+| System                                                        | Time to complete |
+|---------------------------------------------------------------|------------------|
+| Apple M3 Max Macbook Pro with 36 GB of memory                 | 17m 43s          |
+| HP EliteBook with Intel Core Ultra 1.7GHz and 32 GB of memory | 33m 25s          |
 
 The `descrec` test is currently failing. The test diff is below.
 ```
