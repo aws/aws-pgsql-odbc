@@ -4,7 +4,7 @@
 
 Amazon Aurora Limitless Database is a new type of database that can horizontally scale to handle millions of write transactions per second and manage petabytes of data. Users will be able to use the AWS PG ODBC Driver with Aurora Limitless Databases and optimize their experience using the Limitless Connection Feature. To learn more about Aurora Limitless Database, see the [Amazon Aurora Limitless documentation](https://aws.amazon.com/about-aws/whats-new/2023/11/amazon-aurora-limitless-database/).
 
-## Why use the the Limitless Connection Feature?
+## Why use the Limitless Connection Feature?
 
 Aurora Limitless Database introduces a new endpoint for the databases - the DB shard group (limitless) endpoint that's managed by Route 53. When connecting to Aurora Limitless Database, clients will connect using this endpoint, and be routed to a transaction router via Route 53. Unfortunately, Route 53 is limited in its ability to load balance, and can allow uneven work loads on transaction routers. The Limitless Connection Feature addresses this by performing client-side load balancing with load awareness. 
 
@@ -15,12 +15,12 @@ The following DSN fields on a DSN window should be filled when using the Limitle
 
 ### Limitless Connection Feature Parameters
 
-| Field             | Connection Option             | Value                                             | Default Value | Sample Value                  |
-|-------------------|-------------------------------|---------------------------------------------------|---------------|-------------------------------|
-| Enable Limitless  | ENABLELIMITLESS               | Enable or Disable Limitless Support               | 0             | 0                             |
-| Limitless Mode    | LIMITLESSMODE                 | Connection strategy with Limitless. <br>`immediate` to allow driver to immediately switch connection to a queried router<br>`lazy` to connect to a queried router on next connection | Null | `lazy` |
-| Monitor Interval  | LIMITLESSMONITORINTERVALMS    | Limitless router query interval in milliseconds   | 500           | 5000                          |
-| Service ID        | LIMITLESSSERVICEID            | A unique identifier for each cluster              | Null          | `my-limitless-sample`         |
+| Field            | Connection Option          | Value                                                                                                                                                                                | Default Value | Sample Value          |
+|------------------|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------|
+| Enable Limitless | LIMITLESSENABLED           | Set to 1 to enable Limitless support.                                                                                                                                                | 0             | 0                     |
+| Limitless Mode   | LIMITLESSMODE              | Connection strategy with Limitless. <br>`immediate` to allow driver to immediately switch connection to a queried router<br>`lazy` to connect to a queried router on next connection | Null          | `lazy`                |
+| Monitor Interval | LIMITLESSMONITORINTERVALMS | Limitless router query interval in milliseconds                                                                                                                                      | 5000          | 1000                  |
+| Service ID       | LIMITLESSSERVICEID         | A unique identifier for each cluster                                                                                                                                                 | Null          | `my-limitless-sample` |
 
 ### DSN Window Example
 ![DSN window example for Limitless Connection](img/limitless.png)

@@ -28,7 +28,7 @@ For more information on how to start using the AWS ODBC Driver for PostgreSQL, p
 
 ## Build and Test the Driver
 
-Please refer to the AWS Driver's [documentation](./docs/documentation) for details on how to use, build, and test the AWS ODBC Driver for PostgreSQL.
+Please refer to the AWS Driver's [documentation](./docs/documentation.md) for details on how to use, build, and test the AWS ODBC Driver for PostgreSQL.
 
 ## Documentation
 

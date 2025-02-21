@@ -19,16 +19,19 @@ GRANT rds_iam TO iam_user;
 ### DSN Window Configuration for IAM Authentication
 The following DSN fields on a DSN window should be filled when using IAM authentication.
 
-| Field             | Connection Option  | Value                                                                    | Default Value | Sample Value                  |
-|-------------------|--------------------|--------------------------------------------------------------------------|---------------|-------------------------------|
-| Auth Type         | AuthType           | Should be `iam`                                                          | `database`    | `iam`                         |
-| Server            | Server             | PostgreSQL instance server name                                          | Null          | `pg.us-east-1-rds.amazon.com` |
-| Port              | Port               | Port that the database is listening on                                   | Null          | 5432                          |
-| User Name         | UserName           | Database user name for IAM authentication                                | Null          | `iam_user`                    |
-| Region            | Region             | The region of the IAM authentication                                     | Null          | `us-east-1`                   |
-| Database          | Database           | Default database that a user will work on                                | Null          | `postgres`                    |
-| SSL Mode          | SSLMode            | The authentication SSL mode, should be `allow`, `prefer` or `require`    | `disable`     | `allow`                       |
-| Token Expiration  | TokenExpiration    | Token expiration in seconds, supported max value is 900                  | 900           | 900                           |
+| Field            | Connection Option  | Value                                                                    | Default Value | Sample Value                  |
+|------------------|--------------------|--------------------------------------------------------------------------|---------------|-------------------------------|
+| Auth Type        | AuthType           | Should be `iam`                                                          | `database`    | `iam`                         |
+| Server           | Server             | PostgreSQL instance server name                                          | Null          | `pg.us-east-1-rds.amazon.com` |
+| Port             | Port               | Port that the database is listening on                                   | Null          | 5432                          |
+| User Name        | UserName           | Database user name for IAM authentication                                | Null          | `iam_user`                    |
+| Region           | Region             | The region of the IAM authentication                                     | Null          | `us-east-1`                   |
+| Database         | Database           | Default database that a user will work on                                | Null          | `postgres`                    |
+| SSL Mode         | SSLMode            | The authentication SSL mode, should be `allow`, `prefer` or `require`    | `disable`     | `allow`                       |
+| Token Expiration | TokenExpiration    | Token expiration in seconds, supported max value is 900                  | 900           | 900                           |
 
 ### DSN Window Example
 ![DSN window example for IAM authentication](img/iam.png)
+
+### Sample Code
+[IAM Authentication Example](iam_authentication_sample.cpp)

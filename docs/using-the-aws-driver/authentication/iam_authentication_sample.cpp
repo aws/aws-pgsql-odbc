@@ -24,7 +24,7 @@
 // See the GNU General Public License, version 2.0, for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program. If not, see 
+// along with this program. If not, see
 // http://www.gnu.org/licenses/gpl-2.0.html.
 
 #ifdef WIN32
@@ -50,16 +50,15 @@ int main() {
 
     // Setup connection string
     const char *dsn = "my_dsn";
-    const char *user = "my_username";
-    const char *pwd = "my_password";
+    const char *user = "iam_db_user";
     const char *server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
     int port = 5432;
     const char *db = "postgres";
-    const char* limitless_config = "LIMITLESSENABLED=1;LIMITLESSMODE=immediate;LIMITLESSMONITORINTERVALMS=8000;LIMITLESSSERVICEID=my-limitless-sample";
+    const char* iam_config = "SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
 
     sprintf(reinterpret_cast<char *>(conn_in),
-            "DSN=%s;UID=%s;PWD=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;",
-            dsn, user, pwd, server, port, db, limitless_config);
+            "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;",
+            dsn, user, server, port, db, iam_config);
 
     // Setup
     SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
