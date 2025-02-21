@@ -318,12 +318,12 @@ public class IntegrationContainerTest {
         dbShardGroupIdentifier = DEFAULT_LIMITLESS_PREFIX + "shard-" + System.nanoTime();
       }
 
-      AuroraClusterInfo clusterInfo =
-          auroraUtil.createLimitlessCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, dbShardGroupIdentifier);
-
       // Comment out getting public IP to not add & remove from EC2 whitelist
       runnerIP = auroraUtil.getPublicIPAddress();
       auroraUtil.ec2AuthorizeIP(runnerIP);
+
+      AuroraClusterInfo clusterInfo =
+          auroraUtil.createLimitlessCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, dbShardGroupIdentifier);
 
       dbConnStrSuffix = clusterInfo.getClusterSuffix();
       dbHostCluster = clusterInfo.getClusterEndpoint();

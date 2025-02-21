@@ -387,6 +387,9 @@ public class AuroraTestUtility {
     } catch (Exception e) {
       throw new UnknownHostException("Unable to get IP");
     }
+    if (StringUtils.isNullOrEmpty(ip)) {
+      throw new Error("Unable to get IP");
+    }
     return ip;
   }
 
