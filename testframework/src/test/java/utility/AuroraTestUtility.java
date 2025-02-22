@@ -230,7 +230,6 @@ public class AuroraTestUtility {
 
     final Tag testRunnerTag = Tag.builder().key("env").value("test-runner").build();
 
-    // Create the limitless cluster
     final String engineVersion = getAuroraDbEngineVersion(dbEngineVersion);
     final CreateDbClusterRequest dbClusterRequest =
         CreateDbClusterRequest.builder()
@@ -585,6 +584,7 @@ public class AuroraTestUtility {
     return versions.dbEngineVersions()
         .stream()
         .map(DBEngineVersion::engineVersion)
+        .filter(dbEngineVersion -> !dbEngineVersion.contains("limitless"))
         .max(Comparator.naturalOrder())
         .orElse(null);
   }

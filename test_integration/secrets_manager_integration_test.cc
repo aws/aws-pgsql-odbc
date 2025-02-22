@@ -47,6 +47,8 @@
 #include "connection_string_builder.h"
 #include "integration_test_utils.h"
 
+static std::string auth_type = "secrets-manager";
+
 class SecretsManagerIntegrationTest : public testing::Test {
    protected:
     std::string SECRETS_ARN = std::getenv("SECRETS_ARN");
@@ -60,7 +62,6 @@ class SecretsManagerIntegrationTest : public testing::Test {
     SQLHENV env = nullptr;
     SQLHDBC dbc = nullptr;
 
-    ConnectionStringBuilder builder;
     std::string connection_string;
 
     static void SetUpTestSuite() {
@@ -73,10 +74,6 @@ class SecretsManagerIntegrationTest : public testing::Test {
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
         SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
-
-        builder = ConnectionStringBuilder();
-        builder.withPort(PG_PORT)
-            .withAuthMode("secrets-manager");
     }
 
     void TearDown() override {
@@ -90,12 +87,11 @@ class SecretsManagerIntegrationTest : public testing::Test {
 };
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
-    connection_string = builder
-                            .withDSN(dsn)
-                            .withServer(DB_SERVER_URL)
+    connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withAuthMode(auth_type)
                             .withAuthRegion(TEST_REGION)
                             .withSecretId(SECRETS_ARN)
-                            .build();
+                            .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
@@ -104,11 +100,10 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
 }
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
-    connection_string = builder
-                            .withDSN(dsn)
-                            .withServer(DB_SERVER_URL)
+    connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withAuthMode(auth_type)
                             .withSecretId(SECRETS_ARN)
-                            .build();
+                            .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
@@ -119,12 +114,11 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
 // Passing in a wrong region should still work in retrieving secrets
 // A full secret ARN will contain the proper region
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
-    connection_string = builder
-                            .withDSN(dsn)
-                            .withServer(DB_SERVER_URL)
+    connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withAuthMode(auth_type)
                             .withAuthRegion("us-fake-1")
                             .withSecretId(SECRETS_ARN)
-                            .build();
+                            .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
@@ -133,19 +127,18 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
 }
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
-    connection_string = builder
-                            .withDSN(dsn)
-                            .withServer(DB_SERVER_URL)
+    connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withAuthMode(auth_type)
                             .withAuthRegion(TEST_REGION)
                             .withSecretId("invalid-id")
-                            .build();
+                            .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
     EXPECT_EQ(SQL_ERROR, SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
 
     // Check state
-    SQLCHAR sqlstate[6] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";;
+    SQLCHAR sqlstate[6] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
     SQLINTEGER native_error = 0;
     SQLSMALLINT stmt_length;
     EXPECT_EQ(SQL_SUCCESS, SQLError(nullptr, dbc, nullptr, sqlstate, &native_error, message, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length));

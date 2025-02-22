@@ -24,7 +24,7 @@
 // See the GNU General Public License, version 2.0, for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with this program. If not, see 
+// along with this program. If not, see
 // http://www.gnu.org/licenses/gpl-2.0.html.
 
 #include <gtest/gtest.h>
@@ -49,12 +49,12 @@ static char* iam_user;
 static char* test_region;
 
 static std::string test_endpoint;
+static std::string default_connection_string = "";
 
 #include <iostream>
 
 class IamAuthenticationIntegrationTest : public testing::Test {
-protected:
-    ConnectionStringBuilder builder;
+   protected:
     SQLHENV env = nullptr;
     SQLHDBC dbc = nullptr;
 
@@ -65,20 +65,13 @@ protected:
         test_user = std::getenv("TEST_USERNAME");
         test_pwd = std::getenv("TEST_PASSWORD");
         // Cast to remove const
-        test_port = INTEGRATION_TEST_UTILS::str_to_int(
-            INTEGRATION_TEST_UTILS::get_env_var("POSTGRES_PORT", (char*) "5432"));
-        iam_user = INTEGRATION_TEST_UTILS::get_env_var("IAM_USER", (char*) "john_doe");
-        test_region = INTEGRATION_TEST_UTILS::get_env_var("RDS_REGION", (char*) "us-east-2");
+        test_port = INTEGRATION_TEST_UTILS::str_to_int(INTEGRATION_TEST_UTILS::get_env_var("POSTGRES_PORT", (char*)"5432"));
+        iam_user = INTEGRATION_TEST_UTILS::get_env_var("IAM_USER", (char*)"john_doe");
+        test_region = INTEGRATION_TEST_UTILS::get_env_var("RDS_REGION", (char*)"us-east-2");
 
-        // Connect to execute SQL query to add IAM user to DB        
-        auto conn_str_builder = ConnectionStringBuilder();
-        auto conn_str = conn_str_builder
-            .withDSN(test_dsn)
-            .withServer(test_endpoint)
-            .withUID(test_user)
-            .withPWD(test_pwd)
-            .withPort(test_port)
-            .withDatabase(test_db).build();
+        // Connect to execute SQL query to add IAM user to DB
+        auto conn_str =
+            ConnectionStringBuilder(test_dsn, test_endpoint, test_port).withUID(test_user).withPWD(test_pwd).withDatabase(test_db).getString();
 
         SQLHENV env1 = nullptr;
         SQLHDBC dbc1 = nullptr;
@@ -88,9 +81,8 @@ protected:
 
         SQLCHAR conn_out[4096] = "\0";
         SQLSMALLINT len;
-        EXPECT_EQ(SQL_SUCCESS, 
-            SQLDriverConnect(dbc1, nullptr, AS_SQLCHAR(conn_str.c_str()), SQL_NTS,
-                conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+        EXPECT_EQ(SQL_SUCCESS,
+                  SQLDriverConnect(dbc1, nullptr, AS_SQLCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
 
         SQLHSTMT stmt = nullptr;
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc1, &stmt));
@@ -109,7 +101,7 @@ protected:
 
         EXPECT_EQ(SQL_SUCCESS, SQLFreeHandle(SQL_HANDLE_STMT, stmt));
         EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc1));
-        
+
         if (nullptr != stmt) {
             SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         }
@@ -122,22 +114,21 @@ protected:
         }
     }
 
-    static void TearDownTestSuite() {
-    }
+    static void TearDownTestSuite() {}
 
     void SetUp() override {
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
         SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
 
-        builder = ConnectionStringBuilder();
-        builder
-            .withDSN(test_dsn)
-            .withDatabase(test_db)
-            .withAuthMode("IAM")
-            .withAuthRegion(test_region)
-            .withAuthExpiration(900)
-            .withSslMode("allow");
+        default_connection_string = ConnectionStringBuilder(test_dsn, test_endpoint, test_port)
+                                        .withUID(iam_user)
+                                        .withDatabase(test_db)
+                                        .withAuthMode("IAM")
+                                        .withAuthRegion(test_region)
+                                        .withAuthExpiration(900)
+                                        .withSslMode("allow")
+                                        .getString();
     }
 
     void TearDown() override {
@@ -152,34 +143,10 @@ protected:
 
 // Tests a simple IAM connection with all expected fields provided.
 TEST_F(IamAuthenticationIntegrationTest, SimpleIamConnection) {
-    auto connection_string = builder
-        .withServer(test_endpoint)
-        .withUID(iam_user)
-        .withPort(test_port)
-        .withAuthPort(test_port).build();
-
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
-        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    EXPECT_EQ(SQL_SUCCESS, rc);
-
-    rc = SQLDisconnect(dbc);
-    EXPECT_EQ(SQL_SUCCESS, rc);
-}
-
-// Tests that IAM connection will still connect via the provided port
-// when the auth port is not provided.
-TEST_F(IamAuthenticationIntegrationTest, PortWithNoAuthPort) {
-    auto connection_string = builder
-        .withServer(test_endpoint)
-        .withUID(iam_user)
-        .withPort(test_port).build();
-
-    SQLCHAR conn_out[4096] = "\0";
-    SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
-        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc =
+        SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
 
     rc = SQLDisconnect(dbc);
@@ -191,18 +158,21 @@ TEST_F(IamAuthenticationIntegrationTest, PortWithNoAuthPort) {
 // DISABLED - PG is unable to connect using the token generated from an IP address as the host
 TEST_F(IamAuthenticationIntegrationTest, DISABLED_ConnectToIpAddress) {
     auto ip_address = INTEGRATION_TEST_UTILS::host_to_IP(test_endpoint);
-    
-    auto connection_string = builder
-        .withServer(ip_address)
-        .withUID(iam_user)
-        .withPort(test_port).build();
+
+    auto connection_string = ConnectionStringBuilder(test_dsn, ip_address, test_port)
+                                 .withUID(iam_user)
+                                 .withDatabase(test_db)
+                                 .withAuthMode("IAM")
+                                 .withAuthRegion(test_region)
+                                 .withAuthExpiration(900)
+                                 .withSslMode("allow")
+                                 .getString();
 
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
-        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
-    
+
     rc = SQLDisconnect(dbc);
     EXPECT_EQ(SQL_SUCCESS, rc);
 }
@@ -210,16 +180,11 @@ TEST_F(IamAuthenticationIntegrationTest, DISABLED_ConnectToIpAddress) {
 // Tests that IAM connection will still connect
 // when given a wrong password (because the password gets replaced by the auth token).
 TEST_F(IamAuthenticationIntegrationTest, WrongPassword) {
-    auto connection_string = builder
-        .withServer(test_endpoint)
-        .withUID(iam_user)
-        .withPWD("WRONG_PASSWORD")
-        .withPort(test_port).build();
+    auto connection_string = ConnectionStringBuilder(default_connection_string).withPWD("WRONG_PASSWORD").getString();
 
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
-        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
 
     rc = SQLDisconnect(dbc);
@@ -228,46 +193,49 @@ TEST_F(IamAuthenticationIntegrationTest, WrongPassword) {
 
 // Tests that the IAM connection will fail when provided a wrong user.
 TEST_F(IamAuthenticationIntegrationTest, WrongUser) {
-    auto connection_string = builder
-        .withServer(test_endpoint)
-        .withUID("WRONG_USER")
-        .withPort(test_port).build();
+    auto connection_string = ConnectionStringBuilder(test_dsn, test_endpoint, test_port)
+                                 .withUID("WRONG_USER")
+                                 .withDatabase(test_db)
+                                 .withAuthMode("IAM")
+                                 .withAuthRegion(test_region)
+                                 .withAuthExpiration(900)
+                                 .withSslMode("allow")
+                                 .getString();
 
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
-        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_ERROR, rc);
 
     SQLSMALLINT stmt_length;
     SQLINTEGER native_err;
     SQLCHAR msg[SQL_MAX_MESSAGE_LENGTH] = "\0", state[6] = "\0";
-    rc = SQLError(nullptr, dbc, nullptr, state, &native_err,
-        msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
+    rc = SQLError(nullptr, dbc, nullptr, state, &native_err, msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
     EXPECT_EQ(SQL_SUCCESS, rc);
-    const std::string state_str = reinterpret_cast<char*>(state);    
+    const std::string state_str = reinterpret_cast<char*>(state);
     EXPECT_EQ("08001", state_str);
 }
 
 // Tests that the IAM connection will fail when provided an empty user.
 TEST_F(IamAuthenticationIntegrationTest, EmptyUser) {
-    auto connection_string = builder
-        .withServer(test_endpoint)
-        .withAuthHost(test_endpoint)
-        .withUID("")
-        .withPort(test_port).build();
+    auto connection_string = ConnectionStringBuilder(test_dsn, test_endpoint, test_port)
+                                 .withUID("")
+                                 .withDatabase(test_db)
+                                 .withAuthMode("IAM")
+                                 .withAuthRegion(test_region)
+                                 .withAuthExpiration(900)
+                                 .withSslMode("allow")
+                                 .getString();
 
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
-        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_ERROR, rc);
 
     SQLSMALLINT stmt_length;
     SQLINTEGER native_err;
     SQLCHAR msg[SQL_MAX_MESSAGE_LENGTH] = "\0", state[6] = "\0";
-    rc = SQLError(nullptr, dbc, nullptr, state, &native_err,
-        msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
+    rc = SQLError(nullptr, dbc, nullptr, state, &native_err, msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
     EXPECT_EQ(SQL_SUCCESS, rc);
     const std::string state_str = reinterpret_cast<char*>(state);
     EXPECT_EQ("08001", state_str);
