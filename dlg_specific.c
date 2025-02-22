@@ -1265,7 +1265,7 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	STR_TO_NAME(ci->drivers.drivername, drivername);
 
 	MYLOG(DETAIL_LOG_LEVEL, "DSN info: DSN='%s',server='%s',port='%s',dbase='%s'," \
-		"authtype='%s',user='%s',passwd='%s',am_host='%s',region='%s',token_expiration='%s',idp_endpoint='%s'," \
+		"authtype='%s',user='%s',passwd='%s',iam_host='%s',region='%s',token_expiration='%s',idp_endpoint='%s'," \
 		"idp_port='%s',idp_username='%s',idp_password='%s',idp_arn='%s',idp_role_arn=%s," \
 		"socket_timeout='%s',conn_timeout='%s',relaying_party_id='%s',app_id='%s',secret_id='%s'," \
 		"limitless_enabled=%d,limitless_mode='%s',limitless_monitor_interval_ms=%u,limitless_service_id='%s'\n",
