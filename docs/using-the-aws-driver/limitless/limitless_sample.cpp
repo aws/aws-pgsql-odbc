@@ -37,7 +37,36 @@
 #include <iostream>
 
 #define MAX_NAME_LEN 4096
+#define MAX_STATE_LENGTH 32
 #define QUERY_BUFFER_SIZE 256
+#define SQL_MAX_MESSAGE_LENGTH 512
+
+/**
+ * Print the error message if the previous ODBC command failed.
+ */
+void print_error(SQLRETURN rc, SQLHANDLE connection_handle, SQLHANDLE statement_handle) {
+    if (SQL_SUCCEEDED(rc)) {
+        return;
+    }
+
+    SQLSMALLINT stmt_length;
+    SQLINTEGER native_error;
+
+    SQLTCHAR sqlstate[MAX_STATE_LENGTH], message[QUERY_BUFFER_SIZE];
+    SQLRETURN err_rc = SQLError(nullptr,
+                                connection_handle,
+                                statement_handle,
+                                sqlstate,
+                                &native_error,
+                                message,
+                                SQL_MAX_MESSAGE_LENGTH - 1,
+                                &stmt_length);
+
+    if (SQL_SUCCEEDED(err_rc)) {
+        std::cout << sqlstate << ": " << message << std::endl;
+    }
+    throw std::runtime_error("An error has occurred while running this sample code.");
+}
 
 int main() {
     SQLHENV env;
@@ -68,13 +97,17 @@ int main() {
 
     // Connect
     rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    print_error(rc, dbc, nullptr);
 
     // Execute
     rc = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
     sprintf(reinterpret_cast<char *>(query_buffer), "SELECT aurora_db_instance_identifier()");
     rc = SQLExecDirect(stmt, query_buffer, SQL_NTS);
+    print_error(rc, nullptr, stmt);
+
     rc = SQLBindCol(stmt, 1, SQL_C_CHAR, instance_id, sizeof(instance_id), nullptr);
     rc = SQLFetch(stmt);
+    print_error(rc, nullptr, stmt);
 
     std::cout << "Connected to instance: " << reinterpret_cast<char *>(instance_id) << std::endl;
 
