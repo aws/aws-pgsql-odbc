@@ -56,6 +56,7 @@ extern "C" {
 #define INI_UID				"UID"		/* Default User Name */
 #define INI_USERNAME			"Username"	/* Default User Name */
 #define INI_PASSWORD			"Password"	/* Default Password */
+#define INI_IAM_HOST			"IamHost" /* Host name used for authentication token generation */
 #define INI_REGION				"Region" /* Default region */
 #define INI_TOKEN_EXPIRATION	"TokenExpiration"		/* Default token expiration */
 
