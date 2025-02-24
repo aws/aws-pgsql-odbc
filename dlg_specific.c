@@ -704,8 +704,10 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		ci->limitless_monitor_interval_ms = atoi(value);
 	else if (stricmp(attribute, INI_LIMITLESS_SERVICE_ID) == 0)
 		STRCPY_FIXED(ci->limitless_service_id, value);
-    else if (stricmp(attribute, INI_LOGDIR) == 0)
+	else if (stricmp(attribute, INI_LOGDIR) == 0)
         STRCPY_FIXED(ci->log_dir, value);
+	else if (stricmp(attribute, INI_RDSLOGTHRESHOLD) == 0)
+        ci->rds_log_threshold = atoi(value);
 	else if (stricmp(attribute, INI_READONLY) == 0 || stricmp(attribute, ABBR_READONLY) == 0)
 		STRCPY_FIXED(ci->onlyread, value);
 	else if (stricmp(attribute, INI_PROTOCOL) == 0 || stricmp(attribute, ABBR_PROTOCOL) == 0)
@@ -906,7 +908,7 @@ getCiDefaults(ConnInfo *ci)
 	ci->limitless_monitor_interval_ms = DEFAULT_LIMITLESS_MONITOR_INTERVAL_MS;
 	ci->limitless_service_id[0] = '\0';
     SQLGetPrivateProfileString(DBMS_NAME, INI_LOGDIR, "", ci->log_dir, 1024, ODBCINST_INI);
-
+	ci->rds_log_threshold = 4;
 	ci->drivers.debug = DEFAULT_DEBUG;
 	ci->drivers.commlog = DEFAULT_COMMLOG;
 	ITOA_FIXED(ci->onlyread, DEFAULT_READONLY);
@@ -1119,8 +1121,11 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	if (SQLGetPrivateProfileString(DSN, INI_LIMITLESS_SERVICE_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->limitless_service_id, temp);
 
-    if (SQLGetPrivateProfileString(DSN, INI_LOGDIR, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+	if (SQLGetPrivateProfileString(DSN, INI_LOGDIR, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
         STRCPY_FIXED(ci->log_dir, temp);
+
+	if (SQLGetPrivateProfileString(DSN, INI_RDSLOGTHRESHOLD, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+        ci->rds_log_threshold = atoi(temp); 
 
 	/* It's appropriate to handle debug and commlog here */
 	if (SQLGetPrivateProfileString(DSN, INI_DEBUG, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
