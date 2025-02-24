@@ -1223,6 +1223,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
 
 	if (!ci->limitless_enabled) {
+		printf("FALSE\n");
 		return;
 	}
 
@@ -1246,6 +1247,7 @@ void GetLimitlessServer(ConnInfo *ci) {
     if (!SQL_SUCCEEDED(rc)) {
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed - disabling limitless\n");
 		ci->limitless_enabled = 0;
+		printf("FALSE 2\n");
 		return;
 	}
 	SQLHDBC hdbc;
@@ -1254,6 +1256,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed - disabling limitless\n");
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
+		printf("FALSE 3\n");
 		return;
 	}
 
@@ -1269,6 +1272,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
+		printf("FALSE 4\n");
 		return;
 	}
 
@@ -1281,6 +1285,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
+		printf("FALSE 5\n");
 		return;
 	}
 
@@ -1298,6 +1303,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 
 	if (!db_instance_ready) {
 		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance returned false. Not using router endpoint.\n");
+		printf("FALSE 6\n");
 		return; // no writing to ci
 	}
 
