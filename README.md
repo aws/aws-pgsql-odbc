@@ -2,7 +2,10 @@
 
 [![License](https://img.shields.io/badge/license-GPLv2-blue)](LICENSE)
 
-**The Amazon Web Services (AWS) ODBC Driver for PostgreSQL** allows an application to take advantage of the features of clustered PostgreSQL databases. It is based on the [PostgreSQL ODBC driver](https://odbc.postgresql.org/), and is compatible with all PostgreSQL deployments.
+**The Amazon Web Services (AWS) ODBC Driver for PostgreSQL** allows an application to take advantage of the features of clustered PostgreSQL databases. It is based on the [PostgreSQL ODBC driver](https://odbc.postgresql.org/).
+This driver is compatible with the following platforms:
+- Windows
+- MacOS (Silicon)
 
 ## Table of Contents
 
@@ -28,7 +31,7 @@ For more information on how to start using the AWS ODBC Driver for PostgreSQL, p
 
 ## Build and Test the Driver
 
-Please refer to the AWS Driver's [documentation](./docs/documentation) for details on how to use, build, and test the AWS ODBC Driver for PostgreSQL.
+Please refer to the AWS Driver's [documentation](./docs/documentation.md) for details on how to use, build, and test the AWS ODBC Driver for PostgreSQL.
 
 ## Documentation
 
