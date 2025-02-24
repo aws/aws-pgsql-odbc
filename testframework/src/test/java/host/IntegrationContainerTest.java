@@ -119,7 +119,7 @@ public class IntegrationContainerTest {
     if (!StringUtils.isNullOrEmpty(ACCESS_KEY) && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY) && !StringUtils.isNullOrEmpty(dbHostCluster)) {
       switch (testConfiguration) {
         case LIMITLESS:
-          auroraUtil.deleteLimitlessCluster(dbClusterIdentifier, dbShardGroupIdentifier);
+          // auroraUtil.deleteLimitlessCluster(dbClusterIdentifier, dbShardGroupIdentifier);
           break;
         case AURORA_PG:
           auroraUtil.deleteCluster();
@@ -133,7 +133,7 @@ public class IntegrationContainerTest {
         auroraUtil.deleteSecrets(secretsArn);
       }
 
-      auroraUtil.ec2DeauthorizesIP(runnerIP);
+      // auroraUtil.ec2DeauthorizesIP(runnerIP);
 
       for (ToxiproxyContainer proxy : proxyContainers) {
         proxy.stop();
