@@ -183,6 +183,7 @@ extern "C" {
 #define ABBR_SSLMODE			"CA"
 #define INI_EXTRAOPTIONS		"AB"
 #define INI_LOGDIR			"Logdir"
+#define INI_RDSLOGTHRESHOLD			"RdsLogThreshold"
 #define INI_KEEPALIVETIME		"KeepaliveTime"
 #define ABBR_KEEPALIVETIME		"D1"
 #define INI_KEEPALIVEINTERVAL		"KeepaliveInterval"

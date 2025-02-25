@@ -401,8 +401,8 @@ public class IntegrationContainerTest {
         runnerIP = auroraUtil.getPublicIPAddress();
         auroraUtil.ec2AuthorizeIP(runnerIP);
 
-        String secretValue = auroraUtil.createSecretValue(dbHostCluster, TEST_USERNAME, TEST_PASSWORD);
-        secretsArn = auroraUtil.createSecrets("AWS-PGSQL-ODBC-Tests-" + dbHostCluster, secretValue);
+        String secretValue = auroraUtil.createSecretValue(clusterInfo.getClusterEndpoint(), TEST_USERNAME, TEST_PASSWORD);
+        secretsArn = auroraUtil.createSecrets("AWS-PGSQL-ODBC-Tests-" + clusterInfo.getClusterEndpoint(), secretValue);
       }
 
       dbConnStrSuffix = clusterInfo.getClusterSuffix();
