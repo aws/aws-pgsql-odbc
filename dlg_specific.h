@@ -56,6 +56,7 @@ extern "C" {
 #define INI_UID				"UID"		/* Default User Name */
 #define INI_USERNAME			"Username"	/* Default User Name */
 #define INI_PASSWORD			"Password"	/* Default Password */
+#define INI_IAM_HOST			"IamHost" /* Host name used for authentication token generation */
 #define INI_REGION				"Region" /* Default region */
 #define INI_TOKEN_EXPIRATION	"TokenExpiration"		/* Default token expiration */
 
@@ -182,6 +183,7 @@ extern "C" {
 #define ABBR_SSLMODE			"CA"
 #define INI_EXTRAOPTIONS		"AB"
 #define INI_LOGDIR			"Logdir"
+#define INI_RDSLOGTHRESHOLD			"RdsLogThreshold"
 #define INI_KEEPALIVETIME		"KeepaliveTime"
 #define ABBR_KEEPALIVETIME		"D1"
 #define INI_KEEPALIVEINTERVAL		"KeepaliveInterval"

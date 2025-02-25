@@ -1089,9 +1089,9 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 
 #ifdef FORCE_PASSWORD_DISPLAY
 	MYLOG(MIN_LOG_LEVEL, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s', " \
-		"region = '%s', token_expiration = '%s', idp_endpoint = '%s', idp_port = '%s', idp_username = '%s', idp_password = '%s', " \
+		"iam_host = '%s', region = '%s', token_expiration = '%s', idp_endpoint = '%s', idp_port = '%s', idp_username = '%s', idp_password = '%s', " \
 		"idp_arn = '%s', idp_role_arn = '%s',  socket_timeout = '%s', conn_timeout = '%s'\n", ci->dsn, ci->server, ci->port,
-		ci->database, ci->authtype, ci->username, ci->password.name, ci->region, ci->token_expiration,
+		ci->database, ci->authtype, ci->username, ci->password.name, ci->iam_host, ci->region, ci->token_expiration,
 		ci->federation_cfg.idp_endpoint,
 		ci->federation_cfg.idp_port,
 		ci->federation_cfg.idp_username,
@@ -1102,9 +1102,9 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_connect_timeout);
 #else
 	MYLOG(MIN_LOG_LEVEL, "DSN = '%s', server = '%s', port = '%s', database = '%s', authtype = '%s', username = '%s', password='%s', " \
-		"region = '%s', token_expiration = '%s', idp_endpoint = '%s', idp_port = '%s', idp_username = '%s', idp_password = '%s', " \
+		"iam_host= '%s', region = '%s', token_expiration = '%s', idp_endpoint = '%s', idp_port = '%s', idp_username = '%s', idp_password = '%s', " \
 		"idp_arn = '%s', idp_role_arn = '%s',  socket_timeout = '%s', conn_timeout = '%s'\n", ci->dsn, ci->server, ci->port,
-		ci->database, ci->authtype, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "", ci->region, ci->token_expiration,
+		ci->database, ci->authtype, ci->username, NAME_IS_VALID(ci->password) ? "xxxxx" : "", ci->iam_host, ci->region, ci->token_expiration,
 		ci->federation_cfg.idp_endpoint,
 		ci->federation_cfg.idp_port,
 		ci->federation_cfg.idp_username,
@@ -1115,7 +1115,7 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_connect_timeout);
 #endif
 
-    initialize_rds_logger(ci->log_dir);
+	initialize_rds_logger(ci->log_dir, ci->rds_log_threshold);
 	return 1;
 }
 
@@ -1175,8 +1175,11 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 		port = 5432; // set to default port.
 	}
 
+    char *server = ci->iam_host && *ci->iam_host != 0 ? ci->iam_host : ci->server;
+
 	MYLOG(MIN_LOG_LEVEL, "auth type is %s\n", ci->authtype);
 	MYLOG(MIN_LOG_LEVEL, "server is %s\n", ci->server);
+	MYLOG(MIN_LOG_LEVEL, "iam host is %s\n", ci->iam_host);
 	MYLOG(MIN_LOG_LEVEL, "region is %s\n", ci->region);
 	MYLOG(MIN_LOG_LEVEL, "port is %d\n", port);
 	MYLOG(MIN_LOG_LEVEL, "username is %s\n", ci->username);
@@ -1189,9 +1192,9 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 
 	if (useCache) {
 		MYLOG(MIN_LOG_LEVEL, "Trying Cache\n");
-		if (!GetCachedToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, ci->port, ci->username)) {
+		if (!GetCachedToken(token, MAX_TOKEN_SIZE, server, ci->region, ci->port, ci->username)) {
 			MYLOG(MIN_LOG_LEVEL, "Cache Miss\n");
-			if (!GenerateConnectAuthToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, port, ci->username, authType, ci->federation_cfg)) {
+			if (!GenerateConnectAuthToken(token, MAX_TOKEN_SIZE, server, ci->region, port, ci->username, authType, ci->federation_cfg)) {
 				MYLOG(MIN_LOG_LEVEL, "Failed to generate a RDS connect auth token\n");
 				free(token);
 				return TR_FAILURE;
@@ -1207,7 +1210,7 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 		}
 	}
 	else {
-		if (!GenerateConnectAuthToken(token, MAX_TOKEN_SIZE, ci->server, ci->region, port, ci->username, authType, ci->federation_cfg)) {
+		if (!GenerateConnectAuthToken(token, MAX_TOKEN_SIZE, server, ci->region, port, ci->username, authType, ci->federation_cfg)) {
 			MYLOG(MIN_LOG_LEVEL, "Failed to generate a RDS connect auth token\n");
 			free(token);
 			return TR_FAILURE;
@@ -1324,6 +1327,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	char custom_err[LARGE_REGISTRY_LEN];
 
 	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
+	initialize_rds_logger(ci->log_dir, ci->rds_log_threshold);
 
 	if (stricmp(ci->authtype, SECRET_MODE) == 0) {
 		Credentials credentials;

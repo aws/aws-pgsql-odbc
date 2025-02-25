@@ -76,6 +76,8 @@ static struct {
 
 static int	dspcount_bylevel[] = {1, 4, 6};
 
+// window handle of iam host
+HWND iamHostDlg;
 // window handle of region
 HWND regionDlg;
 // window handle of user name
@@ -111,6 +113,7 @@ HWND secretIdDlg;
 
 void EnableWindows(int index) {
 	// Enable region and token expiration only when authtype is not Database
+	EnableWindow(iamHostDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
 	EnableWindow(regionDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
 	EnableWindow(tokenExpirationDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
 
@@ -178,6 +181,7 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	SetDlgItemText(hdlg, IDC_USER, ci->username);
 	SetDlgItemText(hdlg, IDC_PASSWORD, SAFE_NAME(ci->password));
 	SetDlgItemText(hdlg, IDC_PORT, ci->port);
+	SetDlgItemText(hdlg, IDC_IAM_HOST, ci->iam_host);
 	SetDlgItemText(hdlg, IDC_REGION, ci->region);
 	SetDlgItemText(hdlg, IDC_TOKEN_EXPIRATION, ci->token_expiration);
 
@@ -248,6 +252,7 @@ SetDlgStuff(HWND hdlg, const ConnInfo *ci)
 	// Set subclass procedure for the authtype drop list to handle notifications
 	SetWindowSubclass(GetDlgItem(hdlg, IDC_AUTHTYPE), ListBoxProc, 0, 0);
 
+    iamHostDlg = GetDlgItem(hdlg, IDC_IAM_HOST);
     regionDlg = GetDlgItem(hdlg, IDC_REGION);
 	tokenExpirationDlg = GetDlgItem(hdlg, IDC_TOKEN_EXPIRATION);
 	userNameDlg = GetDlgItem(hdlg, IDC_USER);
@@ -283,6 +288,7 @@ GetDlgStuff(HWND hdlg, ConnInfo *ci)
 	GetDlgItemText(hdlg, IDC_USER, ci->username, sizeof(ci->username));
 	GetDlgItemText(hdlg, IDC_PASSWORD, medium_buf, sizeof(medium_buf));
 	STR_TO_NAME(ci->password, medium_buf);
+	GetDlgItemText(hdlg, IDC_IAM_HOST, ci->iam_host, sizeof(ci->iam_host));
 	GetDlgItemText(hdlg, IDC_REGION, ci->region, sizeof(ci->region));
 	GetDlgItemText(hdlg, IDC_PORT, ci->port, sizeof(ci->port));
 	sslposition = (int)(DWORD)SendMessage(GetDlgItem(hdlg, IDC_SSLMODE), CB_GETCURSEL, 0L, 0L);
@@ -458,7 +464,7 @@ limitless_optionsDraw(HWND hdlg, const ConnInfo *ci, int src, BOOL enable)
 		SendDlgItemMessage(hdlg, IDC_LIMITLESS_MODE, CB_ADDSTRING, 0, (WPARAM)buff);
 	}
 	SendDlgItemMessage(hdlg, IDC_LIMITLESS_MODE, CB_SETCURSEL, selidx, (WPARAM)0);
-	SetWindowSubclass(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), ListBoxProc, 0, 0);
+	SetWindowSubclass(GetDlgItem(hdlg, IDC_LIMITLESS_MODE), DefSubclassProc, 0, 0);
 
 	limitless_optionsDlgEnable(hdlg, ci);
 

@@ -1,0 +1,6 @@
+- [Building the AWS ODBC Driver for PostgreSQL](./build-and-test-aws-driver/build)
+    - [Windows](./build-and-test-aws-driver/build.md#windows)
+    - [macOS](./build-and-test-aws-driver/build.md#macos)
+- [Testing the AWS ODBC Driver for PostgreSQL](./build-and-test-aws-driver/test.md)
+    - [Unit Tests](./build-and-test-aws-driver/test.md#unit-tests)
+    - [Integration Tests](./build-and-test-aws-driver/test.md#integration-tests)

@@ -314,7 +314,7 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	/* fundamental info */
 	nlen = MAX_CONNECT_STRING;
 	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;AUTHTYPE=%s;" \
-		"UID=%s;PWD=%s;REGION=%s;TOKENEXPIRATION=%s;IDPENDPOINT=%s;IDPPORT=%s;IDPUSERNAME=%s;" \
+		"UID=%s;PWD=%s;IAMHOST=%s;REGION=%s;TOKENEXPIRATION=%s;IDPENDPOINT=%s;IDPPORT=%s;IDPUSERNAME=%s;" \
 		"IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s;" \
 		"APPID=%s;SECRETID=%s;LIMITLESSENABLED=%d;LIMITLESSMODE=%s;LIMITLESSMONITORINTERVALMS=%u;" \
 		"LIMITLESSSERVICEID=%s;",
@@ -326,6 +326,7 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 		ci->authtype,
 		ci->username,
 		encoded_item,
+		ci->iam_host,
 		ci->region,
 		ci->token_expiration,
 		ci->federation_cfg.idp_endpoint,
@@ -660,6 +661,8 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		printed = TRUE;
 #endif
 	}
+    else if (stricmp(attribute, INI_IAM_HOST) == 0)
+		STRCPY_FIXED(ci->iam_host, value);
 	else if (stricmp(attribute, INI_REGION) == 0)
 		STRCPY_FIXED(ci->region, value);
 	else if (stricmp(attribute, INI_PORT) == 0)
@@ -701,8 +704,10 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		ci->limitless_monitor_interval_ms = atoi(value);
 	else if (stricmp(attribute, INI_LIMITLESS_SERVICE_ID) == 0)
 		STRCPY_FIXED(ci->limitless_service_id, value);
-    else if (stricmp(attribute, INI_LOGDIR) == 0)
+	else if (stricmp(attribute, INI_LOGDIR) == 0)
         STRCPY_FIXED(ci->log_dir, value);
+	else if (stricmp(attribute, INI_RDSLOGTHRESHOLD) == 0)
+        ci->rds_log_threshold = atoi(value);
 	else if (stricmp(attribute, INI_READONLY) == 0 || stricmp(attribute, ABBR_READONLY) == 0)
 		STRCPY_FIXED(ci->onlyread, value);
 	else if (stricmp(attribute, INI_PROTOCOL) == 0 || stricmp(attribute, ABBR_PROTOCOL) == 0)
@@ -903,7 +908,7 @@ getCiDefaults(ConnInfo *ci)
 	ci->limitless_monitor_interval_ms = DEFAULT_LIMITLESS_MONITOR_INTERVAL_MS;
 	ci->limitless_service_id[0] = '\0';
     SQLGetPrivateProfileString(DBMS_NAME, INI_LOGDIR, "", ci->log_dir, 1024, ODBCINST_INI);
-
+	ci->rds_log_threshold = 4;
 	ci->drivers.debug = DEFAULT_DEBUG;
 	ci->drivers.commlog = DEFAULT_COMMLOG;
 	ITOA_FIXED(ci->onlyread, DEFAULT_READONLY);
@@ -1059,6 +1064,9 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	if (SQLGetPrivateProfileString(DSN, INI_PASSWORD, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		ci->password = decode(temp);
 
+	if (SQLGetPrivateProfileString(DSN, INI_IAM_HOST, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+		STRCPY_FIXED(ci->iam_host, temp);
+
 	if (SQLGetPrivateProfileString(DSN, INI_REGION, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->region, temp);
 
@@ -1113,8 +1121,11 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	if (SQLGetPrivateProfileString(DSN, INI_LIMITLESS_SERVICE_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->limitless_service_id, temp);
 
-    if (SQLGetPrivateProfileString(DSN, INI_LOGDIR, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+	if (SQLGetPrivateProfileString(DSN, INI_LOGDIR, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
         STRCPY_FIXED(ci->log_dir, temp);
+
+	if (SQLGetPrivateProfileString(DSN, INI_RDSLOGTHRESHOLD, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+        ci->rds_log_threshold = atoi(temp); 
 
 	/* It's appropriate to handle debug and commlog here */
 	if (SQLGetPrivateProfileString(DSN, INI_DEBUG, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
@@ -1259,7 +1270,7 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	STR_TO_NAME(ci->drivers.drivername, drivername);
 
 	MYLOG(DETAIL_LOG_LEVEL, "DSN info: DSN='%s',server='%s',port='%s',dbase='%s'," \
-		"authtype='%s',user='%s',passwd='%s',region='%s',token_expiration='%s',idp_endpoint='%s'," \
+		"authtype='%s',user='%s',passwd='%s',iam_host='%s',region='%s',token_expiration='%s',idp_endpoint='%s'," \
 		"idp_port='%s',idp_username='%s',idp_password='%s',idp_arn='%s',idp_role_arn=%s," \
 		"socket_timeout='%s',conn_timeout='%s',relaying_party_id='%s',app_id='%s',secret_id='%s'," \
 		"limitless_enabled=%d,limitless_mode='%s',limitless_monitor_interval_ms=%u,limitless_service_id='%s'\n",
@@ -1270,6 +1281,7 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 		ci->authtype,
 		ci->username,
 		NAME_IS_VALID(ci->password) ? "xxxxx" : "",
+		ci->iam_host,
 		ci->region,
 		ci->token_expiration,
 		ci->federation_cfg.idp_endpoint,
@@ -1437,6 +1449,11 @@ writeDSNinfo(const ConnInfo *ci)
 	SQLWritePrivateProfileString(DSN,
 								 INI_PASSWORD,
 								 encoded_item,
+								 ODBC_INI);
+
+	SQLWritePrivateProfileString(DSN,
+								 INI_IAM_HOST,
+								 ci->iam_host,
 								 ODBC_INI);
 
 	SQLWritePrivateProfileString(DSN,
@@ -2133,6 +2150,7 @@ CC_copy_conninfo(ConnInfo *ci, const ConnInfo *sci)
 	CORR_STRCPY(authtype);
 	CORR_STRCPY(username);
 	NAME_TO_NAME(ci->password, sci->password);
+	CORR_STRCPY(iam_host);
 	CORR_STRCPY(region);
 	CORR_STRCPY(port);
 	CORR_STRCPY(token_expiration);

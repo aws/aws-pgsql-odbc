@@ -77,6 +77,7 @@
 #define IDC_CONN_TIMEOUT                1019
 #define DS_CONNSETTINGS                 1020
 #define IDC_DRIVER                      1021
+#define IDC_IAM_HOST                    1022
 #define DRV_CONNSETTINGS                1031
 #define DRV_UNIQUEINDEX                 1032
 #define DRV_UNKNOWN_MAX                 1035

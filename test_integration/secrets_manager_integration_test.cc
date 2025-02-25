@@ -1,31 +1,16 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License, version 2.0
-// (GPLv2), as published by the Free Software Foundation, with the
-// following additional permissions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// This program is distributed with certain software that is licensed
-// under separate terms, as designated in a particular file or component
-// or in the license documentation. Without limiting your rights under
-// the GPLv2, the authors of this program hereby grant you an additional
-// permission to link the program and your derivative works with the
-// separately licensed software that they have included with the program.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// Without limiting the foregoing grant of rights under the GPLv2 and
-// additional permission as to separately licensed software, this
-// program is also subject to the Universal FOSS Exception, version 1.0,
-// a copy of which can be found along with its FAQ at
-// http://oss.oracle.com/licenses/universal-foss-exception.
-//
-// This program is distributed in the hope that it will be useful, but
-// WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License, version 2.0, for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see
-// http://www.gnu.org/licenses/gpl-2.0.html.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include <gtest/gtest.h>
 
@@ -47,6 +32,8 @@
 #include "connection_string_builder.h"
 #include "integration_test_utils.h"
 
+static std::string auth_type = "secrets-manager";
+
 class SecretsManagerIntegrationTest : public testing::Test {
    protected:
     std::string SECRETS_ARN = std::getenv("SECRETS_ARN");
@@ -60,7 +47,6 @@ class SecretsManagerIntegrationTest : public testing::Test {
     SQLHENV env = nullptr;
     SQLHDBC dbc = nullptr;
 
-    ConnectionStringBuilder builder;
     std::string connection_string;
 
     static void SetUpTestSuite() {
@@ -73,10 +59,6 @@ class SecretsManagerIntegrationTest : public testing::Test {
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
         SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
-
-        builder = ConnectionStringBuilder();
-        builder.withPort(PG_PORT)
-            .withAuthMode("secrets-manager");
     }
 
     void TearDown() override {
@@ -90,12 +72,11 @@ class SecretsManagerIntegrationTest : public testing::Test {
 };
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
-    connection_string = builder
-                            .withDSN(dsn)
-                            .withServer(DB_SERVER_URL)
+    connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withAuthMode(auth_type)
                             .withAuthRegion(TEST_REGION)
                             .withSecretId(SECRETS_ARN)
-                            .build();
+                            .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
@@ -104,11 +85,10 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
 }
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
-    connection_string = builder
-                            .withDSN(dsn)
-                            .withServer(DB_SERVER_URL)
+    connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withAuthMode(auth_type)
                             .withSecretId(SECRETS_ARN)
-                            .build();
+                            .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
@@ -119,12 +99,11 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
 // Passing in a wrong region should still work in retrieving secrets
 // A full secret ARN will contain the proper region
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
-    connection_string = builder
-                            .withDSN(dsn)
-                            .withServer(DB_SERVER_URL)
+    connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withAuthMode(auth_type)
                             .withAuthRegion("us-fake-1")
                             .withSecretId(SECRETS_ARN)
-                            .build();
+                            .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
@@ -133,19 +112,18 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
 }
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
-    connection_string = builder
-                            .withDSN(dsn)
-                            .withServer(DB_SERVER_URL)
+    connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withAuthMode(auth_type)
                             .withAuthRegion(TEST_REGION)
                             .withSecretId("invalid-id")
-                            .build();
+                            .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
     EXPECT_EQ(SQL_ERROR, SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
 
     // Check state
-    SQLCHAR sqlstate[6] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";;
+    SQLCHAR sqlstate[6] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
     SQLINTEGER native_error = 0;
     SQLSMALLINT stmt_length;
     EXPECT_EQ(SQL_SUCCESS, SQLError(nullptr, dbc, nullptr, sqlstate, &native_error, message, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length));
