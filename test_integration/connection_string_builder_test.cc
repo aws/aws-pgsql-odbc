@@ -25,7 +25,6 @@ TEST_F(ConnectionStringBuilderTest, test_complete_string) {
     const std::string connection_string = builder.withUID("testUser")
                                               .withPWD("testPwd")
                                               .withDatabase("testDb")
-                                              .withLogDir("/temp/logs")
                                               .withEnableClusterFailover(true)
                                               .withFailoverMode("STRICT_WRITER")
                                               .withReaderHostSelectorStrategy("RANDOM")
@@ -47,7 +46,7 @@ TEST_F(ConnectionStringBuilderTest, test_complete_string) {
                                               .getString();
 
     const std::string expected =
-        "DSN=testDSN;SERVER=testServer;PORT=5432;UID=testUser;PWD=testPwd;DATABASE=testDb;LOGDIR=/temp/logs;"
+        "DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;UID=testUser;PWD=testPwd;DATABASE=testDb;LOGDIR=/temp/logs;"
         "ENABLECLUSTERFAILOVER=1;FAILOVERMODE=STRICT_WRITER;READERHOSTSELECTORSTRATEGY=RANDOM;IGNORETOPOLOGYREQUEST=1;TOPOLOGYHIGHREFRESHRATE=2;TOPOLOGYREFRESHRATE=3;FAILOVERTIMEOUT=120000;HOSTPATTERN=?.testDomain;"
         "AUTHTYPE=IAM;REGION=us-east-1;IAMHOST=domain;TOKENEXPIRATION=123;SECRETID=secret;SSLMODE=prefer;"
         "LIMITLESSENABLED=1;LIMITLESSMODE=lazy;LIMITLESSMONITORINTERVALMS=234;LIMITLESSSERVICEID=limitless;";
@@ -69,7 +68,7 @@ TEST_F(ConnectionStringBuilderTest, test_some_optional) {
     ConnectionStringBuilder builder("testDSN", "testServer", 5432);
     const std::string connection_string = builder.withUID("testUser").withPWD("testPwd").getString();
 
-    const std::string expected("DSN=testDSN;SERVER=testServer;PORT=5432;UID=testUser;PWD=testPwd;");
+    const std::string expected("DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;UID=testUser;PWD=testPwd;");
     EXPECT_EQ(0, expected.compare(connection_string));
 }
 
@@ -83,6 +82,6 @@ TEST_F(ConnectionStringBuilderTest, test_setting_boolean_fields) {
                                               .getString();
 
     const std::string expected(
-        "DSN=testDSN;SERVER=testServer;PORT=5432;UID=testUser;PWD=testPwd;ENABLECLUSTERFAILOVER=0;LIMITLESSENABLED=0;");
+        "DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;UID=testUser;PWD=testPwd;ENABLECLUSTERFAILOVER=0;LIMITLESSENABLED=0;");
     EXPECT_EQ(0, expected.compare(connection_string));
 }

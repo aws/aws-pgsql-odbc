@@ -29,23 +29,25 @@
 # along with this program. If not, see 
 # http://www.gnu.org/licenses/gpl-2.0.html.
 
-# Must be either Debug or Release
 CONFIGURATION=$1
-echo ${CONFIGURATION}
-if [ "${CONFIGURATION}" != "Debug" ] && [ "${CONFIGURATION}" != "Release" ]; then
-  echo "Build configuration must be Debug or Release"
+SKIP_AWS_SDK=$2
+if [ "${CONFIGURATION,,}" != "debug" ] && [ "${CONFIGURATION,,}" != "release" ]; then
+  echo "Build configuration must be debug or release but is ${CONFIGURATION}"
   exit 1
 fi
 
 export ROOT_REPO_PATH=$(cd "$(dirname "$0")/.."; pwd -P)
-
-# Build the AWS SDK
-echo "Building the AWS SDK"
 cd ${ROOT_REPO_PATH}/libs/aws-rds-odbc
-./scripts/build_aws_sdk_linux.sh Release
-if [ $? -ne 0 ]; then
-  echo "AWS SDK build failed"
-  exit 1
+
+if [ -z "${SKIP_AWS_SDK}" ] || [ ${SKIP_AWS_SDK,,} == "false" ]
+then
+    # Build the AWS SDK
+    echo "Building the AWS SDK"
+    ./scripts/build_aws_sdk_linux.sh Release
+    if [ $? -ne 0 ]; then
+      echo "AWS SDK build failed"
+      exit 1
+    fi
 fi
 
 # Prep the aws-rds-odbc builds
