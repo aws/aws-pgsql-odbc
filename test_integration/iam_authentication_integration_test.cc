@@ -140,14 +140,14 @@ TEST_F(IamAuthenticationIntegrationTest, SimpleIamConnection) {
 
 // Tests that IAM connection will still connect
 // when given an IP address instead of a cluster name.
-// DISABLED - PG is unable to connect using the token generated from an IP address as the host
-TEST_F(IamAuthenticationIntegrationTest, DISABLED_ConnectToIpAddress) {
+TEST_F(IamAuthenticationIntegrationTest, ConnectToIpAddress) {
     auto ip_address = INTEGRATION_TEST_UTILS::host_to_IP(test_endpoint);
 
     auto connection_string = ConnectionStringBuilder(test_dsn, ip_address, test_port)
                                  .withUID(iam_user)
                                  .withDatabase(test_db)
                                  .withAuthMode("IAM")
+                                 .withAuthHost(test_endpoint)
                                  .withAuthRegion(test_region)
                                  .withAuthExpiration(900)
                                  .withSslMode("allow")

@@ -20,7 +20,7 @@
 class ConnectionStringBuilder {
    public:
     ConnectionStringBuilder(const std::string& dsn, const std::string& server, int port) {
-        length += sprintf(conn_in, "DSN=%s;SERVER=%s;PORT=%d;", dsn.c_str(), server.c_str(), port);
+        length += sprintf(conn_in, "DSN=%s;SERVER=%s;PORT=%d;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;", dsn.c_str(), server.c_str(), port);
     }
 
     ConnectionStringBuilder(const std::string& str) { length += sprintf(conn_in, "%s", str.c_str()); }
@@ -37,11 +37,6 @@ class ConnectionStringBuilder {
 
     ConnectionStringBuilder& withDatabase(const std::string& db) {
         length += sprintf(conn_in + length, "DATABASE=%s;", db.c_str());
-        return *this;
-    }
-
-    ConnectionStringBuilder& withLogDir(const std::string& log_dir) {
-        length += sprintf(conn_in + length, "LOGDIR=%s;", log_dir.c_str());
         return *this;
     }
 

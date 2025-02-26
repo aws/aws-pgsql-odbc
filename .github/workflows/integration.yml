@@ -105,25 +105,14 @@ jobs:
           aws ec2 revoke-security-group-ingress \
             --group-name default \
             --protocol tcp \
-            --port 3306 \
+            --port 5432 \
             --cidr ${{ steps.ip.outputs.ipv4 }}/32 \
           2>&1 > /dev/null;
-
-      - name: 'Display and save log'
-        if: always()
-        working-directory: ${{ github.workspace }}
-        run: |
-          echo "Displaying logs"
-          mkdir -p ./reports/tests
-          if [[ -f myodbc.log && -s myodbc.log ]]; then 
-            cat myodbc.log
-            cp myodbc.log ./reports/tests/myodbc.log
-          fi
 
       - name: 'Archive log results'
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: 'integration-test-logs-${{ matrix.engine_version }}'
-          path: reports/tests/
+          name: 'integration-test-logs'
+          path: logs
           retention-days: 3
