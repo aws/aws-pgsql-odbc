@@ -38,6 +38,7 @@ class SecretsManagerIntegrationTest : public testing::Test {
    protected:
     std::string SECRETS_ARN = std::getenv("SECRETS_ARN");
     char* dsn = std::getenv("TEST_DSN");
+    char* test_db = std::getenv("TEST_DATABASE");
 
     int PG_PORT = INTEGRATION_TEST_UTILS::str_to_int(
         INTEGRATION_TEST_UTILS::get_env_var("POSTGRES_PORT", (char*) "5432"));
@@ -73,6 +74,7 @@ class SecretsManagerIntegrationTest : public testing::Test {
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
     connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withDatabase(test_db)
                             .withAuthMode(auth_type)
                             .withAuthRegion(TEST_REGION)
                             .withSecretId(SECRETS_ARN)
@@ -100,6 +102,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
     connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withDatabase(test_db)
                             .withAuthMode(auth_type)
                             .withSecretId(SECRETS_ARN)
                             .getString();
@@ -128,6 +131,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
 // A full secret ARN will contain the proper region
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
     connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withDatabase(test_db)
                             .withAuthMode(auth_type)
                             .withAuthRegion("us-fake-1")
                             .withSecretId(SECRETS_ARN)
@@ -155,6 +159,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
     connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withDatabase(test_db)
                             .withAuthMode(auth_type)
                             .withAuthRegion(TEST_REGION)
                             .withSecretId("invalid-id")
