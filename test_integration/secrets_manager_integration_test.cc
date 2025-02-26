@@ -84,19 +84,6 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
 
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
-    if (rc != SQL_SUCCESS) {
-        SQLCHAR state[6];
-        SQLCHAR message[512];
-        SQLINTEGER error_code;
-        SQLSMALLINT message_size;
-
-        int i = 1;
-        while (SQLGetDiagRec(SQL_HANDLE_DBC, dbc, i++, state, &error_code, message, sizeof(message), &message_size) == SQL_SUCCESS) {
-            std::cout << "SQLSTATE: " << state << std::endl;
-            std::cout << "Error code: " << error_code << std::endl;
-            std::cout << "Message: " << message << std::endl;
-        }
-    }
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
 
@@ -111,19 +98,6 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
 
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
-    if (rc != SQL_SUCCESS) {
-        SQLCHAR state[6];
-        SQLCHAR message[512];
-        SQLINTEGER error_code;
-        SQLSMALLINT message_size;
-
-        int i = 1;
-        while (SQLGetDiagRec(SQL_HANDLE_DBC, dbc, i++, state, &error_code, message, sizeof(message), &message_size) == SQL_SUCCESS) {
-            std::cout << "SQLSTATE: " << state << std::endl;
-            std::cout << "Error code: " << error_code << std::endl;
-            std::cout << "Message: " << message << std::endl;
-        }
-    }
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
 
@@ -141,19 +115,6 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
 
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
-    if (rc != SQL_SUCCESS) {
-        SQLCHAR state[6];
-        SQLCHAR message[512];
-        SQLINTEGER error_code;
-        SQLSMALLINT message_size;
-
-        int i = 1;
-        while (SQLGetDiagRec(SQL_HANDLE_DBC, dbc, i++, state, &error_code, message, sizeof(message), &message_size) == SQL_SUCCESS) {
-            std::cout << "SQLSTATE: " << state << std::endl;
-            std::cout << "Error code: " << error_code << std::endl;
-            std::cout << "Message: " << message << std::endl;
-        }
-    }
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
 
