@@ -15,7 +15,6 @@
 #include <gtest/gtest.h>
 
 #include "connection_string_builder.h"
-#include <iostream>
 
 class ConnectionStringBuilderTest : public testing::Test {};
 
@@ -46,7 +45,7 @@ TEST_F(ConnectionStringBuilderTest, test_complete_string) {
                                               .getString();
 
     const std::string expected =
-        "DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;UID=testUser;PWD=testPwd;DATABASE=testDb;LOGDIR=/temp/logs;"
+        "DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;UID=testUser;PWD=testPwd;DATABASE=testDb;"
         "ENABLECLUSTERFAILOVER=1;FAILOVERMODE=STRICT_WRITER;READERHOSTSELECTORSTRATEGY=RANDOM;IGNORETOPOLOGYREQUEST=1;TOPOLOGYHIGHREFRESHRATE=2;TOPOLOGYREFRESHRATE=3;FAILOVERTIMEOUT=120000;HOSTPATTERN=?.testDomain;"
         "AUTHTYPE=IAM;REGION=us-east-1;IAMHOST=domain;TOKENEXPIRATION=123;SECRETID=secret;SSLMODE=prefer;"
         "LIMITLESSENABLED=1;LIMITLESSMODE=lazy;LIMITLESSMONITORINTERVALMS=234;LIMITLESSSERVICEID=limitless;";
@@ -58,7 +57,7 @@ TEST_F(ConnectionStringBuilderTest, test_only_required_fields) {
     ConnectionStringBuilder builder("testDSN", "testServer", 5432);
     const std::string connection_string = builder.getString();
 
-    const std::string expected = "DSN=testDSN;SERVER=testServer;PORT=5432;";
+    const std::string expected = "DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;";
     EXPECT_EQ(0, expected.compare(connection_string));
 }
 
