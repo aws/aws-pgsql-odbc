@@ -38,6 +38,7 @@ class SecretsManagerIntegrationTest : public testing::Test {
    protected:
     std::string SECRETS_ARN = std::getenv("SECRETS_ARN");
     char* dsn = std::getenv("TEST_DSN");
+    char* test_db = std::getenv("TEST_DATABASE");
 
     int PG_PORT = INTEGRATION_TEST_UTILS::str_to_int(
         INTEGRATION_TEST_UTILS::get_env_var("POSTGRES_PORT", (char*) "5432"));
@@ -73,6 +74,7 @@ class SecretsManagerIntegrationTest : public testing::Test {
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
     connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withDatabase(test_db)
                             .withAuthMode(auth_type)
                             .withAuthRegion(TEST_REGION)
                             .withSecretId(SECRETS_ARN)
@@ -80,19 +82,22 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
-    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
     connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withDatabase(test_db)
                             .withAuthMode(auth_type)
                             .withSecretId(SECRETS_ARN)
                             .getString();
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
-    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
 
@@ -100,6 +105,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
 // A full secret ARN will contain the proper region
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
     connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withDatabase(test_db)
                             .withAuthMode(auth_type)
                             .withAuthRegion("us-fake-1")
                             .withSecretId(SECRETS_ARN)
@@ -107,12 +113,14 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
     SQLCHAR conn_out[4096] = "\0";
     SQLSMALLINT len;
 
-    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
 
 TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
     connection_string = ConnectionStringBuilder(dsn, DB_SERVER_URL, PG_PORT)
+                            .withDatabase(test_db)
                             .withAuthMode(auth_type)
                             .withAuthRegion(TEST_REGION)
                             .withSecretId("invalid-id")
