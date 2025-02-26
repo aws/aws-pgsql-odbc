@@ -19,8 +19,9 @@
 
 class ConnectionStringBuilder {
    public:
-    ConnectionStringBuilder(const std::string& dsn, const std::string& server, int port) {
-        length += sprintf(conn_in, "DSN=%s;SERVER=%s;PORT=%d;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;", dsn.c_str(), server.c_str(), port);
+    ConnectionStringBuilder(const std::string& driver, const std::string& server, int port) {
+        // Setting Driver instead of DSN to ensure driver is picked up by the dockerized integration tests.
+        length += sprintf(conn_in, "DRIVER=%s;SERVER=%s;PORT=%d;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;", driver.c_str(), server.c_str(), port);
     }
 
     ConnectionStringBuilder(const std::string& str) { length += sprintf(conn_in, "%s", str.c_str()); }
