@@ -44,11 +44,11 @@ When connecting to Aurora clusters, this parameter is required when the connecti
 
 ## Failover Exception Codes
 
-### 08S01 - Failover Succeeded
+### 08S01 - Failover Failed
 
 When the driver returns an error code `08S01`, the original connection failed, and the driver tried to failover to a new instance, but was not able to. There are various reasons this may happen: no nodes were available, a network failure occurred, and so on. In this scenario, please wait until the server is up or other problems are solved.
 
-### 08S02 - Communication Link Changed
+### 08S02 - Failover Succeeded
 
 When the driver returns an error code `08S02`, the original connection failed while autocommit was set to true, and the driver successfully failed over to another available instance in the cluster. However, any session state configuration of the initial connection is now lost. In this scenario, you should:
 
