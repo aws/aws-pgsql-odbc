@@ -25,6 +25,14 @@ The following DSN fields on a DSN window should be filled when using the Limitle
 ### DSN Window Example
 ![DSN window example for Limitless Connection](img/limitless.png)
 
+### Use with Other Features
+The Limitless Connection Feature is compatible with authentication type features such as the IAM and AWS Secrets Manager.
+
+> [!WARNING]\
+> The Failover feature is also compatible with the Limitless Connection Feature.  
+However, we don't recommend using them with the Limitless Connection Feature because they're not designed to be used with Aurora Limitless Database. 
+They don't provide any extra value, and add unnecessary computation and memory overhead.
+
 ### Use with Connection Pools
 Connection pools keep connections open for reuse, but this can work against the client-side load-balancing of the Limitless Connection Feature and cause an imbalanced load on transaction routers. To mitigate this, consider setting connection properties that can reduce the number of idle connections or increase the lifetime of connections.
 
