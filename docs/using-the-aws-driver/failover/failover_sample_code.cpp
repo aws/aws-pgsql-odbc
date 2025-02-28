@@ -159,6 +159,7 @@ int main() {
 
   // In this sample code we will use a sleep query to simulate running a long query or an update query.
   // You can trigger cluster failover using either the AWS Console or the AWS CLI while this query is executing the test the driver failover behaviour.
+  // To learn more about manually triggering a cluster failover, see https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/aurora-failover.html
   execute_update_query(dbc, (SQLCHAR*)"SELECT PG_SLEEP(60)");
 
   // Check the instance ID again to ensure connection has swapped to a new instance after failover.
