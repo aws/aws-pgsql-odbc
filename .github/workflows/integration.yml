@@ -11,8 +11,9 @@ on:
     paths-ignore:
       - '**/*.md'
       - '**/*.jpg'
-      - '**/README.txt'
-      - '**/LICENSE.txt'
+      - '**/*.png'
+      - '**/README.*'
+      - '**/LICENSE.*'
       - 'docs/**'
       - 'ISSUE_TEMPLATE/**'
       - '**/remove-old-artifacts.yml'

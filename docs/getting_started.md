@@ -17,7 +17,7 @@ Four driver will be installed:
 To uninstall the ODBC driver, open the same installer file, select the option to uninstall the driver and follow the onscreen instructions to successfully uninstall the driver.
 
 ### MacOS
-> [!NOTE]\ 
+> [!WARNING]\
 > This driver currently only supports MacOS with Silicon chips.
 
 In order to use the AWS ODBC Driver for PostgreSQL, the following dependencies must be installed:
@@ -34,7 +34,7 @@ You can install them all using `Homebrew`, e.g. `brew install postgresql gflags 
 To configure the driver on Windows, use the `ODBC Data Source Administrator` tool to add or configure a DSN for either the `AWS ANSI ODBC Driver for PostgreSQL` or `AWS Unicode ODBC Driver for PostgreSQL`.
 With this DSN you can specify the options for the desired connection. Additional configuration properties are available by clicking the `Details >>` button.
 
-To use the driver on MacOS, you need to create two files (`odbc.ini` and `odbcinst.ini`), that will contain the configuration for the driver and the Data Source Name (DSN), see the following examples:
+To use the driver on MacOS, you need to create two files: `odbc.ini` and `odbcinst.ini`, that will contain the configuration for the driver and the Data Source Name (DSN), see the following examples:
 
 #### odbc.ini
 ```bash

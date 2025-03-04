@@ -473,7 +473,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # AWS SDK
-aws_sdk/
+*/aws_sdk*
 
 # Visual Studio Code workspace files
 .vscode
