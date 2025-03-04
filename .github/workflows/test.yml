@@ -1,0 +1,23 @@
+name: Test clone
+run-name: aws-pgsql-odbc clone test - ${{ github.event.head_commit.message }}
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+    - "**"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15 # See https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
+    steps:
+      - name: Checkout aws-rds-odbc
+        uses: actions/checkout@v4
+        with:
+          repository: aws/aws-rds-odbc
+          ref: main
+          path: ./libs/aws-rds-odbc
+          token: ${{secrets.CLONE_PAT_SECONDARY}}
