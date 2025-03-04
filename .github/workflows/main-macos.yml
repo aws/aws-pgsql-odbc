@@ -72,13 +72,11 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Checkout aws-rds-odbc
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.CLONE_PRIV_SSH_KEY }}
-          repository: aws/aws-rds-odbc
-          ref: main
-          path: ./libs/aws-rds-odbc
+      - name: Checkout aws-rds-odbc w/ Deploy Key
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.CLONE_PRIV_SSH_KEY }}'
+          git checkout git@github.com:aws/aws-rds-odbc.git ./libs/aws-rds-odbc
 
       - name: Initialize submodules
         run: git submodule update --init --recursive
