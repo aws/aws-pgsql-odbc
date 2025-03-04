@@ -72,14 +72,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Setup Clone Key
-        run: |
-          eval `ssh-agent -s`
-          ssh-add - <<< '${{ secrets.CLONE_PRIV_SSH_KEY }}'
-
       - name: Checkout aws-rds-odbc
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.CLONE_PRIV_SSH_KEY }}
           repository: aws/aws-rds-odbc
           ref: main
           path: ./libs/aws-rds-odbc
