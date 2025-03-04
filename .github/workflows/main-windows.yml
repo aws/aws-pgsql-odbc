@@ -11,7 +11,7 @@ on:
       - '!REL-*-mimalloc'
   pull_request:
     branches:
-      - "**"
+      - ""
 
 env:
   # Path to the solution file relative to the root of the project.
