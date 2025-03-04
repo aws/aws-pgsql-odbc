@@ -78,7 +78,7 @@ jobs:
           repository: aws/aws-rds-odbc
           ref: main
           path: ./libs/aws-rds-odbc
-          token: ${{secrets.CLONE_PAT_SECONDARY}}
+          token: ${{ secrets.CLONE_PAT_SECONDARY }}
 
       - name: Initialize submodules
         run: git submodule update --init --recursive
