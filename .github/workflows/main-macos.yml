@@ -72,13 +72,17 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Setup Clone Key
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< '${{ secrets.CLONE_PRIV_SSH_KEY }}'
+
       - name: Checkout aws-rds-odbc
         uses: actions/checkout@v4
         with:
           repository: aws/aws-rds-odbc
           ref: main
           path: ./libs/aws-rds-odbc
-          token: ${{ secrets.CLONE_PAT_SECONDARY }}
 
       - name: Initialize submodules
         run: git submodule update --init --recursive
