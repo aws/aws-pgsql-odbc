@@ -1222,78 +1222,43 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
-void GetLimitlessServer(ConnInfo *ci) {
-	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
-
+void GetLimitlessServer(ConnectionClass *self, char *salt_para) {
+	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", self->connInfo.limitless_enabled);
+	ConnInfo *ci = &self->connInfo;
 	if (!ci->limitless_enabled) {
 		return;
 	}
 
+	// Connect to instance and check limitless
+	ci->limitless_enabled = 0; // connect without limitless support for simple connection
+	int rc = LIBPQ_CC_connect(self, salt_para);
+	if (rc <= 0) {
+		MYLOG(MIN_LOG_LEVEL, "Failed to connect - disabling limitless\n");
+		return;
+	}
+
+	if (CheckLimitlessCluster((HDBC) self)) {
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
+		ci->limitless_enabled = 1;
+	} else {
+		CC_cleanup(self, true);
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
+		return;
+	}
+	CC_cleanup(self, true);
+
+	// Vars to get limitless instance
+	int host_port = atoi(ci->port);
+	char connect_string_encoded[MAX_CONNECT_STRING];
+	makeConnectString(connect_string_encoded, ci, MAX_CONNECT_STRING);
 	LimitlessInstance db_instance;
 	db_instance.server = (char *)malloc(MEDIUM_REGISTRY_LEN);
 	db_instance.server_size = MEDIUM_REGISTRY_LEN;
 
-	int host_port = atoi(ci->port);
-	ci->limitless_enabled = 0;
-	char connect_string_encoded[MAX_CONNECT_STRING];
-	makeConnectString(connect_string_encoded, ci, MAX_CONNECT_STRING);
-	ci->limitless_enabled = 1;
+	// Get Limitless instance
 #ifdef UNICODE_SUPPORT
 	wchar_t connStr[MAX_CONNECT_STRING];
 	utf8_to_ucs2(connect_string_encoded, sizeof(connect_string_encoded), connStr, sizeof(connStr));
-#endif
-
-	// double check that the server supports limitless; if not, disable monitoring for this connection
-	SQLHENV henv;
-	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
-    if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed - disabling limitless\n");
-		ci->limitless_enabled = 0;
-		return;
-	}
-	SQLHDBC hdbc;
-    rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
-    if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed - disabling limitless\n");
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		ci->limitless_enabled = 0;
-		return;
-	}
-
-#ifdef UNICODE_SUPPORT
-	SQLSMALLINT connect_string_len = wcslen(connStr), out_len;
-	rc = SQLDriverConnectW(hdbc, NULL, connStr, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
-#else
-	SQLSMALLINT connect_string_len = strlen(connect_string_encoded), out_len;
-	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
-#endif
-    if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed - disabling limitless\n");
-		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		ci->limitless_enabled = 0;
-		return;
-	}
-
-	MYLOG(MIN_LOG_LEVEL, "before CheckLimitlessCluster\n");
-	if (CheckLimitlessCluster(hdbc)) {
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
-	} else {
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
-		SQLDisconnect(hdbc);
-		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		ci->limitless_enabled = 0;
-		return;
-	}
-
-	// disconnect from this preliminary connection
-	SQLDisconnect(hdbc);
-	SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-	SQLFreeHandle(SQL_HANDLE_ENV, henv);
-
-	MYLOG(MIN_LOG_LEVEL, "before GetLimitlessInstance\n");
-#ifdef UNICODE_SUPPORT
 	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, &db_instance);
 #else
 	bool db_instance_ready = GetLimitlessInstance(connect_string_encoded, host_port, ci->limitless_service_id, &db_instance);
@@ -1301,11 +1266,10 @@ void GetLimitlessServer(ConnInfo *ci) {
 
 	if (!db_instance_ready) {
 		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance returned false. Not using router endpoint.\n");
-		return; // no writing to ci
+	} else {
+		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance router endpoint: %s\n", db_instance.server);
+		STRCPY_FIXED(ci->server, db_instance.server);
 	}
-
-	MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance router endpoint: %s\n", db_instance.server);
-	STRCPY_FIXED(ci->server, db_instance.server);
 	free(db_instance.server);
 }
 
@@ -1346,7 +1310,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.username = NULL;
 		credentials.password = NULL;
 
-		GetLimitlessServer(ci);
+		GetLimitlessServer(self, salt_para);
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
 			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Fetched Secrets Manager credentials are invalid", CC_get_errormsg(self));
@@ -1356,7 +1320,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
-		GetLimitlessServer(ci);
+		GetLimitlessServer(self, salt_para);
 		ret = LIBPQ_CC_connect(self, salt_para);
 		// Failed to connect
 		if (ret <= 0) {
@@ -1379,7 +1343,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci->token_expiration);
 	}
 	else {
-		GetLimitlessServer(ci);
+		GetLimitlessServer(self, salt_para);
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0)
 			return ret;
