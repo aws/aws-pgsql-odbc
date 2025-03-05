@@ -39,7 +39,7 @@ fi
 
 # Prep the aws-rds-odbc builds
 echo "Prepping the ansi aws-rds-odbc build"
-if [ "${CONFIGURATION,,}" != "debug" ]; then
+if [ "${CONFIGURATION,,}" == "debug" ]; then
   cmake -S . -B build_ansi -DCMAKE_BUILD_TYPE=Debug > ./cmake.log 2>&1
 else
   cmake -S . -B build_ansi > ./cmake.log 2>&1
@@ -52,7 +52,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Prepping the unicode aws-rds-odbc build"
-if [ "${CONFIGURATION,,}" != "debug" ]; then
+if [ "${CONFIGURATION,,}" == "debug" ]; then
   cmake -S . -B build_unicode -DUNICODE_BUILD=ON -DCMAKE_BUILD_TYPE=Debug > ./cmake.log 2>&1
 else
   cmake -S . -B build_unicode -DUNICODE_BUILD=ON > ./cmake.log 2>&1
@@ -92,7 +92,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-if [ "${CONFIGURATION,,}" != "debug" ]; then
+if [ "${CONFIGURATION,,}" == "debug" ]; then
   ./configure --enable-debug
 else
   ./configure
