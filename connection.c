@@ -1222,28 +1222,24 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
-void GetLimitlessServer(ConnectionClass *self, char *salt_para) {
-	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", self->connInfo.limitless_enabled);
+char GetLimitlessServer(ConnectionClass *self, char *salt_para) {
 	ConnInfo *ci = &self->connInfo;
-	if (!ci->limitless_enabled) {
-		return;
-	}
 
 	// Connect to instance and check limitless
 	ci->limitless_enabled = 0; // connect without limitless support for simple connection
-	int rc = LIBPQ_CC_connect(self, salt_para);
+	const char rc = LIBPQ_CC_connect(self, salt_para);
 	if (rc <= 0) {
 		MYLOG(MIN_LOG_LEVEL, "Failed to connect - disabling limitless\n");
-		return;
+		return rc;
 	}
 
 	if (CheckLimitlessCluster((HDBC) self)) {
 		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
 		ci->limitless_enabled = 1;
 	} else {
-		CC_cleanup(self, true);
+		// Connection is successful, but is not limitless. Return rc and re-use connection
 		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
-		return;
+		return rc;
 	}
 	CC_cleanup(self, true);
 
@@ -1271,6 +1267,17 @@ void GetLimitlessServer(ConnectionClass *self, char *salt_para) {
 		STRCPY_FIXED(ci->server, db_instance.server);
 	}
 	free(db_instance.server);
+
+	// Connect to the router endpoint and return rc
+	return LIBPQ_CC_connect(self, salt_para);
+}
+
+char RDS_LIBPQ_CC_connect(ConnectionClass *self, char *salt_para) {
+	if (self->connInfo.limitless_enabled) {
+		MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", self->connInfo.limitless_enabled);
+		return GetLimitlessServer(self, salt_para);
+	}
+	return LIBPQ_CC_connect(self, salt_para);
 }
 
 #define MERGE_CSTR(buffer, size, prefix, suffix) (snprintf(buffer, size, "%s\n%s", prefix, suffix))
@@ -1310,8 +1317,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.username = NULL;
 		credentials.password = NULL;
 
-		GetLimitlessServer(self, salt_para);
-		ret = LIBPQ_CC_connect(self, salt_para);
+		ret = RDS_LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
 			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Fetched Secrets Manager credentials are invalid", CC_get_errormsg(self));
 			CC_set_errormsg(self, custom_err);
@@ -1321,7 +1327,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
 		GetLimitlessServer(self, salt_para);
-		ret = LIBPQ_CC_connect(self, salt_para);
+		ret = RDS_LIBPQ_CC_connect(self, salt_para);
 		// Failed to connect
 		if (ret <= 0) {
 			// Create new token if token was cached
@@ -1343,8 +1349,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci->token_expiration);
 	}
 	else {
-		GetLimitlessServer(self, salt_para);
-		ret = LIBPQ_CC_connect(self, salt_para);
+		ret = RDS_LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0)
 			return ret;
 	}
