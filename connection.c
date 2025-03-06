@@ -1321,7 +1321,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	char custom_err[LARGE_REGISTRY_LEN];
 
 	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
-	initialize_rds_logger(ci->log_dir, ci->rds_log_threshold);
+	InitializeRdsLogger(ci->log_dir, ci->rds_log_threshold);
 
 	if (stricmp(ci->authtype, SECRET_MODE) == 0) {
 		Credentials credentials;
