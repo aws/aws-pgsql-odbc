@@ -1222,7 +1222,7 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
-char GetLimitlessServer(ConnectionClass *self, char *salt_para) {
+char Limitless_LIBPQ_CC_connect(ConnectionClass *self, char *salt_para) {
 	ConnInfo *ci = &self->connInfo;
 
 	// Connect to instance and check limitless
@@ -1275,7 +1275,7 @@ char GetLimitlessServer(ConnectionClass *self, char *salt_para) {
 char RDS_LIBPQ_CC_connect(ConnectionClass *self, char *salt_para) {
 	if (self->connInfo.limitless_enabled) {
 		MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", self->connInfo.limitless_enabled);
-		return GetLimitlessServer(self, salt_para);
+		return Limitless_LIBPQ_CC_connect(self, salt_para);
 	}
 	return LIBPQ_CC_connect(self, salt_para);
 }
@@ -1326,7 +1326,6 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
-		GetLimitlessServer(self, salt_para);
 		ret = RDS_LIBPQ_CC_connect(self, salt_para);
 		// Failed to connect
 		if (ret <= 0) {
