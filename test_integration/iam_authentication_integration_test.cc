@@ -63,12 +63,29 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env1);
         SQLSetEnvAttr(env1, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env1, &dbc1);
+		std::cout << conn_str << std::endl;
 
         SQLCHAR conn_out[4096] = "\0";
         SQLSMALLINT len;
-        EXPECT_EQ(SQL_SUCCESS,
-                  SQLDriverConnect(dbc1, nullptr, AS_SQLCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+        SQLRETURN rc = SQLDriverConnect(dbc1, nullptr, AS_SQLCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+        EXPECT_EQ(SQL_SUCCESS, rc);
 
+        SQLSMALLINT sl;
+        SQLINTEGER er;
+
+        SQLTCHAR sqlstate[6], message[4096];
+        SQLRETURN err_rc = SQLError(nullptr,
+                                    dbc1,
+                                    nullptr,
+                                    sqlstate,
+                                    &er,
+                                    message,
+                                    SQL_MAX_MESSAGE_LENGTH - 1,
+                                    &sl);
+
+        if (SQL_SUCCEEDED(err_rc)) {
+            std::cout << sqlstate << ": " << message << std::endl;
+        }
         SQLHSTMT stmt = nullptr;
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc1, &stmt));
 

@@ -15,7 +15,8 @@
 # limitations under the License.
 
 CONFIGURATION=$1
-SKIP_AWS_SDK=$2
+WITH_IODBC=$2
+SKIP_AWS_SDK=$3
 if [ "${CONFIGURATION,,}" != "debug" ] && [ "${CONFIGURATION,,}" != "release" ]; then
   echo "Build configuration must be debug or release but is ${CONFIGURATION}"
   exit 1
@@ -90,10 +91,20 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-if [ "${CONFIGURATION,,}" == "debug" ]; then
-  ./configure --enable-debug
+if [ -z "${WITH_IODBC}" ] || [ ${WITH_IODBC,,} == "false" ]; then
+  echo "Configuring the driver with unixodbc"
+  if [ "${CONFIGURATION,,}" == "debug" ]; then
+    ./configure --enable-debug
+  else
+    ./configure
+  fi
 else
-  ./configure
+  echo "Configuring the driver with iodbc"
+  if [ "${CONFIGURATION,,}" == "debug" ]; then
+    ./configure --with-iodbc --enable-debug
+  else
+    ./configure --with-iodbc
+  fi
 fi
 if [ $? -ne 0 ]; then
   echo "configure failed"
