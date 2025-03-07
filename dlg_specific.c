@@ -23,8 +23,6 @@
 #include "misc.h"
 #include "pgapifunc.h"
 
-#include <limitless/limitless_monitor_service.h>
-
 #define	NULL_IF_NULL(a) ((a) ? ((const char *)(a)) : "(null)")
 CSTR	ENTRY_TEST = " @@@ ";
 
@@ -903,10 +901,10 @@ getCiDefaults(ConnInfo *ci)
 	STRCPY_FIXED(ci->federation_cfg.relaying_party_id, DEFAULT_RELAYING_PARTY_ID);
 
 	ci->secret_id[0] = '\0';
-	ci->limitless_enabled = 0;
+	ci->limitless_enabled = DEFAULT_LIMITLESS_ENABLED;
 	STRCPY_FIXED(ci->limitless_mode, DEFAULT_LIMITLESS_MODE);
 	ci->limitless_monitor_interval_ms = DEFAULT_LIMITLESS_MONITOR_INTERVAL_MS;
-	ci->limitless_service_id[0] = '\0';
+	STRCPY_FIXED(ci->limitless_service_id, DEFAULT_LIMITLESS_SERVICE_ID);
     SQLGetPrivateProfileString(DBMS_NAME, INI_LOGDIR, "", ci->log_dir, 1024, ODBCINST_INI);
 	ci->rds_log_threshold = 4;
 	ci->drivers.debug = DEFAULT_DEBUG;

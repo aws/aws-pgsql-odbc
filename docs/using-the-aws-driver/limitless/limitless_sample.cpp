@@ -69,7 +69,7 @@ int main() {
     const char *server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
     int port = 5432;
     const char *db = "postgres";
-    const char* limitless_config = "LIMITLESSENABLED=1;LIMITLESSMODE=immediate;LIMITLESSMONITORINTERVALMS=8000;LIMITLESSSERVICEID=my-limitless-sample";
+    const char *limitless_config = "LIMITLESSENABLED=1;LIMITLESSMODE=immediate;LIMITLESSMONITORINTERVALMS=7500;LIMITLESSSERVICEID=my-limitless-sample";
 
     sprintf(reinterpret_cast<char *>(conn_in),
             "DSN=%s;UID=%s;PWD=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;",
