@@ -84,6 +84,7 @@ public class IntegrationContainerTest {
   private static final AuroraTestUtility auroraUtil = new AuroraTestUtility(REGION, ENDPOINT);
 
   private static final String IODBC_VERSION = "3.52.16";
+  private static final String UNIXODBC_VERSION = "2.3.12";
 
   private static TestConfigurationEngine testConfiguration;
   private static int postgresProxyPort;
@@ -194,7 +195,7 @@ public class IntegrationContainerTest {
         .withEnv("TEST_DRIVER", "/app/.libs/awspsqlodbcw.so");
   }
 
-  private void installPrerequisites() throws Exception {
+  private void installPrerequisites(final boolean withIODBC) throws Exception {
     System.out.println("apt-get update");
     Container.ExecResult result = testContainer.execInContainer("apt-get", "update");
     System.out.println(result.getStdout());
@@ -229,11 +230,19 @@ public class IntegrationContainerTest {
     result = testContainer.execInContainer("sh", "-c", "yes n | apt-get install " + String.join(" ", packages) + " -y");
     System.out.println(result.getStdout());
 
+    if (withIODBC) {
+      configureWithIODBC();
+    } else {
+      configureWithUnixOdbc();
+    }
+  }
+
+  private void configureWithIODBC() throws IOException, InterruptedException {
     // Download and configure using IODBC
     System.out.println(
         "curl -L https://github.com/openlink/iODBC/releases/download/v" + IODBC_VERSION + "/libiodbc-" + IODBC_VERSION
             + ".tar.gz -o libiodbc.tar");
-    result = testContainer.execInContainer("curl", "-L",
+    Container.ExecResult result = testContainer.execInContainer("curl", "-L",
         "https://github.com/openlink/iODBC/releases/download/v" + IODBC_VERSION + "/libiodbc-" + IODBC_VERSION
             + ".tar.gz", "-o", "libiodbc.tar");
     System.out.println(result.getStdout());
@@ -247,12 +256,34 @@ public class IntegrationContainerTest {
     System.out.println(result.getStdout());
   }
 
-  private void buildDriver() {
-    try {
-      installPrerequisites();
+  private void configureWithUnixOdbc() throws IOException, InterruptedException {
+    // We need to build and install unixODBC because the apt-get package
+    // does not include odbc_config
+    System.out.println("curl -L https://www.unixodbc.org/unixODBC-" + UNIXODBC_VERSION + ".tar.gz -o unixODBC.tar");
+    Container.ExecResult result = testContainer.execInContainer("curl", "-L", "https://www.unixodbc.org/unixODBC-" + UNIXODBC_VERSION + ".tar.gz", "-o", "unixODBC.tar");
+    System.out.println(result.getStdout());
 
-      System.out.println("bash linux/buildall release true false");
-      Container.ExecResult result = testContainer.execInContainer("bash", "linux/buildall", "release", "true", "false");
+    System.out.println("tar xf unixODBC.tar");
+    result = testContainer.execInContainer("tar", "xf", "unixODBC.tar");
+    System.out.println(result.getStdout());
+
+    System.out.println("sh -c cd unixODBC-" + UNIXODBC_VERSION + " && ./configure && make && make install");
+    result = testContainer.execInContainer("sh", "-c",
+        "cd unixODBC-" + UNIXODBC_VERSION + " && " +
+            "./configure && make && make install"
+    );
+  }
+
+  private void buildDriver() {
+    buildDriver(true);
+  }
+
+  private void buildDriver(final boolean withIODBC) {
+    try {
+      installPrerequisites(withIODBC);
+
+      System.out.println("bash linux/buildall release " + withIODBC + " false");
+      Container.ExecResult result = testContainer.execInContainer("bash", "linux/buildall", "release", String.valueOf(withIODBC), "false");
       System.out.println(result.getStdout());
     } catch (Exception e) {
       fail("Test container failed during driver/test building process.");
@@ -475,7 +506,8 @@ public class IntegrationContainerTest {
       .withEnv("PGPASSWORD", TEST_PASSWORD);
     testContainer.start();
 
-    buildDriver();
+    // Build driver with unixODBC for community integration tests.
+    buildDriver(false);
   }
 
   private void setupLimitlessIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
