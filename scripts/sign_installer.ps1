@@ -32,11 +32,22 @@ function Invoke-SignFile {
     # Upload unsigned .msi to S3 Bucket
     Write-Host "Obtaining version id and uploading unsigned .msi to S3 Bucket"
     $versionId = $( aws s3api put-object --bucket $AwsUnsignedBucket --key $AwsKey --body $SourcePath --acl bucket-owner-full-control | jq '.VersionId' )
+    $versionId = $versionId.Replace("`"","")
     $jobId = ""
 
     if ([string]::IsNullOrEmpty($versionId)) {
         Write-Host "Failed to PUT unsigned file in bucket."
         return $false
+    }
+
+    # Verify Checksum of signed file in S3
+    $sourcePathHash = ( Get-FileHash -Path $SourcePath -Algorithm MD5 ).Hash
+    $etag = $( aws s3api head-object --bucket $AwsUnsignedBucket --key $AwsKey --query ETag --output text )
+    $etag = $etag.Replace("`"","")
+
+    if ( $sourcePathHash.Trim() -ne $etag.Trim()  ) {
+            Write-Host "Exiting because Checksum Verification failed for unsigned artifact"
+            return $false
     }
 
     # Attempt to get Job ID from bucket tagging, will retry up to 3 times before exiting with a failure code.
@@ -66,6 +77,16 @@ function Invoke-SignFile {
     # Get signed msi from S3
     Write-Host "Get signed msi from S3 to $TargetPath"
     aws s3api get-object --bucket $AwsSignedBucket --key $AwsKey-$jobId $TargetPath
+
+    # Verify Checksum of signed file in S3
+    $localFileHash = ( Get-FileHash -Path $TargetPath -Algorithm MD5 ).Hash
+    $etag = $( aws s3api head-object --bucket $AwsSignedBucket --key $AwsKey-$jobId --query ETag --output text )
+    $etag = $etag.Replace("`"","")
+
+    if ( $localFileHash.Trim() -ne $etag.Trim()  ) {
+        Write-Host "Exiting because Checksum Verification failed for signed artifact"
+        return $false
+    }
 
     Write-Host "Signing completed"
     return $true
