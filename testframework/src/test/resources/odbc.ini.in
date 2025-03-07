@@ -2,7 +2,7 @@
 data_source_name = @TEST_DSN@
 
 [@TEST_DSN@]
-Driver          = @TEST_DRIVER@
+Driver          = @DRIVER_PATH@
 DATABASE        = @TEST_DATABASE@
 DESCRIPTION     = @DESCRIPTION@
 SERVER          = @TEST_SERVER@

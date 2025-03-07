@@ -81,7 +81,7 @@ public class ContainerHelper {
                     .workDir("/app")
                     .entryPoint("/bin/sh -c \"while true; do sleep 30; done;\"")
                     .build()))
-        .withEnv("LD_LIBRARY_PATH", "$LD_LIBRARY_PATH:/app/aws_sdk/install/lib:/app/libs/aws-rds-odbc/build_ansi:/app/libs/aws-rds-odbc/build_unicode")
+        .withEnv("LD_LIBRARY_PATH", "$LD_LIBRARY_PATH:/app/aws_sdk/install/lib:/app/libs/aws-rds-odbc/build_ansi:/app/libs/aws-rds-odbc/build_unicode:/usr/local/lib/")
         .withEnv("DEBIAN_FRONTEND", "noninteractive")
         .withFileSystemBind(driverPath, "/app", BindMode.READ_WRITE)
         .withPrivilegedMode(true) // it's needed to control Linux core settings like TcpKeepAlive
