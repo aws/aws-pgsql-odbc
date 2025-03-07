@@ -1294,9 +1294,9 @@ void GetLimitlessServer(ConnInfo *ci) {
 
 	MYLOG(MIN_LOG_LEVEL, "before GetLimitlessInstance\n");
 #ifdef UNICODE_SUPPORT
-	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, &db_instance);
+	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, MEDIUM_REGISTRY_LEN, &db_instance);
 #else
-	bool db_instance_ready = GetLimitlessInstance(connect_string_encoded, host_port, ci->limitless_service_id, &db_instance);
+	bool db_instance_ready = GetLimitlessInstance(connect_string_encoded, host_port, ci->limitless_service_id, MEDIUM_REGISTRY_LEN, &db_instance);
 #endif
 
 	if (!db_instance_ready) {
