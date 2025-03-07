@@ -16,12 +16,12 @@ The following DSN fields on a DSN window should be filled when using the Limitle
 
 ### Limitless Connection Feature Parameters
 
-| Field            | Connection Option          | Value                                                                                                                                                                                | Default Value | Sample Value          |
-|------------------|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------|-----------------------|
-| Enable Limitless | LIMITLESSENABLED           | Set to 1 to enable Limitless support.                                                                                                                                                | 0             | 1                     |
-| Limitless Mode   | LIMITLESSMODE              | Connection strategy with Limitless. <br>`immediate` to allow driver to immediately switch connection to a queried router<br>`lazy` to connect to a queried router on next connection | `immediate`   | `lazy`                |
-| Monitor Interval | LIMITLESSMONITORINTERVALMS | Limitless router query interval in milliseconds                                                                                                                                      | 7500          | 15000                 |
-| Service ID       | LIMITLESSSERVICEID         | A unique identifier for each cluster                                                                                                                                                 | ``            | `my-limitless-sample` |
+| Field            | Connection Option          | Value                                                                                                                                                                                | Default Value  | Sample Value          |
+|------------------|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|-----------------------|
+| Enable Limitless | LIMITLESSENABLED           | Set to 1 to enable Limitless support.                                                                                                                                                | 0              | 1                     |
+| Limitless Mode   | LIMITLESSMODE              | Connection strategy with Limitless. <br>`immediate` to allow driver to immediately switch connection to a queried router<br>`lazy` to connect to a queried router on next connection | `immediate`    | `lazy`                |
+| Monitor Interval | LIMITLESSMONITORINTERVALMS | Limitless router query interval in milliseconds                                                                                                                                      | 7500           | 15000                 |
+| Service ID       | LIMITLESSSERVICEID         | A unique identifier for each cluster                                                                                                                                                 | Auto-generated | `my-limitless-sample` |
 
 ### DSN Window Example
 
@@ -35,9 +35,9 @@ Connection pools keep connections open for reuse, but this can work against the 
 
 ![DSN window example for disabling connection pool](img/connection_pool.png)
 
-### Regarding Service IDs
+### Auto-generated Service IDs
 
-If the limitless service ID parameter is unset, the cluster ID of the limitless database is used to identify the limitless monitor for that limitless database.
+If the limitless service ID parameter is left blank or unset, the limitless service ID is automatically set to the cluster ID of the limitless database.
 
 ## Sample Code
 
