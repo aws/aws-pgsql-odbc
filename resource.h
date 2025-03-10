@@ -99,7 +99,9 @@
 #define DS_ROWVERSIONING                1052
 #define DRV_PARSE                       1052
 #define DRV_CANCELASFREESTMT            1053
+#define DRV_VARCHAR_SIZE2               1053
 #define IDC_OPTIONS                     1054
+#define DRV_RDS_LOGGING_ENABLED         1054
 #define DRV_OR_DSN                      1059
 #define DRV_DEBUG                       1060
 #define DS_OPTIONALERRORS               1061
@@ -165,6 +167,8 @@
 #define IDC_LIMITLESS_MODE_IMMEDIATE    5006
 #define IDC_LIMITLESS_SERVICE_ID        5007
 #define IDS_SETUP                       5008
+#define DRV_RDS_ENABLE_LOGGING          5009
+#define DRV_RDS_LOG_THRESHOLD           5010
 
 // Next default values for new objects
 // 

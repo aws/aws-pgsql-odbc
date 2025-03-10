@@ -183,7 +183,8 @@ extern "C" {
 #define ABBR_SSLMODE			"CA"
 #define INI_EXTRAOPTIONS		"AB"
 #define INI_LOGDIR			"Logdir"
-#define INI_RDSLOGTHRESHOLD			"RdsLogThreshold"
+#define INI_RDSLOGGINGENABLED		"RdsLoggingEnabled"
+#define INI_RDSLOGTHRESHOLD		"RdsLogThreshold"
 #define INI_KEEPALIVETIME		"KeepaliveTime"
 #define ABBR_KEEPALIVETIME		"D1"
 #define INI_KEEPALIVEINTERVAL		"KeepaliveInterval"
@@ -321,6 +322,8 @@ extern "C" {
 #define DEFAULT_LIMITLESS_MODE			LIMITLESS_IMMEDIATE
 #define DEFAULT_LIMITLESS_MONITOR_INTERVAL_MS	7500
 #define DEFAULT_LIMITLESS_SERVICE_ID		""
+#define DEFAULT_RDS_LOGGING_ENABLED		1
+#define DEFAULT_RDS_LOG_THRESHOLD		4
 
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 #define DEFAULT_XAOPT			1
