@@ -1115,12 +1115,6 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_connect_timeout);
 #endif
 
-	if (ci->rds_logging_enabled) {
-		InitializeRdsLogger(ci->log_dir, ci->rds_log_threshold);
-	} else {
-		ShutdownRdsLogger(); // disable logs from the library
-	}
-
 	return 1;
 }
 
