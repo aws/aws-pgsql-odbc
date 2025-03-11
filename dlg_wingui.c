@@ -521,6 +521,8 @@ MYLOG(3, "entering\n");
 
 	ci->rds_logging_enabled = IsDlgButtonChecked(hdlg, DRV_RDS_LOGGING_ENABLED);
 	ci->rds_log_threshold = GetDlgItemInt(hdlg, DRV_RDS_LOG_THRESHOLD, NULL, FALSE);
+	if (ci->rds_log_threshold < 0) ci->rds_log_threshold = 0;
+	if (ci->rds_log_threshold > 4) ci->rds_log_threshold = 4;
 
 	/* fall through */
 	return 0;
