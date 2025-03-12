@@ -1,6 +1,6 @@
 # Amazon Web Services (AWS) ODBC Driver for PostgreSQL
 
-[![License](https://img.shields.io/badge/license-GPLv2-blue)](LICENSE)
+[![License](https://img.shields.io/badge/license-LGPLv2-blue)](LICENSE)
 
 **The Amazon Web Services (AWS) ODBC Driver for PostgreSQL** allows an application to take advantage of the features of clustered PostgreSQL databases. It is based on the [PostgreSQL ODBC driver](https://odbc.postgresql.org/).
 This driver is compatible with the following platforms:
