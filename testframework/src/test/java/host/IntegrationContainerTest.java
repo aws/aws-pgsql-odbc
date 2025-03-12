@@ -173,7 +173,14 @@ public class IntegrationContainerTest {
     setupIntegrationTests(NETWORK);
 
     displayIniFiles();
-    containerHelper.runExecutable(testContainer, "build/bin", "integration");
+
+    System.out.println("Run Unicode integration tests");
+    testContainer.addEnv("TEST_DSN", "/app/.libs/awspsqlodbcw.so");
+    containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
+
+    System.out.println("Run ANSI integration tests");
+    testContainer.addEnv("TEST_DSN", "/app/.libs/awspsqlodbca.so");
+    containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
   }
 
   protected static GenericContainer<?> createTestContainer(final Network network) {
@@ -304,13 +311,22 @@ public class IntegrationContainerTest {
 
   private void buildIntegrationTests() {
     try {
-      System.out.println("cmake -S test_integration -B build");
-      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build");
+      // build unicode integration tests
+      System.out.println("cmake -S test_integration -B build_unicode -DUNICODE");
+      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_unicode", "-DUNICODE");
       System.out.println(result.getStdout());
 
-      System.out.println("cmake --build build");
-      result = testContainer.execInContainer("cmake", "--build", "build");
+      System.out.println("cmake --build build_unicode");
+      result = testContainer.execInContainer("cmake", "--build", "build_unicode");
+      System.out.println(result.getStdout());
 
+      // build ansi integration tests
+      System.out.println("cmake -S test_integration -B build_ansi");
+      result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_ansi");
+      System.out.println(result.getStdout());
+
+      System.out.println("cmake --build build_ansi");
+      result = testContainer.execInContainer("cmake", "--build", "build_ansi");
       System.out.println(result.getStdout());
     } catch (Exception e) {
       fail("Test container failed during driver/test building process.");
