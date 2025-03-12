@@ -691,6 +691,7 @@ typedef struct
 	Int4		limitless_monitor_interval_ms;
 	char		limitless_service_id[MEDIUM_REGISTRY_LEN];
 	char		log_dir[MEDIUM_REGISTRY_LEN];
+	signed char rds_logging_enabled;
 	Int4		rds_log_threshold;
 	char		password_required;
 	char		conn_settings_in_str;

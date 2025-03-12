@@ -1115,7 +1115,6 @@ static char CC_initial_log(ConnectionClass *self, const char *func)
 		ci->federation_cfg.http_client_connect_timeout);
 #endif
 
-	InitializeRdsLogger(ci->log_dir, ci->rds_log_threshold);
 	return 1;
 }
 
@@ -1322,7 +1321,12 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	char custom_err[LARGE_REGISTRY_LEN];
 
 	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
-	InitializeRdsLogger(ci->log_dir, ci->rds_log_threshold);
+
+	if (ci->rds_logging_enabled) {
+		InitializeRdsLogger(ci->log_dir, ci->rds_log_threshold);
+	} else {
+		ShutdownRdsLogger(); // disable logs from the library
+	}
 
 	if (stricmp(ci->authtype, SECRET_MODE) == 0) {
 		Credentials credentials;

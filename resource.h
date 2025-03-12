@@ -165,6 +165,8 @@
 #define IDC_LIMITLESS_MODE_IMMEDIATE    5006
 #define IDC_LIMITLESS_SERVICE_ID        5007
 #define IDS_SETUP                       5008
+#define DRV_RDS_LOGGING_ENABLED         5009
+#define DRV_RDS_LOG_THRESHOLD           5010
 
 // Next default values for new objects
 // 

@@ -704,6 +704,8 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 		STRCPY_FIXED(ci->limitless_service_id, value);
 	else if (stricmp(attribute, INI_LOGDIR) == 0)
         STRCPY_FIXED(ci->log_dir, value);
+	else if (stricmp(attribute, INI_RDSLOGGINGENABLED) == 0)
+        ci->rds_logging_enabled = atoi(value);
 	else if (stricmp(attribute, INI_RDSLOGTHRESHOLD) == 0)
         ci->rds_log_threshold = atoi(value);
 	else if (stricmp(attribute, INI_READONLY) == 0 || stricmp(attribute, ABBR_READONLY) == 0)
@@ -906,7 +908,8 @@ getCiDefaults(ConnInfo *ci)
 	ci->limitless_monitor_interval_ms = DEFAULT_LIMITLESS_MONITOR_INTERVAL_MS;
 	STRCPY_FIXED(ci->limitless_service_id, DEFAULT_LIMITLESS_SERVICE_ID);
     SQLGetPrivateProfileString(DBMS_NAME, INI_LOGDIR, "", ci->log_dir, 1024, ODBCINST_INI);
-	ci->rds_log_threshold = 4;
+	ci->rds_logging_enabled = DEFAULT_RDS_LOGGING_ENABLED;
+	ci->rds_log_threshold = DEFAULT_RDS_LOG_THRESHOLD;
 	ci->drivers.debug = DEFAULT_DEBUG;
 	ci->drivers.commlog = DEFAULT_COMMLOG;
 	ITOA_FIXED(ci->onlyread, DEFAULT_READONLY);
@@ -1121,6 +1124,9 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 
 	if (SQLGetPrivateProfileString(DSN, INI_LOGDIR, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
         STRCPY_FIXED(ci->log_dir, temp);
+
+	if (SQLGetPrivateProfileString(DSN, INI_RDSLOGGINGENABLED, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
+        ci->rds_logging_enabled = atoi(temp);
 
 	if (SQLGetPrivateProfileString(DSN, INI_RDSLOGTHRESHOLD, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
         ci->rds_log_threshold = atoi(temp); 
@@ -1539,6 +1545,18 @@ writeDSNinfo(const ConnInfo *ci)
 	SQLWritePrivateProfileString(DSN,
 								 INI_APP_ID,
 								 ci->federation_cfg.app_id,
+								 ODBC_INI);
+
+	ITOA_FIXED(temp, ci->rds_logging_enabled);
+	SQLWritePrivateProfileString(DSN,
+								 INI_RDSLOGGINGENABLED,
+								 temp,
+								 ODBC_INI);
+
+	ITOA_FIXED(temp, ci->rds_log_threshold);
+	SQLWritePrivateProfileString(DSN,
+								 INI_RDSLOGTHRESHOLD,
+								 temp,
 								 ODBC_INI);
 
 	SQLWritePrivateProfileString(DSN,
@@ -2158,6 +2176,9 @@ CC_copy_conninfo(ConnInfo *ci, const ConnInfo *sci)
 	CORR_STRCPY(limitless_mode);
 	CORR_VALCPY(limitless_monitor_interval_ms);
 	CORR_STRCPY(limitless_service_id);
+
+	CORR_VALCPY(rds_logging_enabled);
+	CORR_VALCPY(rds_log_threshold);
 
 	CORR_STRCPY(log_dir);
 

@@ -415,6 +415,9 @@ MYLOG(MIN_LOG_LEVEL, "entering src=%d\n", src);
 			break;
 	}
 
+	CheckDlgButton(hdlg, DRV_RDS_LOGGING_ENABLED, ci->rds_logging_enabled > 0);
+	SetDlgItemInt(hdlg, DRV_RDS_LOG_THRESHOLD, ci->rds_log_threshold, FALSE);
+
 	/* Driver Connection Settings */
 	EnableWindow(GetDlgItem(hdlg, DRV_CONNSETTINGS), FALSE);
 	ShowWindow(GetDlgItem(hdlg, ID2NDPAGE), enable ? SW_HIDE : SW_SHOW);
@@ -515,6 +518,11 @@ MYLOG(3, "entering\n");
 	GetDlgItemText(hdlg, DRV_EXTRASYSTABLEPREFIXES, comval->extra_systable_prefixes, sizeof(comval->extra_systable_prefixes));
 	ci->batch_size = GetDlgItemInt(hdlg, DS_BATCH_SIZE, NULL, FALSE);
 	ci->ignore_timeout = IsDlgButtonChecked(hdlg, DS_IGNORETIMEOUT);
+
+	ci->rds_logging_enabled = IsDlgButtonChecked(hdlg, DRV_RDS_LOGGING_ENABLED);
+	ci->rds_log_threshold = GetDlgItemInt(hdlg, DRV_RDS_LOG_THRESHOLD, NULL, FALSE);
+	if (ci->rds_log_threshold < 0) ci->rds_log_threshold = 0;
+	if (ci->rds_log_threshold > 4) ci->rds_log_threshold = 4;
 
 	/* fall through */
 	return 0;
