@@ -114,12 +114,15 @@ endif()
 
 # Set values to help generate odbc.ini and odbcinst.ini files for Dockerized tests
 SET(ODBC_PATH ${CMAKE_SOURCE_DIR}/../testframework/src/test/resources/)
-SET(TEST_DRIVER "aws-pgsql-odbc")
-SET(DRIVER_PATH $ENV{TEST_DRIVER})
+SET(TEST_DRIVER_UNICODE "aws-pgsql-odbc-unicode")
+SET(TEST_DRIVER_ANSI "aws-pgsql-odbc-ansi")
+SET(DRIVER_PATH_UNICODE $ENV{TEST_DRIVER_UNICODE})
+SET(DRIVER_PATH_ANSI $ENV{TEST_DRIVER_ANSI})
 SET(DRIVER_DESCRIPTION "AWS PG ODBC Driver for connecting to PG")
 SET(THREADING "0")
 
-SET(TEST_DSN $ENV{TEST_DSN})
+SET(TEST_DSN_UNICODE $ENV{TEST_DSN_UNICODE})
+SET(TEST_DSN_ANSI $ENV{TEST_DSN_ANSI})
 SET(TEST_DATABASE $ENV{TEST_DATABASE})
 SET(DESCRIPTION "AWS PG ODBC Driver for Dockerized tests")
 SET(TEST_UID $ENV{TEST_USERNAME})

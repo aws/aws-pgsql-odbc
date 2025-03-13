@@ -105,6 +105,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
+    
     EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
@@ -118,7 +119,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
                             .withAuthRegion("us-fake-1")
                             .withSecretId(SECRETS_ARN)
                             .getString();
-    
+
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE

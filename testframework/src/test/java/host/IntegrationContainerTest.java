@@ -47,7 +47,8 @@ public class IntegrationContainerTest {
   private static final int POSTGRES_PORT = 5432;
   private static final String TEST_CONTAINER_NAME = "test-container";
   private static final String TEST_DATABASE = "test";
-  private static final String TEST_DSN = System.getenv("TEST_DSN");
+  private static final String TEST_DSN_UNICODE = System.getenv("TEST_DSN_UNICODE");
+  private static final String TEST_DSN_ANSI = System.getenv("TEST_DSN_ANSI");
   private static final String TEST_USERNAME = !StringUtils.isNullOrEmpty(System.getenv("TEST_USERNAME")) ?
           System.getenv("TEST_USERNAME") : "my_test_username";
   private static final String TEST_PASSWORD = !StringUtils.isNullOrEmpty(System.getenv("TEST_PASSWORD")) ?
@@ -107,7 +108,6 @@ public class IntegrationContainerTest {
 
   @AfterAll
   static void tearDown() {
-    /*
     if (!REUSE_CLUSTER
         && !StringUtils.isNullOrEmpty(ACCESS_KEY)
         && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY)
@@ -138,7 +138,6 @@ public class IntegrationContainerTest {
     if (postgresContainer != null) {
       postgresContainer.stop();
     }
-    */
   }
 
   @Test
@@ -166,11 +165,11 @@ public class IntegrationContainerTest {
     setupLimitlessIntegrationTests(NETWORK);
 
     System.out.println("Run Unicode integration tests");
-    testContainer.addEnv("TEST_DSN", "/app/.libs/awspsqlodbcw.so");
+    testContainer.addEnv("TEST_DSN", TEST_DSN_UNICODE);
     containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
 
     System.out.println("Run ANSI integration tests");
-    testContainer.addEnv("TEST_DSN", "/app/.libs/awspsqlodbca.so");
+    testContainer.addEnv("TEST_DSN", TEST_DSN_ANSI);
     containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
   }
 
@@ -184,11 +183,11 @@ public class IntegrationContainerTest {
     displayIniFiles();
 
     System.out.println("Run Unicode integration tests");
-    testContainer.addEnv("TEST_DSN", "/app/.libs/awspsqlodbcw.so");
+    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_UNICODE));
     containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
 
     System.out.println("Run ANSI integration tests");
-    testContainer.addEnv("TEST_DSN", "/app/.libs/awspsqlodbca.so");
+    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_ANSI));
     containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
   }
 
@@ -198,14 +197,17 @@ public class IntegrationContainerTest {
             DRIVER_LOCATION)
         .withNetworkAliases(TEST_CONTAINER_NAME)
         .withNetwork(network)
-        .withEnv("TEST_DSN", TEST_DSN)
+        .withEnv("TEST_DSN_UNICODE", TEST_DSN_UNICODE)
+        .withEnv("TEST_DSN_ANSI", TEST_DSN_ANSI)
+        .withEnv("TEST_DSN", TEST_DSN_UNICODE) // for community tests
         .withEnv("TEST_USERNAME", TEST_USERNAME)
         .withEnv("TEST_PASSWORD", TEST_PASSWORD)
         .withEnv("POSTGRES_PORT", Integer.toString(POSTGRES_PORT))
         .withEnv("ODBCINI", ODBCINI_LOCATION)
         .withEnv("ODBCINST", ODBCINSTINI_LOCATION)
         .withEnv("ODBCSYSINI", "/app/build/test")
-        .withEnv("TEST_DRIVER", "/app/.libs/awspsqlodbcw.so");
+        .withEnv("TEST_DRIVER_UNICODE", "/app/.libs/awspsqlodbcw.so")
+        .withEnv("TEST_DRIVER_ANSI", "/app/.libs/awspsqlodbca.so");
   }
 
   private void installPrerequisites(final boolean withIODBC) throws Exception {
@@ -316,7 +318,7 @@ public class IntegrationContainerTest {
 
       // build ansi integration tests
       System.out.println("cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE");
-      result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_ansi");
+      result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_ansi", "-DTEST_LIMITLESS=TRUE");
       System.out.println(result.getStdout());
 
       System.out.println("cmake --build build_ansi");

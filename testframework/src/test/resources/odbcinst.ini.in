@@ -1,12 +1,23 @@
 [ODBC Drivers]
-@TEST_DRIVER@ = Installed
+@TEST_DRIVER_UNICODE@ = Installed
+@TEST_DRIVER_ANSI@ = Installed
 
-[@TEST_DRIVER@]
-Driver = @DRIVER_PATH@
+[@TEST_DRIVER_UNICODE@]
+Driver = @DRIVER_PATH_UNICODE@
 Description = @DRIVER_DESCRIPTION@
 Threading = @THREADING@
 
-[@DRIVER_PATH@]
-Driver = @DRIVER_PATH@
+[@DRIVER_PATH_UNICODE@]
+Driver = @DRIVER_PATH_UNICODE@
+Description = @DRIVER_DESCRIPTION@
+Threading = @THREADING@
+
+[@TEST_DRIVER_ANSI@]
+Driver = @DRIVER_PATH_ANSI@
+Description = @DRIVER_DESCRIPTION@
+Threading = @THREADING@
+
+[@DRIVER_PATH_ANSI@]
+Driver = @DRIVER_PATH_ANSI@
 Description = @DRIVER_DESCRIPTION@
 Threading = @THREADING@
