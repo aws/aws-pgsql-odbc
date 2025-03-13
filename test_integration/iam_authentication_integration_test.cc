@@ -21,6 +21,8 @@
 #include <sql.h>
 #include <sqlext.h>
 
+#include <cstring> // strlen
+
 #include "connection_string_builder.h"
 #include "integration_test_utils.h"
 
@@ -68,7 +70,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         SQLTCHAR conn_out[4096] = {0};
         SQLSMALLINT len;
         #ifdef UNICODE
-        SQLRETURN rc = SQLDriverConnect(dbc1, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(conn_str), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+        SQLRETURN rc = SQLDriverConnect(dbc1, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(conn_str), conn_str.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
         #else
         SQLRETURN rc = SQLDriverConnect(dbc1, nullptr, AS_SQLCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
         #endif
@@ -99,24 +101,27 @@ class IamAuthenticationIntegrationTest : public testing::Test {
 
         char query_buffer[200];
         sprintf(query_buffer, "DROP USER IF EXISTS %s;", iam_user);
+        SQLINTEGER query_len = strlen(query_buffer);
         #ifdef UNICODE
-        SQLExecDirect(stmt, INTEGRATION_TEST_UTILS::to_sqlwchar(query_buffer), SQL_NTS);
+        SQLExecDirect(stmt, INTEGRATION_TEST_UTILS::to_sqlwchar(query_buffer), query_len);
         #else
         SQLExecDirect(stmt, AS_SQLCHAR(query_buffer), SQL_NTS);
         #endif
 
         memset(query_buffer, 0, sizeof(query_buffer));
         sprintf(query_buffer, "CREATE USER %s;", iam_user);
+        query_len = strlen(query_buffer);
         #ifdef UNICODE
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, INTEGRATION_TEST_UTILS::to_sqlwchar(query_buffer), SQL_NTS));
+        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, INTEGRATION_TEST_UTILS::to_sqlwchar(query_buffer), query_len));
         #else
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLCHAR(query_buffer), SQL_NTS));
         #endif
 
         memset(query_buffer, 0, sizeof(query_buffer));
         sprintf(query_buffer, "GRANT rds_iam TO %s;", iam_user);
+        query_len = strlen(query_buffer);
         #ifdef UNICODE
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, INTEGRATION_TEST_UTILS::to_sqlwchar(query_buffer), SQL_NTS));
+        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, INTEGRATION_TEST_UTILS::to_sqlwchar(query_buffer), query_len));
         #else
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLCHAR(query_buffer), SQL_NTS));
         #endif
@@ -168,7 +173,7 @@ TEST_F(IamAuthenticationIntegrationTest, SimpleIamConnection) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(default_connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(default_connection_string), default_connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
@@ -196,7 +201,7 @@ TEST_F(IamAuthenticationIntegrationTest, ConnectToIpAddress) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
@@ -214,7 +219,7 @@ TEST_F(IamAuthenticationIntegrationTest, WrongPassword) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
@@ -238,7 +243,7 @@ TEST_F(IamAuthenticationIntegrationTest, WrongUser) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
@@ -270,7 +275,7 @@ TEST_F(IamAuthenticationIntegrationTest, EmptyUser) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif

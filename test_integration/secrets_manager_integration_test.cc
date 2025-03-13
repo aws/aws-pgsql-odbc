@@ -83,7 +83,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
@@ -99,9 +99,9 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
                             .getString();
 
     SQLTCHAR conn_out[4096] = {0};
-    SQLSMALLINT len;
+    SQLSMALLINT conn_len, len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
@@ -123,7 +123,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
@@ -141,7 +141,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
     #ifdef UNICODE
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
