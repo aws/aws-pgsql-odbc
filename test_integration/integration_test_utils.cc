@@ -25,7 +25,17 @@
 #include <netdb.h>
 #endif
 
+#include <codecvt>
+#include <locale>
+#include <string.h>
+
 #include "integration_test_utils.h"
+
+#if defined(__APPLE__) || defined(__linux__)
+typedef std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+#else
+typedef std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+#endif
 
 char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) {
     char* value = std::getenv(key);
@@ -74,4 +84,11 @@ std::string INTEGRATION_TEST_UTILS::host_to_IP(std::string hostname) {
 
     freeaddrinfo(servinfo);
     return std::string(ipstr);
+}
+
+SQLWCHAR *INTEGRATION_TEST_UTILS::to_sqlwchar(std::string str) {
+    // this is static, such that the array returned is valid until it the function is called again
+    // otherwise the std::wstring would be destructed and the life of the character array is undefined
+    static std::wstring wstr = converter{}.from_bytes(str);
+    return AS_SQLWCHAR(wstr.c_str());
 }

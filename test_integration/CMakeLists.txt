@@ -104,6 +104,14 @@ set_target_properties(
   RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
 )
 
+# Create an option for selecting the Unicode build type
+option(UNICODE_BUILD "Enable Unicode build" OFF)
+
+# Set output directory suffix based on the build type
+if (UNICODE_BUILD)
+  add_definitions(-DUNICODE)
+endif()
+
 # Set values to help generate odbc.ini and odbcinst.ini files for Dockerized tests
 SET(ODBC_PATH ${CMAKE_SOURCE_DIR}/../testframework/src/test/resources/)
 SET(TEST_DRIVER "aws-pgsql-odbc")

@@ -15,16 +15,23 @@
 #ifndef INTEGRATIONTESTUTILS_H_
 #define INTEGRATIONTESTUTILS_H_
 
+#include <sql.h>
+#include <sqlext.h>
+
 #define MAX_NAME_LEN 4096
 #define SQL_MAX_MESSAGE_LENGTH 512
 
-#define AS_SQLCHAR(str) const_cast<SQLCHAR*>(reinterpret_cast<const SQLCHAR*>(str))
+#define AS_SQLCHAR(str)     const_cast<SQLCHAR*>(reinterpret_cast<const SQLCHAR*>(str))
+#define AS_SQLWCHAR(str)    const_cast<SQLWCHAR*>(reinterpret_cast<const SQLWCHAR*>(str))
+#define AS_STRING(str)      std::string(reinterpret_cast<char*>(str))
+#define AS_WSTRING(str)     std::wstring(reinterpret_cast<wchar_t*>(str))
 
 class INTEGRATION_TEST_UTILS {
 public:
     static char* get_env_var(const char* key, char* default_value);
     static int str_to_int(const char* str);
     static std::string host_to_IP(std::string hostname);
+    static SQLWCHAR *to_sqlwchar(std::string str);
 };
 
 #endif // INTEGRATIONTESTUTILS_H_

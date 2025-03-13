@@ -107,6 +107,7 @@ public class IntegrationContainerTest {
 
   @AfterAll
   static void tearDown() {
+    /*
     if (!REUSE_CLUSTER
         && !StringUtils.isNullOrEmpty(ACCESS_KEY)
         && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY)
@@ -137,6 +138,7 @@ public class IntegrationContainerTest {
     if (postgresContainer != null) {
       postgresContainer.stop();
     }
+    */
   }
 
   @Test
@@ -162,7 +164,14 @@ public class IntegrationContainerTest {
 
     testConfiguration = TestConfigurationEngine.LIMITLESS;
     setupLimitlessIntegrationTests(NETWORK);
-    containerHelper.runExecutable(testContainer, "build/bin", "integration");
+
+    System.out.println("Run Unicode integration tests");
+    testContainer.addEnv("TEST_DSN", "/app/.libs/awspsqlodbcw.so");
+    containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
+
+    System.out.println("Run ANSI integration tests");
+    testContainer.addEnv("TEST_DSN", "/app/.libs/awspsqlodbca.so");
+    containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
   }
 
   @Test
@@ -296,13 +305,22 @@ public class IntegrationContainerTest {
 
   private void buildLimitlessTests() {
     try {
-      System.out.println("cmake -S test_integration -B build -DTEST_LIMITLESS=TRUE");
-      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build", "-DTEST_LIMITLESS=TRUE");
+      // build unicode integration tests
+      System.out.println("cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=TRUE -DUNICODE_BUILD=TRUE");
+      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_unicode", "-DTEST_LIMITLESS=TRUE", "-DUNICODE_BUILD=TRUE");
       System.out.println(result.getStdout());
 
-      System.out.println("cmake --build build");
-      result = testContainer.execInContainer("cmake", "--build", "build");
+      System.out.println("cmake --build build_unicode");
+      result = testContainer.execInContainer("cmake", "--build", "build_unicode");
+      System.out.println(result.getStdout());
 
+      // build ansi integration tests
+      System.out.println("cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE");
+      result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_ansi");
+      System.out.println(result.getStdout());
+
+      System.out.println("cmake --build build_ansi");
+      result = testContainer.execInContainer("cmake", "--build", "build_ansi");
       System.out.println(result.getStdout());
     } catch (Exception e) {
       fail("Test container failed during driver/test building process.");
@@ -312,8 +330,8 @@ public class IntegrationContainerTest {
   private void buildIntegrationTests() {
     try {
       // build unicode integration tests
-      System.out.println("cmake -S test_integration -B build_unicode -DUNICODE");
-      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_unicode", "-DUNICODE");
+      System.out.println("cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE");
+      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_unicode", "-DUNICODE_BUILD=TRUE");
       System.out.println(result.getStdout());
 
       System.out.println("cmake --build build_unicode");

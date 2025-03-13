@@ -38,6 +38,7 @@ static const char* test_pwd;
 static unsigned int test_port;
 
 static std::string test_endpoint;
+static std::wstring test_endpointw;
 
 class LimitlessIntegrationTest : public testing::Test {
 protected:
@@ -46,6 +47,7 @@ protected:
 
     static void SetUpTestSuite() {
         test_endpoint = std::getenv("TEST_SERVER");
+        test_endpointw = std::wstring(test_endpoint.begin(), test_endpoint.end());
         test_dsn = std::getenv("TEST_DSN");
         test_db = std::getenv("TEST_DATABASE");
         test_user = std::getenv("TEST_USERNAME");
@@ -84,16 +86,25 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
         .withLimitlessMonitorIntervalMs(1000)
         .withLimitlessServiceId("test_id").getString();
 
-    SQLCHAR conn_out[4096] = "\0";
+    SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
+    #ifdef UNICODE
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, INTEGRATION_TEST_UTILS::to_sqlwchar(connection_string), SQL_NTS,
+        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    #else
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
         conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    #endif
     ASSERT_EQ(SQL_SUCCESS, rc);
 
     // server endpoint should no longer be the shard group endpoint
-    SQLCHAR server_name[256];
+    SQLTCHAR server_name[256] = {0};
     rc = SQLGetInfo(dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), &len);
     EXPECT_EQ(SQL_SUCCESS, rc);
-    EXPECT_TRUE(std::string((const char *)server_name) != test_endpoint);
+    #ifdef UNICODE
+    EXPECT_TRUE(AS_WSTRING(server_name) != test_endpointw);
+    #else
+    EXPECT_TRUE(AS_STRING(server_name) != test_endpoint);
+    #endif
     SQLDisconnect(dbc);
 }
