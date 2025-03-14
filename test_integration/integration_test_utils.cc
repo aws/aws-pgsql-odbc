@@ -86,9 +86,37 @@ std::string INTEGRATION_TEST_UTILS::host_to_IP(std::string hostname) {
     return std::string(ipstr);
 }
 
-SQLWCHAR *INTEGRATION_TEST_UTILS::to_sqlwchar(std::string str) {
-    // this is static, such that the array returned is valid until it the function is called again
-    // otherwise the std::wstring would be destructed and the life of the character array is undefined
-    static std::wstring wstr = converter{}.from_bytes(str);
-    return AS_SQLWCHAR(wstr.c_str());
+std::wstring INTEGRATION_TEST_UTILS::to_wstring(std::string str) {
+    return converter{}.from_bytes(str);
+}
+
+std::string INTEGRATION_TEST_UTILS::to_string(std::wstring str) {
+    if (str.empty()) {
+        return std::string();
+    }
+    return converter{}.to_bytes(str);
+}
+
+void INTEGRATION_TEST_UTILS::print_errors(SQLHANDLE handle, int32_t handle_type) {
+    SQLTCHAR     sqlstate[6];
+    SQLTCHAR     message[1024];
+    SQLINTEGER  nativeerror;
+    SQLSMALLINT textlen;
+    SQLRETURN   ret;
+    SQLSMALLINT recno = 0;
+
+    do {
+        recno++;
+        ret = SQLGetDiagRec(handle_type, handle, recno, sqlstate, &nativeerror,
+                            message, sizeof(message), &textlen);
+        if (ret == SQL_INVALID_HANDLE) {
+            std::cerr << "Invalid handle" << std::endl;
+        } else if (SQL_SUCCEEDED(ret)) {
+            #ifdef UNICODE
+            std::cerr << INTEGRATION_TEST_UTILS::to_string(sqlstate) << ": " << INTEGRATION_TEST_UTILS::to_string(message) << std::endl;
+            #else
+            std::cerr << sqlstate << ": " << message << std::endl;
+            #endif
+        }
+    } while (ret == SQL_SUCCESS);
 }

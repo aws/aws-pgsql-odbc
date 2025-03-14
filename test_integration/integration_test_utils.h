@@ -31,7 +31,10 @@ public:
     static char* get_env_var(const char* key, char* default_value);
     static int str_to_int(const char* str);
     static std::string host_to_IP(std::string hostname);
+    static std::wstring to_wstring(std::string str);
     static SQLWCHAR *to_sqlwchar(std::string str);
+    static std::string to_string(std::wstring str);
+    static void print_errors(SQLHANDLE handle, int32_t handle_type);
 };
 
 #endif // INTEGRATIONTESTUTILS_H_
