@@ -1228,10 +1228,6 @@ void GetLimitlessServer(ConnInfo *ci) {
 		return;
 	}
 
-	LimitlessInstance db_instance;
-	db_instance.server = (char *)malloc(MEDIUM_REGISTRY_LEN);
-	db_instance.server_size = MEDIUM_REGISTRY_LEN;
-
 	int host_port = atoi(ci->port);
 	ci->limitless_enabled = 0;
 	char connect_string_encoded[MAX_CONNECT_STRING];
@@ -1250,6 +1246,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 		ci->limitless_enabled = 0;
 		return;
 	}
+
 	SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
 	SQLHDBC hdbc;
     rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
@@ -1293,19 +1290,21 @@ void GetLimitlessServer(ConnInfo *ci) {
 	SQLFreeHandle(SQL_HANDLE_ENV, henv);
 
 	MYLOG(MIN_LOG_LEVEL, "before GetLimitlessInstance\n");
+	LimitlessInstance db_instance;
+	db_instance.server = (char *)malloc(MEDIUM_REGISTRY_LEN);
+	db_instance.server_size = MEDIUM_REGISTRY_LEN;
 #ifdef UNICODE_SUPPORT
 	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, MEDIUM_REGISTRY_LEN, &db_instance);
 #else
 	bool db_instance_ready = GetLimitlessInstance(connect_string_encoded, host_port, ci->limitless_service_id, MEDIUM_REGISTRY_LEN, &db_instance);
 #endif
 
-	if (!db_instance_ready) {
+	if (db_instance_ready) {
+		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance router endpoint: %s\n", db_instance.server);
+		STRCPY_FIXED(ci->server, db_instance.server);
+	} else {
 		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance returned false. Not using router endpoint.\n");
-		return; // no writing to ci
 	}
-
-	MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance router endpoint: %s\n", db_instance.server);
-	STRCPY_FIXED(ci->server, db_instance.server);
 	free(db_instance.server);
 }
 
