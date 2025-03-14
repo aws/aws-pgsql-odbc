@@ -182,13 +182,13 @@ public class IntegrationContainerTest {
 
     displayIniFiles();
 
-    System.out.println("Run Unicode integration tests");
-    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_UNICODE));
-    containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
-
     System.out.println("Run ANSI integration tests");
     testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_ANSI));
     containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
+
+    System.out.println("Run Unicode integration tests");
+    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_UNICODE));
+    containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
   }
 
   protected static GenericContainer<?> createTestContainer(final Network network) {
