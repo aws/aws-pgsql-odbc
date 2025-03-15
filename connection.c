@@ -1318,87 +1318,48 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 
 bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
-
 	if (!ci->limitless_enabled) {
 		return true;
 	}
-
-	int host_port = pg_atoi(ci->port);
+	// Do regular connection first to check if cluster is limitlesss
 	ci->limitless_enabled = 0;
-	char connect_string_encoded[MAX_CONNECT_STRING];
-	makeConnectString(connect_string_encoded, ci, MAX_CONNECT_STRING);
-	ci->limitless_enabled = 1;
+
+	// Get connection string based on unicode
 #ifdef UNICODE_SUPPORT
-	wchar_t connStr[MAX_CONNECT_STRING];
-	utf8_to_ucs2(connect_string_encoded, sizeof(connect_string_encoded), connStr, sizeof(connStr));
-#endif
-
-	// double check that the server supports limitless; if not, disable monitoring for this connection
-	SQLHENV henv;
-	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
-	if (!SQL_SUCCEEDED(rc)) {
-		*limitless_err = strdup(ERRMSG_LIMITLESS_COULD_NOT_ALLOCATE);
-		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed\n");
-		return false;
-	}
-
-	SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
-	SQLHDBC hdbc;
-	rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
-	if (!SQL_SUCCEEDED(rc)) {
-		*limitless_err = strdup(ERRMSG_LIMITLESS_COULD_NOT_ALLOCATE);
-		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed\n");
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		return false;
-	}
-
-#ifdef UNICODE_SUPPORT
-	SQLSMALLINT connect_string_len = wcslen(connStr), out_len;
-	rc = SQLDriverConnectW(hdbc, NULL, connStr, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
+	char connect_string_ansi[MAX_CONNECT_STRING];
+	wchar_t connect_string[MAX_CONNECT_STRING];
+	makeConnectString(connect_string_ansi, ci, MAX_CONNECT_STRING);
+	utf8_to_ucs2(connect_string_ansi, sizeof(connect_string_ansi), connect_string, sizeof(connect_string));
 #else
-	SQLSMALLINT connect_string_len = strlen(connect_string_encoded), out_len;
-	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
+	char connect_string [MAX_CONNECT_STRING];
+	makeConnectString(connect_string, ci, MAX_CONNECT_STRING);
 #endif
-	if (!SQL_SUCCEEDED(rc)) {
-		*limitless_err = RDS_MergeDiagRecs(hdbc, ERRMSG_LIMITLESS_CONNECTION_NOT_ESTABLISHED);
-		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed before call to CheckLimitlessCluster\n");
-		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		return false;
-	}
 
-	MYLOG(MIN_LOG_LEVEL, "before CheckLimitlessCluster\n");
-	if (CheckLimitlessCluster(hdbc)) {
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true\n");
+	MYLOG(MIN_LOG_LEVEL, "entering CheckLimitlessCluster\n");
+
+	// Check if cluster is limitless
+	if (CheckLimitlessCluster(connect_string)) {
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
+		ci->limitless_enabled = 1;
 	} else {
-		*limitless_err = strdup(ERRMSG_LIMITLESS_NOT_LIMITLESS_CLUSTER);
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false\n");
-		SQLDisconnect(hdbc);
-		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		return false;
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
+		return;
 	}
 
-	// disconnect from this preliminary connection
-	SQLDisconnect(hdbc);
-	SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-	SQLFreeHandle(SQL_HANDLE_ENV, henv);
-
-	MYLOG(MIN_LOG_LEVEL, "before GetLimitlessInstance\n");
+	// Get limitless instance
 	LimitlessInstance db_instance;
 	db_instance.server = (char *)malloc(MEDIUM_REGISTRY_LEN);
 	db_instance.server_size = MEDIUM_REGISTRY_LEN;
-#ifdef UNICODE_SUPPORT
-	bool db_instance_ready = GetLimitlessInstance(connStr, host_port, ci->limitless_service_id, MEDIUM_REGISTRY_LEN, &db_instance);
-#else
-	bool db_instance_ready = GetLimitlessInstance(connect_string_encoded, host_port, ci->limitless_service_id, MEDIUM_REGISTRY_LEN, &db_instance);
-#endif
+	int host_port = atoi(ci->port);
 
-	if (db_instance_ready) {
+	MYLOG(MIN_LOG_LEVEL, "before GetLimitlessInstance\n");
+	bool db_instance_ready = GetLimitlessInstance(connect_string, host_port, ci->limitless_service_id, MEDIUM_REGISTRY_LEN, &db_instance);
+
+	if (!db_instance_ready) {
+		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance returned false. Not using router endpoint.\n");
+	} else {
 		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance router endpoint: %s\n", db_instance.server);
 		STRCPY_FIXED(ci->server, db_instance.server);
-	} else {
-		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance returned false. Not using router endpoint.\n");
 	}
 	free(db_instance.server);
 
