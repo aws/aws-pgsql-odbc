@@ -47,7 +47,7 @@ protected:
 
     static void SetUpTestSuite() {
         test_endpoint = std::getenv("TEST_SERVER");
-        test_endpointw = std::wstring(test_endpoint.begin(), test_endpoint.end());
+        test_endpointw = INTEGRATION_TEST_UTILS::to_wstring(test_endpoint);
         test_dsn = std::getenv("TEST_DSN");
         test_db = std::getenv("TEST_DATABASE");
         test_user = std::getenv("TEST_USERNAME");
@@ -96,7 +96,8 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
         conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     #endif
-    ASSERT_EQ(SQL_SUCCESS, rc);
+    EXPECT_EQ(SQL_SUCCESS, rc);
+    INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
 
     // server endpoint should no longer be the shard group endpoint
     SQLTCHAR server_name[256] = {0};

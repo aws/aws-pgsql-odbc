@@ -164,13 +164,13 @@ public class IntegrationContainerTest {
     testConfiguration = TestConfigurationEngine.LIMITLESS;
     setupLimitlessIntegrationTests(NETWORK);
 
-    System.out.println("Run Unicode integration tests");
-    testContainer.addEnv("TEST_DSN", TEST_DSN_UNICODE);
-    containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
-
     System.out.println("Run ANSI integration tests");
-    testContainer.addEnv("TEST_DSN", TEST_DSN_ANSI);
+    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_ANSI));
     containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
+
+    System.out.println("Run Unicode integration tests");
+    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_UNICODE));
+    containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
   }
 
   @Test
@@ -390,6 +390,7 @@ public class IntegrationContainerTest {
 
       if (REUSE_CLUSTER && !dbClusterIdentifier.isEmpty()) {
         clusterInfo = auroraUtil.getClusterInfo(dbClusterIdentifier);
+        secretsArn = System.getenv("SECRETS_ARN");
       } else {
         clusterInfo =
                 auroraUtil.createLimitlessCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, dbShardGroupIdentifier);
@@ -473,6 +474,7 @@ public class IntegrationContainerTest {
 
       if (REUSE_CLUSTER && !dbClusterIdentifier.isEmpty()) {
         clusterInfo = auroraUtil.getClusterInfo(dbClusterIdentifier);
+        secretsArn = System.getenv("SECRETS_ARN");
       } else {
         if (StringUtils.isNullOrEmpty(dbClusterIdentifier)) {
           dbClusterIdentifier = DEFAULT_APG_PREFIX + "cluster-" + System.nanoTime();
