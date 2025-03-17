@@ -66,6 +66,21 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(toxiproxy)
 
 #-----------------------------------------------------
+# Google logging library
+
+set("BUILD_TESTING" OFF CACHE INTERNAL "Skip GLOG Tests")
+FetchContent_Declare(
+    glog
+    GIT_REPOSITORY https://github.com/google/glog.git
+    GIT_TAG        v0.7.1
+)
+set(GLOG_BUILD_TESTS OFF) # Don't build tests
+set(GLOG_BUILD_BENCHMARKS OFF) # Don't build benchmarks
+set(GLOG_USE_CMAKE_INSTALL OFF) # Don't install glog
+set(BUILD_SHARED_LIBS OFF) # Force static linking.  Crucial for static glog
+FetchContent_MakeAvailable(glog)
+
+#-----------------------------------------------------
 
 enable_testing()
 
@@ -106,7 +121,12 @@ target_include_directories(
   # Name
   ${PROJECT_NAME} PRIVATE
 
+  # Glog
+  ${glog_SOURCE_DIR}
+
   # aws-rds-odbc
+  ../libs/aws-rds-odbc/src/host_selector
+  ../libs/aws-rds-odbc/src/limitless
   ../libs/aws-rds-odbc/src/util
 )
 
@@ -118,6 +138,8 @@ target_link_libraries(
   gtest_main
   toxiproxy
   ${ODBC_LIBRARIES}
+
+  glog::glog
 
   # aws-rds-odbc
   ${libawsrdsodbc}
