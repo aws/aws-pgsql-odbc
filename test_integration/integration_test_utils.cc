@@ -76,8 +76,8 @@ std::string INTEGRATION_TEST_UTILS::host_to_IP(std::string hostname) {
 }
 
 void INTEGRATION_TEST_UTILS::print_errors(SQLHANDLE handle, int32_t handle_type) {
-    SQLTCHAR     sqlstate[6];
-    SQLTCHAR     message[1024];
+    SQLTCHAR    sqlstate[6];
+    SQLTCHAR    message[1024];
     SQLINTEGER  nativeerror;
     SQLSMALLINT textlen;
     SQLRETURN   ret;

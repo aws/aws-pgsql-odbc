@@ -676,6 +676,11 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 	StatementClass *stmt;
 	DescriptorClass *desc;
 
+	// stop/decrease reference count for the limitless monitor service if enabled
+	if (self->connInfo.limitless_enabled) {
+		StopLimitlessMonitorService(self->connInfo.limitless_service_id);
+	}
+
 	if (self->status == CONN_EXECUTING)
 		return FALSE;
 

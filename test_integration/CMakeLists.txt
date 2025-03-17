@@ -107,6 +107,8 @@ target_include_directories(
   ${PROJECT_NAME} PRIVATE
 
   # aws-rds-odbc
+  ../libs/aws-rds-odbc/src/host_selector
+  ../libs/aws-rds-odbc/src/limitless
   ../libs/aws-rds-odbc/src/util
 )
 
