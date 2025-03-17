@@ -88,14 +88,8 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
 
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    #ifdef UNICODE
-    std::wstring wconn_str = INTEGRATION_TEST_UTILS::to_wstring(connection_string);
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLWCHAR(wconn_str.c_str()), wconn_str.size(),
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(),
         conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #else
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS,
-        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #endif
     EXPECT_EQ(SQL_SUCCESS, rc);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
 

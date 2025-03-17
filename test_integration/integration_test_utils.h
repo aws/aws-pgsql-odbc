@@ -15,14 +15,15 @@
 #ifndef INTEGRATIONTESTUTILS_H_
 #define INTEGRATIONTESTUTILS_H_
 
+#include <string>
+
 #include <sql.h>
 #include <sqlext.h>
 
 #define MAX_NAME_LEN 4096
 #define SQL_MAX_MESSAGE_LENGTH 512
 
-#define AS_SQLCHAR(str)     const_cast<SQLCHAR*>(reinterpret_cast<const SQLCHAR*>(str))
-#define AS_SQLWCHAR(str)    const_cast<SQLWCHAR*>(reinterpret_cast<const SQLWCHAR*>(str))
+#define AS_SQLTCHAR(str)    const_cast<SQLTCHAR*>(reinterpret_cast<const SQLTCHAR*>(str))
 #define AS_STRING(str)      std::string(reinterpret_cast<char*>(str))
 #define AS_WSTRING(str)     std::wstring(reinterpret_cast<wchar_t*>(str))
 
@@ -32,7 +33,6 @@ public:
     static int str_to_int(const char* str);
     static std::string host_to_IP(std::string hostname);
     static std::wstring to_wstring(std::string str);
-    static SQLWCHAR *to_sqlwchar(std::string str);
     static std::string to_string(std::wstring str);
     static void print_errors(SQLHANDLE handle, int32_t handle_type);
 };

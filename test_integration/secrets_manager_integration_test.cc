@@ -48,7 +48,11 @@ class SecretsManagerIntegrationTest : public testing::Test {
     SQLHENV env = nullptr;
     SQLHDBC dbc = nullptr;
 
-    std::string connection_string;
+    #ifdef UNICODE
+    std::wstring connection_string = L"";
+    #else
+    std::string connection_string = "";
+    #endif
 
     static void SetUpTestSuite() {
     }
@@ -79,15 +83,9 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
                             .withAuthRegion(TEST_REGION)
                             .withSecretId(SECRETS_ARN)
                             .getString();
-
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    #ifdef UNICODE
-    std::wstring wconn_str = INTEGRATION_TEST_UTILS::to_wstring(connection_string);
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLWCHAR(wconn_str.c_str()), wconn_str.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #else
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #endif
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
@@ -101,12 +99,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
 
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT conn_len, len;
-    #ifdef UNICODE
-    std::wstring wconn_str = INTEGRATION_TEST_UTILS::to_wstring(connection_string);
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLWCHAR(wconn_str.c_str()), wconn_str.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #else
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #endif
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     
     EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
@@ -124,12 +117,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
 
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    #ifdef UNICODE
-    std::wstring wconn_str = INTEGRATION_TEST_UTILS::to_wstring(connection_string);
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLWCHAR(wconn_str.c_str()), wconn_str.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #else
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #endif
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
@@ -143,12 +131,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
                             .getString();
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    #ifdef UNICODE
-    std::wstring wconn_str = INTEGRATION_TEST_UTILS::to_wstring(connection_string);
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLWCHAR(wconn_str.c_str()), wconn_str.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #else
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    #endif
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_ERROR, rc);
 
     // Check state

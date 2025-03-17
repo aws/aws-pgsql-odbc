@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "integration_test_utils.h"
 
 #include <gtest/gtest.h>
 
@@ -28,8 +29,6 @@
 #include <codecvt>
 #include <locale>
 #include <string.h>
-
-#include "integration_test_utils.h"
 
 #if defined(__APPLE__) || defined(__linux__)
 typedef std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
