@@ -18,6 +18,13 @@ cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 project("integration")
 set(CMAKE_CXX_STANDARD 20)
 
+option(UNICODE_BUILD "Enable Unicode build" OFF)
+
+# add UNICODE definition to build so unicode ODBC functions are used
+if (UNICODE_BUILD)
+  add_definitions(-DUNICODE)
+endif()
+
 #-----------------------------------------------------
 # Find and add ODBC
 
@@ -88,6 +95,21 @@ add_executable(
 
 include(GoogleTest)
 
+# aws-rds-odbc
+if (UNICODE_BUILD)
+  set(libawsrdsodbc ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_unicode/libaws-rds-odbc-w.so)
+else()
+  set(libawsrdsodbc ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_ansi/libaws-rds-odbc-a.so)
+endif()
+
+target_include_directories(
+  # Name
+  ${PROJECT_NAME} PRIVATE
+
+  # aws-rds-odbc
+  ../libs/aws-rds-odbc/src/util
+)
+
 target_link_libraries(
   # Name
   ${PROJECT_NAME}
@@ -96,6 +118,9 @@ target_link_libraries(
   gtest_main
   toxiproxy
   ${ODBC_LIBRARIES}
+
+  # aws-rds-odbc
+  ${libawsrdsodbc}
 )
 
 set_target_properties(
@@ -103,14 +128,6 @@ set_target_properties(
   PROPERTIES 
   RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
 )
-
-# Create an option for selecting the Unicode build type
-option(UNICODE_BUILD "Enable Unicode build" OFF)
-
-# Set output directory suffix based on the build type
-if (UNICODE_BUILD)
-  add_definitions(-DUNICODE)
-endif()
 
 # Set values to help generate odbc.ini and odbcinst.ini files for Dockerized tests
 SET(ODBC_PATH ${CMAKE_SOURCE_DIR}/../testframework/src/test/resources/)

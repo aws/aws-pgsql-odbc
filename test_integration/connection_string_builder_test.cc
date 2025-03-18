@@ -51,7 +51,7 @@ TEST_F(ConnectionStringBuilderTest, test_complete_string) {
         "LIMITLESSENABLED=1;LIMITLESSMODE=lazy;LIMITLESSMONITORINTERVALMS=234;LIMITLESSSERVICEID=limitless;";
 
     #ifdef UNICODE
-    EXPECT_EQ(0, expected.compare(INTEGRATION_TEST_UTILS::to_string(connection_string)));
+    EXPECT_EQ(0, expected.compare(StringHelper::ToString(connection_string)));
     #else
     EXPECT_EQ(0, expected.compare(connection_string));
     #endif
@@ -64,7 +64,7 @@ TEST_F(ConnectionStringBuilderTest, test_only_required_fields) {
 
     const std::string expected = "DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;";
     #ifdef UNICODE
-    EXPECT_EQ(0, expected.compare(INTEGRATION_TEST_UTILS::to_string(connection_string)));
+    EXPECT_EQ(0, expected.compare(StringHelper::ToString(connection_string)));
     #else
     EXPECT_EQ(0, expected.compare(connection_string));
     #endif
@@ -78,7 +78,7 @@ TEST_F(ConnectionStringBuilderTest, test_some_optional) {
 
     const std::string expected("DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;UID=testUser;PWD=testPwd;");
     #ifdef UNICODE
-    EXPECT_EQ(0, expected.compare(INTEGRATION_TEST_UTILS::to_string(connection_string)));
+    EXPECT_EQ(0, expected.compare(StringHelper::ToString(connection_string)));
     #else
     EXPECT_EQ(0, expected.compare(connection_string));
     #endif
@@ -96,7 +96,7 @@ TEST_F(ConnectionStringBuilderTest, test_setting_boolean_fields) {
     const std::string expected(
         "DSN=testDSN;SERVER=testServer;PORT=5432;COMMLOG=1;DEBUG=1;LOGDIR=logs/;RDSLOGTHRESHOLD=0;UID=testUser;PWD=testPwd;ENABLECLUSTERFAILOVER=0;LIMITLESSENABLED=0;");
     #ifdef UNICODE
-    EXPECT_EQ(0, expected.compare(INTEGRATION_TEST_UTILS::to_string(connection_string)));
+    EXPECT_EQ(0, expected.compare(StringHelper::ToString(connection_string)));
     #else
     EXPECT_EQ(0, expected.compare(connection_string));
     #endif

@@ -45,6 +45,14 @@ char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) 
     return value;
 }
 
+char* INTEGRATION_TEST_UTILS::get_dsn() {
+    #ifdef UNICODE
+    return std::getenv("TEST_DSN_UNICODE");
+    #else
+    return std::getenv("TEST_DSN_ANSI");
+    #endif
+}
+
 int INTEGRATION_TEST_UTILS::str_to_int(const char* str) {
     const long int x = strtol(str, nullptr, 10);
     assert(x <= INT_MAX);
@@ -85,17 +93,6 @@ std::string INTEGRATION_TEST_UTILS::host_to_IP(std::string hostname) {
     return std::string(ipstr);
 }
 
-std::wstring INTEGRATION_TEST_UTILS::to_wstring(std::string str) {
-    return converter{}.from_bytes(str);
-}
-
-std::string INTEGRATION_TEST_UTILS::to_string(std::wstring str) {
-    if (str.empty()) {
-        return std::string();
-    }
-    return converter{}.to_bytes(str);
-}
-
 void INTEGRATION_TEST_UTILS::print_errors(SQLHANDLE handle, int32_t handle_type) {
     SQLTCHAR     sqlstate[6];
     SQLTCHAR     message[1024];
@@ -112,7 +109,7 @@ void INTEGRATION_TEST_UTILS::print_errors(SQLHANDLE handle, int32_t handle_type)
             std::cerr << "Invalid handle" << std::endl;
         } else if (SQL_SUCCEEDED(ret)) {
             #ifdef UNICODE
-            std::cerr << INTEGRATION_TEST_UTILS::to_string(sqlstate) << ": " << INTEGRATION_TEST_UTILS::to_string(message) << std::endl;
+            std::cerr << StringHelper::ToString(sqlstate) << ": " << StringHelper::ToString(message) << std::endl;
             #else
             std::cerr << sqlstate << ": " << message << std::endl;
             #endif

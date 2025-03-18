@@ -28,7 +28,7 @@ class ConnectionStringBuilder {
     ConnectionStringBuilder(const std::string& str) { length += sprintf(conn_in, "%s", str.c_str()); }
 
     ConnectionStringBuilder(const std::wstring& wstr) {
-        std::string str = INTEGRATION_TEST_UTILS::to_string(wstr);
+        std::string str = StringHelper::ToString(wstr);
         length += sprintf(conn_in, "%s", str.c_str());
     }
 
@@ -137,7 +137,7 @@ class ConnectionStringBuilder {
     }
 
     #ifdef UNICODE
-    std::wstring getString() const { return INTEGRATION_TEST_UTILS::to_wstring(conn_in); }
+    std::wstring getString() const { return StringHelper::ToWstring(conn_in); }
     #else
     std::string getString() const { return conn_in; }
     #endif

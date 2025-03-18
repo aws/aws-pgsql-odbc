@@ -108,6 +108,7 @@ public class IntegrationContainerTest {
 
   @AfterAll
   static void tearDown() {
+    /*
     if (!REUSE_CLUSTER
         && !StringUtils.isNullOrEmpty(ACCESS_KEY)
         && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY)
@@ -138,6 +139,7 @@ public class IntegrationContainerTest {
     if (postgresContainer != null) {
       postgresContainer.stop();
     }
+    */
   }
 
   @Test
@@ -165,11 +167,9 @@ public class IntegrationContainerTest {
     setupLimitlessIntegrationTests(NETWORK);
 
     System.out.println("Run ANSI integration tests");
-    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_ANSI));
     containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
 
     System.out.println("Run Unicode integration tests");
-    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_UNICODE));
     containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
   }
 
@@ -183,11 +183,9 @@ public class IntegrationContainerTest {
     displayIniFiles();
 
     System.out.println("Run ANSI integration tests");
-    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_ANSI));
     containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
 
     System.out.println("Run Unicode integration tests");
-    testContainer.setEnv(List.of("TEST_DSN=" + TEST_DSN_UNICODE));
     containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
   }
 

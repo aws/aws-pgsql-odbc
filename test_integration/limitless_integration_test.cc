@@ -47,8 +47,8 @@ protected:
 
     static void SetUpTestSuite() {
         test_endpoint = std::getenv("TEST_SERVER");
-        test_endpointw = INTEGRATION_TEST_UTILS::to_wstring(test_endpoint);
-        test_dsn = std::getenv("TEST_DSN");
+        test_endpointw = StringHelper::ToWstring(test_endpoint);
+        test_dsn = INTEGRATION_TEST_UTILS::get_dsn();
         test_db = std::getenv("TEST_DATABASE");
         test_user = std::getenv("TEST_USERNAME");
         test_pwd = std::getenv("TEST_PASSWORD");
@@ -88,7 +88,7 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
 
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(),
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS,
         conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
@@ -98,9 +98,9 @@ TEST_F(LimitlessIntegrationTest, SingleConnection) {
     rc = SQLGetInfo(dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), &len);
     EXPECT_EQ(SQL_SUCCESS, rc);
     #ifdef UNICODE
-    EXPECT_TRUE(AS_WSTRING(server_name) != test_endpointw);
+    EXPECT_TRUE(std::wstring(AS_WCHAR(server_name)) != test_endpointw);
     #else
-    EXPECT_TRUE(AS_STRING(server_name) != test_endpoint);
+    EXPECT_TRUE(std::string(AS_CHAR(server_name)) != test_endpoint);
     #endif
     SQLDisconnect(dbc);
 }

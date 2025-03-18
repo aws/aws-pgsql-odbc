@@ -51,7 +51,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
 
     static void SetUpTestSuite() {
         test_endpoint = std::getenv("TEST_SERVER");
-        test_dsn = std::getenv("TEST_DSN");
+        test_dsn = INTEGRATION_TEST_UTILS::get_dsn();
         test_db = std::getenv("TEST_DATABASE");
         test_user = std::getenv("TEST_USERNAME");
         test_pwd = std::getenv("TEST_PASSWORD");
@@ -69,8 +69,8 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env1);
         SQLSetEnvAttr(env1, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env1, &dbc1);
-		#ifdef UNICODE
-        std::cout << INTEGRATION_TEST_UTILS::to_string(conn_str) << std::endl;
+        #ifdef UNICODE
+        std::cout << StringHelper::ToString(conn_str) << std::endl;
         #else
         std::cout << conn_str << std::endl;
         #endif
@@ -95,7 +95,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
 
         if (SQL_SUCCEEDED(err_rc)) {
             #ifdef UNICODE
-            std::cout << INTEGRATION_TEST_UTILS::to_string(sqlstate) << ": " << INTEGRATION_TEST_UTILS::to_string(message) << std::endl;
+            std::cout << StringHelper::ToString(sqlstate) << ": " << StringHelper::ToString(message) << std::endl;
             #else
             std::cout << sqlstate << ": " << message << std::endl;
             #endif
@@ -106,7 +106,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         char query_buffer[200];
         sprintf(query_buffer, "DROP USER IF EXISTS %s;", iam_user);
         #ifdef UNICODE
-        std::wstring wquery_buffer = INTEGRATION_TEST_UTILS::to_wstring(query_buffer);
+        std::wstring wquery_buffer = StringHelper::ToWstring(query_buffer);
         SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), wquery_buffer.size());
         #else
         SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS);
@@ -116,7 +116,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         memset(query_buffer, 0, sizeof(query_buffer));
         sprintf(query_buffer, "CREATE USER %s;", iam_user);
         #ifdef UNICODE
-        wquery_buffer = INTEGRATION_TEST_UTILS::to_wstring(query_buffer);
+        wquery_buffer = StringHelper::ToWstring(query_buffer);
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), wquery_buffer.size()));
         #else
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS));
@@ -126,7 +126,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         memset(query_buffer, 0, sizeof(query_buffer));
         sprintf(query_buffer, "GRANT rds_iam TO %s;", iam_user);
         #ifdef UNICODE
-        wquery_buffer = INTEGRATION_TEST_UTILS::to_wstring(query_buffer);
+        wquery_buffer = StringHelper::ToWstring(query_buffer);
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), wquery_buffer.size()));
         #else
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS));
@@ -179,7 +179,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
 TEST_F(IamAuthenticationIntegrationTest, SimpleIamConnection) {
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), default_connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
 
     rc = SQLDisconnect(dbc);
@@ -203,7 +203,7 @@ TEST_F(IamAuthenticationIntegrationTest, ConnectToIpAddress) {
 
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
 
     rc = SQLDisconnect(dbc);
@@ -217,7 +217,7 @@ TEST_F(IamAuthenticationIntegrationTest, WrongPassword) {
 
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
 
     rc = SQLDisconnect(dbc);
@@ -237,7 +237,7 @@ TEST_F(IamAuthenticationIntegrationTest, WrongUser) {
 
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_ERROR, rc);
 
     SQLSMALLINT stmt_length;
@@ -246,9 +246,9 @@ TEST_F(IamAuthenticationIntegrationTest, WrongUser) {
     rc = SQLError(nullptr, dbc, nullptr, state, &native_err, msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
     EXPECT_EQ(SQL_SUCCESS, rc);
     #ifdef UNICODE
-    EXPECT_EQ(L"08001", AS_WSTRING(state));
+    EXPECT_EQ(L"08001", std::wstring(AS_WCHAR(state)));
     #else
-    EXPECT_EQ("08001", AS_STRING(state));
+    EXPECT_EQ("08001", std::string(AS_CHAR(state)));
     #endif
 }
 
@@ -265,7 +265,7 @@ TEST_F(IamAuthenticationIntegrationTest, EmptyUser) {
 
     SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), connection_string.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_ERROR, rc);
 
     SQLSMALLINT stmt_length;
@@ -274,8 +274,8 @@ TEST_F(IamAuthenticationIntegrationTest, EmptyUser) {
     rc = SQLError(nullptr, dbc, nullptr, state, &native_err, msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
     EXPECT_EQ(SQL_SUCCESS, rc);
     #ifdef UNICODE
-    EXPECT_EQ(L"08001", AS_WSTRING(state));
+    EXPECT_EQ(L"08001", std::wstring(AS_WCHAR(state)));
     #else
-    EXPECT_EQ("08001", AS_STRING(state));
+    EXPECT_EQ("08001", std::string(AS_CHAR(state)));
     #endif
 }
