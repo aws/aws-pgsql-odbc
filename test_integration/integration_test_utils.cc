@@ -26,16 +26,6 @@
 #include <netdb.h>
 #endif
 
-#include <codecvt>
-#include <locale>
-#include <string.h>
-
-#if defined(__APPLE__) || defined(__linux__)
-typedef std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-#else
-typedef std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-#endif
-
 char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) {
     char* value = std::getenv(key);
     if (value == nullptr || value == "") {

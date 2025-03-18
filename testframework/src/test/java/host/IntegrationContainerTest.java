@@ -108,7 +108,6 @@ public class IntegrationContainerTest {
 
   @AfterAll
   static void tearDown() {
-    /*
     if (!REUSE_CLUSTER
         && !StringUtils.isNullOrEmpty(ACCESS_KEY)
         && !StringUtils.isNullOrEmpty(SECRET_ACCESS_KEY)
@@ -139,7 +138,6 @@ public class IntegrationContainerTest {
     if (postgresContainer != null) {
       postgresContainer.stop();
     }
-    */
   }
 
   @Test
