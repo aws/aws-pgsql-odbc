@@ -195,7 +195,11 @@ jobs:
           pattern: installers-*
           merge-multiple: true
       - name: Set Version Env Variable
-        run: echo ("RELEASE_VERSION=" + $env:GITHUB_REF_NAME) >>  $env:GITHUB_ENV
+        run: echo "RELEASE_VERSION=${env:GITHUB_REF_NAME}" >>  $env:GITHUB_ENV
+      - name: Checkout aws-pgsql-odbc
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - name: Extract release notes
         uses: ffurrer2/extract-release-notes@v2
         with:
