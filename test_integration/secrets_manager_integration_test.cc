@@ -37,7 +37,7 @@ static std::string auth_type = "secrets-manager";
 class SecretsManagerIntegrationTest : public testing::Test {
    protected:
     std::string SECRETS_ARN = std::getenv("SECRETS_ARN");
-    char* dsn = INTEGRATION_TEST_UTILS::get_dsn();
+    char* dsn = std::getenv("TEST_DSN");
     char* test_db = std::getenv("TEST_DATABASE");
 
     int PG_PORT = INTEGRATION_TEST_UTILS::str_to_int(
@@ -98,7 +98,7 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
                             .getString();
 
     SQLTCHAR conn_out[4096] = {0};
-    SQLSMALLINT conn_len, len;
+    SQLSMALLINT len;
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     
     EXPECT_EQ(SQL_SUCCESS, rc);

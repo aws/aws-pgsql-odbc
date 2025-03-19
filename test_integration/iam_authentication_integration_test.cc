@@ -51,7 +51,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
 
     static void SetUpTestSuite() {
         test_endpoint = std::getenv("TEST_SERVER");
-        test_dsn = INTEGRATION_TEST_UTILS::get_dsn();
+        test_dsn = std::getenv("TEST_DSN");
         test_db = std::getenv("TEST_DATABASE");
         test_user = std::getenv("TEST_USERNAME");
         test_pwd = std::getenv("TEST_PASSWORD");
@@ -77,7 +77,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
 
         SQLTCHAR conn_out[4096] = {0};
         SQLSMALLINT len;
-        SQLRETURN rc = SQLDriverConnect(dbc1, nullptr, AS_SQLTCHAR(conn_str.c_str()), conn_str.size(), conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+        SQLRETURN rc = SQLDriverConnect(dbc1, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
         EXPECT_EQ(SQL_SUCCESS, rc);
 
         SQLSMALLINT sl;
@@ -107,7 +107,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         sprintf(query_buffer, "DROP USER IF EXISTS %s;", iam_user);
         #ifdef UNICODE
         std::wstring wquery_buffer = StringHelper::ToWstring(query_buffer);
-        SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), wquery_buffer.size());
+        SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), SQL_NTS);
         #else
         SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS);
         #endif
@@ -117,7 +117,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         sprintf(query_buffer, "CREATE USER %s;", iam_user);
         #ifdef UNICODE
         wquery_buffer = StringHelper::ToWstring(query_buffer);
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), wquery_buffer.size()));
+        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), SQL_NTS));
         #else
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS));
         #endif
@@ -127,7 +127,7 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         sprintf(query_buffer, "GRANT rds_iam TO %s;", iam_user);
         #ifdef UNICODE
         wquery_buffer = StringHelper::ToWstring(query_buffer);
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), wquery_buffer.size()));
+        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), SQL_NTS));
         #else
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS));
         #endif

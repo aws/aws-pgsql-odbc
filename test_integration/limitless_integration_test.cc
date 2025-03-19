@@ -48,7 +48,7 @@ protected:
     static void SetUpTestSuite() {
         test_endpoint = std::getenv("TEST_SERVER");
         test_endpointw = StringHelper::ToWstring(test_endpoint);
-        test_dsn = INTEGRATION_TEST_UTILS::get_dsn();
+        test_dsn = std::getenv("TEST_DSN");
         test_db = std::getenv("TEST_DATABASE");
         test_user = std::getenv("TEST_USERNAME");
         test_pwd = std::getenv("TEST_PASSWORD");

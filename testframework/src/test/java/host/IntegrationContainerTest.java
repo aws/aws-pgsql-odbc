@@ -165,10 +165,12 @@ public class IntegrationContainerTest {
     setupLimitlessIntegrationTests(NETWORK);
 
     System.out.println("Run ANSI integration tests");
-    containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
+    Container.ExecResult result = testContainer.execInContainer("sh", "-c", "TEST_DSN=\"" + TEST_DSN_ANSI + "\" && ./build_ansi/bin/integration");
+    System.out.println(result.getStdout());
 
     System.out.println("Run Unicode integration tests");
-    containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
+    result = testContainer.execInContainer("sh", "-c", "TEST_DSN=\"" + TEST_DSN_UNICODE + "\" && ./build_unicode/bin/integration");
+    System.out.println(result.getStdout());
   }
 
   @Test
@@ -181,10 +183,12 @@ public class IntegrationContainerTest {
     displayIniFiles();
 
     System.out.println("Run ANSI integration tests");
-    containerHelper.runExecutable(testContainer, "build_ansi/bin", "integration");
+    Container.ExecResult result = testContainer.execInContainer("sh", "-c", "TEST_DSN=\"" + TEST_DSN_ANSI + "\" && ./build_ansi/bin/integration");
+    System.out.println(result.getStdout());
 
     System.out.println("Run Unicode integration tests");
-    containerHelper.runExecutable(testContainer, "build_unicode/bin", "integration");
+    result = testContainer.execInContainer("sh", "-c", "TEST_DSN=\"" + TEST_DSN_UNICODE + "\" && ./build_unicode/bin/integration");
+    System.out.println(result.getStdout());
   }
 
   protected static GenericContainer<?> createTestContainer(final Network network) {

@@ -35,14 +35,6 @@ char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) 
     return value;
 }
 
-char* INTEGRATION_TEST_UTILS::get_dsn() {
-    #ifdef UNICODE
-    return std::getenv("TEST_DSN_UNICODE");
-    #else
-    return std::getenv("TEST_DSN_ANSI");
-    #endif
-}
-
 int INTEGRATION_TEST_UTILS::str_to_int(const char* str) {
     const long int x = strtol(str, nullptr, 10);
     assert(x <= INT_MAX);
