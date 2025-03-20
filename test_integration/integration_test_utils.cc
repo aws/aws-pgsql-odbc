@@ -98,3 +98,12 @@ void INTEGRATION_TEST_UTILS::print_errors(SQLHANDLE handle, int32_t handle_type)
         }
     } while (ret == SQL_SUCCESS);
 }
+
+SQLRETURN INTEGRATION_TEST_UTILS::exec_query(SQLHSTMT stmt, char *query_buffer) {
+    #ifdef UNICODE
+    SQLTCHAR* query = AS_SQLTCHAR(StringHelper::ToWstring(query_buffer).c_str());
+    #else
+    SQLTCHAR* query = AS_SQLTCHAR(query_buffer);
+    #endif
+    return SQLExecDirect(stmt, query, SQL_NTS);
+}

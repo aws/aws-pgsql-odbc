@@ -105,32 +105,17 @@ class IamAuthenticationIntegrationTest : public testing::Test {
 
         char query_buffer[200];
         sprintf(query_buffer, "DROP USER IF EXISTS %s;", iam_user);
-        #ifdef UNICODE
-        std::wstring wquery_buffer = StringHelper::ToWstring(query_buffer);
-        SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), SQL_NTS);
-        #else
-        SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS);
-        #endif
+        INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer);
         INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);
 
         memset(query_buffer, 0, sizeof(query_buffer));
         sprintf(query_buffer, "CREATE USER %s;", iam_user);
-        #ifdef UNICODE
-        wquery_buffer = StringHelper::ToWstring(query_buffer);
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), SQL_NTS));
-        #else
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS));
-        #endif
+        EXPECT_EQ(SQL_SUCCESS, INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer));
         INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);
 
         memset(query_buffer, 0, sizeof(query_buffer));
         sprintf(query_buffer, "GRANT rds_iam TO %s;", iam_user);
-        #ifdef UNICODE
-        wquery_buffer = StringHelper::ToWstring(query_buffer);
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(wquery_buffer.c_str()), SQL_NTS));
-        #else
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLTCHAR(query_buffer), SQL_NTS));
-        #endif
+        EXPECT_EQ(SQL_SUCCESS, INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer));
         INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);
 
         EXPECT_EQ(SQL_SUCCESS, SQLFreeHandle(SQL_HANDLE_STMT, stmt));

@@ -165,12 +165,10 @@ public class IntegrationContainerTest {
     setupLimitlessIntegrationTests(NETWORK);
 
     System.out.println("Run ANSI integration tests");
-    Container.ExecResult result = testContainer.execInContainer("sh", "-c", "TEST_DSN=\"" + TEST_DSN_ANSI + "\" && ./build_ansi/bin/integration");
-    System.out.println(result.getStdout());
+    containerHelper.runExecutable(testContainer, "TEST_DSN=\"" + TEST_DSN_ANSI + "\"", "build_ansi/bin", "integration");
 
     System.out.println("Run Unicode integration tests");
-    result = testContainer.execInContainer("sh", "-c", "TEST_DSN=\"" + TEST_DSN_UNICODE + "\" && ./build_unicode/bin/integration");
-    System.out.println(result.getStdout());
+    containerHelper.runExecutable(testContainer, "TEST_DSN=\"" + TEST_DSN_UNICODE + "\"", "build_unicode/bin", "integration");
   }
 
   @Test
@@ -183,12 +181,10 @@ public class IntegrationContainerTest {
     displayIniFiles();
 
     System.out.println("Run ANSI integration tests");
-    Container.ExecResult result = testContainer.execInContainer("sh", "-c", "TEST_DSN=\"" + TEST_DSN_ANSI + "\" && ./build_ansi/bin/integration");
-    System.out.println(result.getStdout());
+    containerHelper.runExecutable(testContainer, "TEST_DSN=\"" + TEST_DSN_ANSI + "\"", "build_ansi/bin", "integration");
 
     System.out.println("Run Unicode integration tests");
-    result = testContainer.execInContainer("sh", "-c", "TEST_DSN=\"" + TEST_DSN_UNICODE + "\" && ./build_unicode/bin/integration");
-    System.out.println(result.getStdout());
+    containerHelper.runExecutable(testContainer, "TEST_DSN=\"" + TEST_DSN_UNICODE + "\"", "build_unicode/bin", "integration");
   }
 
   protected static GenericContainer<?> createTestContainer(final Network network) {
@@ -305,11 +301,14 @@ public class IntegrationContainerTest {
     }
   }
 
-  private void buildLimitlessTests() {
+  private void buildIntegrationTests(boolean withLimitlessTests) {
     try {
+      // CMake option value for TEST_LIMITLESS
+      String testLimitless = withLimitlessTests ? "TRUE" : "FALSE";
+
       // build unicode integration tests
-      System.out.println("cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=TRUE -DUNICODE_BUILD=TRUE");
-      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_unicode", "-DTEST_LIMITLESS=TRUE", "-DUNICODE_BUILD=TRUE");
+      System.out.println("cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=" + testLimitless);
+      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_unicode", "-DUNICODE_BUILD=TRUE", "-DTEST_LIMITLESS=" + testLimitless);
       System.out.println(result.getStdout());
 
       System.out.println("cmake --build build_unicode");
@@ -317,32 +316,8 @@ public class IntegrationContainerTest {
       System.out.println(result.getStdout());
 
       // build ansi integration tests
-      System.out.println("cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE");
-      result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_ansi", "-DTEST_LIMITLESS=TRUE");
-      System.out.println(result.getStdout());
-
-      System.out.println("cmake --build build_ansi");
-      result = testContainer.execInContainer("cmake", "--build", "build_ansi");
-      System.out.println(result.getStdout());
-    } catch (Exception e) {
-      fail("Test container failed during driver/test building process.");
-    }
-  }
-
-  private void buildIntegrationTests() {
-    try {
-      // build unicode integration tests
-      System.out.println("cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE");
-      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_unicode", "-DUNICODE_BUILD=TRUE");
-      System.out.println(result.getStdout());
-
-      System.out.println("cmake --build build_unicode");
-      result = testContainer.execInContainer("cmake", "--build", "build_unicode");
-      System.out.println(result.getStdout());
-
-      // build ansi integration tests
-      System.out.println("cmake -S test_integration -B build_ansi");
-      result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_ansi");
+      System.out.println("cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=" + testLimitless);
+      result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_ansi", "-DTEST_LIMITLESS=" + testLimitless);
       System.out.println(result.getStdout());
 
       System.out.println("cmake --build build_ansi");
@@ -573,13 +548,13 @@ public class IntegrationContainerTest {
     setupLimitlessTestContainer(network);
 
     buildDriver();
-    buildLimitlessTests();
+    buildIntegrationTests(true);
   }
 
   private void setupIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
     setupApgTestContainer(network);
 
     buildDriver();
-    buildIntegrationTests();
+    buildIntegrationTests(false);
   }
 }

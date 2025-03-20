@@ -46,11 +46,16 @@ public class ContainerHelper {
   private static final DockerImageName TOXIPROXY_IMAGE =
       DockerImageName.parse("shopify/toxiproxy:2.1.0");
 
-  public void runExecutable(GenericContainer<?> container, String testDir, String testExecutable)
+  public void runExecutable(GenericContainer<?> container, String envVars, String testDir, String testExecutable)
       throws IOException, InterruptedException {
     System.out.println("==== Container console feed ==== >>>>");
     Consumer<OutputFrame> consumer = new ConsoleConsumer();
-    Long exitCode = execInContainer(container, consumer, String.format("./%s/%s", testDir, testExecutable));
+    Long exitCode;
+    if (StringUtils.isNullOrEmpty(envVars)) {
+      exitCode = execInContainer(container, consumer, "sh", "-c", String.format("./%s/%s", testDir, testExecutable));
+    } else {
+      exitCode = execInContainer(container, consumer, "sh", "-c", String.format("%s ./%s/%s", envVars, testDir, testExecutable));
+    }
     System.out.println("==== Container console feed ==== <<<<");
     assertEquals(0, exitCode, "Some tests failed.");
   }

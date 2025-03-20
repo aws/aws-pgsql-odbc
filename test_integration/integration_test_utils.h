@@ -31,6 +31,7 @@ public:
     static int str_to_int(const char* str);
     static std::string host_to_IP(std::string hostname);
     static void print_errors(SQLHANDLE handle, int32_t handle_type);
+    static SQLRETURN exec_query(SQLHSTMT stmt, char *query_buffer);
 };
 
 #endif // INTEGRATIONTESTUTILS_H_
