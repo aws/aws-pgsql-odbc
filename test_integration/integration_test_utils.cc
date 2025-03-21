@@ -101,7 +101,8 @@ void INTEGRATION_TEST_UTILS::print_errors(SQLHANDLE handle, int32_t handle_type)
 
 SQLRETURN INTEGRATION_TEST_UTILS::exec_query(SQLHSTMT stmt, char *query_buffer) {
     #ifdef UNICODE
-    SQLTCHAR* query = AS_SQLTCHAR(StringHelper::ToWstring(query_buffer).c_str());
+    std::wstring wquery_buffer = StringHelper::ToWstring(query_buffer);
+    SQLTCHAR* query = AS_SQLTCHAR(wquery_buffer.c_str());
     #else
     SQLTCHAR* query = AS_SQLTCHAR(query_buffer);
     #endif
