@@ -99,6 +99,9 @@ testframework/patches/
 testframework/src/test/resources/*.ini
 unixODBC*/
 unixODBC*.tar
+libiodbc-*/
+libiodbc.tar
+build_*
 
 # WIX tools (candle, light) generate
 *.wix*

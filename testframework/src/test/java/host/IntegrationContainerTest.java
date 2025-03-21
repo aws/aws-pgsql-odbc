@@ -47,7 +47,8 @@ public class IntegrationContainerTest {
   private static final int POSTGRES_PORT = 5432;
   private static final String TEST_CONTAINER_NAME = "test-container";
   private static final String TEST_DATABASE = "test";
-  private static final String TEST_DSN = System.getenv("TEST_DSN");
+  private static final String TEST_DSN_UNICODE = System.getenv("TEST_DSN_UNICODE");
+  private static final String TEST_DSN_ANSI = System.getenv("TEST_DSN_ANSI");
   private static final String TEST_USERNAME = !StringUtils.isNullOrEmpty(System.getenv("TEST_USERNAME")) ?
           System.getenv("TEST_USERNAME") : "my_test_username";
   private static final String TEST_PASSWORD = !StringUtils.isNullOrEmpty(System.getenv("TEST_PASSWORD")) ?
@@ -162,7 +163,12 @@ public class IntegrationContainerTest {
 
     testConfiguration = TestConfigurationEngine.LIMITLESS;
     setupLimitlessIntegrationTests(NETWORK);
-    containerHelper.runExecutable(testContainer, "build/bin", "integration");
+
+    System.out.println("Run ANSI integration tests");
+    containerHelper.runExecutable(testContainer, "TEST_DSN=\"" + TEST_DSN_ANSI + "\"", "build_ansi/bin", "integration");
+
+    System.out.println("Run Unicode integration tests");
+    containerHelper.runExecutable(testContainer, "TEST_DSN=\"" + TEST_DSN_UNICODE + "\"", "build_unicode/bin", "integration");
   }
 
   @Test
@@ -173,7 +179,12 @@ public class IntegrationContainerTest {
     setupIntegrationTests(NETWORK);
 
     displayIniFiles();
-    containerHelper.runExecutable(testContainer, "build/bin", "integration");
+
+    System.out.println("Run ANSI integration tests");
+    containerHelper.runExecutable(testContainer, "TEST_DSN=\"" + TEST_DSN_ANSI + "\"", "build_ansi/bin", "integration");
+
+    System.out.println("Run Unicode integration tests");
+    containerHelper.runExecutable(testContainer, "TEST_DSN=\"" + TEST_DSN_UNICODE + "\"", "build_unicode/bin", "integration");
   }
 
   protected static GenericContainer<?> createTestContainer(final Network network) {
@@ -182,14 +193,17 @@ public class IntegrationContainerTest {
             DRIVER_LOCATION)
         .withNetworkAliases(TEST_CONTAINER_NAME)
         .withNetwork(network)
-        .withEnv("TEST_DSN", TEST_DSN)
+        .withEnv("TEST_DSN_UNICODE", TEST_DSN_UNICODE)
+        .withEnv("TEST_DSN_ANSI", TEST_DSN_ANSI)
+        .withEnv("TEST_DSN", TEST_DSN_UNICODE) // for community tests
         .withEnv("TEST_USERNAME", TEST_USERNAME)
         .withEnv("TEST_PASSWORD", TEST_PASSWORD)
         .withEnv("POSTGRES_PORT", Integer.toString(POSTGRES_PORT))
         .withEnv("ODBCINI", ODBCINI_LOCATION)
         .withEnv("ODBCINST", ODBCINSTINI_LOCATION)
         .withEnv("ODBCSYSINI", "/app/build/test")
-        .withEnv("TEST_DRIVER", "/app/.libs/awspsqlodbcw.so");
+        .withEnv("TEST_DRIVER_UNICODE", "/app/.libs/awspsqlodbcw.so")
+        .withEnv("TEST_DRIVER_ANSI", "/app/.libs/awspsqlodbca.so");
   }
 
   private void installPrerequisites(final boolean withIODBC) throws Exception {
@@ -287,30 +301,27 @@ public class IntegrationContainerTest {
     }
   }
 
-  private void buildLimitlessTests() {
+  private void buildIntegrationTests(boolean withLimitlessTests) {
     try {
-      System.out.println("cmake -S test_integration -B build -DTEST_LIMITLESS=TRUE");
-      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build", "-DTEST_LIMITLESS=TRUE");
+      // CMake option value for TEST_LIMITLESS
+      String testLimitless = withLimitlessTests ? "TRUE" : "FALSE";
+
+      // build unicode integration tests
+      System.out.println("cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=" + testLimitless);
+      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_unicode", "-DUNICODE_BUILD=TRUE", "-DTEST_LIMITLESS=" + testLimitless);
       System.out.println(result.getStdout());
 
-      System.out.println("cmake --build build");
-      result = testContainer.execInContainer("cmake", "--build", "build");
-
-      System.out.println(result.getStdout());
-    } catch (Exception e) {
-      fail("Test container failed during driver/test building process.");
-    }
-  }
-
-  private void buildIntegrationTests() {
-    try {
-      System.out.println("cmake -S test_integration -B build");
-      Container.ExecResult result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build");
+      System.out.println("cmake --build build_unicode");
+      result = testContainer.execInContainer("cmake", "--build", "build_unicode");
       System.out.println(result.getStdout());
 
-      System.out.println("cmake --build build");
-      result = testContainer.execInContainer("cmake", "--build", "build");
+      // build ansi integration tests
+      System.out.println("cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=" + testLimitless);
+      result = testContainer.execInContainer("cmake", "-S", "test_integration", "-B", "build_ansi", "-DTEST_LIMITLESS=" + testLimitless);
+      System.out.println(result.getStdout());
 
+      System.out.println("cmake --build build_ansi");
+      result = testContainer.execInContainer("cmake", "--build", "build_ansi");
       System.out.println(result.getStdout());
     } catch (Exception e) {
       fail("Test container failed during driver/test building process.");
@@ -354,6 +365,7 @@ public class IntegrationContainerTest {
 
       if (REUSE_CLUSTER && !dbClusterIdentifier.isEmpty()) {
         clusterInfo = auroraUtil.getClusterInfo(dbClusterIdentifier);
+        secretsArn = System.getenv("SECRETS_ARN");
       } else {
         clusterInfo =
                 auroraUtil.createLimitlessCluster(TEST_USERNAME, TEST_PASSWORD, dbClusterIdentifier, dbShardGroupIdentifier);
@@ -437,6 +449,7 @@ public class IntegrationContainerTest {
 
       if (REUSE_CLUSTER && !dbClusterIdentifier.isEmpty()) {
         clusterInfo = auroraUtil.getClusterInfo(dbClusterIdentifier);
+        secretsArn = System.getenv("SECRETS_ARN");
       } else {
         if (StringUtils.isNullOrEmpty(dbClusterIdentifier)) {
           dbClusterIdentifier = DEFAULT_APG_PREFIX + "cluster-" + System.nanoTime();
@@ -535,13 +548,13 @@ public class IntegrationContainerTest {
     setupLimitlessTestContainer(network);
 
     buildDriver();
-    buildLimitlessTests();
+    buildIntegrationTests(true);
   }
 
   private void setupIntegrationTests(final Network network) throws InterruptedException, UnknownHostException {
     setupApgTestContainer(network);
 
     buildDriver();
-    buildIntegrationTests();
+    buildIntegrationTests(false);
   }
 }

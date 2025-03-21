@@ -15,6 +15,8 @@
 #ifndef CONNECTION_STRING_BUILDER_H_
 #define CONNECTION_STRING_BUILDER_H_
 
+#include "integration_test_utils.h"
+
 #include <string>
 
 class ConnectionStringBuilder {
@@ -24,6 +26,11 @@ class ConnectionStringBuilder {
     }
 
     ConnectionStringBuilder(const std::string& str) { length += sprintf(conn_in, "%s", str.c_str()); }
+
+    ConnectionStringBuilder(const std::wstring& wstr) {
+        std::string str = StringHelper::ToString(wstr);
+        length += sprintf(conn_in, "%s", str.c_str());
+    }
 
     ConnectionStringBuilder& withUID(const std::string& uid) {
         length += sprintf(conn_in + length, "UID=%s;", uid.c_str());
@@ -129,7 +136,11 @@ class ConnectionStringBuilder {
         return *this;
     }
 
+    #ifdef UNICODE
+    std::wstring getString() const { return StringHelper::ToWstring(conn_in); }
+    #else
     std::string getString() const { return conn_in; }
+    #endif
 
    private:
     char conn_in[4096] = "\0";

@@ -18,6 +18,13 @@ cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 project("integration")
 set(CMAKE_CXX_STANDARD 20)
 
+option(UNICODE_BUILD "Enable Unicode build" OFF)
+
+# add UNICODE definition to build so unicode ODBC functions are used
+if (UNICODE_BUILD)
+  add_definitions(-DUNICODE)
+endif()
+
 #-----------------------------------------------------
 # Find and add ODBC
 
@@ -88,6 +95,21 @@ add_executable(
 
 include(GoogleTest)
 
+# aws-rds-odbc
+if (UNICODE_BUILD)
+  set(libawsrdsodbc ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_unicode/libaws-rds-odbc-w.so)
+else()
+  set(libawsrdsodbc ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_ansi/libaws-rds-odbc-a.so)
+endif()
+
+target_include_directories(
+  # Name
+  ${PROJECT_NAME} PRIVATE
+
+  # aws-rds-odbc
+  ../libs/aws-rds-odbc/src/util
+)
+
 target_link_libraries(
   # Name
   ${PROJECT_NAME}
@@ -96,6 +118,9 @@ target_link_libraries(
   gtest_main
   toxiproxy
   ${ODBC_LIBRARIES}
+
+  # aws-rds-odbc
+  ${libawsrdsodbc}
 )
 
 set_target_properties(
@@ -106,12 +131,15 @@ set_target_properties(
 
 # Set values to help generate odbc.ini and odbcinst.ini files for Dockerized tests
 SET(ODBC_PATH ${CMAKE_SOURCE_DIR}/../testframework/src/test/resources/)
-SET(TEST_DRIVER "aws-pgsql-odbc")
-SET(DRIVER_PATH $ENV{TEST_DRIVER})
+SET(TEST_DRIVER_UNICODE "aws-pgsql-odbc-unicode")
+SET(TEST_DRIVER_ANSI "aws-pgsql-odbc-ansi")
+SET(DRIVER_PATH_UNICODE $ENV{TEST_DRIVER_UNICODE})
+SET(DRIVER_PATH_ANSI $ENV{TEST_DRIVER_ANSI})
 SET(DRIVER_DESCRIPTION "AWS PG ODBC Driver for connecting to PG")
 SET(THREADING "0")
 
-SET(TEST_DSN $ENV{TEST_DSN})
+SET(TEST_DSN_UNICODE $ENV{TEST_DSN_UNICODE})
+SET(TEST_DSN_ANSI $ENV{TEST_DSN_ANSI})
 SET(TEST_DATABASE $ENV{TEST_DATABASE})
 SET(DESCRIPTION "AWS PG ODBC Driver for Dockerized tests")
 SET(TEST_UID $ENV{TEST_USERNAME})

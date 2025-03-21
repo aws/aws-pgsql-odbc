@@ -48,7 +48,11 @@ class SecretsManagerIntegrationTest : public testing::Test {
     SQLHENV env = nullptr;
     SQLHDBC dbc = nullptr;
 
-    std::string connection_string;
+    #ifdef UNICODE
+    std::wstring connection_string = L"";
+    #else
+    std::string connection_string = "";
+    #endif
 
     static void SetUpTestSuite() {
     }
@@ -79,10 +83,9 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithRegion) {
                             .withAuthRegion(TEST_REGION)
                             .withSecretId(SECRETS_ARN)
                             .getString();
-    SQLCHAR conn_out[4096] = "\0";
+    SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
@@ -93,10 +96,11 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWithoutRegion) {
                             .withAuthMode(auth_type)
                             .withSecretId(SECRETS_ARN)
                             .getString();
-    SQLCHAR conn_out[4096] = "\0";
-    SQLSMALLINT len;
 
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLTCHAR conn_out[4096] = {0};
+    SQLSMALLINT len;
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    
     EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
@@ -110,10 +114,10 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerWrongRegion) {
                             .withAuthRegion("us-fake-1")
                             .withSecretId(SECRETS_ARN)
                             .getString();
-    SQLCHAR conn_out[4096] = "\0";
-    SQLSMALLINT len;
 
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLTCHAR conn_out[4096] = {0};
+    SQLSMALLINT len;
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
@@ -125,16 +129,19 @@ TEST_F(SecretsManagerIntegrationTest, EnableSecretsManagerInvalidSecretID) {
                             .withAuthRegion(TEST_REGION)
                             .withSecretId("invalid-id")
                             .getString();
-    SQLCHAR conn_out[4096] = "\0";
+    SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-
-    EXPECT_EQ(SQL_ERROR, SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    EXPECT_EQ(SQL_ERROR, rc);
 
     // Check state
-    SQLCHAR sqlstate[6] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
+    SQLTCHAR sqlstate[6] = {0}, message[SQL_MAX_MESSAGE_LENGTH] = {0};
     SQLINTEGER native_error = 0;
     SQLSMALLINT stmt_length;
     EXPECT_EQ(SQL_SUCCESS, SQLError(nullptr, dbc, nullptr, sqlstate, &native_error, message, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length));
-    const std::string state = reinterpret_cast<char*>(sqlstate);
-    EXPECT_EQ("08S01", state);
+    #ifdef UNICODE
+    EXPECT_EQ(L"08S01", std::wstring(AS_WCHAR(sqlstate)));
+    #else
+    EXPECT_EQ("08S01", std::string(AS_CHAR(sqlstate)));
+    #endif
 }

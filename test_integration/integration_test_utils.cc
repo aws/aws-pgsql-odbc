@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "integration_test_utils.h"
 
 #include <gtest/gtest.h>
 
@@ -24,8 +25,6 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #endif
-
-#include "integration_test_utils.h"
 
 char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) {
     char* value = std::getenv(key);
@@ -74,4 +73,38 @@ std::string INTEGRATION_TEST_UTILS::host_to_IP(std::string hostname) {
 
     freeaddrinfo(servinfo);
     return std::string(ipstr);
+}
+
+void INTEGRATION_TEST_UTILS::print_errors(SQLHANDLE handle, int32_t handle_type) {
+    SQLTCHAR     sqlstate[6];
+    SQLTCHAR     message[1024];
+    SQLINTEGER  nativeerror;
+    SQLSMALLINT textlen;
+    SQLRETURN   ret;
+    SQLSMALLINT recno = 0;
+
+    do {
+        recno++;
+        ret = SQLGetDiagRec(handle_type, handle, recno, sqlstate, &nativeerror,
+                            message, sizeof(message), &textlen);
+        if (ret == SQL_INVALID_HANDLE) {
+            std::cerr << "Invalid handle" << std::endl;
+        } else if (SQL_SUCCEEDED(ret)) {
+            #ifdef UNICODE
+            std::cerr << StringHelper::ToString(sqlstate) << ": " << StringHelper::ToString(message) << std::endl;
+            #else
+            std::cerr << sqlstate << ": " << message << std::endl;
+            #endif
+        }
+    } while (ret == SQL_SUCCESS);
+}
+
+SQLRETURN INTEGRATION_TEST_UTILS::exec_query(SQLHSTMT stmt, char *query_buffer) {
+    #ifdef UNICODE
+    std::wstring wquery_buffer = StringHelper::ToWstring(query_buffer);
+    SQLTCHAR* query = AS_SQLTCHAR(wquery_buffer.c_str());
+    #else
+    SQLTCHAR* query = AS_SQLTCHAR(query_buffer);
+    #endif
+    return SQLExecDirect(stmt, query, SQL_NTS);
 }

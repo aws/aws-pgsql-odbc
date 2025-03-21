@@ -21,6 +21,8 @@
 #include <sql.h>
 #include <sqlext.h>
 
+#include <cstring> // memset
+
 #include "connection_string_builder.h"
 #include "integration_test_utils.h"
 
@@ -34,7 +36,11 @@ static char* iam_user;
 static char* test_region;
 
 static std::string test_endpoint;
-static std::string default_connection_string = "";
+#ifdef UNICODE
+static std::wstring default_connection_string;
+#else
+static std::string default_connection_string;
+#endif
 
 #include <iostream>
 
@@ -63,11 +69,15 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env1);
         SQLSetEnvAttr(env1, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
         SQLAllocHandle(SQL_HANDLE_DBC, env1, &dbc1);
-		std::cout << conn_str << std::endl;
+        #ifdef UNICODE
+        std::cout << StringHelper::ToString(conn_str) << std::endl;
+        #else
+        std::cout << conn_str << std::endl;
+        #endif
 
-        SQLCHAR conn_out[4096] = "\0";
+        SQLTCHAR conn_out[4096] = {0};
         SQLSMALLINT len;
-        SQLRETURN rc = SQLDriverConnect(dbc1, nullptr, AS_SQLCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+        SQLRETURN rc = SQLDriverConnect(dbc1, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
         EXPECT_EQ(SQL_SUCCESS, rc);
 
         SQLSMALLINT sl;
@@ -84,22 +94,29 @@ class IamAuthenticationIntegrationTest : public testing::Test {
                                     &sl);
 
         if (SQL_SUCCEEDED(err_rc)) {
+            #ifdef UNICODE
+            std::cout << StringHelper::ToString(sqlstate) << ": " << StringHelper::ToString(message) << std::endl;
+            #else
             std::cout << sqlstate << ": " << message << std::endl;
+            #endif
         }
         SQLHSTMT stmt = nullptr;
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc1, &stmt));
 
         char query_buffer[200];
         sprintf(query_buffer, "DROP USER IF EXISTS %s;", iam_user);
-        SQLExecDirect(stmt, AS_SQLCHAR(query_buffer), SQL_NTS);
+        INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer);
+        INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);
 
         memset(query_buffer, 0, sizeof(query_buffer));
         sprintf(query_buffer, "CREATE USER %s;", iam_user);
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLCHAR(query_buffer), SQL_NTS));
+        EXPECT_EQ(SQL_SUCCESS, INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer));
+        INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);
 
         memset(query_buffer, 0, sizeof(query_buffer));
         sprintf(query_buffer, "GRANT rds_iam TO %s;", iam_user);
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(stmt, AS_SQLCHAR(query_buffer), SQL_NTS));
+        EXPECT_EQ(SQL_SUCCESS, INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer));
+        INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);
 
         EXPECT_EQ(SQL_SUCCESS, SQLFreeHandle(SQL_HANDLE_STMT, stmt));
         EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc1));
@@ -145,10 +162,9 @@ class IamAuthenticationIntegrationTest : public testing::Test {
 
 // Tests a simple IAM connection with all expected fields provided.
 TEST_F(IamAuthenticationIntegrationTest, SimpleIamConnection) {
-    SQLCHAR conn_out[4096] = "\0";
+    SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc =
-        SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
 
     rc = SQLDisconnect(dbc);
@@ -170,9 +186,9 @@ TEST_F(IamAuthenticationIntegrationTest, ConnectToIpAddress) {
                                  .withSslMode("allow")
                                  .getString();
 
-    SQLCHAR conn_out[4096] = "\0";
+    SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
 
     rc = SQLDisconnect(dbc);
@@ -184,9 +200,9 @@ TEST_F(IamAuthenticationIntegrationTest, ConnectToIpAddress) {
 TEST_F(IamAuthenticationIntegrationTest, WrongPassword) {
     auto connection_string = ConnectionStringBuilder(default_connection_string).withPWD("WRONG_PASSWORD").getString();
 
-    SQLCHAR conn_out[4096] = "\0";
+    SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_SUCCESS, rc);
 
     rc = SQLDisconnect(dbc);
@@ -204,18 +220,21 @@ TEST_F(IamAuthenticationIntegrationTest, WrongUser) {
                                  .withSslMode("allow")
                                  .getString();
 
-    SQLCHAR conn_out[4096] = "\0";
+    SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_ERROR, rc);
 
     SQLSMALLINT stmt_length;
     SQLINTEGER native_err;
-    SQLCHAR msg[SQL_MAX_MESSAGE_LENGTH] = "\0", state[6] = "\0";
+    SQLTCHAR msg[SQL_MAX_MESSAGE_LENGTH] = {0}, state[6] = {0};
     rc = SQLError(nullptr, dbc, nullptr, state, &native_err, msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
     EXPECT_EQ(SQL_SUCCESS, rc);
-    const std::string state_str = reinterpret_cast<char*>(state);
-    EXPECT_EQ("08001", state_str);
+    #ifdef UNICODE
+    EXPECT_EQ(L"08001", std::wstring(AS_WCHAR(state)));
+    #else
+    EXPECT_EQ("08001", std::string(AS_CHAR(state)));
+    #endif
 }
 
 // Tests that the IAM connection will fail when provided an empty user.
@@ -229,16 +248,19 @@ TEST_F(IamAuthenticationIntegrationTest, EmptyUser) {
                                  .withSslMode("allow")
                                  .getString();
 
-    SQLCHAR conn_out[4096] = "\0";
+    SQLTCHAR conn_out[4096] = {0};
     SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
     EXPECT_EQ(SQL_ERROR, rc);
 
     SQLSMALLINT stmt_length;
     SQLINTEGER native_err;
-    SQLCHAR msg[SQL_MAX_MESSAGE_LENGTH] = "\0", state[6] = "\0";
+    SQLTCHAR msg[SQL_MAX_MESSAGE_LENGTH] = {0}, state[6] = {0};
     rc = SQLError(nullptr, dbc, nullptr, state, &native_err, msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
     EXPECT_EQ(SQL_SUCCESS, rc);
-    const std::string state_str = reinterpret_cast<char*>(state);
-    EXPECT_EQ("08001", state_str);
+    #ifdef UNICODE
+    EXPECT_EQ(L"08001", std::wstring(AS_WCHAR(state)));
+    #else
+    EXPECT_EQ("08001", std::string(AS_CHAR(state)));
+    #endif
 }
