@@ -32,6 +32,7 @@ env:
   OPENSSL_VERSION: '3_3_2'
   PKGCONFIGLITE_VERSION: '0.28-1'
   WINFLEXBISON_VERSION: '2.5.24'
+  IODBC_VERSION: '3.52.16'
 
 jobs:
   # Mac Build
@@ -78,13 +79,16 @@ jobs:
       - name: Build the driver
         run: ./macos/buildall ${{env.BUILD_CONFIGURATION}}
 
+      - name: Package Drivers as Zip
+        run:
+          zip -r "aws-pgsql-odbc-${{ github.ref_name }}-macos.zip" ./.libs/awspsqlodbca.so ./.libs/awspsqlodbcw.so
+
       - name: Upload the ANSI & Unicode driver
         uses: actions/upload-artifact@v4
         with:
           name: installers-macos
           path: |
-            ./.libs/awspsqlodbca.so
-            ./.libs/awspsqlodbcw.so
+            aws-pgsql-odbc-${{ github.ref_name }}-macos.zip
           retention-days: 5
           if-no-files-found: error
 
@@ -182,33 +186,90 @@ jobs:
           retention-days: 5
           if-no-files-found: error
 
+  # Linux Build
+  build-linux: 
+    runs-on: ubuntu-latest
+    env:
+      CMAKE_GENERATOR: Unix Makefiles
+    steps:
+      - name: Checkout aws-pgsql-odbc
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout aws-rds-odbc
+        uses: actions/checkout@v4
+        with:
+          repository: aws/aws-rds-odbc
+          ref: main
+          path: ./libs/aws-rds-odbc
+          token: ${{secrets.CLONE_PAT}}
+
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive
+
+      - name: Download Prerequsites
+        run: |
+          sudo apt-get update
+          sudo apt-get install autoconf automake build-essential cmake curl g++-10 git grep libcurl4-openssl-dev libssl-dev libgflags-dev libodbc2 libodbcinst2 libpq-dev libtool-bin lsb-base lsb-release uuid-dev zlib1g-dev
+
+      - name: Download & Setup iODBC
+        run: |
+          curl -L https://github.com/openlink/iODBC/releases/download/v${{env.IODBC_VERSION}}/libiodbc-${{env.IODBC_VERSION}}.tar.gz -o libiodbc.tar
+          tar xf libiodbc.tar
+          cd libiodbc-${{env.IODBC_VERSION}}
+          ./configure && make
+          sudo make install
+
+      - name: Build Driver
+        run: |
+          sudo bash linux/buildall ${{env.BUILD_CONFIGURATION}} true false
+
+      - name: Package Drivers as Tar
+        run:
+          tar -czvhf "aws-pgsql-odbc-${{ github.ref_name }}-linux.tar.gz" ./.libs/awspsqlodbca.so ./.libs/awspsqlodbcw.so
+
+      - name: Upload the ANSI & Unicode driver
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-linux
+          path: |
+            aws-pgsql-odbc-${{ github.ref_name }}-linux.tar.gz
+          retention-days: 5
+          if-no-files-found: error
+
   # Create Release
   draft-release:
     name: Create Draft Release
     runs-on: ubuntu-latest
-    needs: [build-macos, build-windows]
+    needs: [build-macos, build-windows, build-linux]
     steps:
+      - name: Checkout aws-pgsql-odbc
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set Version Env Variable
+        run: echo "RELEASE_VERSION=${{ github.ref_name }}" >>  $env:GITHUB_ENV
+
       - name: Download all installers
         uses: actions/download-artifact@v4.1.7
         with:
           path: installers
           pattern: installers-*
           merge-multiple: true
-      - name: Set Version Env Variable
-        run: echo "RELEASE_VERSION=${env:GITHUB_REF_NAME}" >>  $env:GITHUB_ENV
-      - name: Checkout aws-pgsql-odbc
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+
       - name: Extract release notes
         uses: ffurrer2/extract-release-notes@v2
         with:
           release_notes_file: RELEASE_DETAILS.md
+
       - name: Upload to Draft Release
         uses: ncipollo/release-action@v1
         with:
           draft: true
-          name: "AWS ODBC Driver for PostgreSQL - v${{ env.RELEASE_VERSION }}"
+          name: "AWS ODBC Driver for PostgreSQL - v${{ github.ref_name }}"
           bodyFile: RELEASE_DETAILS.md
-          artifacts: "*/*.so, */*.msi"
+          artifacts: "*/*.zip, */*.msi, */*.tar.gz"
           token: ${{ secrets.GITHUB_TOKEN }}
