@@ -23,9 +23,10 @@
 #include <sql.h>
 #include <sqlext.h>
 
-#include <vector>
-
 #include <iostream>
+#include <thread>
+#include <mutex>
+#include <vector>
 
 #include "connection_string_builder.h"
 #include "integration_test_utils.h"
@@ -38,7 +39,7 @@
 #define MONITOR_INTERVAL_MS 15000
 #define MONITOR_SERVICE_ID  "test_id"
 
-#define MAX_CONNECTIONS_TO_OVERLOAD_ROUTER  20
+#define NUM_CONNECTIONS_TO_OVERLOAD_ROUTER  20
 
 // Connection string parameters
 static const char* test_dsn;
@@ -50,6 +51,7 @@ static unsigned int test_port;
 static std::string shardgrp_endpoint;
 
 static RoundRobinHostSelector round_robin;
+static std::mutex round_robin_mutex;
 static std::vector<HostInfo> hosts;
 
 SQLHENV env = nullptr;
@@ -61,11 +63,48 @@ void update_hosts() {
 }
 
 std::string get_round_robin_host() {
+    std::lock_guard<std::mutex> guard(round_robin_mutex);
+
     // return round robin host on pre-existing host list
     std::unordered_map<std::string, std::string> properties;
     RoundRobinHostSelector::SetRoundRobinWeight(hosts, properties);
     HostInfo host = round_robin.GetHost(hosts, true, properties);
     return host.GetHost();
+}
+
+void load_thread(SQLTCHAR *conn_in) {
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
+    if (rc != SQL_SUCCESS) {
+        return;
+    }
+
+    get_round_robin_host(); // update round robin
+    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
+    if (rc != SQL_SUCCESS) {
+        SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+        return;
+    }
+
+    rc = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
+    if (rc != SQL_SUCCESS) {
+        SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+        return;
+    }
+
+    // run as many queries within two of the monitor intervals separated by 1s each time
+    int nqueries = 2 * (MONITOR_INTERVAL_MS/1000);
+
+    for (int i = 0; i < nqueries; i++) {
+        char query[] = "SELECT 1;";
+        INTEGRATION_TEST_UTILS::exec_query(stmt, query);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
 }
 
 class LimitlessIntegrationTest : public testing::Test {
@@ -94,10 +133,8 @@ protected:
             .withDatabase(test_db)
             .withLimitlessEnabled(false).getString();
 
-        SQLTCHAR conn_out[4096] = {0};
-        SQLSMALLINT len;
-        SQLRETURN rc = SQLDriverConnect(monitor_dbc, nullptr, AS_SQLTCHAR(monitor_connection_string.c_str()), monitor_connection_string.size(),
-            conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+        SQLRETURN rc = SQLDriverConnect(monitor_dbc, nullptr, AS_SQLTCHAR(monitor_connection_string.c_str()),
+            SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
         EXPECT_EQ(SQL_SUCCESS, rc);
         INTEGRATION_TEST_UTILS::print_errors(monitor_dbc, SQL_HANDLE_DBC);
     }
@@ -123,7 +160,7 @@ protected:
     }
 };
 
-TEST_F(LimitlessIntegrationTest, ImmediateConnectionToLeastLoadedRouter) {
+TEST_F(LimitlessIntegrationTest, ImmediateConnectionToRoundRobinHost) {
     // the service shouldn't be running right now
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
@@ -140,17 +177,15 @@ TEST_F(LimitlessIntegrationTest, ImmediateConnectionToLeastLoadedRouter) {
     std::string expected_host = get_round_robin_host();
 
     // start a connection
-    SQLTCHAR conn_out[4096] = {0};
-    SQLSMALLINT len;
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS,
-        conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()),
+        SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQL_SUCCESS, rc);
     ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
     // connected server should be the expected host
     SQLTCHAR server_name[MAX_NAME_LEN] = {0};
-    rc = SQLGetInfo(dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), &len);
+    rc = SQLGetInfo(dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), nullptr);
     ASSERT_EQ(StringHelper::ToString(server_name), expected_host);
 
     SQLDisconnect(dbc);
@@ -158,7 +193,7 @@ TEST_F(LimitlessIntegrationTest, ImmediateConnectionToLeastLoadedRouter) {
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 }
 
-TEST_F(LimitlessIntegrationTest, LazyConnectionToLeastLoadedRouter) {
+TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
     // the service shouldn't be running right now
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
@@ -172,13 +207,11 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToLeastLoadedRouter) {
         .withLimitlessServiceId("test_id").getString();
 
     SQLTCHAR *conn_in = AS_SQLTCHAR(connection_string.c_str());
-    SQLTCHAR conn_out[MAX_NAME_LEN] = {0};
     SQLTCHAR server_name[MAX_NAME_LEN] = {0};
-    SQLSMALLINT len;
     SQLRETURN rc;
 
     // initial connection should be via Route53, so the connected endpoint isn't important
-    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQL_SUCCESS, rc);
     ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
@@ -191,14 +224,15 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToLeastLoadedRouter) {
     std::string expected_host = get_round_robin_host();
     SQLHDBC second_dbc;
     SQLAllocHandle(SQL_HANDLE_DBC, env, &second_dbc);
-    rc = SQLDriverConnect(second_dbc, nullptr, conn_in, SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    rc = SQLDriverConnect(second_dbc, nullptr, conn_in, SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
     ASSERT_EQ(SQL_SUCCESS, rc);
 
     // should connect to the expected host
-    rc = SQLGetInfo(second_dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), &len);
+    rc = SQLGetInfo(second_dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), nullptr);
     ASSERT_EQ(StringHelper::ToString(server_name), expected_host);
 
     SQLDisconnect(second_dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, second_dbc);
     // service should stay online as there's another active connection
     ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
@@ -207,7 +241,7 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToLeastLoadedRouter) {
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 }
 
-TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToLoadedRouter) {
+TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
     // the service shouldn't be running right now
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
@@ -221,69 +255,43 @@ TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToLoadedRouter) {
         .withLimitlessServiceId("test_id").getString();
 
     SQLTCHAR *conn_in = AS_SQLTCHAR(connection_string.c_str());
-    SQLTCHAR conn_out[MAX_NAME_LEN] = {0};
     SQLTCHAR server_name[MAX_NAME_LEN] = {0};
-    SQLSMALLINT len;
     SQLRETURN rc;
-    std::vector<SQLHDBC> load_dbcs;
+    std::vector<std::thread *> load_threads;
 
-    auto start_time = std::chrono::high_resolution_clock::now();
-
-    // update host list as expected within limitless
     update_hosts();
 
-    // start up as many connections within the interval as possible, or MAX_CONNECTIONS_TO_OVERLOAD_ROUTER, whichever comes first
-    for (int i = 0; i < MAX_CONNECTIONS_TO_OVERLOAD_ROUTER; i++) {
-        // allocate connection handle for load connection
-        SQLHDBC load_dbc;
-        SQLAllocHandle(SQL_HANDLE_DBC, env, &load_dbc);
-
-        // open connection
-        rc = SQLDriverConnect(load_dbc, nullptr, conn_in, SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-        INTEGRATION_TEST_UTILS::print_errors(load_dbc, SQL_HANDLE_DBC);
-        ASSERT_EQ(SQL_SUCCESS, rc);
-
-        // ensure it's connected to the current round robin host
-        rc = SQLGetInfo(load_dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), &len);
-        std::string round_robin_host = get_round_robin_host();
-        ASSERT_EQ(StringHelper::ToString(server_name), round_robin_host);
-
-        load_dbcs.push_back(load_dbc);
-
-        // check time elapsed and break if half the interval has passed
-        auto now_time = std::chrono::high_resolution_clock::now();
-        auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(now_time - start_time);
-        if (elapsed_time.count() > MONITOR_INTERVAL_MS) {
-            break;
-        }
+    for (int i = 0; i < NUM_CONNECTIONS_TO_OVERLOAD_ROUTER; i++) {
+        std::thread *thread = new std::thread(&load_thread, conn_in);
+        load_threads.push_back(thread);
     }
+
+    // wait five seconds to ensure a few connections start up
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     // service should be running
     ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
-    // wait the remaining time if MAX_CONNECTIONS_TO_OVERLOAD_ROUTER was met, or wait a second (elapsed_time.count() would be >= MONITOR_INTERVAL_MS)
-    auto now_time = std::chrono::high_resolution_clock::now();
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(now_time - start_time);
-    auto remaining_time = MONITOR_INTERVAL_MS - elapsed_time.count();
-    std::this_thread::sleep_for(std::chrono::milliseconds(remaining_time < 1000 ? 1000 : remaining_time));
+    // wait the full interval to ensure new routers are fetched
+    std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_INTERVAL_MS));
 
     // update host list as limitless monitor should've updated its list, and get the newest round robin host
     update_hosts();
     std::string expected_host = get_round_robin_host();
 
     // start up a new connection on the same monitor
-    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQL_SUCCESS, rc);
 
     // ensure it's connected to the expected host
-    rc = SQLGetInfo(dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), &len);
+    rc = SQLGetInfo(dbc, SQL_SERVER_NAME, server_name, sizeof(server_name), nullptr);
     ASSERT_EQ(StringHelper::ToString(server_name), expected_host);
 
     // cleanup
     SQLDisconnect(dbc);
-    for (SQLHDBC load_dbc : load_dbcs) {
-        SQLDisconnect(load_dbc);
+    for (std::thread *thread: load_threads) {
+        thread->join();
     }
     // service should have stopped
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
