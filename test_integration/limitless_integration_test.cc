@@ -50,8 +50,7 @@ static unsigned int test_port;
 
 static std::string shardgrp_endpoint;
 
-static RoundRobinHostSelector round_robin;
-static std::mutex round_robin_mutex;
+// used between update_hosts and get_round_robin_host
 static std::vector<HostInfo> hosts;
 
 SQLHENV env = nullptr;
@@ -63,6 +62,9 @@ void update_hosts() {
 }
 
 std::string get_round_robin_host() {
+    static RoundRobinHostSelector round_robin;
+    static std::mutex round_robin_mutex;
+
     std::lock_guard<std::mutex> guard(round_robin_mutex);
 
     // return round robin host on pre-existing host list
@@ -80,8 +82,7 @@ void load_thread(SQLTCHAR *conn_in) {
         return;
     }
 
-    get_round_robin_host(); // update round robin
-    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
+    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
     if (rc != SQL_SUCCESS) {
         SQLFreeHandle(SQL_HANDLE_DBC, dbc);
         return;
@@ -94,12 +95,12 @@ void load_thread(SQLTCHAR *conn_in) {
     }
 
     // run as many queries within two of the monitor intervals separated by 1s each time
-    int nqueries = 2 * (MONITOR_INTERVAL_MS/1000);
+    int nqueries = 2 * (MONITOR_INTERVAL_MS / 1000);
 
     for (int i = 0; i < nqueries; i++) {
         char query[] = "SELECT 1;";
         INTEGRATION_TEST_UTILS::exec_query(stmt, query);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
@@ -133,8 +134,7 @@ protected:
             .withDatabase(test_db)
             .withLimitlessEnabled(false).getString();
 
-        SQLRETURN rc = SQLDriverConnect(monitor_dbc, nullptr, AS_SQLTCHAR(monitor_connection_string.c_str()),
-            SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
+        SQLRETURN rc = SQLDriverConnect(monitor_dbc, nullptr, AS_SQLTCHAR(monitor_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
         EXPECT_EQ(SQL_SUCCESS, rc);
         INTEGRATION_TEST_UTILS::print_errors(monitor_dbc, SQL_HANDLE_DBC);
     }
@@ -177,8 +177,7 @@ TEST_F(LimitlessIntegrationTest, ImmediateConnectionToRoundRobinHost) {
     std::string expected_host = get_round_robin_host();
 
     // start a connection
-    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()),
-        SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
+    SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQL_SUCCESS, rc);
     ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
@@ -189,6 +188,8 @@ TEST_F(LimitlessIntegrationTest, ImmediateConnectionToRoundRobinHost) {
     ASSERT_EQ(StringHelper::ToString(server_name), expected_host);
 
     SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    dbc = nullptr;
     // service should have stopped due to no live connections
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 }
@@ -211,7 +212,7 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
     SQLRETURN rc;
 
     // initial connection should be via Route53, so the connected endpoint isn't important
-    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
+    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQL_SUCCESS, rc);
     ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
@@ -224,7 +225,7 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
     std::string expected_host = get_round_robin_host();
     SQLHDBC second_dbc;
     SQLAllocHandle(SQL_HANDLE_DBC, env, &second_dbc);
-    rc = SQLDriverConnect(second_dbc, nullptr, conn_in, SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
+    rc = SQLDriverConnect(second_dbc, nullptr, conn_in, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
     ASSERT_EQ(SQL_SUCCESS, rc);
 
     // should connect to the expected host
@@ -237,6 +238,8 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
     ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
     SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    dbc = nullptr;
     // service should now be stopped as the last connection has closed
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 }
@@ -257,12 +260,12 @@ TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
     SQLTCHAR *conn_in = AS_SQLTCHAR(connection_string.c_str());
     SQLTCHAR server_name[MAX_NAME_LEN] = {0};
     SQLRETURN rc;
-    std::vector<std::thread *> load_threads;
+    std::vector<std::shared_ptr<std::thread>> load_threads;
 
     update_hosts();
 
     for (int i = 0; i < NUM_CONNECTIONS_TO_OVERLOAD_ROUTER; i++) {
-        std::thread *thread = new std::thread(&load_thread, conn_in);
+        std::shared_ptr<std::thread> thread = std::make_shared<std::thread>(&load_thread, conn_in);
         load_threads.push_back(thread);
     }
 
@@ -280,7 +283,7 @@ TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
     std::string expected_host = get_round_robin_host();
 
     // start up a new connection on the same monitor
-    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, MAX_NAME_LEN, nullptr, SQL_DRIVER_NOPROMPT);
+    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQL_SUCCESS, rc);
 
@@ -290,9 +293,12 @@ TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
 
     // cleanup
     SQLDisconnect(dbc);
-    for (std::thread *thread: load_threads) {
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    dbc = nullptr;
+    for (std::shared_ptr<std::thread> thread : load_threads) {
         thread->join();
     }
+    load_threads.clear();
     // service should have stopped
     ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 }
