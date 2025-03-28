@@ -102,9 +102,6 @@ else()
   set(libawsrdsodbc ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_ansi/libaws-rds-odbc-a.so)
 endif()
 
-# prevents any glog code from being parsed
-add_definitions(-DLOGGER_WRAPPER_H_)
-
 target_include_directories(
   # Name
   ${PROJECT_NAME} PRIVATE

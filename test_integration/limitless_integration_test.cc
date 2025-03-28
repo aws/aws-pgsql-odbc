@@ -25,7 +25,6 @@
 
 #include <iostream>
 #include <thread>
-#include <mutex>
 #include <vector>
 
 #include "connection_string_builder.h"
@@ -50,11 +49,11 @@ static unsigned int test_port;
 
 static std::string shardgrp_endpoint;
 
-// used between update_hosts and get_round_robin_host
-static std::vector<HostInfo> hosts;
-
 SQLHENV env = nullptr;
 SQLHDBC monitor_dbc = nullptr;
+
+// used between update_hosts and get_round_robin_host
+static std::vector<HostInfo> hosts;
 
 void update_hosts() {
     // query for limitless routers + their load information
@@ -63,9 +62,6 @@ void update_hosts() {
 
 std::string get_round_robin_host() {
     static RoundRobinHostSelector round_robin;
-    static std::mutex round_robin_mutex;
-
-    std::lock_guard<std::mutex> guard(round_robin_mutex);
 
     // return round robin host on pre-existing host list
     std::unordered_map<std::string, std::string> properties;
@@ -261,8 +257,6 @@ TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
     SQLTCHAR server_name[MAX_NAME_LEN] = {0};
     SQLRETURN rc;
     std::vector<std::shared_ptr<std::thread>> load_threads;
-
-    update_hosts();
 
     for (int i = 0; i < NUM_CONNECTIONS_TO_OVERLOAD_ROUTER; i++) {
         std::shared_ptr<std::thread> thread = std::make_shared<std::thread>(&load_thread, conn_in);
