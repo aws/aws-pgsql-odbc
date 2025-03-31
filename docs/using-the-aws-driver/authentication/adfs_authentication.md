@@ -26,7 +26,7 @@ The following DSN fields on a DSN window should be filled when using ADFS authen
 | SSL Mode          | SSLMode           | The authentication SSL mode, should be `allow`, `prefer` or `require`                                                                             | `disable`                | `allow`                                                |
 | Token Expiration  | TokenExpiration   | Token expiration in seconds, supported max value is 900                                                                                           | 900                      | 900                                                    |
 | IDP Endpoint      | IDPEndpoint       | The ADFS host that is used to authenticate into AWS PostgreSQL                                                                                    | Null                     | `my-adfs-host.com`                                     |
-| IDP Port          | IDPPort           | The ADFS host port                                                                                                                                | Null                     | 443                                                    |
+| IDP Port          | IDPPort           | The ADFS host port                                                                                                                                | 443                      | 443                                                    |
 | IDP User Name     | IDPUserName       | The user name for the IDP Endpoint server                                                                                                         | Null                     | `user@email.com`                                       |
 | IDP Password      | IDPPassword       | The IDP user password                                                                                                                             | Null                     | `my_password`                                          |
 | Role ARN          | IDPRoleArn        | The ARN of the IAM Role that is to be assumed to access AWS PostgreSQL                                                                            | Null                     | `arn:aws:iam::123412341234:role/ADFS-SAML-Assume`      |
@@ -37,3 +37,6 @@ The following DSN fields on a DSN window should be filled when using ADFS authen
 
 ### DSN Window Example
 ![DSN window example for ADFS authentication](../../img/adfs.png)
+
+### Sample Code
+[ADFS Authentication Example](adfs_authentication_sample.cpp)

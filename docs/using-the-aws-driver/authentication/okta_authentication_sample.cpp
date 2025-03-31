@@ -68,11 +68,23 @@ int main() {
     const char *server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
     int port = 5432;
     const char *db = "postgres";
-    const char* iam_config = "AuthType=IAM;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
+    const char* okta_config = "AuthType=okta;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
+    char idp_config[MAX_NAME_LEN];
+
+	const char *idp_endpoint = "mmy-app-name.okta.com";
+	const char *idp_username = "user@email.com";
+	const char *idp_password = "my_password";
+	const char *idp_role_arn = "arn:aws:iam::123412341234:role/Okta-SAML-Assume";
+	const char *idp_arn = "arn:aws:iam::123412341234:saml-provider/Okta-AWS-IAM";
+	const char *app_id = "app_id";
+
+	sprintf(idp_config,
+		"IDPEndpoint=%s;IDPUserName=%s;IDPPassword=%s;IDPRoleArn=%s;IDPArn=%s;AppId=%s",
+		idp_endpoint, idp_username, idp_password, idp_role_arn, idp_arn, app_id);
 
     sprintf(reinterpret_cast<char *>(conn_in),
-            "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;",
-            dsn, user, server, port, db, iam_config);
+            "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;%s",
+            dsn, user, server, port, db, okta_config, idp_config);
 
     // Setup
     SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
