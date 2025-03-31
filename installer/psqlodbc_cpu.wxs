@@ -107,6 +107,11 @@
     <WixVariable Id="WixUIDialogBmp" Value="background.jpg" />
     <WixVariable Id="WixUIBannerBmp" Value="banner.jpg" />
 
+<!-- Driver Icon -->
+
+    <Icon Id="aws.ico" SourceFile="aws.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="aws.ico" />
+
 <!-- Upgrade -->
 
     <MajorUpgrade
