@@ -1234,11 +1234,11 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
-void GetLimitlessServer(ConnInfo *ci) {
+bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_size) {
 	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
 
 	if (!ci->limitless_enabled) {
-		return;
+		return true;
 	}
 
 	int host_port = atoi(ci->port);
@@ -1255,19 +1255,21 @@ void GetLimitlessServer(ConnInfo *ci) {
 	SQLHENV henv;
 	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
     if (!SQL_SUCCEEDED(rc)) {
+		snprintf(limitless_err, limitless_err_size, "Allocation error while attempting to get limitless server");
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed - disabling limitless\n");
 		ci->limitless_enabled = 0;
-		return;
+		return false;
 	}
 
 	SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
 	SQLHDBC hdbc;
     rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
     if (!SQL_SUCCEEDED(rc)) {
+		snprintf(limitless_err, limitless_err_size, "Allocation error while attempting to get limitless server");
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed - disabling limitless\n");
 		ci->limitless_enabled = 0;
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		return;
+		return false;
 	}
 
 #ifdef UNICODE_SUPPORT
@@ -1278,23 +1280,25 @@ void GetLimitlessServer(ConnInfo *ci) {
 	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
 #endif
     if (!SQL_SUCCEEDED(rc)) {
+		snprintf(limitless_err, limitless_err_size, "Connection error while attempting to get limitless server");
 		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed - disabling limitless\n");
 		ci->limitless_enabled = 0;
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		return;
+		return false;
 	}
 
 	MYLOG(MIN_LOG_LEVEL, "before CheckLimitlessCluster\n");
 	if (CheckLimitlessCluster(hdbc)) {
 		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
 	} else {
+		snprintf(limitless_err, limitless_err_size, "Server is not a limitless cluster, cannot use limitless monitor service");
 		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
 		SQLDisconnect(hdbc);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		ci->limitless_enabled = 0;
-		return;
+		return false;
 	}
 
 	// disconnect from this preliminary connection
@@ -1319,6 +1323,8 @@ void GetLimitlessServer(ConnInfo *ci) {
 		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance returned false. Not using router endpoint.\n");
 	}
 	free(db_instance.server);
+
+	return true;
 }
 
 #define MERGE_CSTR(buffer, size, prefix, suffix) (snprintf(buffer, size, "%s\n%s", prefix, suffix))
@@ -1330,7 +1336,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	CSTR	func = "CC_connect";
 	char		ret, *saverr = NULL, retsend;
 	const char	*errmsg = NULL;
-	char custom_err[LARGE_REGISTRY_LEN];
+	char custom_err[LARGE_REGISTRY_LEN], limitless_err[LARGE_REGISTRY_LEN];
 
 	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
@@ -1363,7 +1369,12 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.username = NULL;
 		credentials.password = NULL;
 
-		GetLimitlessServer(ci);
+		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
+			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, limitless_err, CC_get_errormsg(self));
+			CC_set_errormsg(self, custom_err);
+			ret = 0;
+			return ret;
+		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
 			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Fetched Secrets Manager credentials are invalid", CC_get_errormsg(self));
@@ -1373,7 +1384,12 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
-		GetLimitlessServer(ci);
+		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
+			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, limitless_err, CC_get_errormsg(self));
+			CC_set_errormsg(self, custom_err);
+			ret = 0;
+			return ret;
+		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		// Failed to connect
 		if (ret <= 0) {
@@ -1396,7 +1412,12 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci->token_expiration);
 	}
 	else {
-		GetLimitlessServer(ci);
+		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
+			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, limitless_err, CC_get_errormsg(self));
+			CC_set_errormsg(self, custom_err);
+			ret = 0;
+			return ret;
+		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0)
 			return ret;
