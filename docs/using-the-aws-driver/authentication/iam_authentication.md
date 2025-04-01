@@ -32,7 +32,7 @@ The following DSN fields on a DSN window should be filled when using IAM authent
 | Token Expiration | TokenExpiration   | Token expiration in seconds, supported max value is 900                                                                                           | 900           | 900                           |
 
 ### DSN Window Example
-![DSN window example for IAM authentication](img/iam.png)
+![DSN window example for IAM authentication](../../img/iam.png)
 
 ### Sample Code
 [IAM Authentication Example](iam_authentication_sample.cpp)
