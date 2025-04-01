@@ -36,4 +36,4 @@ The following DSN fields on a DSN window should be filled when using ADFS authen
 | Relaying Party ID | ReplayingPartyId  | The relaying party identifier                                                                                                                     | `urn:amazon:webservices` | `urn:amazon:webservices`                               |
 
 ### DSN Window Example
-![DSN window example for ADFS authentication](img/adfs.png)
+![DSN window example for ADFS authentication](../../img/adfs.png)

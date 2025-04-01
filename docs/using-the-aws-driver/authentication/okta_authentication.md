@@ -35,4 +35,4 @@ The following DSN fields on a DSN window should be filled when using Okta authen
 | App ID           | AppId             | The application ID for AWS configured on Okta                                                                                                     | Null          | `my-app-id`                                            |
 
 ### DSN Window Example
-![DSN window example for Okta authentication](img/okta.png)
+![DSN window example for Okta authentication](../../img/okta.png)

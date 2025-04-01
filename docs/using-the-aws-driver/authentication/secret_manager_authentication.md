@@ -22,4 +22,4 @@ The following DSN fields on the DSN window should be filled when using Secret Ma
 | Secret Id         | SecretId          | Secret ID which holds the database credentials          | Null          | `arn:aws:secretsmanager:us-west-2:123412341234:secret:rds!cluster-UUID`   |
 
 ### DSN Window Example
-![DSN window example for Secret Manager authentication](img/secret_manager.png)
+![DSN window example for Secret Manager authentication](../../img/secret_manager.png)

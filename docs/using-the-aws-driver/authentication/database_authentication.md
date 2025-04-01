@@ -15,4 +15,4 @@ The following connection options are required when using Database authentication
 | SSL Mode  | SSLMode           | The SSL authentication mode               | `disable`     | `disable`                     |
 
 ### DSN Window Example
-![DSN window example for database authentication](img/database.png)
+![DSN window example for database authentication](../../img/database.png)

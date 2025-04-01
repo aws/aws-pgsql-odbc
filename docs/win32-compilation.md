@@ -295,4 +295,4 @@ The default build settings will create the following driver:
 
 The build in Visual Studio could fail for the first time run. It is because the two projects has dependency on each other. The error could be like this. After rerun the build could succeed.
 
-![build error](img\builderror.png)
+![build error](./img/builderror.png)

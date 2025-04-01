@@ -5,7 +5,7 @@
 In an Amazon Aurora database (DB) cluster, failover is a mechanism by which Aurora automatically repairs the DB cluster status when a primary DB instance becomes unavailable. It achieves this goal by electing an Aurora Replica to become the new primary DB instance, so that the DB cluster can provide maximum availability to a primary read-write DB instance. The AWS ODBC Driver for PostgreSQL implements failover support to coordinate with this behavior to provide minimal downtime in the event of a DB instance failure.
 To learn more about Aurora cluster's failover feature see the [Amazon RDS documentation](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Concepts.AuroraHighAvailability.html#Aurora.Managing.FaultTolerance).
 
-![failover_diagram](img/failover_diagram.png)
+![failover_diagram](../../img/failover_diagram.png)
 
 The figure above provides a simplified overview of how the AWS ODBC Driver for PostgreSQL handles an Aurora failover encounter. Starting at the top of the diagram, an application using the driver sends a request to get a logical connection to an Aurora database.
 
@@ -32,11 +32,11 @@ At this point, the driver will connect to the new primary DB instance and return
 | `FailoverTimeout`            | Maximum allowed time in milliseconds to attempt reconnecting to a new writer or reader instance after a cluster failover is initiated. Default value is set to 300000ms (300 seconds).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | int   | No                                                                                                                                              | `300000`                                                                                                                                         |
 
 ### DSN Window Example
-![DSN window example for failover](img/failover_dsn.png)
+![DSN window example for failover](../../img/failover_dsn.png)
 
 ## Driver Behaviour During Failover For Different Connection URLs
 
-![failover_behavior](img/failover_behavior.png)
+![failover_behavior](../../img/failover_behavior.png)
 
 ## Host Pattern
 

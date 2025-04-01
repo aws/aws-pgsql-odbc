@@ -25,7 +25,7 @@ The following DSN fields on a DSN window should be filled when using the Limitle
 
 ### DSN Window Example
 
-![DSN window example for Limitless Connection](img/limitless.png)
+![DSN window example for Limitless Connection](../../img/limitless.png)
 
 ### Use with Other Features
 The Limitless Connection Feature is compatible with AWS authentication methods. See more about the supported AWS authentication methods [here](../authentication/authentication.md).
@@ -41,7 +41,7 @@ Connection pools keep connections open for reuse, but this can work against the 
 
 ### DSN Window Connection Pool Example
 
-![DSN window example for disabling connection pool](img/connection_pool.png)
+![DSN window example for disabling connection pool](../../img/connection_pool.png)
 
 ### Auto-generated Service IDs
 
