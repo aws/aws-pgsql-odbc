@@ -112,8 +112,9 @@ bool isInList(char* check, char *valid[], unsigned int size) {
 HWND secretIdDlg;
 
 void EnableWindows(int index) {
+	// Enable iamHost only when authtype is not Database or Secrets Manager
+	EnableWindow(iamHostDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0 && stricmp(authtype[index].authtypestr, SECRET_MODE) != 0);
 	// Enable region and token expiration only when authtype is not Database
-	EnableWindow(iamHostDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
 	EnableWindow(regionDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
 	EnableWindow(tokenExpirationDlg, stricmp(authtype[index].authtypestr, DATABASE_MODE) != 0);
 

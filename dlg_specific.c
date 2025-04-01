@@ -901,6 +901,7 @@ getCiDefaults(ConnInfo *ci)
 	STRCPY_FIXED(ci->federation_cfg.http_client_socket_timeout, DEFAULT_SOCKET_TIMEOUT);
 	STRCPY_FIXED(ci->federation_cfg.http_client_connect_timeout, DEFAULT_CONN_TIMEOUT);
 	STRCPY_FIXED(ci->federation_cfg.relaying_party_id, DEFAULT_RELAYING_PARTY_ID);
+	STRCPY_FIXED(ci->federation_cfg.idp_port, DEFAULT_IDP_PORT);
 
 	ci->secret_id[0] = '\0';
 	ci->limitless_enabled = DEFAULT_LIMITLESS_ENABLED;

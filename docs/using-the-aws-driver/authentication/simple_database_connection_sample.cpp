@@ -58,13 +58,14 @@ int main() {
 
 	// Setup connection string
 	const char* dsn = "my_dsn";
-	const char* user = "iam_db_user";
+	const char* user = "username";
+	const char* password = "password";
 	const char* server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
 	int port = 5432;
 	const char* db = "postgres";
-	const char* iam_config = "AuthType=IAM;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
 
-	sprintf(reinterpret_cast<char*>(conn_in), "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;", dsn, user, server, port, db, iam_config);
+	sprintf(reinterpret_cast<char*>(conn_in), "DSN=%s;UID=%s;PWD=%s;SERVER=%s;PORT=%d;DATABASE=%s;AuthType=database;", dsn, user, password, server,
+			port, db);
 
 	// Setup
 	SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);

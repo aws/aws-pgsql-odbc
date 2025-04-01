@@ -25,7 +25,7 @@ The following DSN fields on a DSN window should be filled when using Okta authen
 | SSL Mode         | SSLMode           | The authentication SSL mode, should be `allow`, `prefer` or `require`                                                                             | `disable`     | `allow`                                                |
 | Token Expiration | TokenExpiration   | Token expiration in seconds, supported max value is 900                                                                                           | 900           | 900                                                    |
 | IDP Endpoint     | IDPEndpoint       | The Okta host that is used to authenticate into AWS PostgreSQL                                                                                    | Null          | `my-app-name.okta.com`                                 |
-| IDP Port         | IDPPort           | The Okta host port                                                                                                                                | Null          | 443                                                    |
+| IDP Port         | IDPPort           | The Okta host port                                                                                                                                | 443           | 443                                                    |
 | IDP User Name    | IDPUserName       | The user name for the IDP Endpoint server                                                                                                         | Null          | `user@email.com`                                       |
 | IDP Password     | IDPPassword       | The IDP user password                                                                                                                             | Null          | `my_password`                                          |
 | Role ARN         | IDPRoleArn        | The ARN of the IAM Role that is to be assumed to access AWS PostgreSQL                                                                            | Null          | `arn:aws:iam::123412341234:role/Okta-SAML-Assume`      |
@@ -36,3 +36,6 @@ The following DSN fields on a DSN window should be filled when using Okta authen
 
 ### DSN Window Example
 ![DSN window example for Okta authentication](../../img/okta.png)
+
+### Sample Code
+[Okta Authentication Example](okta_authentication_sample.cpp)

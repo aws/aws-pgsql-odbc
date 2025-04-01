@@ -16,3 +16,6 @@ The following connection options are required when using Database authentication
 
 ### DSN Window Example
 ![DSN window example for database authentication](../../img/database.png)
+
+### Sample Code
+[Simple Database Authentication Example](simple_database_connection_sample.cpp)

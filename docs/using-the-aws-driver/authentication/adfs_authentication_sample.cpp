@@ -62,9 +62,20 @@ int main() {
 	const char* server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
 	int port = 5432;
 	const char* db = "postgres";
-	const char* iam_config = "AuthType=IAM;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
+	const char* adfs_config = "AuthType=adfs;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
+	char idp_config[MAX_NAME_LEN];
 
-	sprintf(reinterpret_cast<char*>(conn_in), "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;", dsn, user, server, port, db, iam_config);
+	const char* idp_endpoint = "my-adfs-host.com";
+	const char* idp_username = "user@email.com";
+	const char* idp_password = "my_password";
+	const char* idp_role_arn = "arn:aws:iam::123412341234:role/ADFS-SAML-Assume";
+	const char* idp_arn = "arn:aws:iam::123412341234:saml-provider/ADFS-AWS-IAM";
+
+	sprintf(idp_config, "IDPEndpoint=%s;IDPUserName=%s;IDPPassword=%s;IDPRoleArn=%s;IDPArn=%s", idp_endpoint, idp_username, idp_password,
+			idp_role_arn, idp_arn);
+
+	sprintf(reinterpret_cast<char*>(conn_in), "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;%s", dsn, user, server, port, db, adfs_config,
+			idp_config);
 
 	// Setup
 	SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
