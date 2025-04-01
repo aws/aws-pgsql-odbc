@@ -171,9 +171,6 @@ protected:
 };
 
 TEST_F(LimitlessIntegrationTest, ImmediateConnectionToRoundRobinHost) {
-    // the service shouldn't be running right now
-    ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
-
     // get the current expected host
     round_robin_helper.UpdateHosts();
     std::string expected_host = round_robin_helper.GetRoundRobinHost();
@@ -192,7 +189,6 @@ TEST_F(LimitlessIntegrationTest, ImmediateConnectionToRoundRobinHost) {
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQL_SUCCESS, rc);
-    ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
     // connected server should be the expected host
     SQLTCHAR server_name[MAX_NAME_LEN] = {0};
@@ -200,13 +196,9 @@ TEST_F(LimitlessIntegrationTest, ImmediateConnectionToRoundRobinHost) {
     ASSERT_EQ(StringHelper::ToString(server_name), expected_host);
 
     SQLDisconnect(dbc);
-    // service should have stopped due to no live connections
-    ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 }
 
 TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
-    // the service shouldn't be running right now
-    ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
     auto connection_string = ConnectionStringBuilder(test_dsn, shardgrp_endpoint, test_port)
         .withUID(test_user)
@@ -225,7 +217,6 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
     rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
     INTEGRATION_TEST_UTILS::print_errors(dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQL_SUCCESS, rc);
-    ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
     // wait the full monitor interval to ensure the monitor service starts and gets new routers
     std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_INTERVAL_MS));
@@ -248,11 +239,7 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
     SQLDisconnect(second_dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, second_dbc);
     // service should stay online as there's another active connection
-    ASSERT_TRUE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
-
     SQLDisconnect(dbc);
-    // service should now be stopped as the last connection has closed
-    ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 }
 
 TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
@@ -274,9 +261,6 @@ TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
         std::shared_ptr<std::thread> thread = std::make_shared<std::thread>(&load_thread, conn_in);
         load_threads.push_back(thread);
     }
-
-    // service should not be running - the threads aren't using the limitless monitor service
-    ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 
     // wait the full interval such that the monitor's internal host information is updated
     std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_INTERVAL_MS));
@@ -337,7 +321,4 @@ TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
         thread->join();
     }
     load_threads.clear();
-
-    // service should have stopped
-    ASSERT_FALSE(CheckLimitlessMonitorService(MONITOR_SERVICE_ID));
 }

@@ -14,6 +14,9 @@
 
 #include <gtest/gtest.h>
 
+#ifdef WIN32
+#include <windows.h>
+#endif
 #include "connection_string_builder.h"
 
 class ConnectionStringBuilderTest : public testing::Test {};

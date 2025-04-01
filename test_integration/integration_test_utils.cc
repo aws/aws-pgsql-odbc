@@ -12,10 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "integration_test_utils.h"
-
-#include <gtest/gtest.h>
-
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -25,6 +21,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #endif
+
+#include "integration_test_utils.h"
 
 char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) {
     char* value = std::getenv(key);
