@@ -9,7 +9,7 @@ You can download the AWS ODBC Driver for PostgreSQL installers and binaries for 
 ### Windows
 
 Download the `.msi` Windows installer for your system; execute the installer and follow the onscreen instructions. The default target installation location for the driver files is `C:\Program Files\AWSpsqlODBC`.
-Four driver will be installed:
+Four drivers will be installed:
 - AWS ANSI ODBC Driver for PostgreSQL
 - AWS ANSI ODBC Driver for PostgreSQL (x64)
 - AWS Unicode ODBC Driver for PostgreSQL
@@ -27,8 +27,8 @@ In order to use the AWS ODBC Driver for PostgreSQL, the following dependencies m
 You can install them all using `Homebrew`, e.g. `brew install postgresql gflags unixodbc`.
 
 #### Known Limitations
-- This driver currently only supports MacOS with Silicon chips.
-- This driver currently has compatibility issues with the `iODBC Driver Manager`. DSN need to be configured by manually modifying the `odbc.ini` and `odbcinist.ini` files.
+- This driver currently has compatibility issues with the `iODBC Driver Manager` on MacOS. DSN need to be configured by manually modifying the `odbc.ini` and `odbcinist.ini` files.
+- This driver currently does not support [Amazon Aurora Global Database](https://aws.amazon.com/rds/aurora/global-database/) and [RDS Multi-AZ Cluster Deployments](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/multi-az-db-clusters-concepts.html).
 
 ### Configuring the Driver and DSN Entries
 To configure the driver on Windows, use the `ODBC Data Source Administrator` tool to add or configure a DSN for either the `AWS ANSI ODBC Driver for PostgreSQL` or `AWS Unicode ODBC Driver for PostgreSQL`.
