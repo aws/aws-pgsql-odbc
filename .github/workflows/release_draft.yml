@@ -81,14 +81,14 @@ jobs:
 
       - name: Package Drivers as Zip
         run:
-          zip -r "aws-pgsql-odbc-${{ github.ref_name }}-macos.zip" ./.libs/awspsqlodbca.so ./.libs/awspsqlodbcw.so
+          zip -r "aws-pgsql-odbc-${{ github.ref_name }}-macos-arm64.zip" ./.libs/awspsqlodbca.so ./.libs/awspsqlodbcw.so
 
       - name: Upload the ANSI & Unicode driver
         uses: actions/upload-artifact@v4
         with:
           name: installers-macos
           path: |
-            aws-pgsql-odbc-${{ github.ref_name }}-macos.zip
+            aws-pgsql-odbc-${{ github.ref_name }}-macos-arm64.zip
           retention-days: 5
           if-no-files-found: error
 
@@ -187,7 +187,7 @@ jobs:
           if-no-files-found: error
 
   # Linux Build
-  build-linux: 
+  build-linux:
     runs-on: ubuntu-latest
     env:
       CMAKE_GENERATOR: Unix Makefiles
@@ -228,14 +228,14 @@ jobs:
 
       - name: Package Drivers as Tar
         run:
-          tar -czvhf "aws-pgsql-odbc-${{ github.ref_name }}-linux.tar.gz" ./.libs/awspsqlodbca.so ./.libs/awspsqlodbcw.so
+          tar -czvhf "aws-pgsql-odbc-${{ github.ref_name }}-linux-x64.tar.gz" ./.libs/awspsqlodbca.so ./.libs/awspsqlodbcw.so
 
       - name: Upload the ANSI & Unicode driver
         uses: actions/upload-artifact@v4
         with:
           name: installers-linux
           path: |
-            aws-pgsql-odbc-${{ github.ref_name }}-linux.tar.gz
+            aws-pgsql-odbc-${{ github.ref_name }}-linux-x64.tar.gz
           retention-days: 5
           if-no-files-found: error
 
@@ -243,15 +243,12 @@ jobs:
   draft-release:
     name: Create Draft Release
     runs-on: ubuntu-latest
-    needs: [build-macos, build-windows, build-linux]
+    needs: [build-macos, build-windows]
     steps:
       - name: Checkout aws-pgsql-odbc
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
-      - name: Set Version Env Variable
-        run: echo "RELEASE_VERSION=${{ github.ref_name }}" >>  $env:GITHUB_ENV
 
       - name: Download all installers
         uses: actions/download-artifact@v4.1.7
