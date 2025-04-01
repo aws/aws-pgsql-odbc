@@ -30,74 +30,66 @@
  * Print the error message if the previous ODBC command failed.
  */
 void print_error(SQLRETURN rc, SQLHANDLE connection_handle, SQLHANDLE statement_handle) {
-    if (SQL_SUCCEEDED(rc)) {
-        return;
-    }
+	if (SQL_SUCCEEDED(rc)) {
+		return;
+	}
 
-    SQLSMALLINT stmt_length;
-    SQLINTEGER native_error;
+	SQLSMALLINT stmt_length;
+	SQLINTEGER native_error;
 
-    SQLTCHAR sqlstate[MAX_STATE_LENGTH], message[QUERY_BUFFER_SIZE];
-    SQLRETURN err_rc = SQLError(nullptr,
-                                connection_handle,
-                                statement_handle,
-                                sqlstate,
-                                &native_error,
-                                message,
-                                SQL_MAX_MESSAGE_LENGTH - 1,
-                                &stmt_length);
+	SQLTCHAR sqlstate[MAX_STATE_LENGTH], message[QUERY_BUFFER_SIZE];
+	SQLRETURN err_rc =
+		SQLError(nullptr, connection_handle, statement_handle, sqlstate, &native_error, message, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length);
 
-    if (SQL_SUCCEEDED(err_rc)) {
-        std::cout << sqlstate << ": " << message << std::endl;
-    }
-    throw std::runtime_error("An error has occurred while running this sample code.");
+	if (SQL_SUCCEEDED(err_rc)) {
+		std::cout << sqlstate << ": " << message << std::endl;
+	}
+	throw std::runtime_error("An error has occurred while running this sample code.");
 }
 
 int main() {
-    SQLHENV env;
-    SQLHDBC dbc;
-    SQLHSTMT stmt;
-    SQLSMALLINT len;
-    SQLRETURN rc;
-    SQLCHAR conn_in[MAX_NAME_LEN], conn_out[MAX_NAME_LEN], query_buffer[QUERY_BUFFER_SIZE];
-    SQLTCHAR instance_id[QUERY_BUFFER_SIZE];
+	SQLHENV env;
+	SQLHDBC dbc;
+	SQLHSTMT stmt;
+	SQLSMALLINT len;
+	SQLRETURN rc;
+	SQLCHAR conn_in[MAX_NAME_LEN], conn_out[MAX_NAME_LEN], query_buffer[QUERY_BUFFER_SIZE];
+	SQLTCHAR instance_id[QUERY_BUFFER_SIZE];
 
-    // Setup connection string
-    const char *dsn = "my_dsn";
-    const char *user = "iam_db_user";
-    const char *server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
-    int port = 5432;
-    const char *db = "postgres";
-    const char* iam_config = "AuthType=IAM;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
+	// Setup connection string
+	const char* dsn = "my_dsn";
+	const char* user = "iam_db_user";
+	const char* server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
+	int port = 5432;
+	const char* db = "postgres";
+	const char* iam_config = "AuthType=IAM;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
 
-    sprintf(reinterpret_cast<char *>(conn_in),
-            "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;",
-            dsn, user, server, port, db, iam_config);
+	sprintf(reinterpret_cast<char*>(conn_in), "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;", dsn, user, server, port, db, iam_config);
 
-    // Setup
-    SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
-    SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
-    SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
+	// Setup
+	SQLAllocHandle(SQL_HANDLE_ENV, nullptr, &env);
+	SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0);
+	SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
 
-    // Connect
-    rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
-    print_error(rc, dbc, nullptr);
+	// Connect
+	rc = SQLDriverConnect(dbc, nullptr, conn_in, SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT);
+	print_error(rc, dbc, nullptr);
 
-    // Execute
-    rc = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
-    sprintf(reinterpret_cast<char *>(query_buffer), "SELECT aurora_db_instance_identifier()");
-    rc = SQLExecDirect(stmt, query_buffer, SQL_NTS);
-    print_error(rc, nullptr, stmt);
+	// Execute
+	rc = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
+	sprintf(reinterpret_cast<char*>(query_buffer), "SELECT aurora_db_instance_identifier()");
+	rc = SQLExecDirect(stmt, query_buffer, SQL_NTS);
+	print_error(rc, nullptr, stmt);
 
-    rc = SQLBindCol(stmt, 1, SQL_C_CHAR, instance_id, sizeof(instance_id), nullptr);
-    rc = SQLFetch(stmt);
-    print_error(rc, nullptr, stmt);
+	rc = SQLBindCol(stmt, 1, SQL_C_CHAR, instance_id, sizeof(instance_id), nullptr);
+	rc = SQLFetch(stmt);
+	print_error(rc, nullptr, stmt);
 
-    std::cout << "Connected to instance: " << reinterpret_cast<char *>(instance_id) << std::endl;
+	std::cout << "Connected to instance: " << reinterpret_cast<char*>(instance_id) << std::endl;
 
-    // Cleanup
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-    SQLDisconnect(dbc);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+	// Cleanup
+	SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+	SQLDisconnect(dbc);
+	SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+	SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
