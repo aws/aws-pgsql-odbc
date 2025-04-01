@@ -19,8 +19,10 @@
 
 #include <sql.h>
 #include <sqlext.h>
+#include <gtest/gtest.h>
 
 #include "string_helper.h"
+
 
 #define MAX_NAME_LEN 4096
 #define SQL_MAX_MESSAGE_LENGTH 512

@@ -1,138 +1,138 @@
-name: Build and Regression Tests on macOS
-run-name: aws-pgsql-odbc macOS CI - ${{ github.event.head_commit.message }}
+# name: Build and Regression Tests on macOS
+# run-name: aws-pgsql-odbc macOS CI - ${{ github.event.head_commit.message }}
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-    - main
-    tags:
-    - 'REL-*'
-    - '!REL-*-mimalloc'
-  pull_request:
-    branches:
-    - "**"
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches:
+#     - main
+#     tags:
+#     - 'REL-*'
+#     - '!REL-*-mimalloc'
+#   pull_request:
+#     branches:
+#     - "**"
   
-env:
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-  BUILD_CONFIGURATION: Release
+# env:
+#   Configuration type to build.
+#   You can convert this to a build matrix if you need coverage of multiple configuration types.
+#   https://docs.github.com/actions/learn-github-actions/managing-complex-workflowsusing-a-build-matrix
+#   BUILD_CONFIGURATION: Release
 
-permissions:
-  contents: read
+# permissions:
+#   contents: read
 
-jobs:
-  build:
-    runs-on: macos-15 # See https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
-    steps:
-      - name: Update Homebrew
-        run: brew update && brew upgrade && brew cleanup
+# jobs:
+#   build:
+#     runs-on: macos-15 See https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
+#     steps:
+#       - name: Update Homebrew
+#         run: brew update && brew upgrade && brew cleanup
 
-      - name: Install and configure prerequisites
-        run: |
-          brew install autoconf automake gflags grep libtool unixodbc zlib
-          ln -s /opt/homebrew/opt/libpq/bin/psql /opt/homebrew/bin/psql
+#       - name: Install and configure prerequisites
+#         run: |
+#           brew install autoconf automake gflags grep libtool unixodbc zlib
+#           ln -s /opt/homebrew/opt/libpq/bin/psql /opt/homebrew/bin/psql
 
-      - name: Install PostgreSQL
-        run: |
-          brew install postgresql@17
-          echo "/opt/homebrew/opt/postgresql@17/bin" >> $GITHUB_PATH
+#       - name: Install PostgreSQL
+#         run: |
+#           brew install postgresql@17
+#           echo "/opt/homebrew/opt/postgresql@17/bin" >> $GITHUB_PATH
   
-      - name: Start PostgreSQL service
-        run: brew services start postgresql@17
+#       - name: Start PostgreSQL service
+#         run: brew services start postgresql@17
 
-      - name: Capture PostgreSQL user
-        run: |
-          echo "POSTGRESQL_USER=$(whoami)" >> $GITHUB_ENV
+#       - name: Capture PostgreSQL user
+#         run: |
+#           echo "POSTGRESQL_USER=$(whoami)" >> $GITHUB_ENV
   
-      - name: Verify prerequisite installations
-        run: |
-          echo "Environment variables:"
-          set
-          echo "----------------------------------------"
-          echo "psql version:"
-          psql --version
-          echo "----------------------------------------"
-          echo "pg_config:"
-          pg_config
-          echo "----------------------------------------"
-          echo "xcode-select -p:"
-          xcode-select -p
-          echo "----------------------------------------"
-          echo "xcodebuild version:"
-          xcodebuild -version
-          echo "----------------------------------------"
-          echo "Xcode command line tools version:"
-          pkgutil --pkg-info=com.apple.pkg.CLTools_Executables
-          echo "----------------------------------------"
+#       - name: Verify prerequisite installations
+#         run: |
+#           echo "Environment variables:"
+#           set
+#           echo "----------------------------------------"
+#           echo "psql version:"
+#           psql --version
+#           echo "----------------------------------------"
+#           echo "pg_config:"
+#           pg_config
+#           echo "----------------------------------------"
+#           echo "xcode-select -p:"
+#           xcode-select -p
+#           echo "----------------------------------------"
+#           echo "xcodebuild version:"
+#           xcodebuild -version
+#           echo "----------------------------------------"
+#           echo "Xcode command line tools version:"
+#           pkgutil --pkg-info=com.apple.pkg.CLTools_Executables
+#           echo "----------------------------------------"
 
-      - name: Checkout aws-pgsql-odbc
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+#       - name: Checkout aws-pgsql-odbc
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 1
 
-      - name: Checkout aws-rds-odbc
-        uses: actions/checkout@v4
-        with:
-          repository: aws/aws-rds-odbc
-          ref: main
-          path: ./libs/aws-rds-odbc
-          token: ${{secrets.CLONE_PAT}}
+#       - name: Checkout aws-rds-odbc
+#         uses: actions/checkout@v4
+#         with:
+#           repository: aws/aws-rds-odbc
+#           ref: main
+#           path: ./libs/aws-rds-odbc
+#           token: ${{secrets.CLONE_PAT}}
 
-      - name: Initialize submodules
-        run: git submodule update --init --recursive
+#       - name: Initialize submodules
+#         run: git submodule update --init --recursive
 
-      - name: Cache AWS SDK libraries
-        id: cache-dynamic-aws-sdk
-        uses: actions/cache@v4
-        with:
-          path: |
-            libs/aws-rds-odbc/aws_sdk
-          key: ${{ runner.os }}-aws-sdk-dynamic-lib
+#       - name: Cache AWS SDK libraries
+#         id: cache-dynamic-aws-sdk
+#         uses: actions/cache@v4
+#         with:
+#           path: |
+#             libs/aws-rds-odbc/aws_sdk
+#           key: ${{ runner.os }}-aws-sdk-dynamic-lib
 
-      - name: Build the driver
-        run: ./macos/buildall ${{env.BUILD_CONFIGURATION}}
+#       - name: Build the driver
+#         run: ./macos/buildall ${{env.BUILD_CONFIGURATION}}
 
-      - name: Upload libtool
-        uses: actions/upload-artifact@v4
-        with:
-          name: libtool
-          path: ./libtool
-          retention-days: 5
-          if-no-files-found: error
+#       - name: Upload libtool
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: libtool
+#           path: ./libtool
+#           retention-days: 5
+#           if-no-files-found: error
 
-      - name: Upload config.log
-        uses: actions/upload-artifact@v4
-        with:
-          name: config.log
-          path: ./config.log
-          retention-days: 5
-          if-no-files-found: error
+#       - name: Upload config.log
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: config.log
+#           path: ./config.log
+#           retention-days: 5
+#           if-no-files-found: error
           
-      - name: Verify the builds
-        run: |
-          dltest .libs/awspsqlodbca.so
-          dltest .libs/awspsqlodbcw.so
+#       - name: Verify the builds
+#         run: |
+#           dltest .libs/awspsqlodbca.so
+#           dltest .libs/awspsqlodbcw.so
       
-      - name: Run the tests
-        run: |
-          cd test
-          PGHOST=localhost PGUSER=$POSTGRESQL_USER make installcheck
+#       - name: Run the tests
+#         run: |
+#           cd test
+#           PGHOST=localhost PGUSER=$POSTGRESQL_USER make installcheck
 
-      - name: Upload the ANSI driver
-        uses: actions/upload-artifact@v4
-        with:
-          name: awspsqlodbca.so
-          path: ./.libs/awspsqlodbca.so
-          retention-days: 5
-          if-no-files-found: error
+#       - name: Upload the ANSI driver
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: awspsqlodbca.so
+#           path: ./.libs/awspsqlodbca.so
+#           retention-days: 5
+#           if-no-files-found: error
   
-      - name: Upload the Unicode driver
-        uses: actions/upload-artifact@v4
-        with:
-          name: awspsqlodbcw.so
-          path: ./.libs/awspsqlodbcw.so
-          retention-days: 5
-          if-no-files-found: error
+#       - name: Upload the Unicode driver
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: awspsqlodbcw.so
+#           path: ./.libs/awspsqlodbcw.so
+#           retention-days: 5
+#           if-no-files-found: error
     

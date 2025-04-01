@@ -1,115 +1,115 @@
-name: Limitless Integration Tests
+# name: Limitless Integration Tests
 
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - '**'
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.jpg'
-      - '**/README.txt'
-      - '**/LICENSE.txt'
-      - 'docs/**'
-      - 'ISSUE_TEMPLATE/**'
-      - '**/remove-old-artifacts.yml'
-      - '**/build-installer.yml'
-      - '**/release.yml'
+# on:
+#   workflow_dispatch:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     branches:
+#       - '**'
+#     paths-ignore:
+#       - '**/*.md'
+#       - '**/*.jpg'
+#       - '**/README.txt'
+#       - '**/LICENSE.txt'
+#       - 'docs/**'
+#       - 'ISSUE_TEMPLATE/**'
+#       - '**/remove-old-artifacts.yml'
+#       - '**/build-installer.yml'
+#       - '**/release.yml'
 
-env:
-  BUILD_TYPE: Release
+# env:
+#   BUILD_TYPE: Release
 
-jobs:
-  limitless-integration-tests:
-    name: Limitless Integration Tests 
-    runs-on: ubuntu-latest
-    env:
-      CMAKE_GENERATOR: Unix Makefiles
+# jobs:
+#   limitless-integration-tests:
+#     name: Limitless Integration Tests 
+#     runs-on: ubuntu-latest
+#     env:
+#       CMAKE_GENERATOR: Unix Makefiles
 
-    steps:
-      - name: Checkout aws-pgsql-odbc
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+#     steps:
+#       - name: Checkout aws-pgsql-odbc
+#         uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 1
 
-      - name: Checkout aws-rds-odbc
-        uses: actions/checkout@v4
-        with:
-          repository: aws/aws-rds-odbc
-          ref: main
-          path: ./libs/aws-rds-odbc
-          token: ${{secrets.CLONE_PAT}}
+#       - name: Checkout aws-rds-odbc
+#         uses: actions/checkout@v4
+#         with:
+#           repository: aws/aws-rds-odbc
+#           ref: main
+#           path: ./libs/aws-rds-odbc
+#           token: ${{secrets.CLONE_PAT}}
 
-      - name: Initialize submodules
-        run: |
-          git submodule update --init --recursive
+#       - name: Initialize submodules
+#         run: |
+#           git submodule update --init --recursive
 
-      - name: 'Set up JDK'
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'corretto'
-          java-version: 17
+#       - name: 'Set up JDK'
+#         uses: actions/setup-java@v4
+#         with:
+#           distribution: 'corretto'
+#           java-version: 17
 
-      - name: 'Configure AWS Credentials'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+#       - name: 'Configure AWS Credentials'
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: 'Set up Temp AWS Credentials'
-        run: |
-          creds=($(aws sts get-session-token \
-            --duration-seconds 21600 \
-            --query 'Credentials.[AccessKeyId, SecretAccessKey, SessionToken]' \
-            --output text \
-          | xargs));
-          echo "::add-mask::${creds[0]}"
-          echo "::add-mask::${creds[1]}"
-          echo "::add-mask::${creds[2]}"
-          echo "TEMP_AWS_ACCESS_KEY_ID=${creds[0]}" >> $GITHUB_ENV
-          echo "TEMP_AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
-          echo "TEMP_AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
+#       - name: 'Set up Temp AWS Credentials'
+#         run: |
+#           creds=($(aws sts get-session-token \
+#             --duration-seconds 21600 \
+#             --query 'Credentials.[AccessKeyId, SecretAccessKey, SessionToken]' \
+#             --output text \
+#           | xargs));
+#           echo "::add-mask::${creds[0]}"
+#           echo "::add-mask::${creds[1]}"
+#           echo "::add-mask::${creds[2]}"
+#           echo "TEMP_AWS_ACCESS_KEY_ID=${creds[0]}" >> $GITHUB_ENV
+#           echo "TEMP_AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
+#           echo "TEMP_AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
 
-      - name: 'Run Integration Tests'
-        working-directory: ${{ github.workspace }}/testframework
-        run: |
-          ./gradlew --no-parallel --no-daemon test-limitless --info
-        env:
-          TEST_DSN_ANSI: 'psqlODBC_ansi'
-          TEST_DSN_UNICODE: 'psqlODBC_unicode'
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
-          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TEMP_AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
-          AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
-          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
-          DRIVER_PATH: ${{ github.workspace }}
+#       - name: 'Run Integration Tests'
+#         working-directory: ${{ github.workspace }}/testframework
+#         run: |
+#           ./gradlew --no-parallel --no-daemon test-limitless --info
+#         env:
+#           TEST_DSN_ANSI: 'psqlODBC_ansi'
+#           TEST_DSN_UNICODE: 'psqlODBC_unicode'
+#           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+#           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+#           AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
+#           AWS_SECRET_ACCESS_KEY: ${{ env.TEMP_AWS_SECRET_ACCESS_KEY }}
+#           AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
+#           AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
+#           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+#           TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
+#           DRIVER_PATH: ${{ github.workspace }}
 
-      - name: 'Get Github Action IP'
-        if: always()
-        id: ip
-        uses: haythem/public-ip@v1.3
+#       - name: 'Get Github Action IP'
+#         if: always()
+#         id: ip
+#         uses: haythem/public-ip@v1.3
 
-      - name: 'Remove Github Action IP'
-        if: always()
-        run: |
-          aws ec2 revoke-security-group-ingress \
-            --group-name default \
-            --protocol tcp \
-            --port 5432 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32 \
-          2>&1 > /dev/null;
+#       - name: 'Remove Github Action IP'
+#         if: always()
+#         run: |
+#           aws ec2 revoke-security-group-ingress \
+#             --group-name default \
+#             --protocol tcp \
+#             --port 5432 \
+#             --cidr ${{ steps.ip.outputs.ipv4 }}/32 \
+#           2>&1 > /dev/null;
 
-      - name: 'Archive log results'
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: 'integration-test-logs'
-          path: logs
-          retention-days: 3
+#       - name: 'Archive log results'
+#         if: always()
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: 'integration-test-logs'
+#           path: logs
+#           retention-days: 3

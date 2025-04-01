@@ -14,19 +14,19 @@ permissions:
   repository-projects: write
 
 env:
-  # Path to the solution file relative to the root of the project.
+  Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: .
 
-  # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  Configuration type to build.
+  You can convert this to a build matrix if you need coverage of multiple configuration types.
+  https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
 
-  # Workflow versions. Increment these when you make changes to a build step in the workflow and
-  # you want the step to run, but the corresponding cache is causing the step to be skipped.
-  WORKFLOW_VERSION_POSTGRESQL: '1' # for build steps related to the 'cachePostgres' cache
+  Workflow versions. Increment these when you make changes to a build step in the workflow and
+  you want the step to run, but the corresponding cache is causing the step to be skipped.
+  WORKFLOW_VERSION_POSTGRESQL: '1' for build steps related to the 'cachePostgres' cache
 
-  # Software versions. 
+  Software versions. 
   POSTGRESQL_SOURCE_TAG: 'REL_17_STABLE'
   POSTGRESQL_PACKAGE_FILEID: '1259019'
   OPENSSL_VERSION: '3_3_2'
@@ -34,7 +34,7 @@ env:
   WINFLEXBISON_VERSION: '2.5.24'
 
 jobs:
-  # Mac Build
+  Mac Build
   build-macos:
     runs-on: macos-15
     steps:
@@ -88,7 +88,7 @@ jobs:
           retention-days: 5
           if-no-files-found: error
 
-  # Windows Build
+  Windows Build
   build-windows:
     runs-on: windows-latest
     steps:
@@ -182,7 +182,7 @@ jobs:
           retention-days: 5
           if-no-files-found: error
 
-  # Create Release
+  Create Release
   draft-release:
     name: Create Draft Release
     runs-on: ubuntu-latest

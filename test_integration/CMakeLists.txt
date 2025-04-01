@@ -66,6 +66,22 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(toxiproxy)
 
 #-----------------------------------------------------
+# Google logging library
+
+set("BUILD_TESTING" OFF CACHE INTERNAL "Skip GLOG Tests")
+FetchContent_Declare(
+    glog
+    GIT_REPOSITORY https://github.com/google/glog.git
+    GIT_TAG        v0.7.1
+)
+set(GLOG_BUILD_TESTS OFF) # Don't build tests
+set(GLOG_BUILD_BENCHMARKS OFF) # Don't build benchmarks
+set(GLOG_USE_CMAKE_INSTALL OFF) # Don't install glog
+set(BUILD_SHARED_LIBS OFF) # Force static linking.  Crucial for static glog
+FetchContent_MakeAvailable(glog)
+include_directories(${glog_SOURCE_DIR})
+
+#-----------------------------------------------------
 
 enable_testing()
 
@@ -96,10 +112,21 @@ add_executable(
 include(GoogleTest)
 
 # aws-rds-odbc
+set(AWS_RDS_LIB_UNICODE_PATH ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_unicode)
+set(AWS_RDS_LIB_ANSI_PATH ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_ansi)
+
 if (UNICODE_BUILD)
-  set(libawsrdsodbc ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_unicode/libaws-rds-odbc-w.so)
+  if (WIN32)
+    set(libawsrdsodbc ${AWS_RDS_LIB_UNICODE_PATH}/Release/aws-rds-odbc-w.lib)
+  else()
+    set(libawsrdsodbc ${AWS_RDS_LIB_UNICODE_PATH}/libaws-rds-odbc-w.so)
+  endif()
 else()
-  set(libawsrdsodbc ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_ansi/libaws-rds-odbc-a.so)
+  if (WIN32)
+    set(libawsrdsodbc ${AWS_RDS_LIB_ANSI_PATH}/Release/aws-rds-odbc-a.lib)
+  else()
+    set(libawsrdsodbc ${AWS_RDS_LIB_ANSI_PATH}/libaws-rds-odbc-a.so)
+  endif()
 endif()
 
 target_include_directories(
@@ -120,6 +147,7 @@ target_link_libraries(
   gtest_main
   toxiproxy
   ${ODBC_LIBRARIES}
+  glog::glog
 
   # aws-rds-odbc
   ${libawsrdsodbc}
