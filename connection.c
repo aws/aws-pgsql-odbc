@@ -1173,6 +1173,26 @@ typedef enum {
 #define	SAFESTRCPY(dst, src) (strcpy(dst, src ? src : ""))
 #define SAFESTRNCPY(dst, src, dst_size) (strncpy(dst, src ? src : "", dst_size))
 
+void RDS_set_errormsg(ConnectionClass* self, const char* rds_err_msg) {
+	char *driver_err = CC_get_errormsg(self);
+	if (driver_err == NULL) {
+		CC_set_errormsg(self, rds_err_msg);
+		return;
+	}
+
+    size_t driver_err_len = strlen(driver_err);
+	size_t rds_err_len = strlen(rds_err_msg);
+    size_t total_len = driver_err_len + rds_err_len + 1;
+
+    char *merged = malloc(total_len);
+    memcpy(merged, driver_err, driver_err_len);
+    memcpy(merged + driver_err_len, rds_err_msg, rds_err_len);
+    merged[total_len - 1] = '\0';
+
+    CC_set_errormsg(self, merged);
+    free(merged);
+}
+
 // Get token for IAM, ADFS or OKTA authentication mode.
 TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	MYLOG(MIN_LOG_LEVEL, "entering...\n");
@@ -1234,7 +1254,7 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
-bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_size) {
+bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
 
 	if (!ci->limitless_enabled) {
@@ -1255,7 +1275,7 @@ bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_
 	SQLHENV henv;
 	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
     if (!SQL_SUCCEEDED(rc)) {
-		snprintf(limitless_err, limitless_err_size, "Allocation error while attempting to get limitless server");
+		*limitless_err = "Allocation error while attempting to get limitless server";
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed - disabling limitless\n");
 		ci->limitless_enabled = 0;
 		return false;
@@ -1265,7 +1285,7 @@ bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_
 	SQLHDBC hdbc;
     rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
     if (!SQL_SUCCEEDED(rc)) {
-		snprintf(limitless_err, limitless_err_size, "Allocation error while attempting to get limitless server");
+		*limitless_err = "Allocation error while attempting to get limitless server";
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed - disabling limitless\n");
 		ci->limitless_enabled = 0;
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
@@ -1280,7 +1300,7 @@ bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_
 	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
 #endif
     if (!SQL_SUCCEEDED(rc)) {
-		snprintf(limitless_err, limitless_err_size, "Connection error while attempting to get limitless server");
+		*limitless_err = "Connection error while attempting to get limitless server";
 		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed - disabling limitless\n");
 		ci->limitless_enabled = 0;
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
@@ -1292,7 +1312,7 @@ bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_
 	if (CheckLimitlessCluster(hdbc)) {
 		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
 	} else {
-		snprintf(limitless_err, limitless_err_size, "Server is not a limitless cluster, cannot use limitless monitor service");
+		*limitless_err = "Server is not a limitless cluster, cannot use limitless monitor service";
 		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
 		SQLDisconnect(hdbc);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
@@ -1333,10 +1353,9 @@ char
 CC_connect(ConnectionClass *self, char *salt_para)
 {
 	ConnInfo *ci = &(self->connInfo);
-	CSTR	func = "CC_connect";
+	CSTR		func = "CC_connect";
 	char		ret, *saverr = NULL, retsend;
-	const char	*errmsg = NULL;
-	char custom_err[LARGE_REGISTRY_LEN], limitless_err[LARGE_REGISTRY_LEN];
+	const char	*errmsg = NULL, *limitless_err = NULL;
 
 	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
@@ -1369,26 +1388,21 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.username = NULL;
 		credentials.password = NULL;
 
-		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
-			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, limitless_err, CC_get_errormsg(self));
-			CC_set_errormsg(self, custom_err);
-			ret = 0;
-			return ret;
+		if (!GetLimitlessServer(ci, &limitless_err)) {
+			RDS_set_errormsg(self, limitless_err);
+			return SQL_ERROR;
 		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
-			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Fetched Secrets Manager credentials are invalid", CC_get_errormsg(self));
-			CC_set_errormsg(self, custom_err);
+			RDS_set_errormsg(self, "Fetched Secrets Manager credentials are invalid");
 			return ret;
 		}
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
-		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
-			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, limitless_err, CC_get_errormsg(self));
-			CC_set_errormsg(self, custom_err);
-			ret = 0;
-			return ret;
+		if (!GetLimitlessServer(ci, &limitless_err)) {
+			RDS_set_errormsg(self, limitless_err);
+			return SQL_ERROR;
 		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		// Failed to connect
@@ -1402,8 +1416,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 			}
 			// Check again, token may have regenerated
 			if (ret <= 0) {
-				MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Unable to authenticate using RDS DB IAM.", CC_get_errormsg(self));
-				CC_set_errormsg(self, custom_err);
+				RDS_set_errormsg(self, "Unable to authenticate using RDS DB IAM.");
 				return ret;
 			}
 		}
@@ -1412,11 +1425,9 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci->token_expiration);
 	}
 	else {
-		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
-			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, limitless_err, CC_get_errormsg(self));
-			CC_set_errormsg(self, custom_err);
-			ret = 0;
-			return ret;
+		if (!GetLimitlessServer(ci, &limitless_err)) {
+			RDS_set_errormsg(self, limitless_err);
+			return SQL_ERROR;
 		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0)
