@@ -97,6 +97,8 @@ enum {
 	,STMT_INVALID_NULL_ARG
 	,STMT_NO_RESPONSE
 	,STMT_COMMUNICATION_ERROR
+    ,STMT_FAILOVER_SUCCESS_ERROR
+    ,STMT_UNKNOWN_TRANSACTION_ERROR
 	,STMT_STRING_CONVERSION_ERROR
 };
 
@@ -479,15 +481,15 @@ enum
 /* For Multi-thread */
 #if defined(WIN_MULTITHREAD_SUPPORT)
 #define INIT_STMT_CS(x)		InitializeCriticalSection(&((x)->cs))
-#define ENTER_STMT_CS(x)	EnterCriticalSection(&((x)->cs))
+#define ENTER_STMT_CS(x)	// EnterCriticalSection(&((x)->cs))
 #define TRY_ENTER_STMT_CS(x)	TryEnterCriticalSection(&((x)->cs))
-#define LEAVE_STMT_CS(x)	LeaveCriticalSection(&((x)->cs))
+#define LEAVE_STMT_CS(x)	// LeaveCriticalSection(&((x)->cs))
 #define DELETE_STMT_CS(x)	DeleteCriticalSection(&((x)->cs))
 #elif defined(POSIX_THREADMUTEX_SUPPORT)
 #define INIT_STMT_CS(x)		pthread_mutex_init(&((x)->cs),0)
-#define ENTER_STMT_CS(x)	pthread_mutex_lock(&((x)->cs))
+#define ENTER_STMT_CS(x)	// pthread_mutex_lock(&((x)->cs))
 #define TRY_ENTER_STMT_CS(x)	(0 == pthread_mutex_trylock(&((x)->cs)))
-#define LEAVE_STMT_CS(x)	pthread_mutex_unlock(&((x)->cs))
+#define LEAVE_STMT_CS(x)	// pthread_mutex_unlock(&((x)->cs))
 #define DELETE_STMT_CS(x)	pthread_mutex_destroy(&((x)->cs))
 #else
 #define INIT_STMT_CS(x)
@@ -561,6 +563,7 @@ RETCODE		DiscardStatementSvp(StatementClass *self, RETCODE, BOOL errorOnly);
 
 QResultClass *ParseAndDescribeWithLibpq(StatementClass *stmt, const char *plan_name, const char *query_p, Int2 num_params, const char *comment, QResultClass *res);
 BOOL	CheckPgClassInfo(StatementClass *);
+char *SC_get_sqlstate(StatementClass *self);
 
 /*
  *	Macros to convert global index <-> relative index in resultset/rowset

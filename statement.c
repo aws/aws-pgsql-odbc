@@ -1281,8 +1281,7 @@ static const struct
 	{ STMT_ERROR_TAKEN_FROM_BACKEND, "HY000", "S1000" }, /* general error */
 	{ STMT_INTERNAL_ERROR, "HY000", "S1000" }, /* general error */
 	{ STMT_STILL_EXECUTING, "HY010", "S1010" },
-	{ STMT_NOT_IMPLEMENTED_ERROR, "HYC00", "S1C00" }, /* == 'driver not
-							  * capable' */
+	{ STMT_NOT_IMPLEMENTED_ERROR, "HYC00", "S1C00" }, /* == 'driver not capable' */
 	{ STMT_BAD_PARAMETER_NUMBER_ERROR, "07009", "S1093" },
 	{ STMT_OPTION_OUT_OF_RANGE_ERROR, "HY092", "S1092" },
 	{ STMT_INVALID_COLUMN_NUMBER_ERROR, "07009", "S1002" },
@@ -1307,7 +1306,9 @@ static const struct
 	{ STMT_COUNT_FIELD_INCORRECT, "07002", "07002" },
 	{ STMT_INVALID_NULL_ARG, "HY009", "S1009" },
 	{ STMT_NO_RESPONSE, "08S01", "08S01" },
-	{ STMT_COMMUNICATION_ERROR, "08S01", "08S01" }
+	{ STMT_COMMUNICATION_ERROR, "08S01", "08S01" },
+	{ STMT_FAILOVER_SUCCESS_ERROR, "08S02", "08S02" }, /* The active SQL connection has changed. */
+	{ STMT_UNKNOWN_TRANSACTION_ERROR, "08007", "08007" }, /* Transaction resolution unknown. */
 };
 
 static PG_ErrorInfo *
@@ -3309,4 +3310,14 @@ MYLOG(MIN_LOG_LEVEL, "entering type=%d buflen=" FORMAT_LEN " buf=%p\n", bookmark
 MYLOG(MIN_LOG_LEVEL, "leaving cvtlen=" FORMAT_SIZE_T " ix(bl,of)=%d(%d,%d)\n", cvtlen, pg_bm.index, pg_bm.keys.blocknum, pg_bm.keys.offset);
 
 	return COPY_OK;
+}
+
+char *SC_get_sqlstate(StatementClass *self) {
+    int rc = self->__error_number;
+    rc -= LOWEST_STMT_ERROR;
+    if (rc < 0 ||
+        rc >= sizeof(Statement_sqlstate) / sizeof(Statement_sqlstate[0])) {
+        rc = 1 - LOWEST_STMT_ERROR;
+    }
+    return Statement_sqlstate[rc].ver3str;
 }

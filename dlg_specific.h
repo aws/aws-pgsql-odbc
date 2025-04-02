@@ -334,6 +334,30 @@ extern "C" {
 #define CONN_DONT_OVERWRITE		0
 #define CONN_OVERWRITE			1
 
+/* Failover */
+#define INI_CLUSTER_ID                         	"ClusterId"
+#define INI_ENABLE_CLUSTER_FAILOVER          	"EnableClusterFailover"
+#define INI_FAILOVER_MODE                      	"FailoverMode"
+#define INI_FAILOVER_TIMEOUT                    "FailoverTimeout"
+#define INI_HOST_PATTERN                       	"HostPattern"
+#define INI_IGNORE_TOPOLOGY_REQUEST_RATE        "IgnoreTopologyRequest"
+#define INI_READER_STRATEGY                     "ReaderHostSelectorStrategy"
+#define INI_TOPOLOGY_HIGH_REFRESH_RATE          "TopologyHighRefreshRate"
+#define INI_TOPOLOGY_REFRESH_RATE              	"TopologyRefreshRate"
+
+#define FAILOVER_READER_OR_WRITER               "READER_OR_WRITER"
+#define FAILOVER_STRICT_READER                  "STRICT_READER"
+#define FAILOVER_STRICT_WRITER                  "STRICT_WRITER"
+
+#define READER_STRATEGY_HIGHEST_WEIGHT          "HIGHEST_WEIGHT"
+#define READER_STRATEGY_RANDOM                  "RANDOM"
+#define READER_STRATEGY_ROUND_ROBIN             "ROUND_ROBIN"
+
+#define DEFAULT_TOPOLOGY_REFRESH                30000 // 30s
+#define DEFAULT_TOPOLOGY_HIGH_REFRESH           10000 // 10s
+#define DEFAULT_IGNORE_TOPOLOGY_REQUEST         30000 // 30s
+#define DEFAULT_FAILOVER_TIMEOUT                300000 // 300s
+
 /*	prototypes */
 
 #ifdef WIN32
@@ -365,6 +389,10 @@ LRESULT CALLBACK manage_dsnProc(HWND hdlg,
 			   WPARAM wParam,
 			   LPARAM lParam);
 LRESULT CALLBACK limitless_optionsProc(HWND hdlg,
+			   UINT wMsg,
+			   WPARAM wParam,
+			   LPARAM lParam);
+LRESULT CALLBACK failover_optionsProc(HWND hdlg,
 			   UINT wMsg,
 			   WPARAM wParam,
 			   LPARAM lParam);
