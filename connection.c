@@ -691,6 +691,7 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 	if (self->connInfo.enable_failover) {
 		StopFailoverService(self->connInfo.cluster_id);
 	}
+
 	/* Cancel an ongoing transaction */
 	/* We are always in the middle of a transaction, */
 	/* even if we are in auto commit. */
