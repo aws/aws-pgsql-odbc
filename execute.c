@@ -1191,40 +1191,48 @@ MYLOG(MIN_LOG_LEVEL, "leaving %p retval=%d status=%d\n", stmt, retval, stmt->sta
 	SC_setInsertedTable(stmt, retval);
 #undef	return
 
-    if (SQL_ERROR == retval && conn->connInfo.enable_failover) {
-        const char *sqlstate = SC_get_sqlstate(stmt);
-        FailoverResult res = FailoverConnection(conn->connInfo.cluster_id, sqlstate, conn->henv);
-        switch (res.status) {
-            case FAILOVER_FAILED:
-                SC_set_error(stmt, STMT_COMMUNICATION_ERROR, "The driver was unable to failover to a new connection.", NULL);
-                break;
-            case FAILOVER_SKIPPED:
-                MYLOG(MIN_LOG_LEVEL, "Failover not required or supported for SQLState: %s\n", sqlstate);
-                break;
-            case FAILOVER_SUCCEED:
-                MYLOG(MIN_LOG_LEVEL, "Failover connection successful found a new connection");
-                // Close original connections PQConn
-                PQfinish(conn->pqconn);
-                // Move new connections PQConn to old handle
-                conn->pqconn = ((ConnectionClass *) res.hdbc)->pqconn;
-                ((ConnectionClass *) res.hdbc)->pqconn = NULL;
-                conn->status = CONN_CONNECTED;
-                // Clean up new connection handle
-                CC_cleanup(res.hdbc, FALSE);
+	if (SQL_ERROR == retval && conn->connInfo.enable_failover) {
+		const char* sqlstate = SC_get_sqlstate(stmt);
+		FailoverResult res = FailoverConnection(conn->connInfo.cluster_id, sqlstate, conn->henv);
+		switch (res.status) {
+			case FAILOVER_FAILED:
+				SC_clear_error(stmt);
+				SC_set_error(stmt, STMT_COMMUNICATION_ERROR, "The driver was unable to failover to a new connection.", NULL);
+				break;
+			case FAILOVER_SKIPPED:
+				MYLOG(MIN_LOG_LEVEL, "Failover not required or supported for SQLState: %s\n", sqlstate);
+				break;
+			case FAILOVER_SUCCEED:
+				MYLOG(MIN_LOG_LEVEL, "Driver has successfully failover to a new connection.");
+				// Close original connections PQConn
+				PQfinish(conn->pqconn);
+				SC_clear_error(stmt);
 
-                if (CC_is_in_trans(conn)) {
-                    SC_set_error(stmt, STMT_UNKNOWN_TRANSACTION_ERROR, "Transaction resolution unknown. Please re-configure session state if required and try restarting the transaction.", NULL);
-                } else {
-                    SC_set_error(stmt, STMT_FAILOVER_SUCCESS_ERROR, "The active connection has changed due to a connection failure. Please re-configure session state if required.", NULL);
-                }
-                break;
-            default:
-                MYLOG(MIN_LOG_LEVEL, "Unexpected error during Failover.");
-        }
-    }
+				// Move new connections PQConn to old handle
+				conn->pqconn = ((ConnectionClass *) res.hdbc)->pqconn;
+				((ConnectionClass *) res.hdbc)->pqconn = NULL;
+				conn->status = CONN_CONNECTED;
+				// Clean up new connection handle
+				CC_cleanup(res.hdbc, FALSE);
+
+				if (CC_is_in_trans(conn)) {
+					SC_set_error(stmt, STMT_UNKNOWN_TRANSACTION_ERROR,
+								 "Transaction resolution unknown. Please re-configure session state if required and try restarting the transaction.",
+								 NULL);
+				} else {
+					SC_set_error(stmt, STMT_FAILOVER_SUCCESS_ERROR,
+								 "The active connection has changed due to a connection failure. Please re-configure session state if required.",
+								 NULL);
+				}
+				break;
+			default:
+				SC_clear_error(stmt);
+				SC_set_error(stmt, STMT_COMMUNICATION_ERROR, "The driver encountered an unexpected error during failover.", NULL);
+		}
+	}
 
 	if (SQL_SUCCESS == retval &&
-	    STMT_OK > SC_get_errornumber(stmt))
+        STMT_OK > SC_get_errornumber(stmt))
 		retval = SQL_SUCCESS_WITH_INFO;
 	return retval;
 }
