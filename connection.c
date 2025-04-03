@@ -1275,8 +1275,8 @@ bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 	SQLHENV henv;
 	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
     if (!SQL_SUCCEEDED(rc)) {
-		*limitless_err = "Allocation error while attempting to get limitless server";
-		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed - disabling limitless\n");
+		*limitless_err = "Allocation error while attempting to get limitless server.";
+		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed\n");
 		ci->limitless_enabled = 0;
 		return false;
 	}
@@ -1285,8 +1285,8 @@ bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 	SQLHDBC hdbc;
     rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
     if (!SQL_SUCCEEDED(rc)) {
-		*limitless_err = "Allocation error while attempting to get limitless server";
-		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed - disabling limitless\n");
+		*limitless_err = "Allocation error while attempting to get limitless server.";
+		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed\n");
 		ci->limitless_enabled = 0;
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
 		return false;
@@ -1300,8 +1300,8 @@ bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
 #endif
     if (!SQL_SUCCEEDED(rc)) {
-		*limitless_err = "Connection error while attempting to get limitless server";
-		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed - disabling limitless\n");
+		*limitless_err = "Connection error while attempting to get limitless server.";
+		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed\n");
 		ci->limitless_enabled = 0;
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
@@ -1310,10 +1310,10 @@ bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 
 	MYLOG(MIN_LOG_LEVEL, "before CheckLimitlessCluster\n");
 	if (CheckLimitlessCluster(hdbc)) {
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true\n");
 	} else {
-		*limitless_err = "Server is not a limitless cluster, cannot use limitless monitor service";
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
+		*limitless_err = "Server is not a limitless cluster, cannot use limitless monitor service.";
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false\n");
 		SQLDisconnect(hdbc);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
@@ -1390,11 +1390,12 @@ CC_connect(ConnectionClass *self, char *salt_para)
 
 		if (!GetLimitlessServer(ci, &limitless_err)) {
 			RDS_set_errormsg(self, limitless_err);
+			CC_set_errornumber(self, CONNECTION_COMMUNICATION_ERROR);
 			return SQL_ERROR;
 		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
-			RDS_set_errormsg(self, "Fetched Secrets Manager credentials are invalid");
+			RDS_set_errormsg(self, "Fetched Secrets Manager credentials are invalid.");
 			return ret;
 		}
 	}
@@ -1402,6 +1403,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
 		if (!GetLimitlessServer(ci, &limitless_err)) {
 			RDS_set_errormsg(self, limitless_err);
+			CC_set_errornumber(self, CONNECTION_COMMUNICATION_ERROR);
 			return SQL_ERROR;
 		}
 		ret = LIBPQ_CC_connect(self, salt_para);
@@ -1427,6 +1429,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	else {
 		if (!GetLimitlessServer(ci, &limitless_err)) {
 			RDS_set_errormsg(self, limitless_err);
+			CC_set_errornumber(self, CONNECTION_COMMUNICATION_ERROR);
 			return SQL_ERROR;
 		}
 		ret = LIBPQ_CC_connect(self, salt_para);
