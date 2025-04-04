@@ -456,6 +456,7 @@ jobs:
             
       - name: 'Build and Run Ansi Integration Tests'
         shell: pwsh
+        if: ${{ !cancelled() }}
         run: |
           cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
           cmake --build build_ansi --config Release
@@ -475,6 +476,7 @@ jobs:
           TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
 
       - name: 'Build and Run Unicode Integration tests'
+        if: ${{ !cancelled() }}
         shell: pwsh
         run: |
             cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=TRUE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
