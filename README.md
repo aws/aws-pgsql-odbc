@@ -23,7 +23,14 @@ This driver is compatible with the following platforms:
 
 ### Benefits of the AWS ODBC Driver for PostgreSQL
 
-The official open-source [PostgreSQL ODBC driver](https://git.postgresql.org/gitweb/?p=postgresql.git;a=tree;h=refs/heads/master;hb=refs/heads/master) do not natively support IAM database authentication or federated authentication to RDS PostgreSQL or Aurora PostgreSQL databases. The AWS ODBC Driver for PostgreSQL implements the AWS authentication logic and integrates the AWS C++ SDK, allowing client applications to take advantage of the extra AWS security features.
+The official open-source [PostgreSQL ODBC driver](https://git.postgresql.org/gitweb/?p=postgresql.git;a=tree;h=refs/heads/master;hb=refs/heads/master) does not natively support RDS PostgreSQL or Aurora PostgreSQL specific features, such as the various [AWS authentication methods](./docs/using-the-aws-driver/authentication/authentication.md), [failover](./docs/using-the-aws-driver/failover/failover.md) or [Aurora Limitless Databases](./docs/using-the-aws-driver/limitless/limitless.md).
+The AWS ODBC Driver for PostgreSQL allows client applications to take advantage of the extra RDS/Aurora database features by implementing support for:
+1. [IAM database authentication](./docs/using-the-aws-driver/authentication/iam_authentication.md)
+2. [Secret Manager authentication](./docs/using-the-aws-driver/authentication/secret_manager_authentication.md)
+3. [ADFS authentication](./docs/using-the-aws-driver/authentication/adfs_authentication.md)
+4. [Okta authentication](./docs/using-the-aws-driver/authentication/okta_authentication.md)
+5. [Failover](./docs/using-the-aws-driver/failover/failover.md)
+6. [Limitless](./docs/using-the-aws-driver/limitless/limitless.md)
 
 ## Getting Started
 
@@ -31,7 +38,7 @@ For more information on how to start using the AWS ODBC Driver for PostgreSQL, p
 
 ## Build and Test the Driver
 
-Please refer to the AWS Driver's [documentation](./docs/documentation.md) for details on how to use, build, and test the AWS ODBC Driver for PostgreSQL.
+Please refer to the AWS Driver's [documentation](./docs/readme.md) for details on how to use, build, and test the AWS ODBC Driver for PostgreSQL.
 
 ## Documentation
 

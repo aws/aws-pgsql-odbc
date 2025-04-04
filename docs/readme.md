@@ -1,0 +1,15 @@
+# Table of Contents
+
+- [Getting Started](getting_started.md)
+- [Build and Test AWS Driver](build-and-test-aws-driver/build.md)
+  - [Build Guide](build-and-test-aws-driver/build.md)
+  - [Testing Guide](build-and-test-aws-driver/test.md)
+- [Using the AWS Driver](using-the-aws-driver/using_the_aws_driver.md)
+  - [Authentication](using-the-aws-driver/authentication/authentication.md)
+    - [ADFS Authentication](using-the-aws-driver/authentication/adfs_authentication.md)
+    - [Database Authentication](using-the-aws-driver/authentication/database_authentication.md)
+    - [IAM Authentication](using-the-aws-driver/authentication/iam_authentication.md)
+    - [Okta Authentication](using-the-aws-driver/authentication/okta_authentication.md)
+    - [Secret Manager Authentication](using-the-aws-driver/authentication/secret_manager_authentication.md)
+  - [Failover](using-the-aws-driver/failover/failover.md)
+  - [Limitless](using-the-aws-driver/limitless/limitless.md)
