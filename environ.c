@@ -382,6 +382,9 @@ PGAPI_ConnectError(HDBC hdbc,
 			case CONNECTION_NO_RESPONSE:
 				pg_sqlstate_set(env, szSqlState, "08S01", "08S01");
 				break;
+			case CONN_BAD_LIMITLESS_CLUSTER:
+				pg_sqlstate_set(env, szSqlState, "08009", "08009");
+				break;
 			default:
 				pg_sqlstate_set(env, szSqlState, "HY000", "S1000");
 				/* general error */
