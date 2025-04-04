@@ -40,14 +40,13 @@ GitHub provides additional document on [forking a repository](https://help.githu
 [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
 
 ### Contributing to `aws-rds-odbc` Library
-This repository has a dependency on [aws-rds-odbc](https://github.com/aws/aws-rds-odbc), a shared odbc library
-that is used across other aws odbc drivers. There will be cases where you will need to contribute to both the library
-and this repo. If you require to do so, please do the following:
+This repository has a dependency on [aws-rds-odbc](https://github.com/aws/aws-rds-odbc), a shared ODBC library
+that is used across other AWS ODBC drivers. There may be cases where you will need to contribute to both the library
+and this repository. If needed, please do the following:
 
-1. Create a pull request in both repositories, and include the links of the related pull requests in the description
+1. Create a pull request in both repositories, and include the link of the related library pull request in the description
 2. Wait for the `aws-rds-odbc` pull request to be approved and merged first
-3. Once the library pull request has been merge, verify that the commit hash for `libs/aws-rds-odbc` is up-to-date
-with the newly-merged PR. If not, please add a new commit to update it
+3. Once the library pull request has been merged, verify that the commit hash for `aws-rds-odbc` submodule is up-to-date with mainline. If not, please add a new commit to update it
 4. After the driver pull request have been approved, it can then be merged in
 
 ## Finding contributions to work on
