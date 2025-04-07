@@ -67,8 +67,6 @@ jobs:
     steps:
       - name: Setup Cluster Id and Shard Id Env Variables
         run: |
-          echo "LIMITLESS_CLUSTER_ID=AWS-PGODBC-Win-Integ-Limitless-${{github.run_id}}"
-          echo "LIMITLESS_SHARD_ID=AWS-PGODBC-Win-Integ-Shard-${{github.run_id}}"
           echo "LIMITLESS_CLUSTER_ID=AWS-PGODBC-Win-Integ-Limitless-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "LIMITLESS_SHARD_ID=AWS-PGODBC-Win-Integ-Shard-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Cache Postgres build output
@@ -300,18 +298,6 @@ jobs:
           ninja install
           cp c:\OTHERBIN\openssl64\*.dll d:\postgresql\bin
 
-      - name: install postgresql binary
-        shell: cmd
-        run: |
-          echo on
-          C:\OTHERBIN\postgresql_install.exe --mode unattended --unattendedmodeui none --superpassword password --enable-components server    
-
-      - name: start postgresql
-        shell: cmd
-        run: |
-          echo on
-          sc config "postgresql-x64-14" start= auto
-
       - name: 'setup msvc for psqlodbc'
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with: 
@@ -378,11 +364,12 @@ jobs:
           echo "::add-mask::$access_key"
           echo "::add-mask::$secret_key"
           echo "::add-mask::$session_key"
-          echo "TEMP_AWS_ACCESS_KEY_ID=$access_key" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "TEMP_AWS_SECRET_ACCESS_KEY=$secret_key" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "TEMP_AWS_SESSION_TOKEN=$session_key" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AWS_ACCESS_KEY_ID=$access_key" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AWS_SECRET_ACCESS_KEY=$secret_key" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AWS_SESSION_TOKEN=$session_key" | Out-File -FilePath $env:GITHUB_ENV -Append
       
       - name: 'Create Limitless RDS Cluster'
+        id: limitlessClusterSetup
         shell: pwsh
         working-directory: scripts
         run: |
@@ -406,9 +393,9 @@ jobs:
           $endpoint = (Get-Cluster-Endpoint -ClusterId ${{ env.LIMITLESS_CLUSTER_ID }})
           echo "LIMITLESS_CLUSTER_ENDPOINT=$endpoint" | Out-File -FilePath $env:GITHUB_ENV -Append
         env:
-          AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TEMP_AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
       - name: Install driver
         shell: pwsh
@@ -456,7 +443,7 @@ jobs:
             
       - name: 'Build and Run Ansi Integration Tests'
         shell: pwsh
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
         run: |
           cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
           cmake --build build_ansi --config Release
@@ -465,9 +452,9 @@ jobs:
           TEST_DSN: ${{ env.TEST_DSN_ANSI }}
           TEST_USERNAME: ${{ env.TEST_USERNAME }}
           TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
-          AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TEMP_AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
           AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
@@ -476,7 +463,7 @@ jobs:
           TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
 
       - name: 'Build and Run Unicode Integration tests'
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
         shell: pwsh
         run: |
             cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=TRUE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
@@ -486,9 +473,9 @@ jobs:
             TEST_DSN: ${{ env.TEST_DSN_UNICODE }}
             TEST_USERNAME: ${{ env.TEST_USERNAME }}
             TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
-            AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ env.TEMP_AWS_SECRET_ACCESS_KEY }}
-            AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
+            AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+            AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
             AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
             RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
             TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
@@ -504,9 +491,9 @@ jobs:
           . ".\aws_rds_helper.ps1"
           Delete-Limitless-Db-Cluster -ClusterId ${{ env.LIMITLESS_CLUSTER_ID }} -ShardId ${{ env.LIMITLESS_SHARD_ID }} -Region ${{ secrets.AWS_DEFAULT_REGION }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TEMP_AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
       - name: 'Delete Db Secrets'
         if: always()
@@ -516,9 +503,9 @@ jobs:
           . ".\aws_rds_helper.ps1"
           Delete-Secrets ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
         env:
-          AWS_ACCESS_KEY_ID: ${{ env.TEMP_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.TEMP_AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.TEMP_AWS_SESSION_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
     
        # Make sure IP is always deleted
       - name: 'Get Github Action IP'
