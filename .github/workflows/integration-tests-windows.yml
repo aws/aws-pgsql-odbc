@@ -329,7 +329,7 @@ jobs:
       - name: Install WiX
         shell: cmd
         run: |
-          dotnet tool install --global wix
+          dotnet tool install --global wix --version 5.0.2
           wix extension add --global WixToolset.UI.wixext/5.0.2
   
       - name: Cache AWS SDK libraries
@@ -495,7 +495,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
-      - name: 'Delete Db Secrets'
+      - name: 'Delete Limitless Db Secrets'
         if: always()
         shell: pwsh
         working-directory: scripts
