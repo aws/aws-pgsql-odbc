@@ -1216,9 +1216,18 @@ char *RDS_MergeDiagRecs(HDBC hdbc, const char *last_errmsg) {
 	// merge all error messages for the failed dbc
 	do {
 		recno++;
+		message[0] = '\0';
 		ret = SQLGetDiagRec(SQL_HANDLE_DBC, hdbc, recno, sqlstate, &nativeerror, message, sizeof(message), &textlen);
 		if (SQL_SUCCEEDED(ret)) {
 			char *next_errmsg = to_cstr(message, textlen);
+			// memory error
+			if (!next_errmsg) {
+				if (errmsg) {
+					free(errmsg);
+				}
+				return NULL;
+			}
+
 			MYLOG(MIN_LOG_LEVEL, "Got error message from failed connection: %s\n", next_errmsg);
 
 			if (!errmsg) {
