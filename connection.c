@@ -1173,6 +1173,8 @@ typedef enum {
 #define	SAFESTRCPY(dst, src) (strcpy(dst, src ? src : ""))
 #define SAFESTRNCPY(dst, src, dst_size) (strncpy(dst, src ? src : "", dst_size))
 
+#define MERGE_CSTR(buffer, size, prefix, suffix) (snprintf(buffer, size, "%s\n%s", prefix, suffix))
+
 void RDS_set_errormsg(ConnectionClass* self, const char* rds_err_msg) {
 	char *driver_err = CC_get_errormsg(self);
 	if (driver_err == NULL) {
@@ -1180,82 +1182,75 @@ void RDS_set_errormsg(ConnectionClass* self, const char* rds_err_msg) {
 		return;
 	}
 
-    size_t driver_err_len = strlen(driver_err);
-	size_t rds_err_len = strlen(rds_err_msg);
-    size_t total_len = driver_err_len + rds_err_len + 1;
+	// + 2 for '\n' separating the strings and '\0'
+	size_t merged_size = strlen(driver_err) + strlen(rds_err_msg) + 2;
+	char *merged = malloc(merged_size);
 
-    char *merged = malloc(total_len);
-    memcpy(merged, driver_err, driver_err_len);
-    memcpy(merged + driver_err_len, rds_err_msg, rds_err_len);
-    merged[total_len - 1] = '\0';
+	MERGE_CSTR(merged, merged_size, driver_err, rds_err_msg);
+	CC_set_errormsg(self, merged);
 
-    CC_set_errormsg(self, merged);
-    free(merged);
+	free(merged);
 }
 
 char *to_cstr(SQLTCHAR *sqlstr, SQLLEN strlen) {
-    char *cstr;
-    #ifdef UNICODE
-    cstr = ucs2_to_utf8(sqlstr, strlen, NULL, FALSE);
-    #else
-    cstr = strdup((char *)sqlstr);
-    #endif
+	char *cstr;
+	#ifdef UNICODE
+	cstr = ucs2_to_utf8(sqlstr, strlen, NULL, FALSE);
+	#else
+	cstr = strdup((char *)sqlstr);
+	#endif
 
-    return cstr;
+	return cstr;
 }
 
-#define MERGE_CSTR(buffer, size, prefix, suffix) (snprintf(buffer, size, "%s\n%s", prefix, suffix))
-
 char *RDS_MergeDiagRecs(HDBC hdbc, const char *last_errmsg) {
-    char *errmsg = NULL;
-    size_t errmsg_len = 0;
+	char *errmsg = NULL;
 
-    SQLTCHAR    sqlstate[6];
-    SQLTCHAR    message[MEDIUM_REGISTRY_LEN];
-    SQLINTEGER  nativeerror;
-    SQLSMALLINT textlen;
-    SQLRETURN   ret;
-    SQLSMALLINT recno = 0;
+	SQLTCHAR    sqlstate[6];
+	SQLTCHAR    message[MEDIUM_REGISTRY_LEN];
+	SQLINTEGER  nativeerror;
+	SQLSMALLINT textlen;
+	SQLRETURN   ret;
+	SQLSMALLINT recno = 0;
 
-    // merge all error messages for the failed dbc
-    do {
-        recno++;
-        ret = SQLGetDiagRec(SQL_HANDLE_DBC, hdbc, recno, sqlstate, &nativeerror, message, sizeof(message), &textlen);
-        if (SQL_SUCCEEDED(ret)) {
-            char *next_errmsg = to_cstr(message, textlen);
-            size_t next_errmsg_len = strlen(next_errmsg);
+	// merge all error messages for the failed dbc
+	do {
+		recno++;
+		ret = SQLGetDiagRec(SQL_HANDLE_DBC, hdbc, recno, sqlstate, &nativeerror, message, sizeof(message), &textlen);
+		if (SQL_SUCCEEDED(ret)) {
+			char *next_errmsg = to_cstr(message, textlen);
+			MYLOG(MIN_LOG_LEVEL, "Got error message from failed connection: %s\n", next_errmsg);
 
-            MYLOG(MIN_LOG_LEVEL, "Got error message from failed connection: %s\n", next_errmsg);
+			if (!errmsg) {
+				errmsg = next_errmsg;
+				continue;
+			}
 
-            if (!errmsg) {
-                errmsg = next_errmsg;
-                errmsg_len = next_errmsg_len;
-                continue;
-            }
+			// + 2 for '\n' separating the strings and '\0'
+			size_t new_errmsg_size = strlen(errmsg) + strlen(next_errmsg) + 2;
+			char *new_errmsg = (char *)malloc(new_errmsg_size);
+			MERGE_CSTR(new_errmsg, new_errmsg_size, errmsg, next_errmsg);
 
-            // merge the existing errmsg with the next errmsg
-            errmsg_len += next_errmsg_len;
-            char *new_errmsg = (char *)malloc(errmsg_len + 2); // 2 chars for '\n' and '\0'
-            MERGE_CSTR(new_errmsg, errmsg_len + 2, errmsg, next_errmsg);
+			free(errmsg);
+			free(next_errmsg);
 
-            free(errmsg);
-            free(next_errmsg);
-            errmsg = new_errmsg;
-        }
-    } while (ret == SQL_SUCCESS);
+			errmsg = new_errmsg;
+		}
+	} while (ret == SQL_SUCCESS);
 
-    // no error messages; just duplicate the error message provided
-    if (!errmsg) {
-        return strdup(last_errmsg);
-    }
+	// no error messages; just duplicate the error message provided
+	if (!errmsg) {
+		return strdup(last_errmsg);
+	}
 
-    // merge the existing errmsg with the last errmsg
-    errmsg_len += strlen(last_errmsg);
-    char *final_errmsg = (char *)malloc(errmsg_len + 2);
-    MERGE_CSTR(final_errmsg, errmsg_len + 2, errmsg, last_errmsg);
+	// + 2 for '\n' separating the strings and '\0'
+	size_t final_errmsg_size = strlen(errmsg) + strlen(last_errmsg) + 2;
+	char *final_errmsg = (char *)malloc(final_errmsg_size);
+	MERGE_CSTR(final_errmsg, final_errmsg_size, errmsg, last_errmsg);
 
-    free(errmsg);
-    return final_errmsg;
+	free(errmsg);
+
+	return final_errmsg;
 }
 
 // Get token for IAM, ADFS or OKTA authentication mode.
@@ -1272,7 +1267,7 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 		port = 5432; // set to default port.
 	}
 
-    char *server = ci->iam_host && *ci->iam_host != 0 ? ci->iam_host : ci->server;
+	char *server = ci->iam_host && *ci->iam_host != 0 ? ci->iam_host : ci->server;
 
 	MYLOG(MIN_LOG_LEVEL, "auth type is %s\n", ci->authtype);
 	MYLOG(MIN_LOG_LEVEL, "server is %s\n", ci->server);
@@ -1343,7 +1338,7 @@ bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 	// double check that the server supports limitless; if not, disable monitoring for this connection
 	SQLHENV henv;
 	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
-    if (!SQL_SUCCEEDED(rc)) {
+	if (!SQL_SUCCEEDED(rc)) {
 		*limitless_err = strdup(LIMITLESS_ERR_ALLOCATION_ERROR);
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed\n");
 		ci->limitless_enabled = 0;
@@ -1352,8 +1347,8 @@ bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 
 	SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
 	SQLHDBC hdbc;
-    rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
-    if (!SQL_SUCCEEDED(rc)) {
+	rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
+	if (!SQL_SUCCEEDED(rc)) {
 		*limitless_err = strdup(LIMITLESS_ERR_ALLOCATION_ERROR);
 		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed\n");
 		ci->limitless_enabled = 0;
