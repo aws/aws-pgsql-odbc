@@ -720,19 +720,19 @@ copyConnAttributes(ConnInfo *ci, const char *attribute, const char *value)
 	else if (stricmp(attribute, INI_SECRET_ID) == 0)
 		STRCPY_FIXED(ci->secret_id, value);
 	else if (stricmp(attribute, INI_LIMITLESS_ENABLED) == 0)
-		ci->limitless_enabled = atoi(value);
+		ci->limitless_enabled = pg_atoi(value);
 	else if (stricmp(attribute, INI_LIMITLESS_MODE) == 0)
 		STRCPY_FIXED(ci->limitless_mode, value);
 	else if (stricmp(attribute, INI_LIMITLESS_MONITOR_INTERVAL_MS) == 0)
-		ci->limitless_monitor_interval_ms = atoi(value);
+		ci->limitless_monitor_interval_ms = pg_atoi(value);
 	else if (stricmp(attribute, INI_LIMITLESS_SERVICE_ID) == 0)
 		STRCPY_FIXED(ci->limitless_service_id, value);
 	else if (stricmp(attribute, INI_LOGDIR) == 0)
         STRCPY_FIXED(ci->log_dir, value);
 	else if (stricmp(attribute, INI_RDSLOGGINGENABLED) == 0)
-        ci->rds_logging_enabled = atoi(value);
+        ci->rds_logging_enabled = pg_atoi(value);
 	else if (stricmp(attribute, INI_RDSLOGTHRESHOLD) == 0)
-        ci->rds_log_threshold = atoi(value);
+        ci->rds_log_threshold = pg_atoi(value);
 	else if (stricmp(attribute, INI_READONLY) == 0 || stricmp(attribute, ABBR_READONLY) == 0)
 		STRCPY_FIXED(ci->onlyread, value);
 	else if (stricmp(attribute, INI_PROTOCOL) == 0 || stricmp(attribute, ABBR_PROTOCOL) == 0)
@@ -1323,21 +1323,21 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	if (SQLGetPrivateProfileString(DSN, INI_CLUSTER_ID, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->cluster_id, temp);
 	if (SQLGetPrivateProfileString(DSN, INI_ENABLE_CLUSTER_FAILOVER, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
-		ci->enable_failover = atoi(temp);
+		ci->enable_failover = pg_atoi(temp);
 	if (SQLGetPrivateProfileString(DSN, INI_FAILOVER_MODE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->failover_mode, temp);
 	if (SQLGetPrivateProfileString(DSN, INI_FAILOVER_TIMEOUT, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
-		ci->failover_timeout = atoi(temp);
+		ci->failover_timeout = pg_atoi(temp);
 	if (SQLGetPrivateProfileString(DSN, INI_HOST_PATTERN, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->host_pattern, temp);
 	if (SQLGetPrivateProfileString(DSN, INI_IGNORE_TOPOLOGY_REQUEST_RATE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
-		ci->ignore_topology_refresh = atoi(temp);
+		ci->ignore_topology_refresh = pg_atoi(temp);
 	if (SQLGetPrivateProfileString(DSN, INI_READER_STRATEGY, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		STRCPY_FIXED(ci->reader_host_selector_strategy, temp);
 	if (SQLGetPrivateProfileString(DSN, INI_TOPOLOGY_HIGH_REFRESH_RATE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
-		ci->topology_high_refresh = atoi(temp);
+		ci->topology_high_refresh = pg_atoi(temp);
 	if (SQLGetPrivateProfileString(DSN, INI_TOPOLOGY_REFRESH_RATE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
-		ci->topology_refresh = atoi(temp);
+		ci->topology_refresh = pg_atoi(temp);
 
     /* Allow override of odbcinst.ini parameters here */
 	get_Ci_Drivers(DSN, ODBC_INI, &(ci->drivers));

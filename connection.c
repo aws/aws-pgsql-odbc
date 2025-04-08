@@ -1182,7 +1182,7 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 		return TR_FAILURE;
 	}
 
-	int port = atoi(ci->port);
+	int port = pg_atoi(ci->port);
 	if (port < 1) {
 		port = 5432; // set to default port.
 	}
@@ -1241,7 +1241,7 @@ void GetLimitlessServer(ConnInfo *ci) {
 		return;
 	}
 
-	int host_port = atoi(ci->port);
+	int host_port = pg_atoi(ci->port);
 	ci->limitless_enabled = 0;
 	char connect_string_encoded[MAX_CONNECT_STRING];
 	makeConnectString(connect_string_encoded, ci, MAX_CONNECT_STRING);
