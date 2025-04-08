@@ -19,6 +19,7 @@
 
 #include <sql.h>
 #include <sqlext.h>
+#include <gtest/gtest.h>
 
 #include "string_helper.h"
 

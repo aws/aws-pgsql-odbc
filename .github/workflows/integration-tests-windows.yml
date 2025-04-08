@@ -1,19 +1,28 @@
-name: Build and Regression Tests on Windows
-run-name: aws-pgsql-odbc Windows CI - ${{ github.event.head_commit.message }}
+name: Windows integration tests
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-    tags:
-      - 'REL-*'
-      - '!REL-*-mimalloc'
   pull_request:
     branches:
-      - "**"
+      - '**'
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.jpg'
+      - '**/*.png'
+      - '**/README.*'
+      - '**/LICENSE.*'
+      - 'docs/**'
+      - 'ISSUE_TEMPLATE/**'
+      - '**/remove-old-artifacts.yml'
+      - '**/build-installer.yml'
+      - '**/release.yml'
 
 env:
+  BUILD_TYPE: Release
+
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: .
 
@@ -34,6 +43,21 @@ env:
   WINFLEXBISON_VERSION: '2.5.24'
   DIFFUTILS_VERSION: '2.8.7-1'
 
+  # Test configuration
+  TEST_USERNAME: 'postgres'
+  TEST_PASSWORD: 'password'
+  TEST_DATABASE: 'postgres_limitless'
+  ENGINE: 'aurora-postgresql'
+  ENGINE_VERSION: '16.4-limitless'
+  TEST_DSN_ANSI: 'AWSpsqlODBC_ansi'
+  TEST_DSN_UNICODE: 'AWSpsqlODBC_unicode'
+  DRIVER_NAME_ANSI: 'AWS ANSI ODBC Driver for PostgreSQL (x64)'
+  DRIVER_NAME_UNICODE: 'AWS Unicode ODBC Driver for PostgreSQL (x64)'
+
+concurrency:
+  group: environment-windows-integration-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -41,6 +65,10 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
+      - name: Setup Cluster Id and Shard Id Env Variables
+        run: |
+          echo "LIMITLESS_CLUSTER_ID=AWS-PGODBC-Win-Integ-Limitless-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "LIMITLESS_SHARD_ID=AWS-PGODBC-Win-Integ-Shard-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Cache Postgres build output
         uses: actions/cache@v4
         id: cachePostgres
@@ -270,18 +298,6 @@ jobs:
           ninja install
           cp c:\OTHERBIN\openssl64\*.dll d:\postgresql\bin
 
-      - name: install postgresql binary
-        shell: cmd
-        run: |
-          echo on
-          C:\OTHERBIN\postgresql_install.exe --mode unattended --unattendedmodeui none --superpassword password --enable-components server    
-
-      - name: start postgresql
-        shell: cmd
-        run: |
-          echo on
-          sc config "postgresql-x64-14" start= auto
-
       - name: 'setup msvc for psqlodbc'
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with: 
@@ -329,16 +345,188 @@ jobs:
           copy .github\workflows\configuration.xml winbuild
           .\windows\buildall.ps1 ${{env.BUILD_CONFIGURATION}}
 
-      - name: Run the tests
-        shell: powershell
-        run: |
-          .\winbuild\regress.ps1 -DsnInfo "SERVER=localhost|DATABASE=contrib_regression|PORT=5432|UID=postgres|PWD=password" -ExpectMimalloc -Platform x64
-          test_x64\RegisterRegdsn.exe uninstall_driver postgres_devw
+      - name: 'Configure AWS Credentials'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Upload installer
+      - name: 'Set up Temp AWS Credentials'
+        shell: pwsh
+        run: |
+          $creds = (aws sts get-session-token --duration-seconds 21600 --query 'Credentials.[AccessKeyId, SecretAccessKey, SessionToken]' --output text)
+          $credsArray = ($creds -split '\s+')
+          $credsArray | Measure-Object -Character
+          $access_key = $credsArray[0]
+          $secret_key = $credsArray[1]
+          $session_key = $credsArray[2]
+          echo "::add-mask::$access_key"
+          echo "::add-mask::$secret_key"
+          echo "::add-mask::$session_key"
+          echo "AWS_ACCESS_KEY_ID=$access_key" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AWS_SECRET_ACCESS_KEY=$secret_key" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AWS_SESSION_TOKEN=$session_key" | Out-File -FilePath $env:GITHUB_ENV -Append
+      
+      - name: 'Create Limitless RDS Cluster'
+        id: limitlessClusterSetup
+        shell: pwsh
+        working-directory: scripts
+        run: |
+          . ".\aws_rds_helper.ps1"
+          Create-Limitless-RDS-Cluster `
+          -TestUsername ${{ env.TEST_USERNAME }} `
+          -TestPassword ${{ env.TEST_PASSWORD }} `
+          -TestDatabase ${{ env.TEST_DATABASE }} `
+          -ClusterId ${{ env.LIMITLESS_CLUSTER_ID }} `
+          -ShardId ${{ env.LIMITLESS_SHARD_ID }} `
+          -Engine ${{ env.ENGINE }} `
+          -EngineVersion ${{ env.ENGINE_VERSION }} `
+          -AwsRdsMonitoringRoleArn ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }} `
+          -Region ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Get Limitless Cluster endpoint
+        shell: pwsh
+        working-directory: scripts
+        run: |
+          . ".\aws_rds_helper.ps1"
+          $endpoint = (Get-Cluster-Endpoint -ClusterId ${{ env.LIMITLESS_CLUSTER_ID }})
+          echo "LIMITLESS_CLUSTER_ENDPOINT=$endpoint" | Out-File -FilePath $env:GITHUB_ENV -Append
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+
+      - name: Install driver
+        shell: pwsh
+        working-directory: installer\x64
+        run:  Start-Process msiexec "/lp! .\test.log /i awspsqlodbc_x64.msi /quiet /norestart"  -Wait;
+
+      - name: Install Ansi DSNs
+        shell: pwsh
+        run:  |
+            Add-OdbcDsn -Name ${{ env.TEST_DSN_ANSI }} `
+            -DriverName "${{ env.DRIVER_NAME_ANSI }}" `
+            -DsnType User `
+            -SetPropertyValue `
+             @("Auth Type=database", `
+             "Server=${{ env.LIMITLESS_CLUSTER_ENDPOINT }}", `
+             "Port=5432", `
+             "SSL Mode=prefer", `
+             "User Name=${{ env.TEST_USERNAME }}", `
+             "Password=${{ env.TEST_PASSWORD }}")
+        
+      - name: Install Unicode DSNs
+        shell: pwsh
+        run:  |
+            Add-OdbcDsn -Name ${{ env.TEST_DSN_UNICODE }} `
+            -DriverName "${{ env.DRIVER_NAME_UNICODE }}" `
+            -DsnType User `
+            -SetPropertyValue `
+             @("Auth Type=database", `
+             "Server=${{ env.LIMITLESS_CLUSTER_ENDPOINT }}", `
+             "Port=5432", `
+             "SSL Mode=prefer", `
+             "User Name=${{ env.TEST_USERNAME }}", `
+             "Password=${{ env.TEST_PASSWORD }}")
+      - name: Create Limitless Cluster Secrets
+        shell: pwsh
+        working-directory: scripts
+        run: |
+            . ".\aws_rds_helper.ps1"
+            $secrets = (Create-Db-Secrets `
+                -Username ${{ env.TEST_USERNAME }} `
+                -Password ${{ env.TEST_PASSWORD }} `
+                -Engine "postgres" `
+                -ClusterEndpoint ${{ env.LIMITLESS_CLUSTER_ENDPOINT }})
+            echo "LIMITLESS_CLUSTER_SECRETS_ARN=$secrets" | Out-File -FilePath $env:GITHUB_ENV -Append
+            
+      - name: 'Build and Run Ansi Integration Tests'
+        shell: pwsh
+        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
+        run: |
+          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
+          cmake --build build_ansi --config Release
+          .\build_ansi\bin\Release\integration.exe
+        env:
+          TEST_DSN: ${{ env.TEST_DSN_ANSI }}
+          TEST_USERNAME: ${{ env.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+          AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
+          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
+          DRIVER_PATH: ${{ github.workspace }}
+          SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+          TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
+
+      - name: 'Build and Run Unicode Integration tests'
+        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
+        shell: pwsh
+        run: |
+            cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=TRUE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
+            cmake --build build_unicode --config Release
+            .\build_unicode\bin\Release\integration.exe
+        env:
+            TEST_DSN: ${{ env.TEST_DSN_UNICODE }}
+            TEST_USERNAME: ${{ env.TEST_USERNAME }}
+            TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
+            AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+            AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+            AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
+            RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+            TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
+            DRIVER_PATH: ${{ github.workspace }}
+            SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+            TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
+
+      - name: 'Delete Limitless RDS Cluster'
+        if: always()
+        shell: pwsh
+        working-directory: scripts
+        run: |
+          . ".\aws_rds_helper.ps1"
+          Delete-Limitless-Db-Cluster -ClusterId ${{ env.LIMITLESS_CLUSTER_ID }} -ShardId ${{ env.LIMITLESS_SHARD_ID }} -Region ${{ secrets.AWS_DEFAULT_REGION }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+
+      - name: 'Delete Limitless Db Secrets'
+        if: always()
+        shell: pwsh
+        working-directory: scripts
+        run: |
+          . ".\aws_rds_helper.ps1"
+          Delete-Secrets ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+    
+       # Make sure IP is always deleted
+      - name: 'Get Github Action IP'
+        if: always()
+        id: ip
+        uses: haythem/public-ip@v1.3
+
+      - name: 'Remove Github Action IP'
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress `
+            --group-name default `
+            --protocol tcp `
+            --port 5432 `
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32 `
+           *> $null;
+
+      - name: 'Archive log results'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: AWSPgODBC Installer
-          path: ./installer/x64/*.msi
-          retention-days: 5
-          if-no-files-found: error
+          name: 'integration-test-logs'
+          path: logs
+          retention-days: 3
