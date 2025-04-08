@@ -1185,7 +1185,7 @@ char *merge_cstr(char *prefix, char *suffix) {
 	if (!prefix && suffix) {
 		return strdup(suffix);
 	}
-	if (!suffix && prefix) {
+	if (prefix && !suffix) {
 		return strdup(prefix);
 	}
 
@@ -1220,7 +1220,7 @@ char *to_cstr(SQLTCHAR *sqlstr, SQLLEN strlen) {
 	return cstr;
 }
 
-char *RDS_MergeDiagRecs(HDBC hdbc, const char *last_errmsg) {
+char *RDS_MergeDiagRecs(HDBC hdbc, const char *custom_errmsg) {
 	char *errmsg = NULL;
 
 	SQLTCHAR    sqlstate[6];
@@ -1237,45 +1237,21 @@ char *RDS_MergeDiagRecs(HDBC hdbc, const char *last_errmsg) {
 		ret = SQLGetDiagRec(SQL_HANDLE_DBC, hdbc, recno, sqlstate, &nativeerror, message, sizeof(message), &textlen);
 		if (SQL_SUCCEEDED(ret)) {
 			char *next_errmsg = to_cstr(message, textlen);
-			// memory error
-			if (!next_errmsg) {
-				if (errmsg) {
-					free(errmsg);
-				}
-				return NULL;
-			}
-
-			MYLOG(MIN_LOG_LEVEL, "Got error message from failed connection: %s\n", next_errmsg);
-
-			if (!errmsg) {
-				errmsg = next_errmsg;
-				continue;
-			}
-
 			char *new_errmsg = merge_cstr(errmsg, next_errmsg);
-			free(errmsg);
-			free(next_errmsg);
+			if (errmsg) {
+				free(errmsg);
+			}
+			if (next_errmsg) {
+				free(next_errmsg);
+			}
 			errmsg = new_errmsg;
 		}
 	} while (ret == SQL_SUCCESS);
 
-	// no errors at all
-	if (!errmsg && !last_errmsg) {
-		return NULL;
+	char *merged_errmsg = merge_cstr(errmsg, custom_errmsg);
+	if (errmsg) {
+		free(errmsg);
 	}
-
-	// no error messages except for last message
-	if (!errmsg && last_errmsg) {
-		return strdup(last_errmsg);
-	}
-
-	// just connection errors
-	if (errmsg && !last_errmsg) {
-		return errmsg;
-	}
-
-	char *merged_errmsg = merge_cstr(errmsg, last_errmsg);
-	free(errmsg);
 	return merged_errmsg;
 }
 
@@ -1505,7 +1481,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 			}
 			// Check again, token may have regenerated
 			if (ret <= 0) {
-				RDS_set_errormsg(self, "Unable to authenticate using RDS DB IAM.");
+				RDS_set_errormsg(self, ERRMSG_IAM_AUTH_FAILED);
 				return ret;
 			}
 		}
