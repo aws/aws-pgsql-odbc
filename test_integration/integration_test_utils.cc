@@ -24,8 +24,6 @@
 
 #include "integration_test_utils.h"
 
-#include <gtest/gtest.h>
-
 char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) {
     char* value = std::getenv(key);
     if (value == nullptr || value == "") {
