@@ -53,6 +53,8 @@
 
 #include "unicode_support.h"
 
+#include "aws_errmsgs.h"
+
 #include <authentication/authentication_provider.h>
 #include <failover/failover_service.h>
 #include <limitless/limitless_monitor_service.h>
@@ -1173,6 +1175,86 @@ typedef enum {
 #define	SAFESTRCPY(dst, src) (strcpy(dst, src ? src : ""))
 #define SAFESTRNCPY(dst, src, dst_size) (strncpy(dst, src ? src : "", dst_size))
 
+char *merge_cstr(char *prefix, char *suffix) {
+	// both inputs NULL
+	if (!prefix && !suffix) {
+		return NULL;
+	}
+
+	// if one input is a string but the other is NULL, just return the one
+	if (!prefix && suffix) {
+		return strdup(suffix);
+	}
+	if (prefix && !suffix) {
+		return strdup(prefix);
+	}
+
+	// + 2 for '\n' separating the strings and '\0'
+	size_t merged_size = strlen(prefix) + strlen(suffix) + 2;
+	char *merged = malloc(merged_size);
+	snprintf(merged, merged_size, "%s\n%s", prefix, suffix);
+
+	return merged;
+}
+
+void RDS_set_errormsg(ConnectionClass* self, const char* rds_err_msg) {
+	char *driver_err = CC_get_errormsg(self);
+	if (driver_err == NULL) {
+		CC_set_errormsg(self, rds_err_msg);
+		return;
+	}
+
+	char *merged = merge_cstr(driver_err, rds_err_msg);
+	CC_set_errormsg(self, merged);
+	free(merged);
+}
+
+char *to_cstr(SQLTCHAR *sqlstr, SQLLEN strlen) {
+	char *cstr;
+	#ifdef UNICODE
+	cstr = ucs2_to_utf8(sqlstr, strlen, NULL, FALSE);
+	#else
+	cstr = strdup((char *)sqlstr);
+	#endif
+
+	return cstr;
+}
+
+char *RDS_MergeDiagRecs(HDBC hdbc, const char *custom_errmsg) {
+	char *errmsg = NULL;
+
+	SQLTCHAR    sqlstate[6];
+	SQLTCHAR    message[MEDIUM_REGISTRY_LEN];
+	SQLINTEGER  nativeerror;
+	SQLSMALLINT textlen;
+	SQLRETURN   ret;
+	SQLSMALLINT recno = 0;
+
+	// merge all error messages for the failed dbc
+	do {
+		recno++;
+		message[0] = '\0';
+		ret = SQLGetDiagRec(SQL_HANDLE_DBC, hdbc, recno, sqlstate, &nativeerror, message, sizeof(message), &textlen);
+		if (SQL_SUCCEEDED(ret)) {
+			char *next_errmsg = to_cstr(message, textlen);
+			char *new_errmsg = merge_cstr(errmsg, next_errmsg);
+			if (errmsg) {
+				free(errmsg);
+			}
+			if (next_errmsg) {
+				free(next_errmsg);
+			}
+			errmsg = new_errmsg;
+		}
+	} while (ret == SQL_SUCCESS);
+
+	char *merged_errmsg = merge_cstr(errmsg, custom_errmsg);
+	if (errmsg) {
+		free(errmsg);
+	}
+	return merged_errmsg;
+}
+
 // Get token for IAM, ADFS or OKTA authentication mode.
 TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	MYLOG(MIN_LOG_LEVEL, "entering...\n");
@@ -1187,7 +1269,7 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 		port = 5432; // set to default port.
 	}
 
-    char *server = ci->iam_host && *ci->iam_host != 0 ? ci->iam_host : ci->server;
+	char *server = ci->iam_host && *ci->iam_host != 0 ? ci->iam_host : ci->server;
 
 	MYLOG(MIN_LOG_LEVEL, "auth type is %s\n", ci->authtype);
 	MYLOG(MIN_LOG_LEVEL, "server is %s\n", ci->server);
@@ -1234,11 +1316,11 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
-void GetLimitlessServer(ConnInfo *ci) {
+bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
 
 	if (!ci->limitless_enabled) {
-		return;
+		return true;
 	}
 
 	int host_port = atoi(ci->port);
@@ -1254,20 +1336,20 @@ void GetLimitlessServer(ConnInfo *ci) {
 	// double check that the server supports limitless; if not, disable monitoring for this connection
 	SQLHENV henv;
 	SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_ENV, NULL, &henv);
-    if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed - disabling limitless\n");
-		ci->limitless_enabled = 0;
-		return;
+	if (!SQL_SUCCEEDED(rc)) {
+		*limitless_err = strdup(ERRMSG_LIMITLESS_COULD_NOT_ALLOCATE);
+		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_ENV failed\n");
+		return false;
 	}
 
 	SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0);
 	SQLHDBC hdbc;
-    rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
-    if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed - disabling limitless\n");
-		ci->limitless_enabled = 0;
+	rc = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
+	if (!SQL_SUCCEEDED(rc)) {
+		*limitless_err = strdup(ERRMSG_LIMITLESS_COULD_NOT_ALLOCATE);
+		MYLOG(MIN_LOG_LEVEL, "SQLAllocHandle of SQL_HANDLE_DBC failed\n");
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		return;
+		return false;
 	}
 
 #ifdef UNICODE_SUPPORT
@@ -1277,24 +1359,24 @@ void GetLimitlessServer(ConnInfo *ci) {
 	SQLSMALLINT connect_string_len = strlen(connect_string_encoded), out_len;
 	rc = SQLDriverConnect(hdbc, NULL, connect_string_encoded, connect_string_len, NULL, 0, &out_len, SQL_DRIVER_NOPROMPT);
 #endif
-    if (!SQL_SUCCEEDED(rc)) {
-		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed - disabling limitless\n");
-		ci->limitless_enabled = 0;
+	if (!SQL_SUCCEEDED(rc)) {
+		*limitless_err = RDS_MergeDiagRecs(hdbc, ERRMSG_LIMITLESS_CONNECTION_NOT_ESTABLISHED);
+		MYLOG(MIN_LOG_LEVEL, "SQLDriverConnect failed before call to CheckLimitlessCluster\n");
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		return;
+		return false;
 	}
 
 	MYLOG(MIN_LOG_LEVEL, "before CheckLimitlessCluster\n");
 	if (CheckLimitlessCluster(hdbc)) {
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true\n");
 	} else {
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
+		*limitless_err = strdup(ERRMSG_LIMITLESS_NOT_LIMITLESS_CLUSTER);
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false\n");
 		SQLDisconnect(hdbc);
 		SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
 		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-		ci->limitless_enabled = 0;
-		return;
+		return false;
 	}
 
 	// disconnect from this preliminary connection
@@ -1319,18 +1401,18 @@ void GetLimitlessServer(ConnInfo *ci) {
 		MYLOG(MIN_LOG_LEVEL, "GetLimitlessInstance returned false. Not using router endpoint.\n");
 	}
 	free(db_instance.server);
-}
 
-#define MERGE_CSTR(buffer, size, prefix, suffix) (snprintf(buffer, size, "%s\n%s", prefix, suffix))
+	*limitless_err = NULL;
+	return true;
+}
 
 char
 CC_connect(ConnectionClass *self, char *salt_para)
 {
 	ConnInfo *ci = &(self->connInfo);
-	CSTR	func = "CC_connect";
+	CSTR		func = "CC_connect";
 	char		ret, *saverr = NULL, retsend;
-	const char	*errmsg = NULL;
-	char custom_err[LARGE_REGISTRY_LEN];
+	const char	*errmsg = NULL, *limitless_err = NULL;
 
 	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
@@ -1352,8 +1434,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		bool successful = GetCredentialsFromSecretsManager(ci->secret_id, ci->region, &credentials);
 		if (!successful) {
 			MYLOG(MIN_LOG_LEVEL, "Could not get credentials from secrets manager\n");
-			CC_set_error(self, CONNECTION_COMMUNICATION_ERROR, "Unable to retrieve credentials from Secrets Manager", func);
-			return 0;
+			CC_set_error(self, CONNECTION_COMMUNICATION_ERROR, ERRMSG_SECRETS_NOT_RETRIEVED, func);
+			return SQL_ERROR;
 		}
 
 		SAFESTRNCPY(ci->username, credentials.username, MEDIUM_REGISTRY_LEN);
@@ -1363,17 +1445,30 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.username = NULL;
 		credentials.password = NULL;
 
-		GetLimitlessServer(ci);
+		if (!GetLimitlessServer(ci, &limitless_err)) {
+			if (limitless_err) {
+				RDS_set_errormsg(self, limitless_err);
+				free(limitless_err);
+			}
+			CC_set_errornumber(self, CONN_BAD_LIMITLESS_CLUSTER);
+			return SQL_ERROR;
+		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0) {
-			MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Fetched Secrets Manager credentials are invalid", CC_get_errormsg(self));
-			CC_set_errormsg(self, custom_err);
+			RDS_set_errormsg(self, ERRMSG_IAM_AUTH_FAILED);
 			return ret;
 		}
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
-		GetLimitlessServer(ci);
+		if (!GetLimitlessServer(ci, &limitless_err)) {
+			if (limitless_err) {
+				RDS_set_errormsg(self, limitless_err);
+				free(limitless_err);
+			}
+			CC_set_errornumber(self, CONN_BAD_LIMITLESS_CLUSTER);
+			return SQL_ERROR;
+		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		// Failed to connect
 		if (ret <= 0) {
@@ -1386,8 +1481,7 @@ CC_connect(ConnectionClass *self, char *salt_para)
 			}
 			// Check again, token may have regenerated
 			if (ret <= 0) {
-				MERGE_CSTR(custom_err, LARGE_REGISTRY_LEN, "Unable to authenticate using RDS DB IAM.", CC_get_errormsg(self));
-				CC_set_errormsg(self, custom_err);
+				RDS_set_errormsg(self, ERRMSG_IAM_AUTH_FAILED);
 				return ret;
 			}
 		}
@@ -1396,7 +1490,14 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci->token_expiration);
 	}
 	else {
-		GetLimitlessServer(ci);
+		if (!GetLimitlessServer(ci, &limitless_err)) {
+			if (limitless_err) {
+				RDS_set_errormsg(self, limitless_err);
+				free(limitless_err);
+			}
+			CC_set_errornumber(self, CONN_BAD_LIMITLESS_CLUSTER);
+			return SQL_ERROR;
+		}
 		ret = LIBPQ_CC_connect(self, salt_para);
 		if (ret <= 0)
 			return ret;

@@ -72,6 +72,9 @@ typedef enum
 #define CONN_OPTION_NOT_FOR_THE_DRIVER					216
 #define CONN_EXEC_ERROR							217
 
+/* AWSpsqlODBC-specific error numbers */
+#define CONN_BAD_LIMITLESS_CLUSTER					218
+
 /* Conn_status defines */
 #define CONN_IN_AUTOCOMMIT		1L
 #define CONN_IN_TRANSACTION		(1L<<1)
