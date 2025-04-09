@@ -17,6 +17,12 @@
 cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 project("integration")
 set(CMAKE_CXX_STANDARD 20)
+set(SHOULD_BUILD_FAILOVER FALSE)
+
+# Set it to TRUE if conditions are met (WIN32 and not TEST_LIMITLESS)
+if(WIN32 AND NOT TEST_LIMITLESS)
+    set(SHOULD_BUILD_FAILOVER TRUE)
+endif()
 
 option(UNICODE_BUILD "Enable Unicode build" OFF)
 
@@ -54,16 +60,20 @@ enable_testing()
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-#-----------------------------------------------------
-# Toxiproxy - Simulate Network Outages
+if(SHOULD_BUILD_FAILOVER)
+    #-----------------------------------------------------
+    # AWS SDK for C++
+    # The SDK is only required for failover integration tests, which are only ran on Windows
 
-FetchContent_Declare(
-  toxiproxy
-  GIT_REPOSITORY https://github.com/Bit-Quill/toxiproxy-cpp
-  GIT_TAG main
-)
+    # Paths to search when attempting to find the AWS SDK
+    set(AWS_SDK_DIR "${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/aws_sdk/install")
+    list(APPEND CMAKE_PREFIX_PATH ${AWS_SDK_DIR})
+    string(REPLACE ";" "/aws-cpp-sdk-all;" SYSTEM_MODULE_PATH "${CMAKE_SYSTEM_PREFIX_PATH}/aws-cpp-sdk-all")
+    list(APPEND CMAKE_PREFIX_PATH ${SYSTEM_MODULE_PATH})
 
-FetchContent_MakeAvailable(toxiproxy)
+    find_package(AWSSDK REQUIRED COMPONENTS core rds secretsmanager sts)
+    include_directories(${AWSSDK_INCLUDE_DIR})
+endif()
 
 #-----------------------------------------------------
 # Google logging library
@@ -96,6 +106,11 @@ set(TEST_SUITE
     iam_authentication_integration_test.cc
     secrets_manager_integration_test.cc
 )
+
+if(SHOULD_BUILD_FAILOVER)
+    # Only build and run failover integration tests on Windows
+    list(APPEND TEST_SUITE base_failover_integration_test.cc failover_integration_test.cc)
+endif()
 
 IF (TEST_LIMITLESS)
     list(APPEND TEST_SUITE limitless_integration_test.cc)
@@ -139,15 +154,22 @@ target_include_directories(
   ../libs/aws-rds-odbc/src/util
 )
 
+set (EXTERNAL_LIBRARIES
+    gtest_main
+    ${ODBC_LIBRARIES}
+    glog::glog
+)
+
+if(SHOULD_BUILD_FAILOVER)
+    list(APPEND EXTERNAL_LIBRARIES ${AWSSDK_LINK_LIBRARIES})
+endif()
+
 target_link_libraries(
   # Name
   ${PROJECT_NAME}
 
   # External Libaries
-  gtest_main
-  toxiproxy
-  ${ODBC_LIBRARIES}
-  glog::glog
+  ${EXTERNAL_LIBRARIES}
 
   # aws-rds-odbc
   ${libawsrdsodbc}
@@ -168,7 +190,7 @@ SET(DRIVER_PATH_ANSI $ENV{TEST_DRIVER_ANSI})
 SET(DRIVER_DESCRIPTION "AWS PG ODBC Driver for connecting to PG")
 SET(THREADING "0")
 
-SET(TEST_DSN_UNICODE $ENV{TEST_DSN_UNICODE})
+SET(TEST_DSN_UNICODE $ENV{TEST_DSN_UNICODE}) 
 SET(TEST_DSN_ANSI $ENV{TEST_DSN_ANSI})
 SET(TEST_DATABASE $ENV{TEST_DATABASE})
 SET(DESCRIPTION "AWS PG ODBC Driver for Dockerized tests")

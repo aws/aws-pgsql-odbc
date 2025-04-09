@@ -15,10 +15,6 @@
 #ifndef INTEGRATIONTESTUTILS_H_
 #define INTEGRATIONTESTUTILS_H_
 
-#include <string>
-
-#include <sql.h>
-#include <sqlext.h>
 #include <gtest/gtest.h>
 
 #include "string_helper.h"

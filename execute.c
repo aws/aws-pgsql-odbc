@@ -941,6 +941,7 @@ PGAPI_Execute(HSTMT hstmt, UWORD flag)
 	stmt->has_notice = 0;
 	conn = SC_get_conn(stmt);
 	apdopts = SC_get_APDF(stmt);
+	const bool is_in_trans = CC_is_in_trans(conn);
 
 	/*
 	 * If the statement was previously described, just recycle the old result
@@ -1203,7 +1204,7 @@ MYLOG(MIN_LOG_LEVEL, "leaving %p retval=%d status=%d\n", stmt, retval, stmt->sta
 				MYLOG(MIN_LOG_LEVEL, "Failover not required or supported for SQLState: %s\n", sqlstate);
 				break;
 			case FAILOVER_SUCCEED:
-				MYLOG(MIN_LOG_LEVEL, "Driver has successfully failover to a new connection.");
+				MYLOG(MIN_LOG_LEVEL, "Driver has successfully failover to a new connection.\n");
 				// Close original connections PQConn
 				PQfinish(conn->pqconn);
 				SC_clear_error(stmt);
@@ -1214,8 +1215,12 @@ MYLOG(MIN_LOG_LEVEL, "leaving %p retval=%d status=%d\n", stmt, retval, stmt->sta
 				conn->status = CONN_CONNECTED;
 				// Clean up new connection handle
 				CC_cleanup(res.hdbc, FALSE);
-
-				if (CC_is_in_trans(conn)) {
+				if (is_in_trans) {
+                    // Driver should have already rollback the transaction.
+                    // Double check to make sure we are not in a transaction; Otherwise, rollback.
+                    if (CC_is_in_trans(conn)) {
+                        CC_internal_rollback(conn, PER_QUERY_ROLLBACK, TRUE);
+                    }
 					SC_set_error(stmt, STMT_UNKNOWN_TRANSACTION_ERROR,
 								 "Transaction resolution unknown. Please re-configure session state if required and try restarting the transaction.",
 								 NULL);

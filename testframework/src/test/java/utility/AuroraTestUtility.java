@@ -56,6 +56,7 @@ import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Creates and destroys AWS RDS Cluster and Instances AWS Credentials is loaded using
@@ -344,18 +345,36 @@ public class AuroraTestUtility {
 
     final DescribeDbClustersResponse clustersResponse = rdsClient.describeDBClusters(describeDbClustersRequest);
     DBCluster cluster = clustersResponse.dbClusters().get(0);
-    String endpoint = cluster.endpoint();
-    String readerEndpoint = cluster.readerEndpoint();
-    final String suffix = endpoint.substring(endpoint.indexOf('.') + 1);
+    final String clusterEndpoint = cluster.endpoint();
+    final String readerEndpoint = cluster.readerEndpoint();
 
-    final List<String> instances = new ArrayList<>();
-    instances.add(cluster.dbClusterIdentifier());
+    final List<String> instances = getDBInstances(clusterIdentifier)
+        .stream()
+        .map(instance -> instance.endpoint().address())
+        .collect(Collectors.toList());
+
+    String suffix;
+    if (instances.size() > 0) {
+      suffix = instances.get(0).substring(instances.get(0).indexOf('.') + 1);
+    } else {
+      suffix = clusterEndpoint.substring(clusterEndpoint.indexOf('.') + 1);
+      instances.add(cluster.dbClusterIdentifier());
+    }
+
     return new AuroraClusterInfo(
-        suffix,
-        endpoint,
-        readerEndpoint,
-        instances
+      suffix,
+      clusterEndpoint,
+      readerEndpoint,
+      instances
     );
+  }
+
+  public List<DBInstance> getDBInstances(String clusterId) {
+    final DescribeDbInstancesResponse dbInstancesResult =
+        rdsClient.describeDBInstances(
+            (builder) ->
+                builder.filters(Filter.builder().name("db-cluster-id").values(clusterId).build()));
+    return dbInstancesResult.dbInstances();
   }
 
   /**
