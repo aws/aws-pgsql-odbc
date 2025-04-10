@@ -108,12 +108,12 @@ class IamAuthenticationIntegrationTest : public testing::Test {
         INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer);
         INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);
 
-        memset(query_buffer, 0, sizeof(query_buffer));
+        INTEGRATION_TEST_UTILS::clear_memory(query_buffer, sizeof(query_buffer));
         sprintf(query_buffer, "CREATE USER %s;", iam_user);
         EXPECT_EQ(SQL_SUCCESS, INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer));
         INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);
 
-        memset(query_buffer, 0, sizeof(query_buffer));
+        INTEGRATION_TEST_UTILS::clear_memory(query_buffer, sizeof(query_buffer));
         sprintf(query_buffer, "GRANT rds_iam TO %s;", iam_user);
         EXPECT_EQ(SQL_SUCCESS, INTEGRATION_TEST_UTILS::exec_query(stmt, query_buffer));
         INTEGRATION_TEST_UTILS::print_errors(stmt, SQL_HANDLE_STMT);

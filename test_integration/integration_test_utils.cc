@@ -16,11 +16,12 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
+#include <windows.h> // for SafeZeroMemory
 #pragma comment(lib, "Ws2_32.lib")
 #else
 #include <arpa/inet.h>
 #include <netdb.h>
-#endif
+#endif /* _WIN32 */
 
 #include "integration_test_utils.h"
 
@@ -105,4 +106,12 @@ SQLRETURN INTEGRATION_TEST_UTILS::exec_query(SQLHSTMT stmt, char *query_buffer) 
     SQLTCHAR* query = AS_SQLTCHAR(query_buffer);
     #endif
     return SQLExecDirect(stmt, query, SQL_NTS);
+}
+
+void INTEGRATION_TEST_UTILS::clear_memory(void* dest, size_t count) {
+    #ifdef _WIN32
+	SecureZeroMemory(dest, count);
+	#else
+	memset_s(dest, count, '\0', count);
+	#endif /* _WIN32 */
 }

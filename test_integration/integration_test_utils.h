@@ -33,6 +33,7 @@ public:
     static std::string host_to_IP(std::string hostname);
     static void print_errors(SQLHANDLE handle, int32_t handle_type);
     static SQLRETURN exec_query(SQLHSTMT stmt, char *query_buffer);
+	static void clear_memory(void* dest, size_t count);
 };
 
 #endif // INTEGRATIONTESTUTILS_H_
