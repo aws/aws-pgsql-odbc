@@ -21,8 +21,6 @@
 #include <sql.h>
 #include <sqlext.h>
 
-#include <cstring> // memset
-
 #include "connection_string_builder.h"
 #include "integration_test_utils.h"
 

@@ -19,6 +19,7 @@
 #include <windows.h> // for SafeZeroMemory
 #pragma comment(lib, "Ws2_32.lib")
 #else
+#include <cstring> // memset
 #include <arpa/inet.h>
 #include <netdb.h>
 #endif /* _WIN32 */
