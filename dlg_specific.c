@@ -301,17 +301,22 @@ makeConnectString(char *connect_string, const ConnInfo *ci, UWORD len)
 	char		xaOptStr[16];
 #endif
 	ssize_t		hlen, nlen, olen;
-	/*BOOL		abbrev = (len <= 400);*/
-	BOOL		abbrev = (len < 1024) || 0 < ci->force_abbrev_connstr;
+	BOOL		abbrev;
 	UInt4		flag;
+
+	if (len > MAX_CONNECT_STRING) {
+		len = MAX_CONNECT_STRING;
+	}
+
+	/*abbrev = (len <= 400);*/
+	abbrev = (len < 1024) || 0 < ci->force_abbrev_connstr;
 
 MYLOG(MIN_LOG_LEVEL, "%s row_versioning=%s\n", __FUNCTION__, ci->row_versioning);
 
 MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr, abbrev);
 	encode(ci->password, encoded_item, sizeof(encoded_item));
 	/* fundamental info */
-	nlen = MAX_CONNECT_STRING;
-	/* fundamental info */
+	nlen = len;
 	olen = snprintf(connect_string, nlen, "%s=%s;DATABASE=%s;SERVER=%s;PORT=%s;", 
 		got_dsn ? "DSN" : "DRIVER",
 		got_dsn ? ci->dsn : ci->drivername,
@@ -377,7 +382,7 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 
 	/* extra info */
 	hlen = strlen(connect_string);
-	nlen = MAX_CONNECT_STRING - hlen;
+	nlen = len - hlen;
 MYLOG(DETAIL_LOG_LEVEL, "hlen=" FORMAT_SSIZE_T "\n", hlen);
 	if (!abbrev)
 	{
@@ -524,7 +529,7 @@ MYLOG(DETAIL_LOG_LEVEL, "hlen=" FORMAT_SSIZE_T "\n", hlen);
 				ABBR_SSLMODE "=%s", abbrev_sslmode(ci->sslmode, abbrevmode, sizeof(abbrevmode)));
 		}
 		hlen = strlen(connect_string);
-		nlen = MAX_CONNECT_STRING - hlen;
+		nlen = len - hlen;
 		olen = snprintf(&connect_string[hlen], nlen, ";"
 				"%s"		/* ABBR_CONNSETTINGS */
 				ABBR_FETCH "=%d;"
@@ -555,7 +560,7 @@ MYLOG(DETAIL_LOG_LEVEL, "hlen=" FORMAT_SSIZE_T "\n", hlen);
 		if (olen < nlen || ci->rollback_on_error >= 0)
 		{
 			hlen = strlen(connect_string);
-			nlen = MAX_CONNECT_STRING - hlen;
+			nlen = len - hlen;
 			/*
 			 * The PROTOCOL setting must be placed after CX flag
 			 * so that this option can override the CX setting.
@@ -575,7 +580,7 @@ MYLOG(DETAIL_LOG_LEVEL, "hlen=" FORMAT_SSIZE_T "\n", hlen);
 		if (0 != flag)
 		{
 			hlen = strlen(connect_string);
-			nlen = MAX_CONNECT_STRING - hlen;
+			nlen = len - hlen;
 			olen = snprintf(&connect_string[hlen], nlen, ";"
 				INI_EXTRAOPTIONS "=%x;",
 				flag);
