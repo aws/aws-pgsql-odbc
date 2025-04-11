@@ -16,13 +16,16 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
-#include <windows.h> // for SafeZeroMemory
 #pragma comment(lib, "Ws2_32.lib")
 #else
-#include <cstring> // memset
 #include <arpa/inet.h>
 #include <netdb.h>
-#endif /* _WIN32 */
+/* Below adds memset_s if available */
+#ifdef __STDC_LIB_EXT1__
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <string.h> // memset_s
+#endif  /* __STDC_WANT_LIB_EXT1__ */
+#endif
 
 #include "integration_test_utils.h"
 
@@ -53,7 +56,7 @@ std::string INTEGRATION_TEST_UTILS::host_to_IP(std::string hostname) {
     struct addrinfo* p;
     char ipstr[INET_ADDRSTRLEN];
 
-    memset(&hints, 0, sizeof(hints));
+    clear_memory(&hints, sizeof(hints));
     hints.ai_family = AF_INET; //IPv4
     hints.ai_socktype = SOCK_STREAM;
 
@@ -111,8 +114,14 @@ SQLRETURN INTEGRATION_TEST_UTILS::exec_query(SQLHSTMT stmt, char *query_buffer) 
 
 void INTEGRATION_TEST_UTILS::clear_memory(void* dest, size_t count) {
     #ifdef _WIN32
-	SecureZeroMemory(dest, count);
-	#else
-	memset_s(dest, count, '\0', count);
-	#endif /* _WIN32 */
+    SecureZeroMemory(dest, count);
+    #else
+    #ifdef __STDC_LIB_EXT1__
+    memset_s(dest, count, '\0', count);
+    #else
+    memset(dest, '\0', count);
+    #endif /* __STDC__LIB_EXT1__*/
+    #endif /* _WIN32 */
+return;
 }
+
