@@ -71,7 +71,7 @@ if(SHOULD_BUILD_FAILOVER)
     string(REPLACE ";" "/aws-cpp-sdk-all;" SYSTEM_MODULE_PATH "${CMAKE_SYSTEM_PREFIX_PATH}/aws-cpp-sdk-all")
     list(APPEND CMAKE_PREFIX_PATH ${SYSTEM_MODULE_PATH})
 
-    find_package(AWSSDK REQUIRED COMPONENTS core rds secretsmanager sts)
+    find_package(AWSSDK REQUIRED COMPONENTS core rds sts)
     include_directories(${AWSSDK_INCLUDE_DIR})
 endif()
 
