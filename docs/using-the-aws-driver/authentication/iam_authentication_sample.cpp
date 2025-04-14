@@ -62,7 +62,7 @@ int main() {
 	const char* server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
 	int port = 5432;
 	const char* db = "postgres";
-	const char* iam_config = "AuthType=IAM;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
+	const char* iam_config = "AUTHTYPE=IAM;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
 
 	sprintf(reinterpret_cast<char*>(conn_in), "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;%s;", dsn, user, server, port, db, iam_config);
 

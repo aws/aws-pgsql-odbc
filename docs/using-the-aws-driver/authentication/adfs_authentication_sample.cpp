@@ -62,7 +62,7 @@ int main() {
 	const char* server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
 	int port = 5432;
 	const char* db = "postgres";
-	const char* adfs_config = "AuthType=adfs;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
+	const char* adfs_config = "AUTHTYPE=adfs;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
 	char idp_config[MAX_NAME_LEN];
 
 	const char* idp_endpoint = "my-adfs-host.com";

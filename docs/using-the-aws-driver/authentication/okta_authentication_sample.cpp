@@ -62,7 +62,7 @@ int main() {
 	const char* server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
 	int port = 5432;
 	const char* db = "postgres";
-	const char* okta_config = "AuthType=okta;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
+	const char* okta_config = "AUTHTYPE=okta;SSLMODE=require;REGION=us-east-2;TOKENEXPIRATION=850";
 	char idp_config[MAX_NAME_LEN];
 
 	const char* idp_endpoint = "my-app-name.okta.com";
