@@ -228,7 +228,7 @@ jobs:
         shell: cmd
         run: |
           dotnet tool install --global wix
-          wix extension add --global WixToolset.UI.wixext/5.0.2
+          wix extension add --global WixToolset.UI.wixext/6.0.0
 
       - name: Cache AWS SDK libraries
         id: cache-dynamic-aws-sdk
@@ -249,6 +249,7 @@ jobs:
           role-skip-session-tagging: true
           aws-access-key-id: ${{ secrets.AWS_BUILD_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_BUILD_SECRET_KEY }}
+          aws-session-token: ${{ secrets.AWS_BUILD_SESSION_TOKEN }}
           aws-region: us-west-2
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           role-external-id: ${{ secrets.AWS_ROLE_EXTERNAL_ID }}
