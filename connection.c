@@ -320,7 +320,7 @@ CC_initialize(ConnectionClass *rv, BOOL lockinit)
 	clear_size = sizeof(ConnectionClass);
 #endif /* WIN_MULTITHREAD_SUPPORT */
 
-	memset(rv, 0, clear_size);
+	pg_memset(rv, 0, clear_size);
 	rv->status = CONN_NOT_CONNECTED;
 	rv->transact_status = CONN_IN_AUTOCOMMIT;		/* autocommit by default */
 	rv->unnamed_prepared_stmt = NULL;
@@ -328,13 +328,13 @@ CC_initialize(ConnectionClass *rv, BOOL lockinit)
 	rv->stmts = (StatementClass **) malloc(sizeof(StatementClass *) * STMT_INCREMENT);
 	if (!rv->stmts)
 		goto cleanup;
-	memset(rv->stmts, 0, sizeof(StatementClass *) * STMT_INCREMENT);
+	pg_memset(rv->stmts, 0, sizeof(StatementClass *) * STMT_INCREMENT);
 
 	rv->num_stmts = STMT_INCREMENT;
 	rv->descs = (DescriptorClass **) malloc(sizeof(DescriptorClass *) * STMT_INCREMENT);
 	if (!rv->descs)
 		goto cleanup;
-	memset(rv->descs, 0, sizeof(DescriptorClass *) * STMT_INCREMENT);
+	pg_memset(rv->descs, 0, sizeof(DescriptorClass *) * STMT_INCREMENT);
 
 	rv->num_descs = STMT_INCREMENT;
 
@@ -799,7 +799,7 @@ CC_set_translation(ConnectionClass *self)
 	if (self->connInfo.translation_dll[0] == 0)
 		return TRUE;
 
-	self->translation_option = atoi(self->connInfo.translation_option);
+	self->translation_option = pg_atoi(self->connInfo.translation_option);
 	self->translation_handle = LoadLibrary(self->connInfo.translation_dll);
 
 	if (self->translation_handle == NULL)
@@ -1649,7 +1649,7 @@ CC_add_statement(ConnectionClass *self, StatementClass *stmt)
 		else
 		{
 			self->stmts = newstmts;
-			memset(&self->stmts[self->num_stmts], 0, sizeof(StatementClass *) * STMT_INCREMENT);
+			pg_memset(&self->stmts[self->num_stmts], 0, sizeof(StatementClass *) * STMT_INCREMENT);
 
 			stmt->hdbc = self;
 			self->stmts[self->num_stmts] = stmt;
@@ -2095,6 +2095,19 @@ CC_from_PGresult(QResultClass *res, StatementClass *stmt,
 	return success;
 }
 
+/**
+ * @param[in] *self
+ * @param[in] rollback_type 
+ * 	PER_STATEMENT_ROLLBACK
+ * 		
+ * 	PER_QUERY_ROLLBACK
+ * 		sends ROLLBACK TO _per_query_svp_; RELEASE _per_query_svp_
+ * @param[in] ignore_abort 
+ * @return
+ * 	1: success
+ * 	0: failure
+ * 
+ */
 int
 CC_internal_rollback(ConnectionClass *self, int rollback_type, BOOL ignore_abort)
 {
@@ -2414,9 +2427,9 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 				}
 				/*
 				 * There are 2 risks to RELEASE an internal savepoint.
-				 * One is to RELEASE the savepoint invalitated
+				 * One is to RELEASE the savepoint invalidated
 				 * due to manually issued ROLLBACK or RELEASE.
-				 * Another is to invalitate manual SAVEPOINTs unexpectedly
+				 * Another is to invalidate manual SAVEPOINTs unexpectedly
 				 * by RELEASing the internal savepoint.
 				 */
 				else if (strnicmp(cmdbuffer, svpcmd, strlen(svpcmd)) == 0)
@@ -2469,7 +2482,7 @@ CC_send_query_append(ConnectionClass *self, const char *query, QueryInfo *qi, UD
 				{
 					ptr = strrchr(cmdbuffer, ' ');
 					if (ptr)
-						res->recent_processed_row_count = atoi(ptr + 1);
+						res->recent_processed_row_count = pg_atoi(ptr + 1);
 					else
 						res->recent_processed_row_count = -1;
 					if (self->current_schema_valid &&
@@ -3162,7 +3175,7 @@ LIBPQ_connect(ConnectionClass *self)
 	int			pversion;
 	const	char	*opts[PROTOCOL3_OPTS_MAX], *vals[PROTOCOL3_OPTS_MAX];
 	PQconninfoOption	*conninfoOption = NULL, *pqopt;
-	int			i, cnt;
+	int			cnt;
 	char		login_timeout_str[20];
 	char		keepalive_idle_str[20];
 	char		keepalive_interval_str[20];
@@ -3248,8 +3261,7 @@ LIBPQ_connect(ConnectionClass *self)
 	{
 		const char *keyword, *val;
 		int j;
-
-		for (i = 0, pqopt = conninfoOption; (keyword = pqopt->keyword) != NULL; i++, pqopt++)
+		for (pqopt = conninfoOption; (keyword = pqopt->keyword) != NULL; pqopt++)
 		{
 			if ((val = pqopt->val) != NULL)
 			{
@@ -3280,20 +3292,9 @@ LIBPQ_connect(ConnectionClass *self)
 	{
 		const char **popt, **pval;
 
-		QLOG(MIN_LOG_LEVEL, "PQconnectdbParams:");
+		QLOG(0, "PQconnectdbParams:");
 		for (popt = opts, pval = vals; *popt; popt++, pval++)
-		{
-#ifdef FORCE_PASSWORD_DISPLAY
 			QPRINTF(0, " %s='%s'", *popt, *pval);
-#else
-			if (stricmp(*popt, "password") == 0 || stricmp(*popt, "password") == 0) {
-				QPRINTF(0, " %s='%s'", *popt, "xxxxxx");
-			}
-			else {
-			QPRINTF(0, " %s='%s'", *popt, *pval);
-			}
-#endif
-		}
 		QPRINTF(0, "\n");
 	}
 	pqconn = PQconnectdbParams(opts, vals, FALSE);

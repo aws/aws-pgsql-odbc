@@ -915,7 +915,7 @@ MYLOG(MIN_LOG_LEVEL, " c16dt=%p size=" FORMAT_SIZE_T "\n", c16dt, n);
 		brtn = mbrtoc16(c16dt ? c16dt + i : NULL, cdt, 4, &mbst);
 		if (0 == brtn)
 			break;
-		if (brtn == (size_t) -1 ||
+		if (brtn == (size_t) -1 || 
 		    brtn == (size_t) -2)
 			return -1;
 		if (brtn == (size_t) -3)
@@ -964,7 +964,7 @@ MYLOG(MIN_LOG_LEVEL, " c8dt=%p size=" FORMAT_SIZE_T "u\n", c8dt, n);
 			}
 		}
 		/*
-		printf("c16dt=%04X brtn=%lu result=%ld cdt=%02X%02X%02X%02X\n",
+		printf("c16dt=%04X brtn=%lu result=%ld cdt=%02X%02X%02X%02X\n", 
 			c16dt[i], brtn, result, (UCHAR) cdt[0], (UCHAR) cdt[1], (UCHAR) cdt[2], (UCHAR) cdt[3]);
 		*/
 		if (brtn == (size_t) -1)

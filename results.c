@@ -33,6 +33,8 @@
 
 #include "pgapifunc.h"
 
+#include "secure_sscanf.h"
+
 /*	Helper macro */
 #define getEffectiveOid(conn, fi) pg_true_type((conn), (fi)->columntype, FI_type(fi))
 #define	NULL_IF_NULL(a) ((a) ? ((const char *)(a)) : "(null)")
@@ -136,9 +138,12 @@ MYLOG(DETAIL_LOG_LEVEL, "nfields=%d\n", irdflds->nfields);
 	return exec_ok;
 }
 
-/*
+/** 
  *	This returns the number of columns associated with the database
  *	attached to "hstmt".
+ *  @param[in] hstmt handle to the statement
+ *  @param[out] pccol returns the number of columns in the result set
+ *  @return SQL_SUCCESS, SQL_ERROR, SQL_INVALID_HANDLE
  */
 RETCODE		SQL_API
 PGAPI_NumResultCols(HSTMT hstmt,
@@ -202,9 +207,19 @@ cleanup:
 
 #define	USE_FI(fi, unknown) (fi && UNKNOWNS_AS_LONGEST != unknown)
 
-/*
+/**
  *	Return information about the database column the user wants
  *	information about.
+ *  @param[in] hstmt handle to the statement
+ *  @param[in] icol column number to retrieve information about
+ *  @param[out] szColName name of the column
+ *  @param[in] cbColNameMax maximum length of the column name
+ *  @param[out] pcbColName returns the actual length of the column name
+ *  @param[out] pfSqlType type of the column
+ *  @param[out] pcbColDef returns the size of the column
+ *  @param[out] pibScale returns the scale of the column
+ *  @param[out] pfNullable returns whether the column is nullable
+ *  @return SQL_SUCCESS, SQL_ERROR, SQL_INVALID_HANDLE
  */
 RETCODE		SQL_API
 PGAPI_DescribeCol(HSTMT hstmt,
@@ -460,7 +475,17 @@ cleanup:
 
 
 
-/*		Returns result column descriptor information for a result set. */
+/** 
+ * 	Returns result column descriptor information for a result set. 
+ * @param[in] hstmt handle to the statement
+ *  @param[in] icol column number to retrieve information about
+ *  @param[in] fDescType type of descriptor information to return
+ *  @param[out] rgbDesc buffer to receive the descriptor information
+ *  @param[in] cbDescMax maximum length of the descriptor information
+ *  @param[out] pcbDesc returns the actual length of the descriptor information
+ *  @param[out] pfDesc returns the descriptor type
+ *  @return SQL_SUCCESS, SQL_ERROR, SQL_INVALID_HANDLE
+ */
 RETCODE		SQL_API
 PGAPI_ColAttributes(HSTMT hstmt,
 					SQLUSMALLINT icol,
@@ -906,7 +931,17 @@ MYLOG(DETAIL_LOG_LEVEL, "COLUMN_SCALE=" FORMAT_LEN "\n", value);
 }
 
 
-/*	Returns result data for a single column in the current row. */
+/** 	
+ * Returns the value for a single column in the current row. 
+ * 
+ * @param[in] hstmt		Statement handle
+ * @param[in] icol		Column number to retrieve
+ * @param[in] fCType	Column data type
+ * @param[out] rgbValue	Column data
+ * @param[in] cbValueMax	Maximum length of data to return
+ * @param[out] pcbValue	Actual length of data returned
+ * @return SQL_SUCCESS, SQL_SUCCESS_WITH_INFO, SQL_ERROR, or SQL_INVALID_HANDLE
+*/
 RETCODE		SQL_API
 PGAPI_GetData(HSTMT hstmt,
 			  SQLUSMALLINT icol,
@@ -1145,10 +1180,11 @@ MYLOG(DETAIL_LOG_LEVEL, "leaving %d\n", result);
 }
 
 
-/*
- *		Returns data for bound columns in the current row ("hstmt->iCursor"),
- *		advances the cursor.
- */
+/**
+ *	Returns data for bound columns in the current row ("hstmt->iCursor"),
+ *	advances the cursor.
+* 	@param[in] hstmt		Statement handle
+*/
 RETCODE		SQL_API
 PGAPI_Fetch(HSTMT hstmt)
 {
@@ -1347,6 +1383,11 @@ MYPRINTF(DETAIL_LOG_LEVEL, " nearest not found\n");
 	return -(SQLLEN)count;
 }
 
+/**
+ * @param[in] self
+ * @param[out] res
+ * @return SQL_NO_DATA_FOUND if the cursor is not valid anymore
+ */
 static void
 move_cursor_position_if_needed(StatementClass *self, QResultClass *res)
 {
@@ -1407,7 +1448,17 @@ MYLOG(DETAIL_LOG_LEVEL, "RETURN_EOF\n"); \
 	return SQL_NO_DATA_FOUND; \
 }
 
-/*	This fetches a block of data (rowset). */
+/** 	
+ * This fetches a block of data (rowset). 
+ * @param[in] hstmt		Statement handle
+ * @param[in] fFetchType	SQL_FETCH_FIRST, SQL_FETCH_NEXT, SQL_FETCH_PRIOR
+ * @param[in] irow		Row number to fetch
+ * @param[out] pcrow		Number of rows fetched
+ * @param[out] rgfRowStatus	Row status
+ * @param[in] bookmark_offset	Bookmark offset
+ * @param[out] rowsetSize	Rowset size
+ * 
+ */
 RETCODE		SQL_API
 PGAPI_ExtendedFetch(HSTMT hstmt,
 					SQLUSMALLINT fFetchType,
@@ -2060,18 +2111,19 @@ static void getTid(const QResultClass *res, SQLLEN index, UInt4 *blocknum, UInt2
 }
 static void KeySetSet(const TupleField *tuple, int num_fields, int num_key_fields, KeySet *keyset, BOOL statusInit)
 {
+	int status = 0;
 	if (statusInit)
 		keyset->status = 0;
-	sscanf(tuple[num_fields - num_key_fields].value, "(%u,%hu)",
-			&keyset->blocknum, &keyset->offset);
+	secure_sscanf(tuple[num_fields - num_key_fields].value, &status, "(%u,%hu)",
+		ARG_UINT(&(keyset->blocknum)), ARG_USHORT(&(keyset->offset)));
 	if (num_key_fields > 1)
 	{
 		const char *oval = tuple[num_fields - 1].value;
 
 		if ('-' == oval[0])
-			sscanf(oval, "%d", &keyset->oid);
+			secure_sscanf(oval, &status, "%d", ARG_INT(&(keyset->oid)));
 		else
-			sscanf(oval, "%u", &keyset->oid);
+			secure_sscanf(oval, &status, "%u", ARG_UINT(&(keyset->oid)));
 	}
 	else
 		keyset->oid = 0;
@@ -2319,7 +2371,7 @@ MYLOG(DETAIL_LOG_LEVEL, "entering index=" FORMAT_LEN ", tuple=%p, num_fields=%d\
 	if (added_tuples)
 	{
 		tuple = added_tuples + num_fields * ad_count;
-		memset(tuple, 0, sizeof(TupleField) * num_fields);
+		pg_memset(tuple, 0, sizeof(TupleField) * num_fields);
 		ReplaceCachedRows(tuple, tuple_added, num_fields, 1);
 	}
 }
@@ -2657,7 +2709,7 @@ MYLOG(DETAIL_LOG_LEVEL, "entering index=" FORMAT_LEN "\n", index);
 		if (updated_tuples)
 		{
 			tuple = updated_tuples + num_fields * up_count;
-			memset(tuple, 0, sizeof(TupleField) * num_fields);
+			pg_memset(tuple, 0, sizeof(TupleField) * num_fields);
 		}
 		res->up_count++;
 	}
@@ -3690,7 +3742,7 @@ SC_pos_reload_needed(StatementClass *stmt, SQLULEN req_size, UDWORD flag)
 			res->count_backend_allocated = brows;
 		}
 		if (brows > 0)
-			memset(res->backend_tuples, 0, sizeof(TupleField) * res->num_fields * brows);
+			pg_memset(res->backend_tuples, 0, sizeof(TupleField) * res->num_fields * brows);
 		QR_set_num_cached_rows(res, brows);
 		QR_set_rowstart_in_cache(res, 0);
 		if (SQL_RD_ON != stmt->options.retrieve_data)
@@ -3869,8 +3921,9 @@ irow_update(RETCODE ret, StatementClass *stmt, StatementClass *ustmt, SQLULEN gl
 		QResultClass		*tres = SC_get_Curres(ustmt);
 		const char *cmdstr = QR_get_command(tres);
 
+		int status = 0;
 		if (cmdstr &&
-			sscanf(cmdstr, "UPDATE %d", &updcnt) == 1)
+			secure_sscanf(cmdstr, &status, "UPDATE %d", ARG_INT(&updcnt)) == 1)
 		{
 			if (updcnt == 1)
 			{
@@ -4286,8 +4339,9 @@ SC_pos_delete(StatementClass *stmt,
 		int			dltcnt;
 		const char *cmdstr = QR_get_command(qres);
 
+		int status = 0;
 		if (cmdstr &&
-			sscanf(cmdstr, "DELETE %d", &dltcnt) == 1)
+			secure_sscanf(cmdstr, &status, "DELETE %d", ARG_INT(&dltcnt)) == 1)
 		{
 			if (dltcnt == 1)
 			{
@@ -4380,8 +4434,11 @@ irow_insert(RETCODE ret, StatementClass *stmt, StatementClass *istmt,
 
 		tres = (QR_nextr(ires) ? QR_nextr(ires) : ires);
 		cmdstr = QR_get_command(tres);
+
+		int status = 0;
 		if (cmdstr &&
-			sscanf(cmdstr, "INSERT %u %d", &oid, &addcnt) == 2 &&
+			secure_sscanf(cmdstr, &status, "INSERT %u %d",
+				ARG_UINT(&oid), ARG_INT(&addcnt)) == 2 &&
 			addcnt == 1)
 		{
 			RETCODE	qret;
@@ -5171,7 +5228,7 @@ MYLOG(MIN_LOG_LEVEL, "i=%d bidx=" FORMAT_LEN " cached=" FORMAT_ULEN "\n", i, bid
 		SC_REALLOC_gexit_with_error(res->backend_tuples, TupleField, size_of_rowset * sizeof(TupleField) * num_fields, hstmt, "Couldn't realloc memory for backend.", (ret = SQL_ERROR));
 		res->count_backend_allocated = size_of_rowset;
 	}
-	memset(res->backend_tuples + num_fields * cached_rows, 0, (size_of_rowset - cached_rows) * num_fields * sizeof(TupleField));
+	pg_memset(res->backend_tuples + num_fields * cached_rows, 0, (size_of_rowset - cached_rows) * num_fields * sizeof(TupleField));
 	QR_set_num_cached_rows(res, size_of_rowset);
 	res->num_total_read = size_of_rowset;
 	rowStatusArray = (SC_get_IRDF(stmt))->rowStatusArray;

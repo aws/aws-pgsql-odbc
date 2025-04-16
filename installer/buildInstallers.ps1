@@ -91,7 +91,7 @@ function findRuntime([int]$toolset_no, [String]$pgmvc)
 {
 	$runtime_version = toolset_no_to_runtimeversion($toolset_no)
 	$vcversion_no = toolset_no_to_vcversion($toolset_no)
-	# where's the dll?
+	# where's the dll? 
 	[String]$rt_dllname = (msvcrun $runtime_version) + "${runtime_version}0.dll"
 	if ("$pgmvc" -ne "") {
 		$dllspecified = "${pgmvc}\${rt_dllname}"
@@ -192,7 +192,7 @@ function buildInstaller([string]$CPUTYPE)
 				$runtime_list += $PODBCMSVPSYS
 			}
 		}
-		# where's the runtime dll libpq links?
+		# where's the runtime dll libpq links? 
 		$msvclist=& ${dumpbinexe} /imports $LIBPQBINDIR\libpq.dll | select-string -pattern "^\s*($msrun_ptn)(\d+)0\.dll" | % {$_.Matches.Groups[2].Value}
 		if ($msvclist -ne $Null -and $msvclist.length -gt 0) {
 			if ($msvclist.GetType().Name -eq "String") {
@@ -242,7 +242,7 @@ function buildInstaller([string]$CPUTYPE)
 	$libpqmem=Get-RelatedDlls "libpq.dll" $LIBPQBINDIR
 	for ($i=0; $i -lt $libpqmem.length; ) {
 		if ($runtime_list -contains $libpqmem[$i]) {
-			$libpqmem[$i]=$Null
+			$libpqmem[$i]=$Null	
 		} else {
 			$i++
 		}
@@ -329,7 +329,7 @@ if ($AlongWithDrivers) {
 		return
 	} finally {
 		popd
-	}
+	} 
 }
 
 Import-Module ${scriptPath}\..\winbuild\MSProgram-Get.psm1
@@ -359,7 +359,7 @@ try {
 			throw $error[0]
 		} finally {
 			popd
-		}
+		} 
 	}
 	else {
 		buildInstaller $cpu

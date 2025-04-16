@@ -314,6 +314,11 @@ AC_CHECK_PROGS(PROVE, prove)
 
 # 2. Libraries
 
+AC_LIBTOOL_WIN32_DLL
+AC_DISABLE_STATIC
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
+
 LT_INIT([disable-static win32-dll dlopen])
 
 # if test "$GITHUB_ACTIONS" != "true" ]; then
@@ -345,6 +350,7 @@ AC_CHECK_HEADERS(locale.h sys/time.h uchar.h)
 if test "$GITHUB_ACTIONS" != "true" ]; then
 	AC_CHECK_HEADER(libpq-fe.h,,[AC_MSG_ERROR([libpq header not found])])
 fi
+AC_HEADER_TIME
 AC_HEADER_STDBOOL
 
 
@@ -392,6 +398,10 @@ AC_SUBST(CFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(LDFLAGS)
+
+# 8. Libltdl	This release doesn't need libltdl
+# AC_CHECK_LIB(ltdl, lt_dlopen)
+
 
 AC_CONFIG_FILES([Makefile test/Makefile])
 AC_OUTPUT

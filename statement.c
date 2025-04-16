@@ -343,7 +343,7 @@ PGAPI_FreeStmt(HSTMT hstmt,
 void
 InitializeStatementOptions(StatementOptions *opt)
 {
-	memset(opt, 0, sizeof(StatementOptions));
+	pg_memset(opt, 0, sizeof(StatementOptions));
 	opt->scroll_concurrency = SQL_CONCUR_READ_ONLY;
 	opt->cursor_type = SQL_CURSOR_FORWARD_ONLY;
 	opt->retrieve_data = SQL_RD_ON;
@@ -444,7 +444,7 @@ SC_Constructor(ConnectionClass *conn)
 		rv->cancel_info = 0;
 
 		/* Clear Statement Options -- defaults will be set in AllocStmt */
-		memset(&rv->options, 0, sizeof(StatementOptions));
+		pg_memset(&rv->options, 0, sizeof(StatementOptions));
 		InitializeEmbeddedDescriptor((DescriptorClass *)&(rv->ardi),
 				rv, SQL_ATTR_APP_ROW_DESC);
 		InitializeEmbeddedDescriptor((DescriptorClass *)&(rv->apdi),
@@ -470,7 +470,7 @@ SC_Constructor(ConnectionClass *conn)
 		rv->use_server_side_prepare = conn->connInfo.use_server_side_prepare;
 		rv->lock_CC_for_rb = FALSE;
 		// for batch execution
-		memset(&rv->stmt_deffered, 0, sizeof(rv->stmt_deffered));
+		pg_memset(&rv->stmt_deferred, 0, sizeof(rv->stmt_deferred));
 		if ((rv->batch_size = conn->connInfo.batch_size) < 1)
 			rv->batch_size = 1;
 		rv->exec_type = DIRECT_EXEC;
@@ -536,8 +536,8 @@ SC_Destructor(StatementClass *self)
 	cancelNeedDataState(self);
 	if (self->callbacks)
 		free(self->callbacks);
-	if (!PQExpBufferDataBroken(self->stmt_deffered))
-		termPQExpBuffer(&self->stmt_deffered);
+	if (!PQExpBufferDataBroken(self->stmt_deferred))
+		termPQExpBuffer(&self->stmt_deferred);
 
 	DELETE_STMT_CS(self);
 	free(self);
@@ -800,6 +800,12 @@ SC_initialize_stmts(StatementClass *self, BOOL initializeOriginal)
 	return 0;
 }
 
+/** 
+ *  @brief Is the statement currently executing a transaction or cursor
+ *  @param[in] self 
+ *  @param func name of calling function
+ *  @return TRUE if statement is executing, otherwise FALSE
+ */ 
 BOOL	SC_opencheck(StatementClass *self, const char *func)
 {
 	QResultClass	*res;
@@ -1244,7 +1250,7 @@ SC_clear_error(StatementClass *self)
 		res->sqlstate[0] = '\0';
 	}
 	self->stmt_time = 0;
-	memset(&self->localtime, 0, sizeof(self->localtime));
+	pg_memset(&self->localtime, 0, sizeof(self->localtime));
 	self->localtime.tm_sec = -1;
 	SC_unref_CC_error(self);
 }
@@ -1281,7 +1287,8 @@ static const struct
 	{ STMT_ERROR_TAKEN_FROM_BACKEND, "HY000", "S1000" }, /* general error */
 	{ STMT_INTERNAL_ERROR, "HY000", "S1000" }, /* general error */
 	{ STMT_STILL_EXECUTING, "HY010", "S1010" },
-	{ STMT_NOT_IMPLEMENTED_ERROR, "HYC00", "S1C00" }, /* == 'driver not capable' */
+	{ STMT_NOT_IMPLEMENTED_ERROR, "HYC00", "S1C00" }, /* == 'driver not
+							  * capable' */
 	{ STMT_BAD_PARAMETER_NUMBER_ERROR, "07009", "S1093" },
 	{ STMT_OPTION_OUT_OF_RANGE_ERROR, "HY092", "S1092" },
 	{ STMT_INVALID_COLUMN_NUMBER_ERROR, "07009", "S1002" },
@@ -1407,7 +1414,7 @@ SC_create_errorinfo(const StatementClass *self, PG_ErrorInfo *pgerror_fail_safe)
 	{
 		if (pgerror_fail_safe)
 		{
-			memset(pgerror_fail_safe, 0, sizeof(*pgerror_fail_safe));
+			pg_memset(pgerror_fail_safe, 0, sizeof(*pgerror_fail_safe));
 			pgerror = pgerror_fail_safe;
 			pgerror->status = self->__error_number;
 			STRCPY_FIXED(pgerror->__error_message, ermsg);
@@ -2745,7 +2752,7 @@ MYLOG(DETAIL_LOG_LEVEL, "get_Result=%p %p\n", res, SC_get_Result(stmt));
 			/* get rowcount */
 			rowcount = PQcmdTuples(pgres);
 			if (rowcount && rowcount[0])
-				res->recent_processed_row_count = atoi(rowcount);
+				res->recent_processed_row_count = pg_atoi(rowcount);
 			else
 				res->recent_processed_row_count = -1;
 			break;
@@ -3256,7 +3263,7 @@ PG_BM	SC_Resolve_bookmark(const ARDFields *opts, Int4 idx)
 	bookmark = opts->bookmark;
 	offset = opts->row_offset_ptr ? *(opts->row_offset_ptr) : 0;
 	bind_size = opts->bind_size;
-	memset(&pg_bm, 0, sizeof(pg_bm));
+	pg_memset(&pg_bm, 0, sizeof(pg_bm));
 	if (used = bookmark->used, used != NULL)
 	{
 		used = LENADDR_SHIFT(used, offset);
@@ -3286,7 +3293,7 @@ int	SC_Create_bookmark(StatementClass *self, BindInfoClass *bookmark, Int4 bind_
 	PG_BM		pg_bm;
 
 MYLOG(MIN_LOG_LEVEL, "entering type=%d buflen=" FORMAT_LEN " buf=%p\n", bookmark->returntype, bookmark->buflen, bookmark->buffer);
-	memset(&pg_bm, 0, sizeof(pg_bm));
+	pg_memset(&pg_bm, 0, sizeof(pg_bm));
 	if (SQL_C_BOOKMARK == bookmark->returntype)
 		;
 	else if (bookmark->buflen >= sizeof(pg_bm))

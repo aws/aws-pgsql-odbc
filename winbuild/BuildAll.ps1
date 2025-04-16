@@ -95,7 +95,7 @@ function buildPlatform([xml]$configInfo, [string]$Platform)
 	if (-not (Test-Path $PG_BIN)) {
 		throw("`n!!!! bin directory $PG_BIN does not exist`nplease specify the correct folder name using editConfiguration")
 	}
-
+	
 	$useSplit=$true
 	if ($useSplit) {
 			$macroList = -split $BUILD_MACROS
@@ -194,7 +194,7 @@ try {
 		}
 	} else {
 		$resultText="failed"
-	}
+	} 
 	SaveConfiguration $configInfo
 	Write-Host "VisualStudioVersion=$VCVersion(ToolsVersion=$MSToolsV) PlatformToolset=$Toolset Platform=$Platform $resultText`n"
 #
@@ -203,7 +203,7 @@ try {
 	if ($AlongWithInstallers) {
 		if (-not $recordResult) {
 			throw("compilation failed")
-		}
+		} 
                 $cpu = $Platform
                 if ($Platform -eq "win32") {
                         $cpu = "x86"

@@ -48,36 +48,36 @@ extern "C" {
 							 * running the Postgres
 							 * service */
 #define SPEC_SERVER			"server"
-#define INI_PORT			"Port"	/* Port on which the
+#define INI_PORT			"Port"		/* Port on which the
 						 * Postmaster is listening */
 #define INI_DATABASE			"Database"	/* Database Name */
 #define ABBR_DATABASE			"DX"	/* Database Name */
-#define INI_AUTHTYPE			"AuthType"  /* Authentication type */
-#define INI_UID				"UID"		/* Default User Name */
+#define INI_AUTHTYPE			"AuthType"	/* Authentication type */
+#define INI_UID			"UID"	/* Default User Name */
 #define INI_USERNAME			"Username"	/* Default User Name */
 #define INI_PASSWORD			"Password"	/* Default Password */
-#define INI_IAM_HOST			"IamHost" /* Host name used for authentication token generation */
-#define INI_REGION				"Region" /* Default region */
-#define INI_TOKEN_EXPIRATION	"TokenExpiration"		/* Default token expiration */
+#define INI_IAM_HOST			"IamHost"	/* Host name used for authentication token generation */
+#define INI_REGION			"Region"	/* Default region */
+#define INI_TOKEN_EXPIRATION			"TokenExpiration"	/* Default token expiration */
 
-#define INI_IDP_ENDPOINT		"IDPEndpoint"	/* Default IDP endpoint */
-#define INI_IDP_PORT			"IDPPort"		/* Default IDP port */
-#define INI_IDP_USER_NAME		"IDPUserName"	/* Default IDP user name */
-#define INI_IDP_PASSWORD		"IDPPassword"	/* Default IDP user password */
+#define INI_IDP_ENDPOINT			"IDPEndpoint"	/* Default IDP endpoint */
+#define INI_IDP_PORT			"IDPPort"	/* Default IDP port */
+#define INI_IDP_USER_NAME			"IDPUserName"	/* Default IDP user name */
+#define INI_IDP_PASSWORD			"IDPPassword"	/* Default IDP user password */
 #define INI_ROLE_ARN			"IDPRoleArn"	/* Default IDP role ARN */
-#define INI_IDP_ARN				"IDPArn"	/* Default IDP ARN */
-#define INI_SOCKET_TIMEOUT		"SocketTimeout"		/* Default socket timeout */
-#define INI_CONN_TIMEOUT		"ConnTimeout"		/* Default connection timeout */
-#define INI_RELAYING_PARTY_ID	"RelayingPartyID"	/* Default relaying party id */
-#define INI_APP_ID				"AppId"
+#define INI_IDP_ARN			"IDPArn"	/* Default IDP ARN */
+#define INI_SOCKET_TIMEOUT			"SocketTimeout"	/* Default socket timeout */
+#define INI_CONN_TIMEOUT			"ConnTimeout"	/* Default connection timeout */
+#define INI_RELAYING_PARTY_ID			"RelayingPartyID"	/* Default relaying party id */
+#define INI_APP_ID			"AppId"
 
-#define INI_SECRET_ID	"SecretID" /* Default secret id */
+#define INI_SECRET_ID			"SecretID"	/* Default secret id */
 
 /* Limitless */
-#define INI_LIMITLESS_ENABLED	            "LimitlessEnabled"
-#define INI_LIMITLESS_MODE		            "LimitlessMode"
-#define INI_LIMITLESS_MONITOR_INTERVAL_MS	"LimitlessMonitorIntervalMs"
-#define INI_LIMITLESS_SERVICE_ID	        "LimitlessServiceId"
+#define INI_LIMITLESS_ENABLED			"LimitlessEnabled"
+#define INI_LIMITLESS_MODE			"LimitlessMode"
+#define INI_LIMITLESS_MONITOR_INTERVAL_MS			"LimitlessMonitorIntervalMs"
+#define INI_LIMITLESS_SERVICE_ID			"LimitlessServiceId"
 
 #define	INI_ABBREVIATE			"CX"
 #define INI_DEBUG			"Debug"		/* Debug flag */

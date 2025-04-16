@@ -50,6 +50,12 @@
 #include <stdbool.h>
 #endif /* WIN32 */
 
+/* For memset_s */
+#ifdef __STDC_LIB_EXT1__
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <string.h>
+#endif /* __STDC_LIB_EXT1__ */
+
 #ifdef  __INCLUDE_POSTGRES_FE_H__ /* currently not defined */
 /*
  *      Unfortunately #including postgres_fe.h causes various trobles.
@@ -68,6 +74,14 @@
 #define pg_attribute_printf(f,a)
 #endif  /* __GNUC__ || __IBMC__ */
 #endif  /* __INCLUDE_POSTGRES_FE_H__ */
+
+/*
+ * safe string-to-number conversions
+ */
+#define pg_atoi(val) (int) strtol(val, NULL, 10)
+#define pg_atof(val) strtod(val, NULL)
+#define pg_atol(val) strtol(val, NULL, 10)
+#define pg_atoll(val) strtoll(val, NULL, 10)
 
 #ifdef	_MIMALLOC_
 #include <mimalloc.h>
@@ -104,25 +118,34 @@ void		debug_memory_check(void);
 #ifdef	WIN32
 #undef strdup
 #endif /* WIN32 */
-#define malloc	pgdebug_alloc
-#define realloc pgdebug_realloc
-#define calloc	pgdebug_calloc
-#define strdup	pgdebug_strdup
-#define free	pgdebug_free
-#define strcpy	pgdebug_strcpy
-#define strncpy	pgdebug_strncpy
+#define malloc	  	pgdebug_alloc
+#define realloc   	pgdebug_realloc
+#define calloc		pgdebug_calloc
+#define strdup		pgdebug_strdup
+#define free		pgdebug_free
+#define strcpy		pgdebug_strcpy
+#define strncpy		pgdebug_strncpy
 /* #define strncpy_null	pgdebug_strncpy_null */
-#define memcpy	pgdebug_memcpy
-#define memset	pgdebug_memset
+#define memcpy		pgdebug_memcpy
+#define pg_memset(dest, ch, count)	pgdebug_memset(dest, ch, count)
 #else   /* _MEMORY_DEBUG_ */
 #ifdef	WIN32
 #undef strdup
 #endif /* WIN32 */
-#define malloc	pg_malloc
-#define realloc pg_realloc
-#define calloc	pg_calloc
-#define strdup	pg_strdup
-#define free	pg_free
+#define malloc		pg_malloc
+#define realloc 	pg_realloc
+#define calloc		pg_calloc
+#define strdup		pg_strdup
+#define free		pg_free
+#ifdef WIN32
+#define pg_memset(dest, ch, count)	SecureZeroMemory(dest, count)
+#else
+#ifdef __STDC_LIB_EXT1__
+#define pg_memset(dest, ch, count)	memset_s(dest, count, ch, count)
+#else
+#define pg_memset(dest, ch, count)	memset(dest, ch, count)
+#endif /* __STDC_LIB_EXT1__ */
+#endif	  /* WIN32 */
 #endif   /* _MEMORY_DEBUG_ */
 
 #ifdef	WIN32
@@ -193,6 +216,8 @@ typedef	UInt4	OID;
 #define SQL_FALSE FALSE
 #endif /* SQL_FALSE */
 
+#include "secure_sscanf.h"
+
 #define	FORMAT_SMALLI	"%d"	/* SQLSMALLINT */
 #define	FORMAT_USMALLI	"%u"	/* SQLUSMALLINT */
 #ifdef	WIN32
@@ -209,10 +234,14 @@ typedef	UInt4	OID;
 #ifdef	_WIN64
 #define	FORMAT_LEN	"%I64d" /* SQLLEN */
 #define	FORMAT_ULEN	"%I64u" /* SQLULEN */
+#define	ARG_FORMAT_LEN	ARG_LLONG
+#define	ARG_FORMAT_ULEN	ARG_ULLONG
 #define	FORMAT_POSIROW	"%I64u"
 #else /* _WIN64 */
 #define	FORMAT_LEN	"%ld"	/* SQLLEN */
 #define	FORMAT_ULEN	"%lu"	/* SQLULEN */
+#define	ARG_FORMAT_LEN	ARG_LONG
+#define	ARG_FORMAT_ULEN	ARG_ULONG
 #define	FORMAT_POSIROW	"%hu"
 #endif /* _WIN64 */
 #else /* WIN32 */
@@ -239,9 +268,13 @@ typedef	unsigned long long ULONG_PTR;
 #if defined(WITH_UNIXODBC) && defined(BUILD_LEGACY_64_BIT_MODE)
 #define FORMAT_LEN	"%d"	/* SQLLEN */
 #define FORMAT_ULEN	"%u"	/* SQLULEN */
+#define	ARG_FORMAT_LEN	ARG_INT
+#define	ARG_FORMAT_ULEN	ARG_UINT
 #else /* WITH_UNIXODBC */
 #define FORMAT_LEN	"%ld"	/* SQLLEN */
 #define FORMAT_ULEN	"%lu"	/* SQLULEN */
+#define	ARG_FORMAT_LEN	ARG_LONG
+#define	ARG_FORMAT_ULEN	ARG_ULONG
 #endif /* WITH_UNIXODBC */
 #else /* SIZEOF_LONG */
 #define	FORMAT_INTEGER	"%ld"	/* SQLINTEGER */
@@ -252,16 +285,22 @@ typedef	unsigned long long ULONG_PTR;
 #if (SIZEOF_VOID_P == 8) /* LLP64 */
 #define	FORMAT_LEN	"%lld"	/* SQLLEN */
 #define	FORMAT_ULEN	"%llu"	/* SQLULEN */
+#define	ARG_FORMAT_LEN	ARG_LLONG
+#define	ARG_FORMAT_ULEN	ARG_ULLONG
 #else /* SIZEOF_VOID_P ILP32 */
 #define	FORMAT_LEN	"%ld"	/* SQLLEN */
 #define	FORMAT_ULEN	"%lu"	/* SQLULEN */
+#define	ARG_FORMAT_LEN	ARG_LONG
+#define	ARG_FORMAT_ULEN	ARG_ULONG
 #endif /* SIZEOF_VOID_P */
 #else /* HAVE_LONG_LONG */
 #define	FORMAT_LEN	"%ld"	/* SQLLEN */
 #define	FORMAT_ULEN	"%lu"	/* SQLULEN */
+#define	ARG_FORMAT_LEN	ARG_LONG
+#define	ARG_FORMAT_ULEN	ARG_ULONG
 #endif /* HAVE_LONG_LONG */
 #endif /* SIZEOF_LONG */
-
+ 
 #if (SIZEOF_VOID_P == 8) && !defined(WITH_IODBC)
 #define	FORMAT_POSIROW	FORMAT_ULEN
 #else

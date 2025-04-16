@@ -306,7 +306,7 @@ struct StatementClass_
 	int		batch_size;
 	EXEC_TYPE	exec_type;
 	int		count_of_deffered;
-	PQExpBufferData	stmt_deffered;
+	PQExpBufferData	stmt_deferred;
 	/* SQL_NEED_DATA Callback list */
 	StatementClass	*execute_delegate;
 	StatementClass	*execute_parent;
@@ -481,15 +481,15 @@ enum
 /* For Multi-thread */
 #if defined(WIN_MULTITHREAD_SUPPORT)
 #define INIT_STMT_CS(x)		InitializeCriticalSection(&((x)->cs))
-#define ENTER_STMT_CS(x)	// EnterCriticalSection(&((x)->cs))
+#define ENTER_STMT_CS(x)	EnterCriticalSection(&((x)->cs))
 #define TRY_ENTER_STMT_CS(x)	TryEnterCriticalSection(&((x)->cs))
-#define LEAVE_STMT_CS(x)	// LeaveCriticalSection(&((x)->cs))
+#define LEAVE_STMT_CS(x)	LeaveCriticalSection(&((x)->cs))
 #define DELETE_STMT_CS(x)	DeleteCriticalSection(&((x)->cs))
 #elif defined(POSIX_THREADMUTEX_SUPPORT)
 #define INIT_STMT_CS(x)		pthread_mutex_init(&((x)->cs),0)
-#define ENTER_STMT_CS(x)	// pthread_mutex_lock(&((x)->cs))
+#define ENTER_STMT_CS(x)	pthread_mutex_lock(&((x)->cs))
 #define TRY_ENTER_STMT_CS(x)	(0 == pthread_mutex_trylock(&((x)->cs)))
-#define LEAVE_STMT_CS(x)	// pthread_mutex_unlock(&((x)->cs))
+#define LEAVE_STMT_CS(x)	pthread_mutex_unlock(&((x)->cs))
 #define DELETE_STMT_CS(x)	pthread_mutex_destroy(&((x)->cs))
 #else
 #define INIT_STMT_CS(x)

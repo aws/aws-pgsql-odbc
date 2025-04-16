@@ -148,13 +148,12 @@ ER_Constructor(SDWORD errnumber, const char *msg)
 	error = (PG_ErrorInfo *) malloc(sizeof(PG_ErrorInfo) + aladd);
 	if (error)
 	{
-		memset(error, 0, sizeof(PG_ErrorInfo));
+		pg_memset(error, 0, sizeof(PG_ErrorInfo));
 		error->status = errnumber;
 		error->errsize = errsize;
 		if (errsize > 0)
 			memcpy(error->__error_message, msg, errsize);
 		error->__error_message[errsize] = '\0';
-		error->recsize = -1;
 	}
 	return error;
 }
@@ -225,7 +224,7 @@ ER_ReturnError(PG_ErrorInfo *pgerror,
 		stapos = (RecNumber - 1) * error->recsize;
 	else
 	 	stapos = error->errpos;
-
+	
 	if (stapos >= msglen)
 		return SQL_NO_DATA_FOUND;
 	pcblen = wrtlen = msglen - stapos;

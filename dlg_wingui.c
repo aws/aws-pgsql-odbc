@@ -340,7 +340,7 @@ getDriversDefaultsOfCi(const ConnInfo *ci, GLOBAL_VALUES *glbv)
 	if (ci->drivername[0])
 		drivername = ci->drivername;
 	else if (NAME_IS_VALID(ci->drivers.drivername))
-		drivername = SAFE_NAME(ci->drivers.drivername);
+		drivername = SAFE_NAME(ci->drivers.drivername);	
 	if (drivername && drivername[0])
 		getDriversDefaults(drivername, glbv);
 	else
@@ -691,7 +691,7 @@ MYLOG(MIN_LOG_LEVEL, "GetProcAddress for %s\n", procname);
 #include <sys/stat.h>
 static const char *IsAnExistingDirectory(const char *path)
 {
-
+		
 	struct stat st;
 
 	if (stat(path, &st) < 0)
@@ -703,7 +703,7 @@ static const char *IsAnExistingDirectory(const char *path)
 	if ((st.st_mode & S_IFDIR) == 0)
 	{
 		CSTR errmsg_isnt_a_dir = "isn't a directory";
-
+		
 		return errmsg_isnt_a_dir;
 	}
 	return NULL;
@@ -730,7 +730,7 @@ global_optionsProc(HWND hdlg,
 	switch (wMsg)
 	{
 		case WM_INITDIALOG:
-			SetWindowLongPtr(hdlg, DWLP_USER, lParam); /* save for test etc */
+			SetWindowLongPtr(hdlg, DWLP_USER, lParam); /* save for test etc */ 
 			ci = (ConnInfo *) lParam;
 			getDriversDefaultsOfCi(ci, &defval);
 			CheckDlgButton(hdlg, DRV_COMMLOG, getGlobalCommlog());
@@ -1116,11 +1116,11 @@ ds_options_update(HWND hdlg, ConnInfo *ci)
 		int	val;
 
 		GetDlgItemText(hdlg, DS_KEEPALIVETIME, temp, sizeof(temp));
-		if  (val = atoi(temp), 0 == val)
+		if  (val = pg_atoi(temp), 0 == val)
 			val = -1;
 		ci->keepalive_idle = val;
 		GetDlgItemText(hdlg, DS_KEEPALIVEINTERVAL, temp, sizeof(temp));
-		if  (val = atoi(temp), 0 == val)
+		if  (val = pg_atoi(temp), 0 == val)
 			val = -1;
 		ci->keepalive_interval = val;
 	}
@@ -1167,7 +1167,7 @@ ds_options2Proc(HWND hdlg,
 				ShowWindow(GetDlgItem(hdlg, IDAPPLY), SW_HIDE);				}
 
 			/* Readonly */
-			CheckDlgButton(hdlg, DS_READONLY, atoi(ci->onlyread));
+			CheckDlgButton(hdlg, DS_READONLY, pg_atoi(ci->onlyread));
 
 			/* Protocol */
 			enable = (ci->sslmode[0] == SSLLBYTE_DISABLE || ci->username[0] == '\0');
@@ -1228,10 +1228,10 @@ ds_options2Proc(HWND hdlg,
 			SPRINTF_FIXED(buf, "0x%x", getExtraOptions(ci));
 			SetDlgItemText(hdlg, DS_EXTRA_OPTIONS, buf);
 
-			CheckDlgButton(hdlg, DS_SHOWOIDCOLUMN, atoi(ci->show_oid_column));
-			CheckDlgButton(hdlg, DS_FAKEOIDINDEX, atoi(ci->fake_oid_index));
-			CheckDlgButton(hdlg, DS_ROWVERSIONING, atoi(ci->row_versioning));
-			CheckDlgButton(hdlg, DS_SHOWSYSTEMTABLES, atoi(ci->show_system_tables));
+			CheckDlgButton(hdlg, DS_SHOWOIDCOLUMN, pg_atoi(ci->show_oid_column));
+			CheckDlgButton(hdlg, DS_FAKEOIDINDEX, pg_atoi(ci->fake_oid_index));
+			CheckDlgButton(hdlg, DS_ROWVERSIONING, pg_atoi(ci->row_versioning));
+			CheckDlgButton(hdlg, DS_SHOWSYSTEMTABLES, pg_atoi(ci->show_system_tables));
 			CheckDlgButton(hdlg, DS_LFCONVERSION, ci->lf_conversion);
 			CheckDlgButton(hdlg, DS_OPTIONALERRORS, ci->optional_errors);
 			CheckDlgButton(hdlg, DS_TRUEISMINUS1, ci->true_is_minus1);
@@ -1241,7 +1241,7 @@ ds_options2Proc(HWND hdlg,
 			CheckDlgButton(hdlg, DS_FETCH_REFCURSORS, ci->fetch_refcursors);
 			/*CheckDlgButton(hdlg, DS_LOWERCASEIDENTIFIER, ci->lower_case_identifier);*/
 
-			EnableWindow(GetDlgItem(hdlg, DS_FAKEOIDINDEX), atoi(ci->show_oid_column));
+			EnableWindow(GetDlgItem(hdlg, DS_FAKEOIDINDEX), pg_atoi(ci->show_oid_column));
 
 			/* Datasource Connection Settings */
 			SetDlgItemText(hdlg, DS_CONNSETTINGS, SAFE_NAME(ci->conn_settings));
@@ -1347,7 +1347,7 @@ MYLOG(MIN_LOG_LEVEL, "entering\n");
 void *PQconninfoParse(const char *, char **);
 void PQconninfoFree(void *);
 typedef void *(*PQCONNINFOPARSEPROC)(const char *, char **);
-typedef void (*PQCONNINFOFREEPROC)(void *);
+typedef void (*PQCONNINFOFREEPROC)(void *); 
 static int
 ds_options3_update(HWND hdlg, ConnInfo *ci)
 {

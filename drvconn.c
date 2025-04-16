@@ -168,7 +168,7 @@ PGAPI_DriverConnect(HDBC hdbc,
 
 	/* initialize pg_version */
 	CC_initialize_pg_version(conn);
-	memset(salt, 0, sizeof(salt));
+	pg_memset(salt, 0, sizeof(salt));
 
 #ifdef WIN32
 dialog:
@@ -308,7 +308,7 @@ MYLOG(DETAIL_LOG_LEVEL, "before CC_connect\n");
 		char	*hide_str = NULL;
 
 		if (cbConnStrOutMax > 0)
-			hide_str = hide_password(szConnStrOut, ';');
+			hide_str = hide_password(szConnStrOut);
 		MYLOG(MIN_LOG_LEVEL, "szConnStrOut = '%s' len=%d,%d\n", NULL_IF_NULL(hide_str), len, cbConnStrOutMax);
 		if (hide_str)
 			free(hide_str);
@@ -470,7 +470,7 @@ dconn_get_attributes(copyfunc func, const char *connect_string, ConnInfo *ci)
 #else
 	if (get_mylog())
 	{
-		char	*hide_str = hide_password(our_connect_string, ';');
+		char	*hide_str = hide_password(our_connect_string);
 
 		MYLOG(MIN_LOG_LEVEL, "our_connect_string = '%s'\n", hide_str);
 		free(hide_str);
