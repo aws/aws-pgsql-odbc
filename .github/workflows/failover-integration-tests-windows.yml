@@ -1,4 +1,4 @@
-name: Windows Limitless Integration Tests
+name: Windows Failover Integration Tests
 
 on:
   workflow_dispatch:
@@ -46,9 +46,9 @@ env:
   # Test configuration
   TEST_USERNAME: 'postgres'
   TEST_PASSWORD: 'password'
-  TEST_DATABASE: 'postgres_limitless'
+  TEST_DATABASE: 'postgres'
   ENGINE: 'aurora-postgresql'
-  ENGINE_VERSION: '16.4-limitless'
+  ENGINE_VERSION: '16.4'
   TEST_DSN_ANSI: 'AWSpsqlODBC_ansi'
   TEST_DSN_UNICODE: 'AWSpsqlODBC_unicode'
   DRIVER_NAME_ANSI: 'AWS ANSI ODBC Driver for PostgreSQL (x64)'
@@ -62,14 +62,13 @@ permissions:
   contents: read
 
 jobs:
-  limitless-integration-tests-windows:
-    name: "Limitless Integration Tests Windows"
+  failover-integration-tests-windows:
+    name: "Failover Integration Tests Windows"
     runs-on: windows-latest
     steps:
       - name: Setup Cluster Id and Shard Id Env Variables
         run: |
-          echo "LIMITLESS_CLUSTER_ID=AWS-PGODBC-Win-Integ-Limitless-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "LIMITLESS_SHARD_ID=AWS-PGODBC-Win-Integ-Shard-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AURORA_CLUSTER_ID=AWS-PGODBC-Win-Failover-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
       - name: Cache Postgres build output
         uses: actions/cache@v4
         id: cachePostgres
@@ -369,30 +368,29 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=$secret_key" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "AWS_SESSION_TOKEN=$session_key" | Out-File -FilePath $env:GITHUB_ENV -Append
       
-      - name: 'Create Limitless RDS Cluster'
-        id: limitlessClusterSetup
+      - name: 'Create Failover RDS Cluster'
+        id: AuroraClusterSetup
         shell: pwsh
         working-directory: scripts
         run: |
           . ".\aws_rds_helper.ps1"
-          Create-Limitless-RDS-Cluster `
+          Create-Aurora-RDS-Cluster `
           -TestUsername ${{ env.TEST_USERNAME }} `
           -TestPassword ${{ env.TEST_PASSWORD }} `
           -TestDatabase ${{ env.TEST_DATABASE }} `
-          -ClusterId ${{ env.LIMITLESS_CLUSTER_ID }} `
-          -ShardId ${{ env.LIMITLESS_SHARD_ID }} `
+          -ClusterId ${{ env.Aurora_CLUSTER_ID }} `
+          -NumInstances 5 `
           -Engine ${{ env.ENGINE }} `
           -EngineVersion ${{ env.ENGINE_VERSION }} `
-          -AwsRdsMonitoringRoleArn ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }} `
           -Region ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Get Limitless Cluster endpoint
+      - name: Get Aurora Cluster endpoint
         shell: pwsh
         working-directory: scripts
         run: |
           . ".\aws_rds_helper.ps1"
-          $endpoint = (Get-Cluster-Endpoint -ClusterId ${{ env.LIMITLESS_CLUSTER_ID }})
-          echo "LIMITLESS_CLUSTER_ENDPOINT=$endpoint" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $endpoint = (Get-Cluster-Endpoint -ClusterId ${{ env.AURORA_CLUSTER_ID }})
+          echo "AURORA_CLUSTER_ENDPOINT=$endpoint" | Out-File -FilePath $env:GITHUB_ENV -Append
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
@@ -411,7 +409,7 @@ jobs:
             -DsnType User `
             -SetPropertyValue `
              @("Auth Type=database", `
-             "Server=${{ env.LIMITLESS_CLUSTER_ENDPOINT }}", `
+             "Server=${{ env.AURORA_CLUSTER_ENDPOINT }}", `
              "Port=5432", `
              "SSL Mode=prefer", `
              "User Name=${{ env.TEST_USERNAME }}", `
@@ -425,12 +423,12 @@ jobs:
             -DsnType User `
             -SetPropertyValue `
              @("Auth Type=database", `
-             "Server=${{ env.LIMITLESS_CLUSTER_ENDPOINT }}", `
+             "Server=${{ env.AURORA_CLUSTER_ENDPOINT }}", `
              "Port=5432", `
              "SSL Mode=prefer", `
              "User Name=${{ env.TEST_USERNAME }}", `
              "Password=${{ env.TEST_PASSWORD }}")
-      - name: Create Limitless Cluster Secrets
+      - name: Create Aurora Cluster Secrets
         shell: pwsh
         working-directory: scripts
         run: |
@@ -439,14 +437,14 @@ jobs:
                 -Username ${{ env.TEST_USERNAME }} `
                 -Password ${{ env.TEST_PASSWORD }} `
                 -Engine "postgres" `
-                -ClusterEndpoint ${{ env.LIMITLESS_CLUSTER_ENDPOINT }})
-            echo "LIMITLESS_CLUSTER_SECRETS_ARN=$secrets" | Out-File -FilePath $env:GITHUB_ENV -Append
+                -ClusterEndpoint ${{ env.AURORA_CLUSTER_ENDPOINT }})
+            echo "AURORA_CLUSTER_SECRETS_ARN=$secrets" | Out-File -FilePath $env:GITHUB_ENV -Append
             
       - name: 'Build and Run Ansi Integration Tests'
         shell: pwsh
-        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
+        if: ${{ !cancelled() && steps.AuroraClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
+          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=FALSE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
           cmake --build build_ansi --config Release
           .\build_ansi\bin\Release\integration.exe
         env:
@@ -460,14 +458,14 @@ jobs:
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
           DRIVER_PATH: ${{ github.workspace }}
-          SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
-          TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
+          SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
+          TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
 
       - name: 'Build and Run Unicode Integration tests'
-        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
+        if: ${{ !cancelled() && steps.AuroraClusterSetup.outcome == 'success'}}
         shell: pwsh
         run: |
-            cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=TRUE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
+            cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=FALSE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
             cmake --build build_unicode --config Release
             .\build_unicode\bin\Release\integration.exe
         env:
@@ -481,28 +479,28 @@ jobs:
             RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
             TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
             DRIVER_PATH: ${{ github.workspace }}
-            SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
-            TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
+            SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
+            TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
 
-      - name: 'Delete Limitless RDS Cluster'
+      - name: 'Delete Aurora RDS Cluster'
         if: always()
         shell: pwsh
         working-directory: scripts
         run: |
           . ".\aws_rds_helper.ps1"
-          Delete-Limitless-Db-Cluster -ClusterId ${{ env.LIMITLESS_CLUSTER_ID }} -ShardId ${{ env.LIMITLESS_SHARD_ID }} -Region ${{ secrets.AWS_DEFAULT_REGION }}
+          Delete-Aurora-Db-Cluster -ClusterId ${{ env.AURORA_CLUSTER_ID }} -Region ${{ secrets.AWS_DEFAULT_REGION }} -NumInstances 5
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
-      - name: 'Delete Limitless Db Secrets'
+      - name: 'Delete Aurora Db Secrets'
         if: always()
         shell: pwsh
         working-directory: scripts
         run: |
           . ".\aws_rds_helper.ps1"
-          Delete-Secrets ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+          Delete-Secrets ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}

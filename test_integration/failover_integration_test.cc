@@ -73,11 +73,11 @@ class FailoverIntegrationTest : public BaseFailoverIntegrationTest {
 
 /** Writer fails to a reader **/
 TEST_F(FailoverIntegrationTest, WriterFailToReadear) {
-    SQLCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
+    SQLTCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
     SQLINTEGER native_error;
     SQLSMALLINT len;
 
-    std::string conn_str = ConnectionStringBuilder(default_connection_string).withFailoverMode("STRICT_READER").getString();
+    auto conn_str = ConnectionStringBuilder(default_connection_string).withFailoverMode("STRICT_READER").getString();
     std::cout << conn_str << std::endl;
     EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
 
@@ -102,7 +102,7 @@ TEST_F(FailoverIntegrationTest, WriterFailToReadear) {
 
 /** Writer fails within a transaction. Open transaction by explicitly calling BEGIN */
 TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
-    SQLCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
+    SQLTCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
     SQLINTEGER native_error;
     SQLSMALLINT len;
     EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len,
@@ -111,7 +111,7 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
     // Setup tests
     SQLHSTMT handle;
     SQLSMALLINT stmt_length;
-    SQLCHAR sqlstate[MAX_SQLSTATE_LENGTH] = "\0";
+    SQLTCHAR sqlstate[MAX_SQLSTATE_LENGTH] = "\0";
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
     const auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_1");  // Setting up tables
     const auto create_table_query = AS_SQLTCHAR("CREATE TABLE failover_transaction_1 (id INT NOT NULL PRIMARY KEY, failover_transaction_1_field VARCHAR(255) NOT NULL)");
@@ -150,7 +150,7 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
 
 /** Writer fails within a transaction. Open transaction with SQLSetConnectAttr */
 TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) {
-    SQLCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
+    SQLTCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
     SQLINTEGER native_error;
     SQLSMALLINT len;
     EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len,
@@ -159,7 +159,7 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) 
     // Setup tests
     SQLHSTMT handle;
     SQLSMALLINT stmt_length;
-    SQLCHAR sqlstate[6] = "\0";
+    SQLTCHAR sqlstate[6] = "\0";
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
 
     const auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_2");  // Setting up tables

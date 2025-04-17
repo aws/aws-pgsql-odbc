@@ -64,8 +64,8 @@ class BaseFailoverIntegrationTest : public testing::Test {
     std::string db_conn_str_suffix = "." + instance_endpoint;
     std::string postgres_ro_cluster_url = "cluster-ro-" + instance_endpoint;
 
-    std::string default_connection_string;
-    std::string connection_string;
+    SQLSTR default_connection_string;
+	SQLSTR connection_string;
 
     SQLCHAR conn_in[MAX_CONN_LENGTH] = "\0", conn_out[MAX_CONN_LENGTH] = "\0", sqlstate[MAX_SQLSTATE_LENGTH] = "\0",
             message[SQL_MAX_MESSAGE_LENGTH] = "\0";
@@ -81,7 +81,7 @@ class BaseFailoverIntegrationTest : public testing::Test {
     std::string target_writer_id;
 
     // Queries
-    SQLCHAR* SERVER_ID_QUERY = AS_SQLTCHAR("SELECT aurora_db_instance_identifier()");
+	SQLTCHAR* SERVER_ID_QUERY = AS_SQLTCHAR("SELECT aurora_db_instance_identifier()");
 
     // Error codes
     const std::string ERROR_FAILOVER_FAILED = "08S01";
@@ -342,8 +342,7 @@ class BaseFailoverIntegrationTest : public testing::Test {
     }
 
     void test_connection(const SQLHDBC dbc, const std::string& conn_str) {
-        EXPECT_EQ(SQL_SUCCESS,
-                  SQLDriverConnect(dbc, nullptr, (SQLCHAR*)conn_str.c_str(), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+		EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
         EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
     }
 
