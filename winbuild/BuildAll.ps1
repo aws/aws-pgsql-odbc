@@ -106,6 +106,7 @@ function buildPlatform([xml]$configInfo, [string]$Platform)
 	}
 
 	if ($UseMimalloc) {
+
 		$mimallocProperty = "yes"
 
 		switch ($VCVersion) {
@@ -121,6 +122,8 @@ function buildPlatform([xml]$configInfo, [string]$Platform)
 
 		# build mimalloc dependency
 		& ${msbuildexe} ..\libs\mimalloc\ide\$mimallocIdeDir\mimalloc.vcxproj /tv:$MSToolsV "/p:Platform=$Platform;Configuration=$Configuration;PlatformToolset=${Toolset}" /t:$target /p:VisualStudioVersion=${VCVersion}
+		
+		# throw("`EEE")
 	}
 
 	# build psqlodbc

@@ -3294,7 +3294,18 @@ LIBPQ_connect(ConnectionClass *self)
 
 		QLOG(0, "PQconnectdbParams:");
 		for (popt = opts, pval = vals; *popt; popt++, pval++)
-			QPRINTF(0, " %s='%s'", *popt, *pval);
+		{
+			#ifdef FORCE_PASSWORD_DISPLAY
+				QPRINTF(0, " %s='%s'", *popt, *pval);
+			#else
+				if (stricmp(*popt, "password") == 0 || stricmp(*popt, "password") == 0) {
+					QPRINTF(0, " %s='%s'", *popt, "xxxxxx");
+				}
+				else {
+					QPRINTF(0, " %s='%s'", *popt, *pval);
+				}
+			#endif
+		}
 		QPRINTF(0, "\n");
 	}
 	pqconn = PQconnectdbParams(opts, vals, FALSE);

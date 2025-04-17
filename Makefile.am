@@ -44,7 +44,7 @@ awspsqlodbca_la_SOURCES = \
 	version.h pgenlist.h mylog.h xalibname.h \
 	secure_sscanf.h
 
-psqlodbcw_la_SOURCES = $(psqlodbca_la_SOURCES) \
+awspsqlodbcw_la_SOURCES = $(awspsqlodbca_la_SOURCES) \
 	odbcapi30w.c odbcapiw.c win_unicode.c
 
 

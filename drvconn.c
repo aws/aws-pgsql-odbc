@@ -131,7 +131,7 @@ PGAPI_DriverConnect(HDBC hdbc,
 #else
 	if (get_mylog())
 	{
-		char	*hide_str = hide_password(connStrIn, ';');
+		char	*hide_str = hide_password(connStrIn);
 
 		MYLOG(MIN_LOG_LEVEL, "**** fDriverCompletion=%d, connStrIn='%s'\n", fDriverCompletion, NULL_IF_NULL(hide_str));
 		if (hide_str)

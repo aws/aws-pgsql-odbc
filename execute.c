@@ -464,7 +464,7 @@ RETCODE	Exec_with_parameters_resolved(StatementClass *stmt, EXEC_TYPE exec_type,
 	BOOL		prepare_before_exec = FALSE;
 	char *stmt_with_params;
 	SQLLEN		status_row = stmt->exec_current_row;
-	int		count_of_deffered;
+	int		count_of_deferred;
 
 	*exec_end = FALSE;
 	conn = SC_get_conn(stmt);

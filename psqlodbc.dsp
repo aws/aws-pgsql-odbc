@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib XOleHlp.lib winmm.lib /nologo /subsystem:windows /machine:I386
-# ADD LINK32 wsock32.lib XOleHlp.lib winmm.lib libpq.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /pdb:"psqlodbc35w.pdb" /machine:I386 /out:"psqlodbc35w.dll" /implib:"psqlodbc35w.lib" /libpath:"C:\Program Files\PostgreSQL\9.3\lib\ms"
+# ADD LINK32 wsock32.lib XOleHlp.lib winmm.lib libpq.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /pdb:"awspsqlodbcw.pdb" /machine:I386 /out:"awspsqlodbcw.dll" /implib:"awspsqlodbcw.lib" /libpath:"C:\Program Files\PostgreSQL\9.3\lib\ms"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "psqlODBC - Win32 Debug"
@@ -78,7 +78,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib XOleHlp.lib winmm.lib /nologo /subsystem:windows /debug /machine:I386
-# ADD LINK32 wsock32.lib XOleHlp.lib winmm.lib libpq.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /pdb:"psqlodbc35w.pdb" /debug /machine:I386 /out:"psqlodbc35w.dll" /implib:"psqlodbc35w.lib" /libpath:"C:\Program Files\PostgreSQL\9.3\lib\ms"
+# ADD LINK32 wsock32.lib XOleHlp.lib winmm.lib libpq.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /pdb:"awspsqlodbcw.pdb" /debug /machine:I386 /out:"awspsqlodbcw.dll" /implib:"awspsqlodbcw.lib" /libpath:"C:\Program Files\PostgreSQL\9.3\lib\ms"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 
 !ENDIF 

@@ -1350,7 +1350,7 @@ MYLOG(MIN_LOG_LEVEL, "drivername=%s\n", drivername);
 	if (SQLGetPrivateProfileString(DSN, INI_TOPOLOGY_HIGH_REFRESH_RATE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
 		ci->topology_high_refresh = pg_atoi(temp);
 	if (SQLGetPrivateProfileString(DSN, INI_TOPOLOGY_REFRESH_RATE, NULL_STRING, temp, sizeof(temp), ODBC_INI) > 0)
-		ci->topology_refresh = atpg_atoioi(temp);
+		ci->topology_refresh = pg_atoi(temp);
 
     /* Allow override of odbcinst.ini parameters here */
 	get_Ci_Drivers(DSN, ODBC_INI, &(ci->drivers));
