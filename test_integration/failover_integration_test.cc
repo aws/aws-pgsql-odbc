@@ -14,6 +14,8 @@
 
 #include "base_failover_integration_test.cc"
 
+#include "connection_string_builder.h"
+
 class FailoverIntegrationTest : public BaseFailoverIntegrationTest {
    protected:
     std::string ACCESS_KEY = std::getenv("AWS_ACCESS_KEY_ID");
@@ -73,12 +75,10 @@ class FailoverIntegrationTest : public BaseFailoverIntegrationTest {
 
 /** Writer fails to a reader **/
 TEST_F(FailoverIntegrationTest, WriterFailToReadear) {
-    SQLTCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
-    SQLINTEGER native_error;
+	SQLTCHAR* conn_out;
     SQLSMALLINT len;
 
-    auto conn_str = ConnectionStringBuilder(default_connection_string).withFailoverMode("STRICT_READER").getString();
-    std::cout << conn_str << std::endl;
+    auto conn_str = ConnectionStringBuilder(default_connection_string).withFailoverMode("STRICT_READER").getString(); 
     EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
 
     // Query new ID after failover
@@ -102,26 +102,22 @@ TEST_F(FailoverIntegrationTest, WriterFailToReadear) {
 
 /** Writer fails within a transaction. Open transaction by explicitly calling BEGIN */
 TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
-    SQLTCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
-    SQLINTEGER native_error;
     SQLSMALLINT len;
-    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len,
-                                            SQL_DRIVER_NOPROMPT));
+	EXPECT_EQ(SQL_SUCCESS,
+			  SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
 
     // Setup tests
     SQLHSTMT handle;
-    SQLSMALLINT stmt_length;
-    SQLTCHAR sqlstate[MAX_SQLSTATE_LENGTH] = "\0";
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
-    const auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_1");  // Setting up tables
-    const auto create_table_query = AS_SQLTCHAR("CREATE TABLE failover_transaction_1 (id INT NOT NULL PRIMARY KEY, failover_transaction_1_field VARCHAR(255) NOT NULL)");
+    auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_1");
+    auto create_table_query = AS_SQLTCHAR("CREATE TABLE failover_transaction_1 (id INT NOT NULL PRIMARY KEY, failover_transaction_1_field VARCHAR(255) NOT NULL)");
 
     // Execute setup query
     EXPECT_TRUE(SQL_SUCCEEDED(SQLExecDirect(handle, drop_table_query, SQL_NTS)));
     EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, create_table_query, SQL_NTS));
 
     // Execute queries within the transaction
-    const auto insert_query_a = AS_SQLTCHAR("BEGIN; INSERT INTO failover_transaction_1 VALUES (1, 'test field string 1')");
+    auto insert_query_a = AS_SQLTCHAR("BEGIN; INSERT INTO failover_transaction_1 VALUES (1, 'test field string 1')");
     EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, insert_query_a, SQL_NTS));
 
     failover_cluster_and_wait_until_writer_changed(rds_client, cluster_id, writer_id, target_writer_id);
@@ -150,20 +146,14 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
 
 /** Writer fails within a transaction. Open transaction with SQLSetConnectAttr */
 TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) {
-    SQLTCHAR conn_out[MAX_CONN_LENGTH] = "\0", message[SQL_MAX_MESSAGE_LENGTH] = "\0";
-    SQLINTEGER native_error;
-    SQLSMALLINT len;
-    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len,
-                                            SQL_DRIVER_NOPROMPT));
+    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
 
     // Setup tests
     SQLHSTMT handle;
-    SQLSMALLINT stmt_length;
-    SQLTCHAR sqlstate[6] = "\0";
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
 
-    const auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_2");  // Setting up tables
-    const auto create_table_query = AS_SQLTCHAR("CREATE TABLE failover_transaction_2 (id INT NOT NULL PRIMARY KEY, failover_transaction_2_field VARCHAR(255) NOT NULL)");
+    auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_2"); // Setting up tables
+    auto create_table_query = AS_SQLTCHAR("CREATE TABLE failover_transaction_2 (id INT NOT NULL PRIMARY KEY, failover_transaction_2_field VARCHAR(255) NOT NULL)");
 
     // Execute setup query
     EXPECT_TRUE(SQL_SUCCEEDED(SQLExecDirect(handle, drop_table_query, SQL_NTS)));
@@ -173,7 +163,7 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) 
     EXPECT_EQ(SQL_SUCCESS, SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0));
 
     // Run insert query in a new transaction
-    const auto insert_query_a = AS_SQLTCHAR("INSERT INTO failover_transaction_2 VALUES (1, 'test field string 1')");
+    auto insert_query_a = AS_SQLTCHAR("INSERT INTO failover_transaction_2 VALUES (1, 'test field string 1')");
     EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, insert_query_a, SQL_NTS));
 
     failover_cluster_and_wait_until_writer_changed(rds_client, cluster_id, writer_id, target_writer_id);

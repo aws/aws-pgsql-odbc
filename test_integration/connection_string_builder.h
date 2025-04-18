@@ -15,7 +15,7 @@
 #ifndef CONNECTION_STRING_BUILDER_H_
 #define CONNECTION_STRING_BUILDER_H_
 
-#include "integration_test_utils.h"
+#include "string_helper.h"
 
 #include <string>
 
