@@ -75,10 +75,10 @@ class FailoverIntegrationTest : public BaseFailoverIntegrationTest {
 
 /** Writer fails to a reader **/
 TEST_F(FailoverIntegrationTest, WriterFailToReadear) {
-	SQLTCHAR* conn_out;
+    SQLTCHAR* conn_out;
     SQLSMALLINT len;
 
-    auto conn_str = ConnectionStringBuilder(default_connection_string).withFailoverMode("STRICT_READER").getString(); 
+    auto conn_str = ConnectionStringBuilder(default_connection_string).withFailoverMode("STRICT_READER").getString();
     EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
 
     // Query new ID after failover
@@ -103,14 +103,15 @@ TEST_F(FailoverIntegrationTest, WriterFailToReadear) {
 /** Writer fails within a transaction. Open transaction by explicitly calling BEGIN */
 TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
     SQLSMALLINT len;
-	EXPECT_EQ(SQL_SUCCESS,
-			  SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
+    EXPECT_EQ(SQL_SUCCESS,
+              SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
 
     // Setup tests
     SQLHSTMT handle;
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
     auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_1");
-    auto create_table_query = AS_SQLTCHAR("CREATE TABLE failover_transaction_1 (id INT NOT NULL PRIMARY KEY, failover_transaction_1_field VARCHAR(255) NOT NULL)");
+    auto create_table_query =
+        AS_SQLTCHAR("CREATE TABLE failover_transaction_1 (id INT NOT NULL PRIMARY KEY, failover_transaction_1_field VARCHAR(255) NOT NULL)");
 
     // Execute setup query
     EXPECT_TRUE(SQL_SUCCEEDED(SQLExecDirect(handle, drop_table_query, SQL_NTS)));
@@ -146,14 +147,16 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
 
 /** Writer fails within a transaction. Open transaction with SQLSetConnectAttr */
 TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) {
-    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
+    EXPECT_EQ(SQL_SUCCESS,
+              SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
 
     // Setup tests
     SQLHSTMT handle;
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
 
-    auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_2"); // Setting up tables
-    auto create_table_query = AS_SQLTCHAR("CREATE TABLE failover_transaction_2 (id INT NOT NULL PRIMARY KEY, failover_transaction_2_field VARCHAR(255) NOT NULL)");
+    auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_2");  // Setting up tables
+    auto create_table_query =
+        AS_SQLTCHAR("CREATE TABLE failover_transaction_2 (id INT NOT NULL PRIMARY KEY, failover_transaction_2_field VARCHAR(255) NOT NULL)");
 
     // Execute setup query
     EXPECT_TRUE(SQL_SUCCEEDED(SQLExecDirect(handle, drop_table_query, SQL_NTS)));

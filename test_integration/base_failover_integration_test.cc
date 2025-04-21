@@ -71,10 +71,10 @@ class BaseFailoverIntegrationTest : public testing::Test {
     std::string postgres_ro_cluster_url = "cluster-ro-" + instance_endpoint;
 
     SQLSTR default_connection_string;
-	SQLSTR connection_string;
+    SQLSTR connection_string;
 
     SQLTCHAR* conn_in;
-    SQLTCHAR* conn_out, sqlstate, message;
+    SQLTCHAR *conn_out, sqlstate, message;
     SQLINTEGER native_error = 0;
     SQLSMALLINT len = 0, length = 0;
 
@@ -133,7 +133,7 @@ class BaseFailoverIntegrationTest : public testing::Test {
         SQLHSTMT handle;
         SQLSMALLINT stmt_length;
         SQLINTEGER native_err;
-		SQLTCHAR* msg, state[MAX_SQLSTATE_LENGTH];
+        SQLTCHAR *msg, state[MAX_SQLSTATE_LENGTH];
 
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
         EXPECT_EQ(SQL_ERROR, SQLExecDirect(handle, query, SQL_NTS));
@@ -144,7 +144,7 @@ class BaseFailoverIntegrationTest : public testing::Test {
     }
 
     std::string query_instance_id(SQLHDBC dbc) const {
-		SQLCHAR buf[SQL_MAX_MESSAGE_LENGTH] = "\0";
+        SQLCHAR buf[SQL_MAX_MESSAGE_LENGTH] = "\0";
         SQLLEN buflen;
         SQLHSTMT handle;
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
@@ -348,7 +348,8 @@ class BaseFailoverIntegrationTest : public testing::Test {
     }
 
     void test_connection(const SQLHDBC dbc, const std::string& conn_str) {
-		EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+        EXPECT_EQ(SQL_SUCCESS,
+                  SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
         EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
     }
 

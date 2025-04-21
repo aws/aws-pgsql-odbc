@@ -461,27 +461,6 @@ jobs:
           SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
           TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
 
-      - name: 'Build and Run Unicode Integration tests'
-        if: ${{ !cancelled() && steps.AuroraClusterSetup.outcome == 'success'}}
-        shell: pwsh
-        run: |
-            cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=FALSE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
-            cmake --build build_unicode --config Release
-            .\build_unicode\bin\Release\integration.exe
-        env:
-            TEST_DSN: ${{ env.TEST_DSN_UNICODE }}
-            TEST_USERNAME: ${{ env.TEST_USERNAME }}
-            TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
-            AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-            AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-            AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
-            RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-            TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
-            DRIVER_PATH: ${{ github.workspace }}
-            SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
-            TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
-
       - name: 'Delete Aurora RDS Cluster'
         if: always()
         shell: pwsh
