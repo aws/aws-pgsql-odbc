@@ -428,6 +428,7 @@ jobs:
              "SSL Mode=prefer", `
              "User Name=${{ env.TEST_USERNAME }}", `
              "Password=${{ env.TEST_PASSWORD }}")
+
       - name: Create Aurora Cluster Secrets
         shell: pwsh
         working-directory: scripts
@@ -439,7 +440,7 @@ jobs:
                 -Engine "postgres" `
                 -ClusterEndpoint ${{ env.AURORA_CLUSTER_ENDPOINT }})
             echo "AURORA_CLUSTER_SECRETS_ARN=$secrets" | Out-File -FilePath $env:GITHUB_ENV -Append
-            
+
       - name: 'Build and Run Ansi Integration Tests'
         shell: pwsh
         if: ${{ !cancelled() && steps.AuroraClusterSetup.outcome == 'success'}}

@@ -32,6 +32,10 @@ INSERT INTO booltab VALUES (3, 'true', true);
 INSERT INTO booltab VALUES (4, 'false', false);
 INSERT INTO booltab VALUES (5, 'not', false);
 
+CREATE TABLE test_special( id integer, ival integer);
+CREATE UNIQUE index test_special_id on public.test_special(id);
+CREATE UNIQUE index test_special_ui on public.test_special(ival);
+
 -- View
 CREATE VIEW testview AS SELECT * FROM testtab1;
 

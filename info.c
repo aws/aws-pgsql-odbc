@@ -41,6 +41,8 @@
 #include "multibyte.h"
 #include "catfunc.h"
 
+#include "secure_sscanf.h"
+
 /*	Trigger related stuff for SQLForeign Keys */
 #define TRIGGER_SHIFT 3
 #define TRIGGER_MASK   0x03
@@ -1341,7 +1343,7 @@ PGAPI_GetFunctions(HDBC hdbc,
 
 	if (fFunction == SQL_API_ALL_FUNCTIONS)
 	{
-		memset(pfExists, 0, sizeof(pfExists[0]) * 100);
+		pg_memset(pfExists, 0, sizeof(pfExists[0]) * 100);
 
 		/* ODBC core functions */
 		pfExists[SQL_API_SQLALLOCCONNECT] = TRUE;
@@ -2021,7 +2023,7 @@ retry_public_schema:
 	 * some time on the query.	If treating system tables as regular
 	 * tables, then dont filter either.
 	 */
-	if ((list_schemas || !list_some) && !atoi(ci->show_system_tables) && !show_system_tables)
+	if ((list_schemas || !list_some) && !pg_atoi(ci->show_system_tables) && !show_system_tables)
 		appendPQExpBufferStr(&tables_query, " and nspname not in ('pg_catalog', 'information_schema', 'pg_toast', 'pg_temp_1')");
 
 	if (!list_some)
@@ -2119,7 +2121,7 @@ retry_public_schema:
 		 * system tables as regular tables, then no need to do this test.
 		 */
 		systable = FALSE;
-		if (!atoi(ci->show_system_tables))
+		if (!pg_atoi(ci->show_system_tables))
 		{
 			if (stricmp(table_owner, "pg_catalog") == 0 ||
 			    stricmp(table_owner, "pg_toast") == 0 ||
@@ -2756,7 +2758,7 @@ MYLOG(MIN_LOG_LEVEL, " and the data=%s\n", attdef);
 		switch (field_type)
 		{
 			case PG_TYPE_OID:
-				if (0 != atoi(ci->fake_oid_index))
+				if (0 != pg_atoi(ci->fake_oid_index))
 				{
 					auto_unique = SQL_TRUE;
 					set_tuplefield_string(&tuple[COLUMNS_TYPE_NAME], "identity");
@@ -2901,6 +2903,20 @@ cleanup:
 }
 
 
+/**  @brief Retrieve the optimal set of columns that uniquely identifies a row in the specified table (when IdentifierType is SQL_BEST_ROWID)
+ * The columns that are automatically updated when any value in the row is updated (when IdentifierType is SQL_ROWVER)
+ * @param hstmt 
+ * @param fColType 
+ * @param szTableQualifier 
+ * @param cbTableQualifier 
+ *  @param szTableOwner 
+ *  @param cbTableOwner 
+ *  @param szTableName 
+ *  @param cbTableName 
+ *  @param fScope 
+ *  @param fNullable 
+ *  @return 
+*/
 RETCODE		SQL_API
 PGAPI_SpecialColumns(HSTMT hstmt,
 					 SQLUSMALLINT fColType,
@@ -2979,6 +2995,7 @@ retry_public_schema:
        appendPQExpBufferStr(&columns_query, ", c.relhasoids");
    else
        appendPQExpBufferStr(&columns_query, ", 0 as relhasoids");
+
 	appendPQExpBufferStr(&columns_query, " from pg_catalog.pg_namespace u,"
 					" pg_catalog.pg_class c where "
 					"u.oid = c.relnamespace");
@@ -3028,6 +3045,7 @@ retry_public_schema:
 		goto cleanup;
 	}
 
+	// check to see if the relation has rules
 	result = PGAPI_BindCol(col_stmt, 1, internal_asis_type,
 					relhasrules, sizeof(relhasrules), NULL);
 	if (!SQL_SUCCEEDED(result))
@@ -3035,18 +3053,24 @@ retry_public_schema:
 		goto cleanup;
 	}
 
+	// bind to relkind to check if a view or not
 	result = PGAPI_BindCol(col_stmt, 2, internal_asis_type,
 					relkind, sizeof(relkind), NULL);
 	if (!SQL_SUCCEEDED(result))
 	{
 		goto cleanup;
 	}
-	relhasoids[0] = '1';
-	result = PGAPI_BindCol(col_stmt, 3, internal_asis_type,
-				relhasoids, sizeof(relhasoids), NULL);
-	if (!SQL_SUCCEEDED(result))
+
+	// check to see if the relation has oids, this is only done for versions less than 12
+	if (PG_VERSION_LT(conn, 12.0))
 	{
-		goto cleanup;
+		relhasoids[0] = '1';
+		result = PGAPI_BindCol(col_stmt, 3, internal_asis_type,
+					relhasoids, sizeof(relhasoids), NULL);
+		if (!SQL_SUCCEEDED(result))
+		{
+			goto cleanup;
+		}
 	}
 
 	result = PGAPI_Fetch(col_stmt);
@@ -3078,6 +3102,7 @@ retry_public_schema:
 	if (relisaview)
 	{
 		/* there's no oid for views */
+		// TODO: this may still work for views since we don't really have to rely on oid for best rowid
 		if (fColType == SQL_BEST_ROWID)
 		{
 			ret = SQL_SUCCESS;
@@ -3098,32 +3123,82 @@ retry_public_schema:
 			set_tuplefield_int4(&tuple[SPECOLS_BUFFER_LENGTH], PGTYPE_ATTR_BUFFER_LENGTH(conn, the_type, atttypmod));
 			set_tuplefield_int2(&tuple[SPECOLS_DECIMAL_DIGITS], PGTYPE_ATTR_DECIMAL_DIGITS(conn, the_type, atttypmod));
 			set_tuplefield_int2(&tuple[SPECOLS_PSEUDO_COLUMN], SQL_PC_NOT_PSEUDO);
-MYLOG(DETAIL_LOG_LEVEL, "Add ctid\n");
+			MYLOG(DETAIL_LOG_LEVEL, "Add ctid\n");
 		}
 	}
 	else
 	{
-		/* use the oid value for the rowid */
+
 		if (fColType == SQL_BEST_ROWID)
 		{
 			Int2	the_type = PG_TYPE_OID;
 			int	atttypmod = -1;
 
-			if (relhasoids[0] != '1')
+			if (relhasoids[0] == '1')
 			{
-				ret = SQL_SUCCESS;
-				goto cleanup;
-			}
-			tuple = QR_AddNew(res);
+				tuple = QR_AddNew(res);
 
-			set_tuplefield_int2(&tuple[SPECOLS_SCOPE], SQL_SCOPE_SESSION);
-			set_tuplefield_string(&tuple[SPECOLS_COLUMN_NAME], OID_NAME);
-			set_tuplefield_int2(&tuple[SPECOLS_DATA_TYPE], PGTYPE_ATTR_TO_CONCISE_TYPE(conn, the_type, atttypmod));
-			set_tuplefield_string(&tuple[SPECOLS_TYPE_NAME], pgtype_attr_to_name(conn, the_type, atttypmod, TRUE));
-			set_tuplefield_int4(&tuple[SPECOLS_COLUMN_SIZE], PGTYPE_ATTR_COLUMN_SIZE(conn, the_type, atttypmod));
-			set_tuplefield_int4(&tuple[SPECOLS_BUFFER_LENGTH], PGTYPE_ATTR_BUFFER_LENGTH(conn, the_type, atttypmod));
-			set_tuplefield_int2(&tuple[SPECOLS_DECIMAL_DIGITS], PGTYPE_ATTR_DECIMAL_DIGITS(conn, the_type, atttypmod));
-			set_tuplefield_int2(&tuple[SPECOLS_PSEUDO_COLUMN], SQL_PC_PSEUDO);
+				set_tuplefield_int2(&tuple[SPECOLS_SCOPE], SQL_SCOPE_SESSION);
+				set_tuplefield_string(&tuple[SPECOLS_COLUMN_NAME], OID_NAME);
+				set_tuplefield_int2(&tuple[SPECOLS_DATA_TYPE], PGTYPE_ATTR_TO_CONCISE_TYPE(conn, the_type, atttypmod));
+				set_tuplefield_string(&tuple[SPECOLS_TYPE_NAME], pgtype_attr_to_name(conn, the_type, atttypmod, TRUE));
+				set_tuplefield_int4(&tuple[SPECOLS_COLUMN_SIZE], PGTYPE_ATTR_COLUMN_SIZE(conn, the_type, atttypmod));
+				set_tuplefield_int4(&tuple[SPECOLS_BUFFER_LENGTH], PGTYPE_ATTR_BUFFER_LENGTH(conn, the_type, atttypmod));
+				set_tuplefield_int2(&tuple[SPECOLS_DECIMAL_DIGITS], PGTYPE_ATTR_DECIMAL_DIGITS(conn, the_type, atttypmod));
+				set_tuplefield_int2(&tuple[SPECOLS_PSEUDO_COLUMN], SQL_PC_PSEUDO);
+			} else {
+				/*
+
+SELECT NULL as \"SCOPE\",
+    n.nspname AS \"SCHEMA_NAME\"",
+    c.relname AS \"TABLE_NAME\"",
+    a.attname AS \"COLUMN_NAME\"",
+	t.typname AS \"DATA_TYPE\",
+	t.typename AS \"TYPE_NAME\"",
+    i.indisunique,i.indisprimary
+FROM pg_class c
+    INNER JOIN pg_namespace n ON n.oid = c.relnamespace
+    INNER JOIN pg_attribute a ON a.attrelid = c.oid
+	INNER JOIN pg_type t on a.atttypid = t.oid
+    LEFT JOIN pg_index i
+        ON i.indrelid = c.oid
+            AND a.attnum = ANY (i.indkey[0:(i.indnkeyatts - 1)])
+WHERE a.attnum > 0 and c.relname like 'testuktab';
+				*/			
+				initPQExpBuffer(&columns_query);
+				printfPQExpBuffer(&columns_query, "select NULL as \"SCOPE\"," 
+												  "a.attname AS \"COLUMN_NAME\","
+												  "t.typname AS \"DATA_TYPE\","
+												  "t.typname AS \"TYPE_NAME\","
+												  "t.typlen AS \"COLUMN_SIZE\","
+												  "a.attlen AS \"BUFFER_LENGTH\","
+												  "case "
+       												"when t.typname = 'numeric' then"
+														" case when a.atttypmod > -1 then 6"
+														" else a.atttypmod::int4"
+														" end"
+													" else 0"
+													" end AS \"DECIMAL_DIGITS\","
+												  "1 AS \"PSEUDO_COLUMN\" "
+												"FROM pg_class c "
+    											"INNER JOIN pg_namespace n ON n.oid = c.relnamespace "
+    											"INNER JOIN pg_attribute a ON a.attrelid = c.oid "
+												"INNER JOIN pg_type t on a.atttypid = t.oid "
+    											"LEFT JOIN pg_index i ON i.indrelid = c.oid "
+            									"AND a.attnum = ANY (i.indkey[0:(i.indnkeyatts - 1)]) "
+												"WHERE i.indisunique and a.attnum > 0 and c.relname ='%s'" , szTableName );
+
+
+				if (szTableQualifier != NULL)												
+					appendPQExpBuffer(&columns_query, " and c.relnamespace = %s" , szSchemaName);
+
+				if (res = CC_send_query(conn, columns_query.data, NULL, READ_ONLY_QUERY, stmt), !QR_command_maybe_successful(res))
+				{
+					SC_set_error(stmt, STMT_EXEC_ERROR, "PGAPI_Special query error", func);
+					goto cleanup;
+				}
+				SC_set_Result(stmt, res);
+			}
 		}
 		else if (fColType == SQL_ROWVER)
 		{
@@ -3494,7 +3569,7 @@ PGAPI_Statistics(HSTMT hstmt,
 	relhasrules[0] = '0';
 	result = PGAPI_Fetch(indx_stmt);
 	/* fake index of OID */
-	if (relhasoids && relhasrules[0] != '1' && atoi(ci->show_oid_column) && atoi(ci->fake_oid_index))
+	if (relhasoids && relhasrules[0] != '1' && pg_atoi(ci->show_oid_column) && pg_atoi(ci->fake_oid_index))
 	{
 		tuple = QR_AddNew(res);
 
@@ -3530,7 +3605,7 @@ PGAPI_Statistics(HSTMT hstmt,
 	{
 		/* If only requesting unique indexes, then just return those. */
 		if (fUnique == SQL_INDEX_ALL ||
-			(fUnique == SQL_INDEX_UNIQUE && atoi(isunique)))
+			(fUnique == SQL_INDEX_UNIQUE && pg_atoi(isunique)))
 		{
 			int	colcnt, attnum;
 
@@ -3548,7 +3623,7 @@ PGAPI_Statistics(HSTMT hstmt,
 
 				/* non-unique index? */
 				if (ci->drivers.unique_index)
-					set_tuplefield_int2(&tuple[STATS_NON_UNIQUE], (Int2) (atoi(isunique) ? FALSE : TRUE));
+					set_tuplefield_int2(&tuple[STATS_NON_UNIQUE], (Int2) (pg_atoi(isunique) ? FALSE : TRUE));
 				else
 					set_tuplefield_int2(&tuple[STATS_NON_UNIQUE], TRUE);
 
@@ -3560,7 +3635,7 @@ PGAPI_Statistics(HSTMT hstmt,
 				 * Clustered/HASH index?
 				 */
 				set_tuplefield_int2(&tuple[STATS_TYPE], (Int2)
-							   (atoi(isclustered) ? SQL_INDEX_CLUSTERED :
+							   (pg_atoi(isclustered) ? SQL_INDEX_CLUSTERED :
 								(!strncmp(ishash, "hash", 4)) ? SQL_INDEX_HASHED : SQL_INDEX_OTHER));
 				set_tuplefield_int2(&tuple[STATS_SEQ_IN_INDEX], (Int2) i);
 
@@ -5292,7 +5367,8 @@ MYLOG(MIN_LOG_LEVEL, "atttypid=%s\n", atttypid ? atttypid : "(null)");
 						params = NULL;
 					else
 					{
-						sscanf(params, "%u", &pgtype);
+						int status = 0;
+						secure_sscanf(params, &status, "%u", ARG_UINT(&pgtype));
 						while (isdigit((unsigned char) *params))
 							params++;
 					}
@@ -5391,7 +5467,7 @@ MYLOG(MIN_LOG_LEVEL, "atttypid=%s\n", atttypid ? atttypid : "(null)");
 			}
 			else
 			{
-				typid = atoi(atttypid);
+				typid = pg_atoi(atttypid);
 				attname = QR_get_value_backend_text(tres, i, attname_pos);
 			}
 			tuple = QR_AddNew(res);
@@ -5730,7 +5806,7 @@ retry_public_schema:
 	}
 	for (i = 0; i < tablecount; i++)
 	{
-		memset(useracl, 0, usercount * sizeof(char[ACLMAX]));
+		pg_memset(useracl, 0, usercount * sizeof(char[ACLMAX]));
 		acl = (char *) QR_get_value_backend_text(wres, i, 2);
 		if (acl && acl[0] == '{')
 			user = acl + 1;

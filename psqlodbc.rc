@@ -335,33 +335,31 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_BADDSN              "DSN�E�E�E�G�E�E�E��E�E�E��E�E�E�g�E�E�E��E�E�E��E�E�E�|�E�E�E��E�E�E��E�E�E�s�E�E�E��E�E�E��E�E�E�ł��E�E�E�B�E�E�E�ēx�E�E�E�`�E�E�E�F�E�E�E�b�E�E�E�N�E�E�E�ݒ肵�E�E�E�Ă��E�E�E��E�E�E��E�E�E��E�E�E��E�E�E��E�E�E��E�E�E�B."
-    IDS_MSGTITLE            "DSN�E�E�E�s�E�E�E��E�E�E�"
-    IDS_ADVANCE_OPTION_DEF  "�E�E�E��E�E�E��E�E�E�x�E�E�E�Ȑݒ� (�E�E�E�f�E�E�E�t�E�E�E�H�E�E�E��E�E�E��E�E�E�g)"
-    IDS_ADVANCE_SAVE        "�E�E�E�ۑ�"
-    IDS_ADVANCE_OPTION_DSN1 "�E�E�E��E�E�E��E�E�E�x�E�E�E�Ȑݒ� (%s �E�E�E�ݒ�1)"
-    IDS_ADVANCE_OPTION_CON1 "�E�E�E��E�E�E��E�E�E�x�E�E�E�Ȑݒ�i�E�E�E�R�E�E�E�l�E�E�E�N�E�E�E�V�E�E�E��E�E�E��E�E�E��E�E�E��E�E�E�ݒ�P�E�E�E�j"
-    IDS_ADVANCE_OPTION_DSN2 "�E�E�E��E�E�E��E�E�E�x�E�E�E�Ȑݒ� (%s �E�E�E�ݒ�2)"
-    IDS_ADVANCE_OPTION_CON2 "�E�E�E��E�E�E��E�E�E�x�E�E�E�Ȑݒ� (�E�E�E�R�E�E�E�l�E�E�E�N�E�E�E�V�E�E�E��E�E�E��E�E�E��E�E�E��E�E�E�ݒ�2)"
-    IDS_ADVANCE_CONNECTION  "�E�E�E�R�E�E�E�l�E�E�E�N�E�E�E�V�E�E�E��E�E�E��E�E�E��E�E�E�"
-    IDS_ADVANCE_OPTION_DSN3 "�E�E�E��E�E�E��E�E�E�x�E�E�E�Ȑݒ� (%s �E�E�E�ݒ�3)"
-    IDS_ADVANCE_OPTION_CON3 "�E�E�E��E�E�E��E�E�E�x�E�E�E�Ȑݒ� (�E�E�E�R�E�E�E�l�E�E�E�N�E�E�E�V�E�E�E��E�E�E��E�E�E��E�E�E��E�E�E�ݒ�3)"
+    IDS_BADDSN              "DSN�G���g���|���s���ł��B�ēx�`�F�b�N�ݒ肵�Ă��������B."
+    IDS_MSGTITLE            "DSN�s��"
+    IDS_ADVANCE_OPTION_DEF  "���x�Ȑݒ� (�f�t�H���g)"
+    IDS_ADVANCE_SAVE        "�ۑ�"
+    IDS_ADVANCE_OPTION_DSN1 "���x�Ȑݒ� (%s �ݒ�1)"
+    IDS_ADVANCE_OPTION_CON1 "���x�Ȑݒ�i�R�l�N�V�����ݒ�P�j"
+    IDS_ADVANCE_OPTION_DSN2 "���x�Ȑݒ� (%s �ݒ�2)"
+    IDS_ADVANCE_OPTION_CON2 "���x�Ȑݒ� (�R�l�N�V�����ݒ�2)"
+    IDS_ADVANCE_CONNECTION  "�R�l�N�V����"
+    IDS_ADVANCE_OPTION_DSN3 "���x�Ȑݒ� (%s �ݒ�3)"
+    IDS_ADVANCE_OPTION_CON3 "���x�Ȑݒ� (�R�l�N�V�����ݒ�3)"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_SSLREQUEST_PREFER   "�E�E�E�D�E�E�E��E�E�E�"
-    IDS_SSLREQUEST_ALLOW    "�E�E�E�l�E�E�E��E�E�E�"
-    IDS_SSLREQUEST_REQUIRE  "�E�E�E�K�E�E�E�{"
-    IDS_SSLREQUEST_DISABLE  "�E�E�E��E�E�E��E�E�E��E�E�E�"
-    IDS_SSLREQUEST_VERIFY_CA
-                            "�E�E�E�K�E�E�E�{:�E�E�E�ؖ��E�E�E��E�E�E��E�E�E�F�E�E�E��E�E�E�"
+    IDS_SSLREQUEST_PREFER   "�D��"
+    IDS_SSLREQUEST_ALLOW    "�l��"
+    IDS_SSLREQUEST_REQUIRE  "�K�{"
+    IDS_SSLREQUEST_DISABLE  "����"
+    IDS_SSLREQUEST_VERIFY_CA "�K�{:�ؖ����F��"
 END
 
 STRINGTABLE
 BEGIN
-    IDS_SSLREQUEST_VERIFY_FULL
-                            "�E�E�E�K�E�E�E�{:�E�E�E�ؖ��E�E�E��E�E�E��E�E�E��E�E�E��E�E�E�S�E�E�E�F�E�E�E��E�E�E�"
+    IDS_SSLREQUEST_VERIFY_FULL "�K�{:�ؖ������S�F��"
 END
 
 #endif    // Japanese (Japan) resources

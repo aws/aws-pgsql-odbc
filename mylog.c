@@ -133,8 +133,10 @@ const char *GetExeProgramName()
 
 		for (i = 0; i < sizeof(flist) / sizeof(flist[0]); i++)
 		{
-			if (readlink(flist[i], path_name, sizeof(path_name)) > 0)
+			ssize_t len = readlink(flist[i], path_name, sizeof(path_name));
+			if (len > 0)
 			{
+				path_name[len] = '\0';
 				/* fprintf(stderr, "i=%d pathname=%s\n", i, path_name); */
 				STRCPY_FIXED(exename, po_basename(path_name));
 				break;
@@ -501,7 +503,7 @@ getGlobalDebug()
 	/* Debug is stored in the driver section */
 	SQLGetPrivateProfileString(DBMS_NAME, INI_DEBUG, "", temp, sizeof(temp), ODBCINST_INI);
 	if (temp[0])
-		globalDebug = atoi(temp);
+		globalDebug = pg_atoi(temp);
 	else
 		globalDebug = DEFAULT_DEBUG;
 
@@ -525,7 +527,7 @@ getGlobalCommlog()
 	/* Commlog is stored in the driver section */
 	SQLGetPrivateProfileString(DBMS_NAME, INI_COMMLOG, "", temp, sizeof(temp), ODBCINST_INI);
 	if (temp[0])
-		globalCommlog = atoi(temp);
+		globalCommlog = pg_atoi(temp);
 	else
 		globalCommlog = DEFAULT_COMMLOG;
 
