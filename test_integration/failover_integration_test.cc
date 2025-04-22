@@ -84,7 +84,7 @@ TEST_F(FailoverIntegrationTest, WriterFailToReader) {
     // Query new ID after failover
     std::string current_connection_id = query_instance_id(dbc);
 
-    // Check if current connection is a reader
+    // Check if current connection is a writer
     EXPECT_TRUE(is_DB_instance_writer(rds_client, cluster_id, current_connection_id));
 
     failover_cluster_and_wait_until_writer_changed(rds_client, cluster_id, writer_id, target_writer_id);
@@ -109,16 +109,18 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
     // Setup tests
     SQLHSTMT handle;
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
-    auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_1");
-    auto create_table_query =
-        AS_SQLTCHAR("CREATE TABLE failover_transaction_1 (id INT NOT NULL PRIMARY KEY, failover_transaction_1_field VARCHAR(255) NOT NULL)");
+    SQLSTR drop_table_query_str = CONSTRUCT_SQLSTR("DROP TABLE IF EXISTS failover_transaction");
+    SQLSTR create_table_query_str = CONSTRUCT_SQLSTR("CREATE TABLE failover_transaction (id INT NOT NULL PRIMARY KEY, failover_transaction_field VARCHAR(255) NOT NULL)");
+    auto drop_table_query = AS_SQLTCHAR(drop_table_query_str.c_str());
+    auto create_table_query = AS_SQLTCHAR(create_table_query_str.c_str());
 
     // Execute setup query
     EXPECT_TRUE(SQL_SUCCEEDED(SQLExecDirect(handle, drop_table_query, SQL_NTS)));
     EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, create_table_query, SQL_NTS));
 
     // Execute queries within the transaction
-    auto insert_query_a = AS_SQLTCHAR("BEGIN; INSERT INTO failover_transaction_1 VALUES (1, 'test field string 1')");
+    SQLSTR insert_query_a_str = CONSTRUCT_SQLSTR("BEGIN; INSERT INTO failover_transaction VALUES (1, 'test field string 1')");
+    auto insert_query_a = AS_SQLTCHAR(insert_query_a_str.c_str());
     EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, insert_query_a, SQL_NTS));
 
     failover_cluster_and_wait_until_writer_changed(rds_client, cluster_id, writer_id, target_writer_id);
@@ -133,7 +135,7 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
     EXPECT_NE(current_connection_id, writer_id);
 
     // No rows should have been inserted to the table
-    EXPECT_EQ(0, query_count_table_rows(handle, "failover_transaction_1"));
+    EXPECT_EQ(0, query_count_table_rows(handle));
     SQLFreeHandle(SQL_HANDLE_STMT, handle);
 
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
@@ -153,10 +155,10 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) 
     // Setup tests
     SQLHSTMT handle;
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
-
-    auto drop_table_query = AS_SQLTCHAR("DROP TABLE IF EXISTS failover_transaction_2");  // Setting up tables
-    auto create_table_query =
-        AS_SQLTCHAR("CREATE TABLE failover_transaction_2 (id INT NOT NULL PRIMARY KEY, failover_transaction_2_field VARCHAR(255) NOT NULL)");
+    SQLSTR drop_table_query_str = CONSTRUCT_SQLSTR("DROP TABLE IF EXISTS failover_transaction");
+    SQLSTR create_table_query_str = CONSTRUCT_SQLSTR("CREATE TABLE failover_transaction (id INT NOT NULL PRIMARY KEY, failover_transaction_field VARCHAR(255) NOT NULL)");
+    auto drop_table_query = AS_SQLTCHAR(drop_table_query_str.c_str());
+    auto create_table_query = AS_SQLTCHAR(create_table_query_str.c_str());
 
     // Execute setup query
     EXPECT_TRUE(SQL_SUCCEEDED(SQLExecDirect(handle, drop_table_query, SQL_NTS)));
@@ -166,7 +168,8 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) 
     EXPECT_EQ(SQL_SUCCESS, SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0));
 
     // Run insert query in a new transaction
-    auto insert_query_a = AS_SQLTCHAR("INSERT INTO failover_transaction_2 VALUES (1, 'test field string 1')");
+    SQLSTR insert_query_a_str = CONSTRUCT_SQLSTR("INSERT INTO failover_transaction VALUES (1, 'test field string 1')");
+    auto insert_query_a = AS_SQLTCHAR(insert_query_a_str.c_str());
     EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, insert_query_a, SQL_NTS));
 
     failover_cluster_and_wait_until_writer_changed(rds_client, cluster_id, writer_id, target_writer_id);
@@ -182,7 +185,7 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) 
     EXPECT_NE(current_connection_id, writer_id);
 
     // No rows should have been inserted to the table
-    EXPECT_EQ(0, query_count_table_rows(handle, "failover_transaction_2"));
+    EXPECT_EQ(0, query_count_table_rows(handle));
     SQLFreeHandle(SQL_HANDLE_STMT, handle);
 
     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
