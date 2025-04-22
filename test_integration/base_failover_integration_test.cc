@@ -26,6 +26,8 @@
 #include <aws/rds/model/DescribeDBClustersRequest.h>
 #include <aws/rds/model/FailoverDBClusterRequest.h>
 
+#include <gtest/gtest.h>
+
 #include <random>
 #include <regex>
 
@@ -39,7 +41,11 @@
 
 #include <ostream>
 
-#include "connection_string_builder.h"
+#include "integration_test_utils.h"
+
+#include <sql.h>
+#include <sqlext.h>
+#include <sqltypes.h>
 
 static Aws::SDKOptions options;
 
@@ -64,11 +70,11 @@ class BaseFailoverIntegrationTest : public testing::Test {
     std::string db_conn_str_suffix = "." + instance_endpoint;
     std::string postgres_ro_cluster_url = "cluster-ro-" + instance_endpoint;
 
-    std::string default_connection_string;
-    std::string connection_string;
+    SQLSTR default_connection_string;
+    SQLSTR connection_string;
 
-    SQLCHAR conn_in[MAX_CONN_LENGTH] = "\0", conn_out[MAX_CONN_LENGTH] = "\0", sqlstate[MAX_SQLSTATE_LENGTH] = "\0",
-            message[SQL_MAX_MESSAGE_LENGTH] = "\0";
+    SQLTCHAR* conn_in;
+    SQLTCHAR *conn_out, sqlstate, message;
     SQLINTEGER native_error = 0;
     SQLSMALLINT len = 0, length = 0;
 
@@ -81,12 +87,12 @@ class BaseFailoverIntegrationTest : public testing::Test {
     std::string target_writer_id;
 
     // Queries
-    SQLCHAR* SERVER_ID_QUERY = AS_SQLTCHAR("SELECT aurora_db_instance_identifier()");
+    SQLTCHAR* SERVER_ID_QUERY = AS_SQLTCHAR("SELECT aurora_db_instance_identifier()");
 
     // Error codes
-    const std::string ERROR_FAILOVER_FAILED = "08S01";
-    const std::string ERROR_FAILOVER_SUCCEEDED = "08S02";
-    const std::string ERROR_TRANSACTION_UNKNOWN = "08007";
+    static constexpr const char* ERROR_FAILOVER_FAILED = "08S01";
+    static constexpr const char* ERROR_FAILOVER_SUCCEEDED = "08S02";
+    static constexpr const char* ERROR_TRANSACTION_UNKNOWN = "08007";
 
     // Helper functions
 
@@ -116,18 +122,18 @@ class BaseFailoverIntegrationTest : public testing::Test {
         return instances[1];
     }
 
-    void assert_query_succeeded(SQLHDBC dbc, SQLCHAR* query) const {
+    void assert_query_succeeded(SQLHDBC dbc, SQLTCHAR* query) const {
         SQLHSTMT handle;
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
         EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, query, SQL_NTS));
         EXPECT_EQ(SQL_SUCCESS, SQLFreeHandle(SQL_HANDLE_STMT, handle));
     }
 
-    void assert_query_failed(const SQLHDBC dbc, SQLCHAR* query, const std::string& expected_error) const {
+    void assert_query_failed(const SQLHDBC dbc, SQLTCHAR* query, const std::string& expected_error) const {
         SQLHSTMT handle;
         SQLSMALLINT stmt_length;
         SQLINTEGER native_err;
-        SQLCHAR msg[SQL_MAX_MESSAGE_LENGTH] = "\0", state[MAX_SQLSTATE_LENGTH] = "\0";
+        SQLTCHAR *msg, state[MAX_SQLSTATE_LENGTH];
 
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
         EXPECT_EQ(SQL_ERROR, SQLExecDirect(handle, query, SQL_NTS));
@@ -343,7 +349,7 @@ class BaseFailoverIntegrationTest : public testing::Test {
 
     void test_connection(const SQLHDBC dbc, const std::string& conn_str) {
         EXPECT_EQ(SQL_SUCCESS,
-                  SQLDriverConnect(dbc, nullptr, (SQLCHAR*)conn_str.c_str(), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+                  SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
         EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
     }
 

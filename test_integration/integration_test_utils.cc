@@ -124,4 +124,3 @@ void INTEGRATION_TEST_UTILS::clear_memory(void* dest, size_t count) {
     #endif /* _WIN32 */
 return;
 }
-

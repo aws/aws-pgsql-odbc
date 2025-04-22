@@ -23,7 +23,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  regression-tests-macos:
     runs-on: macos-15 # See https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
     steps:
       - name: Update Homebrew
