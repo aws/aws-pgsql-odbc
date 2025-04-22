@@ -55,7 +55,7 @@ env:
   DRIVER_NAME_UNICODE: 'AWS Unicode ODBC Driver for PostgreSQL (x64)'
 
 concurrency:
-  group: environment-windows-integration-${{ github.ref }}
+  group: environment-windows-failover-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:

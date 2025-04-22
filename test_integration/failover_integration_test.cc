@@ -74,7 +74,7 @@ class FailoverIntegrationTest : public BaseFailoverIntegrationTest {
 };
 
 /** Writer fails to a reader **/
-TEST_F(FailoverIntegrationTest, WriterFailToReadear) {
+TEST_F(FailoverIntegrationTest, WriterFailToReader) {
     SQLTCHAR* conn_out;
     SQLSMALLINT len;
 
