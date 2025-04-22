@@ -131,14 +131,14 @@ int main() {
 
   // Setup connection string
   const char *dsn = "my_dsn";
-  const char *user = "iam_db_user";
+  const char *user = "user";
   const char *server = "database-pg-name.cluster-XYZ.us-east-2.rds.amazonaws.com";
   int port = 5432;
   const char *db = "postgres";
 
   // Failover is disabled by default and must be enabled via the EnableClusterFailover parameter.
   sprintf(reinterpret_cast<char *>(conn_in),
-          "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;ENABLECLUSTERFAILOVER=1;",
+          "DSN=%s;UID=%s;SERVER=%s;PORT=%d;DATABASE=%s;ENABLECLUSTERFAILOVER=1;RDSLOGTHRESHOLD=0",
           dsn,
           user,
           server,
@@ -166,7 +166,6 @@ int main() {
   query_current_instance(dbc);
 
   // Cleanup
-  SQLFreeHandle(SQL_HANDLE_STMT, stmt);
   SQLDisconnect(dbc);
   SQLFreeHandle(SQL_HANDLE_DBC, dbc);
   SQLFreeHandle(SQL_HANDLE_ENV, env);
