@@ -58,17 +58,42 @@ EXTRA_DIST = license.txt readme.txt readme_winbuild.txt \
         psqlodbc.sln msdtc_enlist.cpp pgxalib.cpp xalibname.c \
         pgxalib.def psqlsetup.def  psqlsetupa.def odbc.sql odbc-drop.sql \
 \
+	docs/build-and-test-aws-driver/build.md \
+	docs/build-and-test-aws-driver/test.md \
+	docs/img/ConfigurePostgreSQLDirectories.png \
+	docs/img/adfs.png \
+	docs/img/connection_pool.png \
+	docs/img/database.png \
+	docs/img/failover_behavior.png \
+	docs/img/failover_diagram.png \
+	docs/img/failover_dsn.png \
+	docs/img/iam.png \
+	docs/img/limitless.png \
+	docs/img/okta.png \
+	docs/img/secrets_manager.png \
+	docs/using-the-aws-driver/authentication/adfs_authentication_sample.cpp \
+	docs/using-the-aws-driver/authentication/adfs_authentication.md \
+	docs/using-the-aws-driver/authentication/authentication.md \
+	docs/using-the-aws-driver/authentication/database_authentication.md \
+	docs/using-the-aws-driver/authentication/iam_authentication_sample.cpp \
+	docs/using-the-aws-driver/authentication/iam_authentication.md \
+	docs/using-the-aws-driver/authentication/okta_authentication_sample.cpp \
+	docs/using-the-aws-driver/authentication/okta_authentication.md \
+	docs/using-the-aws-driver/authentication/secrets_manager_authentication_sample.cpp \
+	docs/using-the-aws-driver/authentication/secrets_manager_authentication.md \
+	docs/using-the-aws-driver/authentication/simple_database_connection_sample.cpp \
+	docs/using-the-aws-driver/failover/failover_sample_code.cpp \
+	docs/using-the-aws-driver/failover/failover.md \
+	docs/using-the-aws-driver/limitless/limitless_sample.cpp \
+	docs/using-the-aws-driver/limitless/limitless.md \
+	docs/using-the-aws-driver/using_the_aws_driver.md \
 	docs/config-opt.html \
 	docs/config.html \
-	docs/README.txt \
-	docs/release-7.3.html \
-	docs/release.html \
-	docs/unix-compilation.html \
-	docs/win32-compilation.html \
-	docs/msdtc_pgxalib_tracing_enable.reg \
+	docs/getting_started.md \
 	docs/msdtc_pgxalib_tracing_disable.reg \
+	docs/msdtc_pgxalib_tracing_enable.reg \
 	docs/msdtc_pgxalib_tracing_README.txt \
-	docs/editConfiguration.jpg \
+	docs/readme.md \
 \
 	installer/background.bmp \
 	installer/banner.bmp \

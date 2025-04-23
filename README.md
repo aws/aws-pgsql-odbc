@@ -23,14 +23,14 @@ This driver is compatible with the following platforms:
 
 ### Benefits of the AWS ODBC Driver for PostgreSQL
 
-The official open-source [PostgreSQL ODBC driver](https://git.postgresql.org/gitweb/?p=postgresql.git;a=tree;h=refs/heads/master;hb=refs/heads/master) does not natively support RDS PostgreSQL or Aurora PostgreSQL specific features, such as the various [AWS authentication methods](./docs/using-the-aws-driver/authentication/authentication.md), [failover](./docs/using-the-aws-driver/failover/failover.md) or [Aurora Limitless Databases](./docs/using-the-aws-driver/limitless/limitless.md).
+The official open-source [PostgreSQL ODBC driver](https://odbc.postgresql.org/) does not natively support RDS PostgreSQL or Aurora PostgreSQL specific features, such as the various [AWS authentication methods](./docs/using-the-aws-driver/authentication/authentication.md), [failover](./docs/using-the-aws-driver/failover/failover.md) or [Aurora Limitless Databases](./docs/using-the-aws-driver/limitless/limitless.md).
 The AWS ODBC Driver for PostgreSQL allows client applications to take advantage of the extra RDS/Aurora database features by implementing support for:
 1. [IAM database authentication](./docs/using-the-aws-driver/authentication/iam_authentication.md)
-2. [Secret Manager authentication](./docs/using-the-aws-driver/authentication/secret_manager_authentication.md)
-3. [ADFS authentication](./docs/using-the-aws-driver/authentication/adfs_authentication.md)
-4. [Okta authentication](./docs/using-the-aws-driver/authentication/okta_authentication.md)
-5. [Failover](./docs/using-the-aws-driver/failover/failover.md)
-6. [Limitless](./docs/using-the-aws-driver/limitless/limitless.md)
+1. [Secrets Manager authentication](./docs/using-the-aws-driver/authentication/secrets_manager_authentication.md)
+1. [ADFS authentication](./docs/using-the-aws-driver/authentication/adfs_authentication.md)
+1. [Okta authentication](./docs/using-the-aws-driver/authentication/okta_authentication.md)
+1. [Failover](./docs/using-the-aws-driver/failover/failover.md)
+1. [Limitless](./docs/using-the-aws-driver/limitless/limitless.md)
 
 ## Getting Started
 
@@ -51,7 +51,8 @@ If you encounter an issue or bug with the AWS ODBC Driver for PostgreSQL, we wou
 - the version of the AWS ODBC Driver for PostgreSQL
 - the OS platform and version
 - the PostgreSQL database version you are running
-  Please include a reproduction case for the issue when appropriate. Also please [include driver logs](./docs/using-the-aws-driver/using_the_aws_driver.md#logging) if possible, as they help us diagnose problems quicker.
+
+Please include a reproduction case for the issue when appropriate. Also please [include driver logs](./docs/using-the-aws-driver/using_the_aws_driver.md#logging) if possible, as they help us diagnose problems quicker.
 
 The GitHub issues are intended for bug reports and feature requests. Keeping the list of open issues lean will help us respond in a timely manner.
 

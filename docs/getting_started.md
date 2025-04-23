@@ -14,6 +14,7 @@ Four drivers will be installed:
 - AWS ANSI ODBC Driver for PostgreSQL (x64)
 - AWS Unicode ODBC Driver for PostgreSQL
 - AWS Unicode ODBC Driver for PostgreSQL (x64)
+
 To uninstall the ODBC driver, open the same installer file, select the option to uninstall the driver and follow the onscreen instructions to successfully uninstall the driver.
 
 ### MacOS
@@ -24,7 +25,8 @@ In order to use the AWS ODBC Driver for PostgreSQL, the following dependencies m
 - PostgreSQL
 - GFlags
 - unixODBC
-You can install them all using `Homebrew`, e.g. `brew install postgresql gflags unixodbc`.
+
+You can install them using `Homebrew`, e.g. `brew install postgresql gflags unixodbc`.
 
 #### Known Limitations
 - This driver currently has compatibility issues with the `iODBC Driver Manager` on MacOS. DSN need to be configured by manually modifying the `odbc.ini` and `odbcinist.ini` files.
