@@ -1,4 +1,5 @@
 name: Windows Failover Integration Tests
+run-name: aws-pgsql-odbc Windows Failover Integration Tests - ${{ github.event.head_commit.message }}
 
 on:
   workflow_dispatch:
@@ -17,15 +18,9 @@ on:
       - 'docs/**'
       - 'ISSUE_TEMPLATE/**'
       - '**/remove-old-artifacts.yml'
-      - '**/build-installer.yml'
       - '**/release.yml'
 
 env:
-  BUILD_TYPE: Release
-
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -35,17 +30,7 @@ env:
   # you want the step to run, but the corresponding cache is causing the step to be skipped.
   WORKFLOW_VERSION_POSTGRESQL: '1' # for build steps related to the 'cachePostgres' cache
 
-  # Software versions. 
-  POSTGRESQL_SOURCE_TAG: 'REL_17_STABLE'
-  POSTGRESQL_PACKAGE_FILEID: '1259019'
-  OPENSSL_VERSION: '3_3_2'
-  PKGCONFIGLITE_VERSION: '0.28-1'
-  WINFLEXBISON_VERSION: '2.5.24'
-  DIFFUTILS_VERSION: '2.8.7-1'
-
   # Test configuration
-  TEST_USERNAME: 'postgres'
-  TEST_PASSWORD: 'password'
   TEST_DATABASE: 'postgres'
   ENGINE: 'aurora-postgresql'
   ENGINE_VERSION: '16.4'
@@ -55,28 +40,28 @@ env:
   DRIVER_NAME_UNICODE: 'AWS Unicode ODBC Driver for PostgreSQL (x64)'
 
 concurrency:
-  group: environment-windows-failover-${{ github.ref }}
+  group: windows-failover-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  failover-integration-tests-windows:
-    name: "Failover Integration Tests Windows"
+  windows-failover-integration-tests:
+    name: Windows Failover Integration Tests
     runs-on: windows-latest
     steps:
-      - name: Setup Cluster Id and Shard Id Env Variables
+      - name: Setup Cluster ID
         run: |
           echo "AURORA_CLUSTER_ID=AWS-PGODBC-Win-Failover-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Cache Postgres build output
         uses: actions/cache@v4
         id: cachePostgres
         with:
           path: |
-            d:\postgresql
-            d:\postgresql86
-          key: postgresql-${{env.POSTGRESQL_SOURCE_TAG}}_openssl-${{env.OPENSSL_VERSION}}_pkgconfiglite-${{env.PKGCONFIGLITE_VERSION}}_winflexbison-${{env.WINFLEXBISON_VERSION}}_workflow-${{env.WORKFLOW_VERSION_POSTGRESQL}}
+            D:\postgresql
+          key: postgresql-${{vars.POSTGRESQL_SOURCE_TAG}}_openssl-${{vars.OPENSSL_VERSION}}_pkgconfiglite-${{vars.PKGCONFIGLITE_VERSION}}_winflexbison-${{vars.WINFLEXBISON_VERSION}}_workflow-${{env.WORKFLOW_VERSION_POSTGRESQL}}
 
       - name: Cache Postgres source
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -84,17 +69,17 @@ jobs:
         id: cachePostgresSource
         with:
           path: postgres
-          key: postgres-source-${{env.POSTGRESQL_SOURCE_TAG}}
+          key: postgres-source-${{vars.POSTGRESQL_SOURCE_TAG}}
 
       - name: Get Postgres source
         uses: actions/checkout@v4
         if: ${{steps.cachePostgresSource.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
         with:
           repository: "postgres/postgres.git"
-          ref: ${{env.POSTGRESQL_SOURCE_TAG}}
+          ref: ${{vars.POSTGRESQL_SOURCE_TAG}}
           path: postgres
 
-      - name: 'get meson'
+      - name: Get meson & ninja
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
         run: |
           python -m pip install meson
@@ -105,7 +90,7 @@ jobs:
         id: cacheDiffutilsZip
         with:
           path: C:\OTHERBIN\diffutils
-          key: diff_utils-${{env.DIFFUTILS_VERSION}}
+          key: diff_utils-${{vars.DIFFUTILS_VERSION}}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
@@ -114,7 +99,7 @@ jobs:
         id: cachePostgresInstaller
         with:
           path: C:\OTHERBIN\postgresql_install.exe
-          key: postgresql_installer-${{env.POSTGRESQL_PACKAGE_FILEID}}
+          key: postgresql_installer-${{vars.POSTGRESQL_PACKAGE_FILEID}}
 
       - name: Cache pkgconfiglite for Compile using msvc and meson
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -122,17 +107,9 @@ jobs:
         id: cachePkgConfigLiteZip
         with:
           path: C:\OTHERBIN\pkgconfiglite
-          key: pkg-config-lite-${{env.PKGCONFIGLITE_VERSION}}-win32
+          key: pkg-config-lite-${{vars.PKGCONFIGLITE_VERSION}}-win32
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
-
-      - name: Cache Win32OpenSSL32 for Win32Compile
-        if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
-        uses: actions/cache@v4
-        id: cacheWin32OpenSSL
-        with:
-          path: C:\OTHERBIN\openssl32
-          key: Win32OpenSSL-${{env.OPENSSL_VERSION}}
 
       - name: Cache Win64OpenSSL64 for Win64Compile
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -140,7 +117,7 @@ jobs:
         id: cacheWin64OpenSSL
         with:
           path: C:\OTHERBIN\openssl64
-          key: Win64OpenSSL-${{env.OPENSSL_VERSION}}
+          key: Win64OpenSSL-${{vars.OPENSSL_VERSION}}
 
       - name: Cache winflexbison for Compile using msvc
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -148,9 +125,9 @@ jobs:
         id: cacheWinFlexBisonZip
         with:
           path: C:\OTHERBIN\winflexbison
-          key: winflexbison-${{env.WINFLEXBISON_VERSION}}
+          key: winflexbison-${{vars.WINFLEXBISON_VERSION}}
         env:
-          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1    
+          SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
       - name: Download GNU diffutils for Test on PostgreSQL for Windows 
         if: ${{steps.cacheDiffutilsZip.outputs.cache-hit != 'true'}}
@@ -158,17 +135,8 @@ jobs:
         id: downloadDiffutilsZip
         with:
           retry-times: 5
-          url: https://zenlayer.dl.sourceforge.net/project/gnuwin32/diffutils/${{env.DIFFUTILS_VERSION}}/diffutils-${{env.DIFFUTILS_VERSION}}-bin.zip
+          url: https://zenlayer.dl.sourceforge.net/project/gnuwin32/diffutils/${{vars.DIFFUTILS_VERSION}}/diffutils-${{vars.DIFFUTILS_VERSION}}-bin.zip
           filename: diffutils-bin.zip
-      
-      - name: Download openssl32 for win32 compile
-        if: ${{steps.cacheWin32OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
-        uses: suisei-cn/actions-download-file@v1.6.0
-        id: downloadWin32OpenSSL
-        with:
-          retry-times: 5
-          url: https://slproweb.com/download/Win32OpenSSL-${{env.OPENSSL_VERSION}}.exe
-          filename: Win32OpenSSL.exe
       
       - name: Download openssl64 for win64 compile
         if: ${{steps.cacheWin64OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -176,7 +144,7 @@ jobs:
         id: downloadWin64OpenSSL
         with:
           retry-times: 5
-          url: https://slproweb.com/download/Win64OpenSSL-${{env.OPENSSL_VERSION}}.exe
+          url: https://slproweb.com/download/Win64OpenSSL-${{vars.OPENSSL_VERSION}}.exe
           filename: Win64OpenSSL.exe
     
       - name: Download pkgconfiglite for Compile using msvc and meson
@@ -185,7 +153,7 @@ jobs:
         id: downloadPkgConfigLiteZip
         with:
           retry-times: 5
-          url: http://downloads.sourceforge.net/project/pkgconfiglite/${{env.PKGCONFIGLITE_VERSION}}/pkg-config-lite-${{env.PKGCONFIGLITE_VERSION}}_bin-win32.zip
+          url: http://downloads.sourceforge.net/project/pkgconfiglite/${{vars.PKGCONFIGLITE_VERSION}}/pkg-config-lite-${{vars.PKGCONFIGLITE_VERSION}}_bin-win32.zip
           filename: pkg-config-lite_bin-win32.zip
 
       - name: Download winflexbison for Compile using msvc
@@ -194,7 +162,7 @@ jobs:
         id: downloadWinFlexBisonZip
         with:
           retry-times: 5
-          url: https://sourceforge.net/projects/winflexbison/files/win_flex_bison-${{env.WINFLEXBISON_VERSION}}.zip
+          url: https://sourceforge.net/projects/winflexbison/files/win_flex_bison-${{vars.WINFLEXBISON_VERSION}}.zip
           filename: win_flex_bison.zip
 
       - name: Download postgresql install from EDB
@@ -203,7 +171,7 @@ jobs:
         id: downloadPostgresInstaller
         with:
           retry-times: 5
-          url: https://sbp.enterprisedb.com/getfile.jsp?fileid=${{env.POSTGRESQL_PACKAGE_FILEID}}
+          url: https://sbp.enterprisedb.com/getfile.jsp?fileid=${{vars.POSTGRESQL_PACKAGE_FILEID}}
           target: c:\OTHERBIN
           filename: postgresql_install.exe
 
@@ -238,11 +206,6 @@ jobs:
           rem - man7.org/linux/man-pages/man1/printf.1.html
           printf "C:\\OTHERBIN\\pkgconfiglite\\pkg-config-lite-%PKGCONFIGLITE_VERSION%\\bin" >> %GITHUB_PATH%
 
-      - name: Install Win32OpenSSL
-        if: ${{steps.cacheWin32OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
-        shell: cmd
-        run: Win32OpenSSL.exe /sp /silent /dir=c:\OTHERBIN\openssl32
-
       - name: Install Win64OpenSSL
         if: ${{steps.cacheWin64OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
         shell: cmd
@@ -266,29 +229,13 @@ jobs:
           rem - man7.org/linux/man-pages/man1/printf.1.html
           printf "C:\OTHERBIN\\winflexbison" >> %GITHUB_PATH%
 
-      - name: 'setup msvc x86'
-        if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with: 
-          arch: x86
-
-      - name: 'build postgresx86'    
-        if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
-        working-directory: postgres
-        run: |
-          meson setup buildx86 -Dssl=openssl -Dextra_lib_dirs=c:\OTHERBIN\openssl32\lib\VC\x86\MT -Dextra_include_dirs=c:\OTHERBIN\openssl32\include --prefix=d:\postgresql86
-          cd buildx86
-          ninja -v 
-          ninja -v install
-          cp c:\OTHERBIN\openssl32\*.dll d:\postgresql86\bin
-
-      - name: 'setup msvc x64'    
+      - name: Setup msvc x64
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with: 
           arch: x64
 
-      - name : 'build postgres x64'
+      - name : Build postgres x64
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
         working-directory: postgres
         run: |
@@ -297,11 +244,6 @@ jobs:
           ninja
           ninja install
           cp c:\OTHERBIN\openssl64\*.dll d:\postgresql\bin
-
-      - name: 'setup msvc for psqlodbc'
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with: 
-          arch: x86
 
       - name: Checkout aws-pgsql-odbc
         uses: actions/checkout@v4
@@ -329,9 +271,9 @@ jobs:
       - name: Install WiX
         shell: cmd
         run: |
-          dotnet tool install --global wix --version 5.0.2
-          wix extension add --global WixToolset.UI.wixext/5.0.2
-  
+          dotnet tool install --global wix --version ${{vars.WIX_VERSION}}
+          wix extension add --global WixToolset.UI.wixext/${{vars.WIX_VERSION}}
+
       - name: Cache AWS SDK libraries
         id: cache-dynamic-aws-sdk
         uses: actions/cache@v4
@@ -345,14 +287,14 @@ jobs:
           copy .github\workflows\configuration.xml winbuild
           .\windows\buildall.ps1 ${{env.BUILD_CONFIGURATION}}
 
-      - name: 'Configure AWS Credentials'
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: 'Set up Temp AWS Credentials'
+      - name: Set up Temp AWS Credentials
         shell: pwsh
         run: |
           $creds = (aws sts get-session-token --duration-seconds 21600 --query 'Credentials.[AccessKeyId, SecretAccessKey, SessionToken]' --output text)
@@ -367,16 +309,16 @@ jobs:
           echo "AWS_ACCESS_KEY_ID=$access_key" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "AWS_SECRET_ACCESS_KEY=$secret_key" | Out-File -FilePath $env:GITHUB_ENV -Append
           echo "AWS_SESSION_TOKEN=$session_key" | Out-File -FilePath $env:GITHUB_ENV -Append
-      
-      - name: 'Create Failover RDS Cluster'
+
+      - name: Create Failover RDS Cluster
         id: AuroraClusterSetup
         shell: pwsh
         working-directory: scripts
         run: |
           . ".\aws_rds_helper.ps1"
           Create-Aurora-RDS-Cluster `
-          -TestUsername ${{ env.TEST_USERNAME }} `
-          -TestPassword ${{ env.TEST_PASSWORD }} `
+          -TestUsername ${{ secrets.TEST_USERNAME }} `
+          -TestPassword ${{ secrets.TEST_PASSWORD }} `
           -TestDatabase ${{ env.TEST_DATABASE }} `
           -ClusterId ${{ env.Aurora_CLUSTER_ID }} `
           -NumInstances 5 `
@@ -390,11 +332,25 @@ jobs:
         run: |
           . ".\aws_rds_helper.ps1"
           $endpoint = (Get-Cluster-Endpoint -ClusterId ${{ env.AURORA_CLUSTER_ID }})
+          echo "::add-mask::$endpoint"
           echo "AURORA_CLUSTER_ENDPOINT=$endpoint" | Out-File -FilePath $env:GITHUB_ENV -Append
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+
+      - name: Create Aurora Cluster Secrets
+        shell: pwsh
+        working-directory: scripts
+        run: |
+            . ".\aws_rds_helper.ps1"
+            $secrets = (Create-Db-Secrets `
+                -Username ${{ secrets.TEST_USERNAME }} `
+                -Password ${{ secrets.TEST_PASSWORD }} `
+                -Engine "postgres" `
+                -ClusterEndpoint ${{ env.AURORA_CLUSTER_ENDPOINT }})
+            echo "::add-mask::$secrets"
+            echo "AURORA_CLUSTER_SECRETS_ARN=$secrets" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Install driver
         shell: pwsh
@@ -412,9 +368,9 @@ jobs:
              "Server=${{ env.AURORA_CLUSTER_ENDPOINT }}", `
              "Port=5432", `
              "SSL Mode=prefer", `
-             "User Name=${{ env.TEST_USERNAME }}", `
-             "Password=${{ env.TEST_PASSWORD }}")
-        
+             "User Name=${{ secrets.TEST_USERNAME }}", `
+             "Password=${{ secrets.TEST_PASSWORD }}")
+
       - name: Install Unicode DSNs
         shell: pwsh
         run:  |
@@ -426,32 +382,20 @@ jobs:
              "Server=${{ env.AURORA_CLUSTER_ENDPOINT }}", `
              "Port=5432", `
              "SSL Mode=prefer", `
-             "User Name=${{ env.TEST_USERNAME }}", `
-             "Password=${{ env.TEST_PASSWORD }}")
+             "User Name=${{ secrets.TEST_USERNAME }}", `
+             "Password=${{ secrets.TEST_PASSWORD }}")
 
-      - name: Create Aurora Cluster Secrets
+      - name: Build and Run Ansi Integration Tests
         shell: pwsh
-        working-directory: scripts
+        if: ${{steps.AuroraClusterSetup.outcome == 'success'}}
         run: |
-            . ".\aws_rds_helper.ps1"
-            $secrets = (Create-Db-Secrets `
-                -Username ${{ env.TEST_USERNAME }} `
-                -Password ${{ env.TEST_PASSWORD }} `
-                -Engine "postgres" `
-                -ClusterEndpoint ${{ env.AURORA_CLUSTER_ENDPOINT }})
-            echo "AURORA_CLUSTER_SECRETS_ARN=$secrets" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: 'Build and Run Ansi Integration Tests'
-        shell: pwsh
-        if: ${{ !cancelled() && steps.AuroraClusterSetup.outcome == 'success'}}
-        run: |
-          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=FALSE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
-          cmake --build build_ansi --config Release
-          .\build_ansi\bin\Release\integration.exe
+          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=FALSE
+          cmake --build build_ansi --config ${{env.BUILD_CONFIGURATION}}
+          .\build_ansi\bin\${{env.BUILD_CONFIGURATION}}\integration.exe
         env:
           TEST_DSN: ${{ env.TEST_DSN_ANSI }}
-          TEST_USERNAME: ${{ env.TEST_USERNAME }}
-          TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
@@ -461,18 +405,18 @@ jobs:
           DRIVER_PATH: ${{ github.workspace }}
           SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
           TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
-      
-      - name: 'Build and Run Unicode Integration Tests'
+
+      - name: Build and Run Unicode Integration Tests
         shell: pwsh
-        if: ${{ !cancelled() && steps.AuroraClusterSetup.outcome == 'success'}}
+        if: ${{steps.AuroraClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=FALSE -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
-          cmake --build build_unicode --config Release
-          .\build_unicode\bin\Release\integration.exe
+          cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=FALSE
+          cmake --build build_unicode --config ${{env.BUILD_CONFIGURATION}}
+          .\build_unicode\bin\${{env.BUILD_CONFIGURATION}}\integration.exe
         env:
           TEST_DSN: ${{ env.TEST_DSN_UNICODE }}
-          TEST_USERNAME: ${{ env.TEST_USERNAME }}
-          TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
@@ -482,8 +426,8 @@ jobs:
           DRIVER_PATH: ${{ github.workspace }}
           SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
           TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
-      
-      - name: 'Delete Aurora RDS Cluster'
+
+      - name: Delete Aurora RDS Cluster
         if: always()
         shell: pwsh
         working-directory: scripts
@@ -495,7 +439,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
-      - name: 'Delete Aurora Db Secrets'
+      - name: Delete Aurora Db Secrets
         if: always()
         shell: pwsh
         working-directory: scripts
@@ -508,12 +452,12 @@ jobs:
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
     
        # Make sure IP is always deleted
-      - name: 'Get Github Action IP'
+      - name: Get Github Action IP
         if: always()
         id: ip
         uses: haythem/public-ip@v1.3
 
-      - name: 'Remove Github Action IP'
+      - name: Remove Github Action IP
         if: always()
         run: |
           aws ec2 revoke-security-group-ingress `
@@ -523,7 +467,7 @@ jobs:
             --cidr ${{ steps.ip.outputs.ipv4 }}/32 `
            *> $null;
 
-      - name: 'Archive log results'
+      - name: Archive log results
         if: always()
         uses: actions/upload-artifact@v4
         with:

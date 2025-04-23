@@ -1,4 +1,5 @@
-name: Community Integration Tests
+name: Dockerized Linux Regression Tests
+run-name: aws-pgsql-odbc Dockerized Linux Regression Tests - ${{ github.event.head_commit.message }}
 
 on:
   workflow_dispatch:
@@ -17,15 +18,15 @@ on:
       - 'docs/**'
       - 'ISSUE_TEMPLATE/**'
       - '**/remove-old-artifacts.yml'
-      - '**/build-installer.yml'
       - '**/release.yml'
 
-env:
-  BUILD_TYPE: Release
+concurrency:
+  group: linux-regression-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  community-tests:
-    name: Dockerized Community Tests
+  linux-regression-tests:
+    name: Linux Regression Tests
     runs-on: ubuntu-latest
     env:
       CMAKE_GENERATOR: Unix Makefiles
@@ -48,13 +49,13 @@ jobs:
         run: |
           git submodule update --init --recursive
 
-      - name: 'Set up JDK'
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: 17
       
-      - name: 'Run Community Tests'
+      - name: Run Community Tests
         working-directory: ${{ github.workspace }}/testframework
         run: |
           ./gradlew --no-parallel --no-daemon test-community --info
@@ -62,4 +63,3 @@ jobs:
           TEST_USERNAME: postgres
           TEST_PASSWORD: test
           DRIVER_PATH: ${{ github.workspace }}
-

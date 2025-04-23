@@ -1,22 +1,26 @@
-name: Build and Regression Tests on Windows
-run-name: aws-pgsql-odbc Windows CI - ${{ github.event.head_commit.message }}
+name: Windows Regression Tests
+run-name: aws-pgsql-odbc Windows Regression Tests - ${{ github.event.head_commit.message }}
 
 on:
   workflow_dispatch:
   push:
     branches:
       - main
-    tags:
-      - 'REL-*'
-      - '!REL-*-mimalloc'
   pull_request:
     branches:
-      - "**"
+      - '**'
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.jpg'
+      - '**/*.png'
+      - '**/README.*'
+      - '**/LICENSE.*'
+      - 'docs/**'
+      - 'ISSUE_TEMPLATE/**'
+      - '**/remove-old-artifacts.yml'
+      - '**/release.yml'
 
 env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -26,19 +30,16 @@ env:
   # you want the step to run, but the corresponding cache is causing the step to be skipped.
   WORKFLOW_VERSION_POSTGRESQL: '1' # for build steps related to the 'cachePostgres' cache
 
-  # Software versions. 
-  POSTGRESQL_SOURCE_TAG: 'REL_17_STABLE'
-  POSTGRESQL_PACKAGE_FILEID: '1259019'
-  OPENSSL_VERSION: '3_3_2'
-  PKGCONFIGLITE_VERSION: '0.28-1'
-  WINFLEXBISON_VERSION: '2.5.24'
-  DIFFUTILS_VERSION: '2.8.7-1'
+concurrency:
+  group: windows-regression-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  regression-tests-windows:
+  windows-regression-tests:
+    name: Windows Regression Tests
     runs-on: windows-latest
     steps:
       - name: Cache Postgres build output
@@ -46,9 +47,8 @@ jobs:
         id: cachePostgres
         with:
           path: |
-            d:\postgresql
-            d:\postgresql86
-          key: postgresql-${{env.POSTGRESQL_SOURCE_TAG}}_openssl-${{env.OPENSSL_VERSION}}_pkgconfiglite-${{env.PKGCONFIGLITE_VERSION}}_winflexbison-${{env.WINFLEXBISON_VERSION}}_workflow-${{env.WORKFLOW_VERSION_POSTGRESQL}}
+            D:\postgresql
+          key: postgresql-${{vars.POSTGRESQL_SOURCE_TAG}}_openssl-${{vars.OPENSSL_VERSION}}_pkgconfiglite-${{vars.PKGCONFIGLITE_VERSION}}_winflexbison-${{vars.WINFLEXBISON_VERSION}}_workflow-${{env.WORKFLOW_VERSION_POSTGRESQL}}
 
       - name: Cache Postgres source
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -56,17 +56,17 @@ jobs:
         id: cachePostgresSource
         with:
           path: postgres
-          key: postgres-source-${{env.POSTGRESQL_SOURCE_TAG}}
+          key: postgres-source-${{vars.POSTGRESQL_SOURCE_TAG}}
 
       - name: Get Postgres source
         uses: actions/checkout@v4
         if: ${{steps.cachePostgresSource.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
         with:
           repository: "postgres/postgres.git"
-          ref: ${{env.POSTGRESQL_SOURCE_TAG}}
+          ref: ${{vars.POSTGRESQL_SOURCE_TAG}}
           path: postgres
 
-      - name: 'get meson'
+      - name: Get meson & ninja
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
         run: |
           python -m pip install meson
@@ -77,7 +77,7 @@ jobs:
         id: cacheDiffutilsZip
         with:
           path: C:\OTHERBIN\diffutils
-          key: diff_utils-${{env.DIFFUTILS_VERSION}}
+          key: diff_utils-${{vars.DIFFUTILS_VERSION}}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
 
@@ -86,7 +86,7 @@ jobs:
         id: cachePostgresInstaller
         with:
           path: C:\OTHERBIN\postgresql_install.exe
-          key: postgresql_installer-${{env.POSTGRESQL_PACKAGE_FILEID}}
+          key: postgresql_installer-${{vars.POSTGRESQL_PACKAGE_FILEID}}
 
       - name: Cache pkgconfiglite for Compile using msvc and meson
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -94,17 +94,9 @@ jobs:
         id: cachePkgConfigLiteZip
         with:
           path: C:\OTHERBIN\pkgconfiglite
-          key: pkg-config-lite-${{env.PKGCONFIGLITE_VERSION}}-win32
+          key: pkg-config-lite-${{vars.PKGCONFIGLITE_VERSION}}-win32
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
-
-      - name: Cache Win32OpenSSL32 for Win32Compile
-        if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
-        uses: actions/cache@v4
-        id: cacheWin32OpenSSL
-        with:
-          path: C:\OTHERBIN\openssl32
-          key: Win32OpenSSL-${{env.OPENSSL_VERSION}}
 
       - name: Cache Win64OpenSSL64 for Win64Compile
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -112,7 +104,7 @@ jobs:
         id: cacheWin64OpenSSL
         with:
           path: C:\OTHERBIN\openssl64
-          key: Win64OpenSSL-${{env.OPENSSL_VERSION}}
+          key: Win64OpenSSL-${{vars.OPENSSL_VERSION}}
 
       - name: Cache winflexbison for Compile using msvc
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
@@ -120,7 +112,7 @@ jobs:
         id: cacheWinFlexBisonZip
         with:
           path: C:\OTHERBIN\winflexbison
-          key: winflexbison-${{env.WINFLEXBISON_VERSION}}
+          key: winflexbison-${{vars.WINFLEXBISON_VERSION}}
         env:
           SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1    
 
@@ -130,25 +122,16 @@ jobs:
         id: downloadDiffutilsZip
         with:
           retry-times: 5
-          url: https://zenlayer.dl.sourceforge.net/project/gnuwin32/diffutils/${{env.DIFFUTILS_VERSION}}/diffutils-${{env.DIFFUTILS_VERSION}}-bin.zip
+          url: https://zenlayer.dl.sourceforge.net/project/gnuwin32/diffutils/${{vars.DIFFUTILS_VERSION}}/diffutils-${{vars.DIFFUTILS_VERSION}}-bin.zip
           filename: diffutils-bin.zip
-      
-      - name: Download openssl32 for win32 compile
-        if: ${{steps.cacheWin32OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
-        uses: suisei-cn/actions-download-file@v1.6.0
-        id: downloadWin32OpenSSL
-        with:
-          retry-times: 5
-          url: https://slproweb.com/download/Win32OpenSSL-${{env.OPENSSL_VERSION}}.exe
-          filename: Win32OpenSSL.exe
-      
+
       - name: Download openssl64 for win64 compile
         if: ${{steps.cacheWin64OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
         uses: suisei-cn/actions-download-file@v1.6.0
         id: downloadWin64OpenSSL
         with:
           retry-times: 5
-          url: https://slproweb.com/download/Win64OpenSSL-${{env.OPENSSL_VERSION}}.exe
+          url: https://slproweb.com/download/Win64OpenSSL-${{vars.OPENSSL_VERSION}}.exe
           filename: Win64OpenSSL.exe
     
       - name: Download pkgconfiglite for Compile using msvc and meson
@@ -157,7 +140,7 @@ jobs:
         id: downloadPkgConfigLiteZip
         with:
           retry-times: 5
-          url: http://downloads.sourceforge.net/project/pkgconfiglite/${{env.PKGCONFIGLITE_VERSION}}/pkg-config-lite-${{env.PKGCONFIGLITE_VERSION}}_bin-win32.zip
+          url: http://downloads.sourceforge.net/project/pkgconfiglite/${{vars.PKGCONFIGLITE_VERSION}}/pkg-config-lite-${{vars.PKGCONFIGLITE_VERSION}}_bin-win32.zip
           filename: pkg-config-lite_bin-win32.zip
 
       - name: Download winflexbison for Compile using msvc
@@ -166,7 +149,7 @@ jobs:
         id: downloadWinFlexBisonZip
         with:
           retry-times: 5
-          url: https://sourceforge.net/projects/winflexbison/files/win_flex_bison-${{env.WINFLEXBISON_VERSION}}.zip
+          url: https://sourceforge.net/projects/winflexbison/files/win_flex_bison-${{vars.WINFLEXBISON_VERSION}}.zip
           filename: win_flex_bison.zip
 
       - name: Download postgresql install from EDB
@@ -175,7 +158,7 @@ jobs:
         id: downloadPostgresInstaller
         with:
           retry-times: 5
-          url: https://sbp.enterprisedb.com/getfile.jsp?fileid=${{env.POSTGRESQL_PACKAGE_FILEID}}
+          url: https://sbp.enterprisedb.com/getfile.jsp?fileid=${{vars.POSTGRESQL_PACKAGE_FILEID}}
           target: c:\OTHERBIN
           filename: postgresql_install.exe
 
@@ -210,11 +193,6 @@ jobs:
           rem - man7.org/linux/man-pages/man1/printf.1.html
           printf "C:\\OTHERBIN\\pkgconfiglite\\pkg-config-lite-%PKGCONFIGLITE_VERSION%\\bin" >> %GITHUB_PATH%
 
-      - name: Install Win32OpenSSL
-        if: ${{steps.cacheWin32OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
-        shell: cmd
-        run: Win32OpenSSL.exe /sp /silent /dir=c:\OTHERBIN\openssl32
-
       - name: Install Win64OpenSSL
         if: ${{steps.cacheWin64OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
         shell: cmd
@@ -238,23 +216,7 @@ jobs:
           rem - man7.org/linux/man-pages/man1/printf.1.html
           printf "C:\OTHERBIN\\winflexbison" >> %GITHUB_PATH%
 
-      - name: 'setup msvc x86'
-        if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with: 
-          arch: x86
-
-      - name: 'build postgresx86'    
-        if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
-        working-directory: postgres
-        run: |
-          meson setup buildx86 -Dssl=openssl -Dextra_lib_dirs=c:\OTHERBIN\openssl32\lib\VC\x86\MT -Dextra_include_dirs=c:\OTHERBIN\openssl32\include --prefix=d:\postgresql86
-          cd buildx86
-          ninja -v 
-          ninja -v install
-          cp c:\OTHERBIN\openssl32\*.dll d:\postgresql86\bin
-
-      - name: 'setup msvc x64'    
+      - name: Setup msvc x64
         if: ${{steps.cachePostgres.outputs.cache-hit != 'true'}}
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with: 
@@ -274,18 +236,13 @@ jobs:
         shell: cmd
         run: |
           echo on
-          C:\OTHERBIN\postgresql_install.exe --mode unattended --unattendedmodeui none --superpassword password --enable-components server    
+          C:\OTHERBIN\postgresql_install.exe --mode unattended --unattendedmodeui none --superpassword password --enable-components server
 
       - name: start postgresql
         shell: cmd
         run: |
           echo on
           sc config "postgresql-x64-14" start= auto
-
-      - name: 'setup msvc for psqlodbc'
-        uses: TheMrMilchmann/setup-msvc-dev@v3
-        with: 
-          arch: x86
 
       - name: Checkout aws-pgsql-odbc
         uses: actions/checkout@v4
@@ -313,8 +270,8 @@ jobs:
       - name: Install WiX
         shell: cmd
         run: |
-          dotnet tool install --global wix --version 5.0.2
-          wix extension add --global WixToolset.UI.wixext/5.0.2
+          dotnet tool install --global wix --version ${{vars.WIX_VERSION}}
+          wix extension add --global WixToolset.UI.wixext/${{vars.WIX_VERSION}}
   
       - name: Cache AWS SDK libraries
         id: cache-dynamic-aws-sdk
@@ -334,11 +291,3 @@ jobs:
         run: |
           .\winbuild\regress.ps1 -DsnInfo "SERVER=localhost|DATABASE=contrib_regression|PORT=5432|UID=postgres|PWD=password" -ExpectMimalloc -Platform x64
           test_x64\RegisterRegdsn.exe uninstall_driver postgres_devw
-
-      - name: Upload installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: AWSPgODBC Installer
-          path: ./installer/x64/*.msi
-          retention-days: 5
-          if-no-files-found: error
