@@ -1,4 +1,5 @@
-name: 'Release Draft'
+name: Release Draft
+run-name: aws-pgsql-odbc Draft Release - ${{ github.ref_name }}
 
 on:
   push:
@@ -14,9 +15,6 @@ permissions:
   repository-projects: write
 
 env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: .
-
   # Configuration type to build.
   # You can convert this to a build matrix if you need coverage of multiple configuration types.
   # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -25,14 +23,6 @@ env:
   # Workflow versions. Increment these when you make changes to a build step in the workflow and
   # you want the step to run, but the corresponding cache is causing the step to be skipped.
   WORKFLOW_VERSION_POSTGRESQL: '1' # for build steps related to the 'cachePostgres' cache
-
-  # Software versions. 
-  POSTGRESQL_SOURCE_TAG: 'REL_17_STABLE'
-  POSTGRESQL_PACKAGE_FILEID: '1259019'
-  OPENSSL_VERSION: '3_3_2'
-  PKGCONFIGLITE_VERSION: '0.28-1'
-  WINFLEXBISON_VERSION: '2.5.24'
-  IODBC_VERSION: '3.52.16'
 
 jobs:
   # Linux Build
@@ -69,9 +59,9 @@ jobs:
 
       - name: Download & Setup iODBC
         run: |
-          curl -L https://github.com/openlink/iODBC/releases/download/v${{env.IODBC_VERSION}}/libiodbc-${{env.IODBC_VERSION}}.tar.gz -o libiodbc.tar
+          curl -L https://github.com/openlink/iODBC/releases/download/v${{vars.IODBC_VERSION}}/libiodbc-${{vars.IODBC_VERSION}}.tar.gz -o libiodbc.tar
           tar xf libiodbc.tar
-          cd libiodbc-${{env.IODBC_VERSION}}
+          cd libiodbc-${{vars.IODBC_VERSION}}
           ./configure && make
           sudo make install
 
@@ -187,19 +177,19 @@ jobs:
           path: |
             d:\postgresql
             d:\postgresql86
-          key: postgresql-${{env.POSTGRESQL_SOURCE_TAG}}_openssl-${{env.OPENSSL_VERSION}}_pkgconfiglite-${{env.PKGCONFIGLITE_VERSION}}_winflexbison-${{env.WINFLEXBISON_VERSION}}_workflow-${{env.WORKFLOW_VERSION_POSTGRESQL}}
+          key: postgresql-${{vars.POSTGRESQL_SOURCE_TAG}}_openssl-${{vars.OPENSSL_VERSION}}_pkgconfiglite-${{vars.PKGCONFIGLITE_VERSION}}_winflexbison-${{vars.WINFLEXBISON_VERSION}}_workflow-${{env.WORKFLOW_VERSION_POSTGRESQL}}
 
       - name: Cache PostgreSQL installer
         uses: actions/cache@v4
         id: cachePostgresInstaller
         with:
           path: C:\OTHERBIN\postgresql_install.exe
-          key: postgresql_installer-${{env.POSTGRESQL_PACKAGE_FILEID}}
+          key: postgresql_installer-${{vars.POSTGRESQL_PACKAGE_FILEID}}
 
       - name: 'setup msvc for psqlodbc'
         uses: TheMrMilchmann/setup-msvc-dev@v3
         with: 
-          arch: x86
+          arch: x64
 
       - name: Checkout aws-pgsql-odbc
         uses: actions/checkout@v4

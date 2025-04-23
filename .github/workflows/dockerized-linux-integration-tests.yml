@@ -1,4 +1,5 @@
-name: Integration Tests
+name: Dockerized Linux Integration Tests
+run-name: aws-pgsql-odbc Dockerized Linux Integration Tests - ${{ github.event.head_commit.message }}
 
 on:
   workflow_dispatch:
@@ -17,19 +18,15 @@ on:
       - 'docs/**'
       - 'ISSUE_TEMPLATE/**'
       - '**/remove-old-artifacts.yml'
-      - '**/build-installer.yml'
       - '**/release.yml'
 
-env:
-  BUILD_TYPE: Release
-
 concurrency:
-  group: environment-${{ github.ref }}
-  cancel-in-progress: true
+  group: linux-integration-${{ github.ref }}
+  cancel-in-progress: false # Do not cancel to ensure cleanup is ran
 
 jobs:
-  integration-tests:
-    name: Integration Tests 
+  linux-integration-tests:
+    name: Linux Integration Tests
     runs-on: ubuntu-latest
     env:
       CMAKE_GENERATOR: Unix Makefiles
@@ -52,20 +49,20 @@ jobs:
         run: |
           git submodule update --init --recursive
 
-      - name: 'Set up JDK'
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: 17
 
-      - name: 'Configure AWS Credentials'
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: 'Set up Temp AWS Credentials'
+      - name: Set up Temp AWS Credentials
         run: |
           creds=($(aws sts get-session-token \
             --duration-seconds 21600 \
@@ -79,7 +76,7 @@ jobs:
           echo "TEMP_AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
           echo "TEMP_AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
 
-      - name: 'Run Integration Tests'
+      - name: Run Integration Tests
         working-directory: ${{ github.workspace }}/testframework
         run: |
           ./gradlew --no-parallel --no-daemon test-integration --info
@@ -96,12 +93,12 @@ jobs:
           TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
           DRIVER_PATH: ${{ github.workspace }}
 
-      - name: 'Get Github Action IP'
+      - name: Get Github Action IP
         if: always()
         id: ip
         uses: haythem/public-ip@v1.3
 
-      - name: 'Remove Github Action IP'
+      - name: Remove Github Action IP
         if: always()
         run: |
           aws ec2 revoke-security-group-ingress \
@@ -111,7 +108,7 @@ jobs:
             --cidr ${{ steps.ip.outputs.ipv4 }}/32 \
           2>&1 > /dev/null;
 
-      - name: 'Archive log results'
+      - name: Archive log results
         if: always()
         uses: actions/upload-artifact@v4
         with:
