@@ -86,13 +86,15 @@ class BaseFailoverIntegrationTest : public testing::Test {
     std::string reader_endpoint;
     std::string target_writer_id;
 
+    SQLSTR SERVER_ID_QUERY_STR = CONSTRUCT_SQLSTR("SELECT aurora_db_instance_identifier() as id");
+
     // Queries
-    SQLTCHAR* SERVER_ID_QUERY = AS_SQLTCHAR("SELECT aurora_db_instance_identifier()");
+    SQLTCHAR* SERVER_ID_QUERY = AS_SQLTCHAR(SERVER_ID_QUERY_STR.c_str());
 
     // Error codes
-    static constexpr const char* ERROR_FAILOVER_FAILED = "08S01";
-    static constexpr const char* ERROR_FAILOVER_SUCCEEDED = "08S02";
-    static constexpr const char* ERROR_TRANSACTION_UNKNOWN = "08007";
+    std::string ERROR_FAILOVER_FAILED = "08S01";
+    std::string ERROR_FAILOVER_SUCCEEDED = "08S02";
+    std::string ERROR_TRANSACTION_UNKNOWN = "08007";
 
     // Helper functions
 
@@ -138,8 +140,7 @@ class BaseFailoverIntegrationTest : public testing::Test {
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
         EXPECT_EQ(SQL_ERROR, SQLExecDirect(handle, query, SQL_NTS));
         EXPECT_EQ(SQL_SUCCESS, SQLError(nullptr, nullptr, handle, state, &native_err, msg, SQL_MAX_MESSAGE_LENGTH - 1, &stmt_length));
-        const std::string state_str = reinterpret_cast<char*>(state);
-        EXPECT_EQ(expected_error, state_str);
+        EXPECT_EQ(StringHelper::ToSQLSTR(expected_error), StringHelper::ToSQLSTR(state));
         EXPECT_EQ(SQL_SUCCESS, SQLFreeHandle(SQL_HANDLE_STMT, handle));
     }
 
@@ -325,17 +326,9 @@ class BaseFailoverIntegrationTest : public testing::Test {
         return !get_matched_DBClusterMember(client, cluster_id, instance_id).GetIsClusterWriter();
     }
 
-    static int query_count_table_rows(const SQLHSTMT handle, const char* table_name, const int id = -1) {
-        EXPECT_FALSE(table_name[0] == '\0');
-
-        char select_count_query[SQL_MAX_MESSAGE_LENGTH];
-        if (id == -1) {
-            snprintf(select_count_query, sizeof(select_count_query), "SELECT count(*) FROM %s", table_name);
-        } else {
-            snprintf(select_count_query, sizeof(select_count_query), "SELECT count(*) FROM %s WHERE id = %d", table_name, id);
-        }
-
-        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, AS_SQLTCHAR(select_count_query), SQL_NTS));
+    static int query_count_table_rows(const SQLHSTMT handle) {
+        SQLSTR select_count_query = CONSTRUCT_SQLSTR("SELECT count(*) FROM failover_transaction");
+        EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, AS_SQLTCHAR(select_count_query.c_str()), SQL_NTS));
         const auto rc = SQLFetch(handle);
 
         SQLINTEGER buf = -1;
