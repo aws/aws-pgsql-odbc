@@ -1346,8 +1346,10 @@ MYLOG(MIN_LOG_LEVEL, "entering\n");
 
 void *PQconninfoParse(const char *, char **);
 void PQconninfoFree(void *);
+void PQfreemem(void *ptr);
 typedef void *(*PQCONNINFOPARSEPROC)(const char *, char **);
-typedef void (*PQCONNINFOFREEPROC)(void *);
+typedef void (*PQCONNINFOFREEPROC)(void *); 
+typedef void (*PQFREEMEMPROC)(void *);
 static int
 ds_options3_update(HWND hdlg, ConnInfo *ci)
 {
@@ -1356,7 +1358,8 @@ ds_options3_update(HWND hdlg, ConnInfo *ci)
 	char	pqopt[LARGE_REGISTRY_LEN];
 	HMODULE	hmodule;
 	PQCONNINFOPARSEPROC	pproc = NULL;
-	PQCONNINFOFREEPROC	fproc = NULL;
+	PQCONNINFOFREEPROC	fproc = NULL;	
+	PQFREEMEMPROC		fmproc = NULL;
 
 	MYLOG(MIN_LOG_LEVEL, "entering got ci=%p\n", ci);
 
@@ -1370,8 +1373,10 @@ ds_options3_update(HWND hdlg, ConnInfo *ci)
 			const char *logmsg = "libpq parameter error";
 
 			MessageBox(hdlg, ermsg ? ermsg : "memory over?", logmsg, MB_ICONEXCLAMATION | MB_OK);
-			if (NULL != ermsg)
-				free(ermsg);
+			if (NULL != ermsg) {
+				fmproc = (PQFREEMEMPROC)GetProcAddress(hmodule, "PQfreemem");
+				(*fmproc)(ermsg);
+			}
 			FreeLibrary(hmodule);
 
 			return 1;
