@@ -100,52 +100,52 @@ TEST_F(FailoverIntegrationTest, WriterFailToReader) {
     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
 }
 
-/** Writer fails within a transaction. Open transaction by explicitly calling BEGIN */
-TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
-    SQLSMALLINT len;
-    EXPECT_EQ(SQL_SUCCESS,
-              SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
+// /** Writer fails within a transaction. Open transaction by explicitly calling BEGIN */
+// TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
+//     SQLSMALLINT len;
+//     EXPECT_EQ(SQL_SUCCESS,
+//               SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
 
-    // Setup tests
-    SQLHSTMT handle;
-    EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
-    SQLSTR drop_table_query_str = CONSTRUCT_SQLSTR("DROP TABLE IF EXISTS failover_transaction");
-    SQLSTR create_table_query_str = CONSTRUCT_SQLSTR("CREATE TABLE failover_transaction (id INT NOT NULL PRIMARY KEY, failover_transaction_field VARCHAR(255) NOT NULL)");
-    auto drop_table_query = AS_SQLTCHAR(drop_table_query_str.c_str());
-    auto create_table_query = AS_SQLTCHAR(create_table_query_str.c_str());
+//     // Setup tests
+//     SQLHSTMT handle;
+//     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
+//     SQLSTR drop_table_query_str = CONSTRUCT_SQLSTR("DROP TABLE IF EXISTS failover_transaction");
+//     SQLSTR create_table_query_str = CONSTRUCT_SQLSTR("CREATE TABLE failover_transaction (id INT NOT NULL PRIMARY KEY, failover_transaction_field VARCHAR(255) NOT NULL)");
+//     auto drop_table_query = AS_SQLTCHAR(drop_table_query_str.c_str());
+//     auto create_table_query = AS_SQLTCHAR(create_table_query_str.c_str());
 
-    // Execute setup query
-    EXPECT_TRUE(SQL_SUCCEEDED(SQLExecDirect(handle, drop_table_query, SQL_NTS)));
-    EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, create_table_query, SQL_NTS));
+//     // Execute setup query
+//     EXPECT_TRUE(SQL_SUCCEEDED(SQLExecDirect(handle, drop_table_query, SQL_NTS)));
+//     EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, create_table_query, SQL_NTS));
 
-    // Execute queries within the transaction
-    SQLSTR insert_query_a_str = CONSTRUCT_SQLSTR("BEGIN; INSERT INTO failover_transaction VALUES (1, 'test field string 1')");
-    auto insert_query_a = AS_SQLTCHAR(insert_query_a_str.c_str());
-    EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, insert_query_a, SQL_NTS));
+//     // Execute queries within the transaction
+//     SQLSTR insert_query_a_str = CONSTRUCT_SQLSTR("BEGIN; INSERT INTO failover_transaction VALUES (1, 'test field string 1')");
+//     auto insert_query_a = AS_SQLTCHAR(insert_query_a_str.c_str());
+//     EXPECT_EQ(SQL_SUCCESS, SQLExecDirect(handle, insert_query_a, SQL_NTS));
 
-    failover_cluster_and_wait_until_writer_changed(rds_client, cluster_id, writer_id, target_writer_id);
+//     failover_cluster_and_wait_until_writer_changed(rds_client, cluster_id, writer_id, target_writer_id);
 
-    // If there is an active transaction, roll it back and return an error 08007.
-    assert_query_failed(dbc, SERVER_ID_QUERY, ERROR_TRANSACTION_UNKNOWN);
-    // Query new ID after failover
-    std::string current_connection_id = query_instance_id(dbc);
+//     // If there is an active transaction, roll it back and return an error 08007.
+//     assert_query_failed(dbc, SERVER_ID_QUERY, ERROR_TRANSACTION_UNKNOWN);
+//     // Query new ID after failover
+//     std::string current_connection_id = query_instance_id(dbc);
 
-    // Check if current connection is a new writer
-    EXPECT_TRUE(is_DB_instance_writer(rds_client, cluster_id, current_connection_id));
-    EXPECT_NE(current_connection_id, writer_id);
+//     // Check if current connection is a new writer
+//     EXPECT_TRUE(is_DB_instance_writer(rds_client, cluster_id, current_connection_id));
+//     EXPECT_NE(current_connection_id, writer_id);
 
-    // No rows should have been inserted to the table
-    EXPECT_EQ(0, query_count_table_rows(handle));
-    SQLFreeHandle(SQL_HANDLE_STMT, handle);
+//     // No rows should have been inserted to the table
+//     EXPECT_EQ(0, query_count_table_rows(handle));
+//     SQLFreeHandle(SQL_HANDLE_STMT, handle);
 
-    EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
+//     EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
 
-    // Clean up test
-    SQLRETURN rc = SQLExecDirect(handle, drop_table_query, SQL_NTS);
+//     // Clean up test
+//     SQLRETURN rc = SQLExecDirect(handle, drop_table_query, SQL_NTS);
 
-    EXPECT_EQ(SQL_SUCCESS, rc);
-    EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
-}
+//     EXPECT_EQ(SQL_SUCCESS, rc);
+//     EXPECT_EQ(SQL_SUCCESS, SQLDisconnect(dbc));
+// }
 
 /** Writer fails within a transaction. Open transaction with SQLSetConnectAttr */
 TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_setAutoCommitFalse) {

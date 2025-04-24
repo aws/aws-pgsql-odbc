@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - main
+      - test/unicode
   pull_request:
     branches:
       - '**'
