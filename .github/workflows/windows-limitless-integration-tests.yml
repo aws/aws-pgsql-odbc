@@ -411,10 +411,8 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-          AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
-          DRIVER_PATH: ${{ github.workspace }}
+          IAM_USER: ${{ secrets.TEST_IAM_USER }}
           SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
           TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
 
@@ -432,10 +430,8 @@ jobs:
             AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
             AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-            AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
             RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-            TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
-            DRIVER_PATH: ${{ github.workspace }}
+            IAM_USER: ${{ secrets.TEST_IAM_USER }}
             SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
             TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
 
@@ -478,6 +474,12 @@ jobs:
             --port 5432 `
             --cidr ${{ steps.ip.outputs.ipv4 }}/32 `
            *> $null;
+
+      - name: Copy Driver Logs
+        if: always()
+        shell: pwsh
+        run: |
+          Copy-Item -Path 'C:\*.log' -Destination '${{ github.workspace }}\logs'
 
       - name: Archive log results
         if: always()
