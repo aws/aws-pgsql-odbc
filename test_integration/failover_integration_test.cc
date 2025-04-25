@@ -75,11 +75,10 @@ class FailoverIntegrationTest : public BaseFailoverIntegrationTest {
 
 /** Writer fails to a reader **/
 TEST_F(FailoverIntegrationTest, WriterFailToReader) {
-    SQLTCHAR* conn_out;
     SQLSMALLINT len;
 
     auto conn_str = ConnectionStringBuilder(default_connection_string).withFailoverMode("STRICT_READER").getString();
-    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, conn_out, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
+    EXPECT_EQ(SQL_SUCCESS, SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(conn_str.c_str()), SQL_NTS, nullptr, MAX_NAME_LEN, &len, SQL_DRIVER_NOPROMPT));
 
     // Query new ID after failover
     std::string current_connection_id = query_instance_id(dbc);
@@ -102,7 +101,6 @@ TEST_F(FailoverIntegrationTest, WriterFailToReader) {
 
 /** Writer fails within a transaction. Open transaction by explicitly calling BEGIN */
 TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
-    SQLSMALLINT len;
     EXPECT_EQ(SQL_SUCCESS,
               SQLDriverConnect(dbc, nullptr, AS_SQLTCHAR(default_connection_string.c_str()), SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT));
 
@@ -127,7 +125,6 @@ TEST_F(FailoverIntegrationTest, WriterFailWithinTransaction_DisableAutocommit) {
 
     // If there is an active transaction, roll it back and return an error 08007.
     assert_query_failed(dbc, SERVER_ID_QUERY, ERROR_TRANSACTION_UNKNOWN);
-    // Query new ID after failover
     std::string current_connection_id = query_instance_id(dbc);
 
     // Check if current connection is a new writer
