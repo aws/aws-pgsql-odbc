@@ -304,7 +304,7 @@ makeConnectString(char *connect_string, const ConnInfo *ci, UWORD len)
 #ifdef	_HANDLE_ENLIST_IN_DTC_
 	char		xaOptStr[16];
 #endif
-	ssize_t		hlen, nlen, olen;
+	ssize_t		hlen, nlen, olen, rlen;
 	BOOL		abbrev;
 	UInt4		flag;
 
@@ -330,7 +330,8 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	);
 
 	/* Auth */
-	olen += snprintf(connect_string + olen, nlen - olen, "AUTHTYPE=%s;UID=%s;PWD=%s;IAMHOST=%s;REGION=%s;" \
+	rlen = (nlen - olen) < 0 ? 0 : nlen - olen;
+	olen += snprintf(connect_string + olen, rlen, "AUTHTYPE=%s;UID=%s;PWD=%s;IAMHOST=%s;REGION=%s;" \
 		"TOKENEXPIRATION=%s;IDPENDPOINT=%s;IDPPORT=%s;IDPUSERNAME=%s;IDPPASSWORD=%s;IDPARN=%s;IDPROLEARN=%s;" \
 		"SOCKETTIMEOUT=%s;CONNTIMEOUT=%s;RELAYINGPARTYID=%s;APPID=%s;SECRETID=%s;",
 		ci->authtype,
@@ -353,7 +354,8 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	);
 
 	/* Limitless */
-	olen += snprintf(connect_string + olen, nlen - olen, "LIMITLESSENABLED=%d;LIMITLESSMODE=%s;" \
+	rlen = (nlen - olen) < 0 ? 0 : nlen - olen;
+	olen += snprintf(connect_string + olen, rlen, "LIMITLESSENABLED=%d;LIMITLESSMODE=%s;" \
 		"LIMITLESSMONITORINTERVALMS=%u;LIMITLESSSERVICEID=%s;",
 		ci->limitless_enabled,
 		ci->limitless_mode,
@@ -362,7 +364,8 @@ MYLOG(DETAIL_LOG_LEVEL, "force_abbrev=%d abbrev=%d\n", ci->force_abbrev_connstr,
 	);
 
 	/* Failover */
-	olen += snprintf(connect_string + olen, nlen - olen, "CLUSTERID=%s;ENABLECLUSTERFAILOVER=%d;FAILOVERMODE=%s;" \
+	rlen = (nlen - olen) < 0 ? 0 : nlen - olen;
+	olen += snprintf(connect_string + olen, rlen, "CLUSTERID=%s;ENABLECLUSTERFAILOVER=%d;FAILOVERMODE=%s;" \
 		"FAILOVERTIMEOUT=%u;HOSTPATTERN=%s;IGNORETOPOLOGYREQUEST=%u;READERHOSTSELECTORSTRATEGY=%s;" \
 		"TOPOLOGYHIGHREFRESHRATE=%u;TOPOLOGYREFRESHRATE=%u;",
 		ci->cluster_id,
