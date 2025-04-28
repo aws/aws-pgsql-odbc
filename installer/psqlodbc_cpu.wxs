@@ -56,7 +56,7 @@
             </Component>
             <Merge Id="awspsqlodbcm" DiskId="1" Language="1033" SourceFile="$(MERGEM)" />
           </Directory>
-          <Directory Id="DOCSDIR" Name="docs" FileSource="../docs">
+          <!-- <Directory Id="DOCSDIR" Name="docs" FileSource="../docs">
             <Directory Id="BUILDANDTESTDOCS" Name="build-and-test-aws-driver" FileSource="../docs/build-and-test-aws-driver">
               <Component Id="buildandtest_files" Guid="$(CIDDOC_BUILDANDTEST)">
                 <File Name="build.md" KeyPath="yes" />
@@ -119,18 +119,18 @@
               <File Name="msdtc_pgxalib_tracing_enable.reg" />
               <File Name="msdtc_pgxalib_tracing_README.txt" />
             </Component>
-          </Directory>
+          </Directory> -->
         </Directory>
       </Directory>
     </StandardDirectory>
-    <StandardDirectory Id="ProgramMenuFolder">
+    <!-- <StandardDirectory Id="ProgramMenuFolder">
       <Directory Id="SMDir" Name="$(PKGNAME)">
         <Component Id="smdir" Guid="$(CIDSMD)">
           <RegistryValue KeyPath="yes" Type="string" Root="HKCU" Key="Software\$(PKGNAME)\SMDir Created" Value="y" />
           <RemoveFolder Id="SMDir" On="uninstall" />
         </Component>
       </Directory>
-    </StandardDirectory>
+    </StandardDirectory> -->
 
 <!-- Features -->
 
@@ -140,7 +140,7 @@
         <MergeRef Id="awspsqlodbcm" />
       </Feature>
 
-      <Feature Id="docs" Title="Documentation" Level="4" Description="Documentation and sample code.">
+      <!-- <Feature Id="docs" Title="Documentation" Level="4" Description="Documentation and sample code.">
         <ComponentRef Id="smdir" />
         <ComponentRef Id="docs" />
         <ComponentRef Id="buildandtest_files" />
@@ -149,7 +149,7 @@
         <ComponentRef Id="auth_files" />
         <ComponentRef Id="failover_files" />
         <ComponentRef Id="limitless_files" />
-      </Feature>
+      </Feature> -->
 
     </Feature>
     <Media Id="1" EmbedCab="yes" Cabinet="awspsqlodbc.cab" CompressionLevel="high"/>
