@@ -1,4 +1,4 @@
-name: macOS Limitless Integration Tests
+name: MacOS Limitless Integration Tests
 
 on:
   workflow_dispatch:
@@ -40,7 +40,7 @@ concurrency:
 
 jobs:
   limitless-integration-tests-macos:
-    name: "Limitless Integration Tests macOS"
+    name: "Limitless Integration Tests MacOS"
     runs-on: macos-14
     steps:
       - name: Checkout aws-pgsql-odbc
@@ -62,7 +62,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install unixodbc
+          brew install unixodbc autoconf automake gflags postgresql
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -85,9 +85,10 @@ jobs:
           echo "TEMP_AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
           echo "TEMP_AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: always()
+      - name: Setup Cluster Id and Shard Id Env Variables
+        run: |
+          echo "LIMITLESS_CLUSTER_ID=AWS-PGODBC-MacOS-Integ-Limitless-${{github.run_id}}" >> $GITHUB_ENV
+          echo "LIMITLESS_SHARD_ID=AWS-PGODBC-MacOS-Integ-Shard-${{github.run_id}}" >> $GITHUB_ENV
 
       - name: Create Limitless Cluster
         id: limitlessClusterSetup
@@ -112,7 +113,7 @@ jobs:
         run: |
           . "./aws_rds_helper"
           endpoint=$(get_cluster_endpoint ${{ env.LIMITLESS_CLUSTER_ID }})
-          echo "LIMITLESS_CLUSTER_ENDPOINT=$endpoint" >> $env:GITHUB_ENV
+          echo "LIMITLESS_CLUSTER_ENDPOINT=$endpoint" >> $GITHUB_ENV
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
@@ -128,12 +129,12 @@ jobs:
                 ${{ env.TEST_PASSWORD }} \
                 "postgres" \
                 ${{ env.LIMITLESS_CLUSTER_ENDPOINT }})
-            echo "LIMITLESS_CLUSTER_SECRETS_ARN=$secretsArn" >> $env:GITHUB_ENV
+            echo "LIMITLESS_CLUSTER_SECRETS_ARN=$secretsArn" >> $GITHUB_ENV
 
       - name: Build driver
         shell: bash
         run: |
-          ./macos/buildall
+          ./macos/buildall ${{ env.BUILD_TYPE }}
 
       - name: Build and Run Integration Tests
         shell: bash
