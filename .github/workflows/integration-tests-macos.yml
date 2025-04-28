@@ -1,0 +1,206 @@
+name: macOS Limitless Integration Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.jpg'
+      - '**/*.png'
+      - '**/README.*'
+      - '**/LICENSE.*'
+      - 'docs/**'
+      - 'ISSUE_TEMPLATE/**'
+      - '**/remove-old-artifacts.yml'
+      - '**/build-installer.yml'
+      - '**/release.yml'
+
+env:
+  BUILD_TYPE: Release
+
+  # Test configuration
+  TEST_USERNAME: 'postgres'
+  TEST_PASSWORD: 'password'
+  TEST_DATABASE: 'postgres_limitless'
+  ENGINE: 'aurora-postgresql'
+  ENGINE_VERSION: '16.4-limitless'
+  TEST_DSN_ANSI: 'AWSpsqlODBC_ansi'
+  TEST_DSN_UNICODE: 'AWSpsqlODBC_unicode'
+  DRIVER_NAME_ANSI: 'AWS ANSI ODBC Driver for PostgreSQL (x64)'
+  DRIVER_NAME_UNICODE: 'AWS Unicode ODBC Driver for PostgreSQL (x64)'
+
+concurrency:
+  group: environment-macos-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  limitless-integration-tests-macos:
+    name: "Limitless Integration Tests macOS"
+    runs-on: macos-14
+    steps:
+      - name: Checkout aws-pgsql-odbc
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout aws-rds-odbc
+        uses: actions/checkout@v4
+        with:
+          repository: aws/aws-rds-odbc
+          ref: main
+          path: ./libs/aws-rds-odbc
+          token: ${{secrets.CLONE_PAT}}
+
+      - name: Initialize submodules
+        run: |
+          git submodule update --init --recursive
+
+      - name: Install dependencies
+        run: |
+          brew install unixodbc
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Set up Temp AWS Credentials
+        run: |
+          creds=($(aws sts get-session-token \
+            --duration-seconds 21600 \
+            --query 'Credentials.[AccessKeyId, SecretAccessKey, SessionToken]' \
+            --output text \
+          | xargs));
+          echo "::add-mask::${creds[0]}"
+          echo "::add-mask::${creds[1]}"
+          echo "::add-mask::${creds[2]}"
+          echo "TEMP_AWS_ACCESS_KEY_ID=${creds[0]}" >> $GITHUB_ENV
+          echo "TEMP_AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
+          echo "TEMP_AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: always()
+
+      - name: Create Limitless Cluster
+        id: limitlessClusterSetup
+        shell: bash
+        working-directory: macos
+        run: |
+          . "./aws_rds_helper"
+          create_limitless_rds_cluster \
+            ${{ env.TEST_USERNAME }} \
+            ${{ env.TEST_PASSWORD }} \
+            ${{ env.TEST_DATABASE }} \
+            ${{ env.LIMITLESS_CLUSTER_ID }} \
+            ${{ env.LIMITLESS_SHARD_ID }} \
+            ${{ env.ENGINE }} \
+            ${{ env.ENGINE_VERSION }} \
+            ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }} \
+            ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: Get Limitless Cluster endpoint
+        shell: bash
+        working-directory: macos
+        run: |
+          . "./aws_rds_helper"
+          endpoint=$(get_cluster_endpoint ${{ env.LIMITLESS_CLUSTER_ID }})
+          echo "LIMITLESS_CLUSTER_ENDPOINT=$endpoint" >> $env:GITHUB_ENV
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+
+      - name: Create Limitless Cluster Secrets
+        shell: bash
+        working-directory: macos
+        run: |
+            . "./aws_rds_helper"
+            secretsArn=$(create_db_secrets \
+                ${{ env.TEST_USERNAME }} \
+                ${{ env.TEST_PASSWORD }} \
+                "postgres" \
+                ${{ env.LIMITLESS_CLUSTER_ENDPOINT }})
+            echo "LIMITLESS_CLUSTER_SECRETS_ARN=$secretsArn" >> $env:GITHUB_ENV
+
+      - name: Build driver
+        shell: bash
+        run: |
+          ./macos/buildall
+
+      - name: Build and Run Integration Tests
+        shell: bash
+        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
+        run: |
+          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE
+          cmake --build build_ansi --config Release
+          TEST_DSN=${{ env.TEST_DSN_ANSI }} ./build_ansi/bin/Release/integration
+
+          cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=TRUE -DBUILD_UNICODE=TRUE
+          cmake --build build_unicode --config Release
+          TEST_DSN=${{ env.TEST_DSN_UNICODE }} ./build_unicode/bin/Release/integration
+        env:
+          TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
+          TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
+          TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
+          TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
+          ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"
+          ODBCINST: "${{ github.workspace }}/build/test/odbcinst.ini"
+          ODBCSYSINI: "${{ github.workspace }}/build/test"
+          TEST_USERNAME: ${{ env.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
+          TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
+          POSTGRES_PORT: "5432"
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+          AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
+          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
+          SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+
+      - name: Delete Limitless Cluster
+        if: always()
+        shell: bash
+        working-directory: macos
+        run: |
+          . "./aws_rds_helper"
+          delete_limitless_db_cluster ${{ env.LIMITLESS_CLUSTER_ID }} ${{ env.LIMITLESS_SHARD_ID }} ${{ secrets.AWS_DEFAULT_REGION }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+
+      - name: Delete Limitless Cluster Secrets
+        if: always()
+        shell: bash
+        working-directory: macos
+        run: |
+          . "./aws_rds_helper"
+          delete_secrets ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+
+      - name: 'Get Github Action IP'
+        if: always()
+        id: ip
+        uses: haythem/public-ip@v1.3
+
+      - name: 'Remove Github Action IP'
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress \
+            --group-name default \
+            --protocol tcp \
+            --port 5432 \
+            --cidr ${{ steps.ip.outputs.ipv4 }}/32 \
+          2>&1 > /dev/null;
