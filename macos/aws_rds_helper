@@ -25,16 +25,14 @@ function add_ip_to_db_sg {
     # Get the security group associated with the DB cluster using AWS CLI
     dbClusterInfo=$(aws rds describe-db-clusters --db-cluster-identifier $ClusterId --region $Region)
 
-    if (( $? != 0 ))
-    then
+    if [ $? -ne 0 ]; then
         echo "Failed to get DB cluster information."
         exit 1
     fi
 
     # Check if we got the DB Cluster information
     dbClustersCount=$(echo "$dbClusterInfo" | jq -r '.DBClusters | length')
-    if (( dbClustersCount == 0 ))
-    then
+    if [ $dbClustersCount -eq 0 ]; then
         echo "Error: DB Cluster with ID '$ClusterId' not found in region '$Region'."
         exit 1
     fi
@@ -49,8 +47,7 @@ function add_ip_to_db_sg {
     aws ec2 authorize-security-group-ingress --group-id $securityGroupId --protocol tcp --cidr $cidrBlock --port 5432 --region $Region
 
     # Check if the ingress rule was successfully added
-    if (( $? == 0 ))
-    then
+    if [ $? -eq 0 ]; then
         echo "Inbound traffic allowed from IP $localIp to security group $securityGroupId on all ports."
     else
         echo "Failed to add inbound rule to security group $securityGroupId."
@@ -65,16 +62,14 @@ function remove_ip_from_db_sg {
     # Get the security group associated with the DB cluster using AWS CLI
     dbClusterInfo=$(aws rds describe-db-clusters --db-cluster-identifier $ClusterId --region $Region)
 
-    if (( $? != 0 ))
-    then
+    if [ $? -ne 0 ]; then
         echo "Failed to get DB cluster information."
         exit 1
     fi
 
     # Check if we got the DB Cluster information
     dbClustersCount=$(echo "$dbClusterInfo" | jq -r '.DBClusters | length')
-    if (( dbClustersCount == 0 ))
-    then
+    if [ $dbClustersCount -eq 0 ]; then
         echo "Error: DB Cluster with ID '$ClusterId' not found in region '$Region'."
         exit 1
     fi
@@ -92,8 +87,7 @@ function remove_ip_from_db_sg {
     aws ec2 revoke-security-group-ingress --group-id $securityGroupId --protocol tcp --cidr $cidrBlock --port 0-65535 --region $Region
 
     # Check if revoked successfully
-    if (( $? == 0 ))
-    then
+    if [ $? -eq 0 ]; then
         echo "Removed IP: $localIp from security group $securityGroupId."
     else
         echo "Failed to remove ip $localIp from security group $securityGroupId."
@@ -129,8 +123,7 @@ function create_aurora_rds_cluster {
             --tags "Key=env,Value=test-runner"
     )
 
-    if (( $? != 0 ))
-    then
+    if [ $? -ne 0 ]; then
         echo "Failed to create RDS Cluster."
         exit 1
     fi
@@ -148,8 +141,7 @@ function create_aurora_rds_cluster {
             --publicly-accessible\
             --tags "Key=env,Value=test-runner"
 
-        if (( $? != 0 ))
-        then
+        if [ $? -ne 0 ]; then
             echo "Failed to create DB Instance."
             exit 1
         fi
@@ -197,8 +189,7 @@ function create_limitless_rds_cluster {
             --tags "Key=env,Value=test-runner"
     )
 
-    if (( $? != 0 ))
-    then
+    if [ $? -ne 0 ]; then
         echo "Failed to create Limitless RDS Cluster."
         exit 1
     fi
@@ -215,8 +206,7 @@ function create_limitless_rds_cluster {
             --tags "Key=env,Value=test-runner"
     )
 
-    if (( $? != 0 ))
-    then
+    if [ $? -ne 0 ]; then
         echo "Failed to create Limitless Shard Group."
         exit 1
     fi
@@ -234,8 +224,7 @@ function create_limitless_rds_cluster {
         # Call the AWS CLI to wait for DB cluster to be available
         aws rds wait db-cluster-available --db-cluster-identifier "$ClusterId"
 
-        if (( $? == 0 ))
-        then
+        if [ $? -eq 0 ]; then
             # If the command succeeds, it will return nothing, so we set the success flag
             waitSuccessful=$true
             echo "DB Cluster is now available."
@@ -243,16 +232,14 @@ function create_limitless_rds_cluster {
         else
             echo "Error: DB cluster is not available. Attempt $((attempt + 1)) failed."
             ((attempt++))
-            if [ $attempt -le $maxRetries ]
-            then
+            if [ $attempt -le $maxRetries ]; then
                 echo "Retrying... ($((maxRetries - attempt)) retries left)"
                 sleep 30 # Wait for 30 seconds before retrying
             fi
         fi
     done
 
-    if (( $waitSuccessful != $true ))
-    then
+    if [ $waitSuccessful -ne $true ]; then
         echo "Failed to wait for DB cluster availability after $((maxRetries + 1)) attempts."
         exit 1
     else
@@ -272,8 +259,7 @@ function delete_dbshards {
     # AWS CLI command to delete a DB shard
     aws rds delete-db-shard-group --db-shard-group-identifier $ShardId
 
-    if (( $? != 0 ))
-    then
+    if [ $? -ne 0 ]; then
         echo "Error deleting DB shard $ShardId. Attempt $((attempt + 1)) failed."
         return $false
     fi
@@ -291,8 +277,7 @@ function delete_dbcluster {
     # AWS CLI command to delete the DB cluster
     aws rds delete-db-cluster --db-cluster-identifier $ClusterId --skip-final-snapshot
 
-    if (( $? != 0 ))
-    then
+    if [ $? -ne 0 ]; then
         echo "Error deleting DB cluster $ClusterId. Attempt $((attempt + 1)) failed."
         return $false
     fi
@@ -346,18 +331,15 @@ function delete_limitless_db_cluster {
         deleteShardsSuccessful=$(delete_dbshards $ShardId)
         ((attempt++))
 
-        if (( deleteShardsSuccessful != $true ))
-        then
-            if [ $attempt -lt $maxRetries ]
-            then
+        if [ $deleteShardsSuccessful -ne $true ]; then
+            if [ $attempt -lt $maxRetries ]; then
                 echo "Retrying DB shard deletion... ($((maxRetries - attempt)) retries left)"
                 sleep 30  # Wait for 30 seconds before retrying
             fi
         fi
     done
 
-    if [ deleteShardsSuccessful != $true ]
-    then
+    if [ deleteShardsSuccessful -ne $true ]; then
         echo "Failed to delete DB shard $ShardId after $maxRetries attempts."
         exit 1
     else
@@ -373,18 +355,15 @@ function delete_limitless_db_cluster {
         deleteClusterSuccessful=$(delete_dbcluster $ClusterId)
         ((attempt++))
 
-        if (( deleteClusterSuccessful != true ))
-        then
-            if [ $attempt -lt $maxRetries ]
-            then
+        if [ $deleteClusterSuccessful -ne $true ]; then
+            if [ $attempt -lt $maxRetries ]; then
                 echo "Retrying DB cluster deletion... ($((maxRetries - attempt)) retries left)"
                 sleep 30  # Wait for 30 seconds before retrying
             fi
         fi
     done
 
-    if (( deleteClusterSuccessful != true ))
-    then
+    if [ $deleteClusterSuccessful -ne $true ]; then
         echo "Failed to delete DB cluster $ClusterId after $maxRetries attempts."
         exit 1
     else
@@ -398,14 +377,14 @@ function get_cluster_endpoint {
     ClusterId=$1
 
     # Get the DB cluster details using AWS CLI and jq
-    endpoint=$(aws rds describe-db-clusters --db-cluster-identifier $ClusterId | jq -r '.DBClusters[0].Endpoint')
-
-    if (( $? -ne 0 ))
-    then
+    output=$(aws rds describe-db-clusters --db-cluster-identifier $ClusterId)
+    if [ $? -ne 0 ]; then
         echo "Failed to get cluster endpoint."
         exit 1
-    elif [ $endpoint -eq "null" ]
-    then
+    fi
+    endpoint=$(echo "$output" | jq -r '.DBClusters[0].Endpoint')
+
+    if [ "$endpoint" = "null" ]; then
         echo "Failed to get cluster endpoint."
         exit 1
     else
@@ -425,18 +404,20 @@ function create_db_secrets {
     secretName="AWS-PGSQL-ODBC-Tests-$ClusterEndpoint"
 
     # Create a dictionary to hold key-value pairs for the secret
-    jsonSecretValue="{
-        \"username\": \"$Username\",
-        \"password\": \"$Password\",
-        \"engine\": \"$Engine\",
-        \"host\": \"$ClusterEndpoint\"
-    }"
+    jsonSecretValue=$(
+        jq -n \
+            --arg username "$Username" \
+            --arg password "$Password" \
+            --arg engine "$Engine" \
+            --arg host "$ClusterEndpoint" \
+            '{username: $username, password: $password, engine: $engine, host: $host}'
+    )
 
     jsonResponse=$(
         aws secretsmanager create-secret\
             --name $secretName\
             --description "Secrets created by GH actions for DB auth"\
-            --secret-string $jsonSecretValue
+            --secret-string "$jsonSecretValue"
     )
 
     # Parse the ARN of the newly created secret from the output
