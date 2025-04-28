@@ -127,7 +127,7 @@ jobs:
             secretsArn=$(create_db_secrets \
                 ${{ env.TEST_USERNAME }} \
                 ${{ env.TEST_PASSWORD }} \
-                "postgres" \
+                ${{ env.ENGINE }} \
                 ${{ env.LIMITLESS_CLUSTER_ENDPOINT }})
             echo "LIMITLESS_CLUSTER_SECRETS_ARN=$secretsArn" >> $GITHUB_ENV
 
@@ -142,11 +142,11 @@ jobs:
         run: |
           cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE
           cmake --build build_ansi --config Release
-          TEST_DSN=${{ env.TEST_DSN_ANSI }} ./build_ansi/bin/Release/integration
+          TEST_DSN=${{ env.TEST_DSN_ANSI }} ./build_ansi/bin/integration
 
           cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=TRUE -DBUILD_UNICODE=TRUE
           cmake --build build_unicode --config Release
-          TEST_DSN=${{ env.TEST_DSN_UNICODE }} ./build_unicode/bin/Release/integration
+          TEST_DSN=${{ env.TEST_DSN_UNICODE }} ./build_unicode/bin/integration
         env:
           TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
           TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
@@ -166,6 +166,10 @@ jobs:
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
           SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: always()
 
       - name: Delete Limitless Cluster
         if: always()
