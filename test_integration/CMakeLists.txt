@@ -76,22 +76,6 @@ if(SHOULD_BUILD_FAILOVER)
 endif()
 
 #-----------------------------------------------------
-# Google logging library
-
-set("BUILD_TESTING" OFF CACHE INTERNAL "Skip GLOG Tests")
-FetchContent_Declare(
-    glog
-    GIT_REPOSITORY https://github.com/google/glog.git
-    GIT_TAG        v0.7.1
-)
-set(GLOG_BUILD_TESTS OFF) # Don't build tests
-set(GLOG_BUILD_BENCHMARKS OFF) # Don't build benchmarks
-set(GLOG_USE_CMAKE_INSTALL OFF) # Don't install glog
-set(BUILD_SHARED_LIBS OFF) # Force static linking.  Crucial for static glog
-FetchContent_MakeAvailable(glog)
-include_directories(${glog_SOURCE_DIR})
-
-#-----------------------------------------------------
 
 enable_testing()
 
@@ -167,7 +151,6 @@ target_include_directories(
 set (EXTERNAL_LIBRARIES
     gtest_main
     ${ODBC_LIBRARIES}
-    glog::glog
 )
 
 if(SHOULD_BUILD_FAILOVER)
