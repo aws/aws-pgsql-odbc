@@ -135,7 +135,7 @@ class BaseFailoverIntegrationTest : public testing::Test {
         SQLHSTMT handle;
         SQLSMALLINT stmt_length;
         SQLINTEGER native_err;
-        SQLTCHAR *msg, state[MAX_SQLSTATE_LENGTH];
+        SQLTCHAR msg[MAX_CONN_LENGTH], state[MAX_SQLSTATE_LENGTH];
 
         EXPECT_EQ(SQL_SUCCESS, SQLAllocHandle(SQL_HANDLE_STMT, dbc, &handle));
         EXPECT_EQ(SQL_ERROR, SQLExecDirect(handle, query, SQL_NTS));
@@ -282,8 +282,9 @@ class BaseFailoverIntegrationTest : public testing::Test {
 
         failover_cluster(client, cluster_id, target_writer_id);
 
+        std::chrono::nanoseconds timeout = std::chrono::minutes(3);
         int remaining_attempts = 3;
-        while (!has_writer_changed(client, cluster_id, initial_writer_id, std::chrono::minutes(3))) {
+        while (!has_writer_changed(client, cluster_id, initial_writer_id, timeout)) {
             // if writer is not changed, try triggering failover again
             remaining_attempts--;
             if (remaining_attempts == 0) {
@@ -294,14 +295,14 @@ class BaseFailoverIntegrationTest : public testing::Test {
 
         // Failover has finished, wait for DNS to be updated so cluster endpoint resolves to the correct writer instance.
         std::string current_writer_ip = INTEGRATION_TEST_UTILS::host_to_IP(cluster_endpoint);
+        auto start = std::chrono::high_resolution_clock::now();
         while (initial_writer_ip == current_writer_ip) {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            current_writer_ip = INTEGRATION_TEST_UTILS::host_to_IP(cluster_endpoint);
-        }
+            if (std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now() - start).count() > timeout.count()) {
+                throw std::runtime_error("Cluster writer did not resolve to the target instance after server failover.");
+            }
 
-        // Wait for target instance to be verified as a writer
-        while (!is_DB_instance_writer(client, cluster_id, target_writer_id)) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            current_writer_ip = INTEGRATION_TEST_UTILS::host_to_IP(cluster_endpoint);
         }
     }
 

@@ -408,8 +408,10 @@ function Create-Db-Secrets {
         [string]$ClusterEndpoint
     )
 
+    $randomNumber = Get-Random -Minimum 1000 -Maximum 9999
+    $randomNumber = $randomNumber.ToString()
     # Define the secret name (you can adjust this if you want a different name)
-    $secretName = "AWS-PGSQL-ODBC-Tests-$ClusterEndpoint"
+    $secretName = "AWS-PGSQL-ODBC-Tests-$ClusterEndpoint-$randomNumber"
 
     # Create a dictionary to hold key-value pairs for the secret
     $secretValue = @{

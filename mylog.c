@@ -339,7 +339,7 @@ mylog_misc(unsigned int option, const char *fmt, va_list args)
 		{
 #ifdef	WIN_MULTITHREAD_SUPPORT
 #ifdef	LOGGING_PROCESS_TIME
-		DWORD	proc_time = timeGetTime() - start_time;
+		DWORD proc_time = timeGetTime() - start_time;
 		fprintf(MLOGFP, "[%u-%d.%03d]", GetCurrentThreadId(), proc_time / 1000, proc_time % 1000);
 #else
 		fprintf(MLOGFP, "[%u]", GetCurrentThreadId());
