@@ -7,16 +7,14 @@
   <?define PKGNAME = "AWSpsqlODBC_x64" ?>
   <?define CIDREG = "5761E547-D13B-4221-9A63-9E8A4FDF7B4A" ?>
   <?define CIDDOC = "A7FAD2DB-B008-4321-B5C4-01AD6633A83F" ?>
+  <?define CIDDOC_BUILDANDTEST = "A96EF0B0-1329-4853-9556-32F4E30201EA" ?>
+  <?define CIDDOC_IMG = "BABC32E2-80E1-4123-B240-A2255AC78559" ?>
+  <?define CIDDOC_USINGAWSDRIVER = "7D43C2EA-2616-4E31-92C3-5456E0F1EB40" ?>
+  <?define CIDDOC_AUTH = "D706B11B-BD3A-4866-B12A-6532D545D34D" ?>
+  <?define CIDDOC_FAILOVER = "B4703B93-E576-4706-B987-197CD18B8060" ?>
+  <?define CIDDOC_LIMITLESS = "7FBFB53A-41BD-4B01-AFF8-9636BE18BD70" ?>
   <?define CIDSMD = "{5AE2E3A9-5F2E-4976-856F-740F999A1A11}" ?>
   <?define UPGCOD = "B73906E3-C12A-4E04-ADEF-21A339013713" ?>
-  <?define ALLUSERS = "1" ?>
-<?elseif $(sys.BUILDARCH) = x86 ?>
-  <?define Platform = "x86" ?>
-  <?define PKGNAME = "AWSpsqlODBC" ?>
-  <?define CIDREG = "C7A6F42B-2E96-4A8C-B567-C52864CFB841" ?>
-  <?define CIDDOC = "733AA28C-2BCF-46CB-90C1-38E333ECDBA1" ?>
-  <?define CIDSMD = "{D70C323C-9283-454C-B574-157FBB818BB2}" ?>
-  <?define UPGCOD = "8A494A40-15B2-4A26-9A46-D63D7B78A008" ?>
   <?define ALLUSERS = "1" ?>
 <?else?><!-- sys.BUILDARCH -->
   <?error Invalid build architecture ?>
@@ -58,31 +56,81 @@
             </Component>
             <Merge Id="awspsqlodbcm" DiskId="1" Language="1033" SourceFile="$(MERGEM)" />
           </Directory>
-          <Directory Id="DOCSDIR" Name="docs" FileSource="../docs">
+          <!-- <Directory Id="DOCSDIR" Name="docs" FileSource="../docs">
+            <Directory Id="BUILDANDTESTDOCS" Name="build-and-test-aws-driver" FileSource="../docs/build-and-test-aws-driver">
+              <Component Id="buildandtest_files" Guid="$(CIDDOC_BUILDANDTEST)">
+                <File Name="build.md" KeyPath="yes" />
+                <File Name="test.md" />
+              </Component>
+            </Directory>
+            <Directory Id="IMAGESDOCS" Name="imgs" FileSource="../docs/img">
+              <Component Id="img_files" Guid="$(CIDDOC_IMG)">
+                <File Name="ConfigurePostgreSQLDirectories.png" KeyPath="yes" />
+                <File Name="adfs.png" />
+                <File Name="connection_pool.png" />
+                <File Name="database.png" />
+                <File Name="failover_behavior.png" />
+                <File Name="failover_diagram.png" />
+                <File Name="failover_dsn.png" />
+                <File Name="iam.png" />
+                <File Name="limitless.png" />
+                <File Name="okta.png" />
+                <File Name="secrets_manager.png" />
+              </Component>
+            </Directory>
+            <Directory Id="USINGAWSDRIVERDOCS" Name="using-the-aws-driver" FileSource="../docs/using-the-aws-driver">
+              <Directory Id="AUTHDOCS" Name="authentication" FileSource="../docs/using-the-aws-driver/authentication">
+                <Component Id="auth_files" Guid="$(CIDDOC_AUTH)">
+                  <File Name="adfs_authentication_sample.cpp" />
+                  <File Name="adfs_authentication.md" />
+                  <File Name="authentication.md" KeyPath="yes" />
+                  <File Name="database_authentication.md" />
+                  <File Name="iam_authentication_sample.cpp" />
+                  <File Name="iam_authentication.md" />
+                  <File Name="okta_authentication_sample.cpp" />
+                  <File Name="okta_authentication.md" />
+                  <File Name="secrets_manager_authentication_sample.cpp" />
+                  <File Name="secrets_manager_authentication.md" />
+                  <File Name="simple_database_connection_sample.cpp" />
+                </Component>
+              </Directory>
+              <Directory Id="FAILOVERDOCS" Name="failover" FileSource="../docs/using-the-aws-driver/failover">
+                <Component Id="failover_files" Guid="$(CIDDOC_FAILOVER)">
+                  <File Name="failover_sample_code.cpp" />
+                  <File Name="failover.md" KeyPath="yes" />
+                </Component>
+              </Directory>
+              <Directory Id="LITMILESSDOCS" Name="limitless" FileSource="../docs/using-the-aws-driver/limitless">
+                <Component Id="limitless_files" Guid="$(CIDDOC_LIMITLESS)">
+                  <File Name="limitless_sample.cpp" />
+                  <File Name="limitless.md" KeyPath="yes" />
+                </Component>
+              </Directory>
+              <Component Id="usingawsdriver_files" Guid="$(CIDDOC_USINGAWSDRIVER)">
+                  <File Name="using_the_aws_driver.md" />
+              </Component>
+            </Directory>
             <Component Id="docs" Guid="$(CIDDOC)">
-              <File Name="README.txt" KeyPath="yes" />
-              <File Name="config.html" />
+              <File Name="readme.md" KeyPath="yes"/>
               <File Name="config-opt.html" />
-              <File Name="release.html" />
-              <File Name="release-7.3.html" />
-              <File Name="unix-compilation.html" />
-              <File Name="win32-compilation.html" />
-              <File Name="editConfiguration.jpg" />
-
-              <!-- <Shortcut Id="docs.index.html" Directory="SMDir" Name="Documentation index" Description="psqlODBC documentation, HOWTOs and FAQs" Advertise="yes" Show="normal" /> -->
+              <File Name="config.html" />
+              <File Name="getting_started.md" />
+              <File Name="msdtc_pgxalib_tracing_disable.reg" />
+              <File Name="msdtc_pgxalib_tracing_enable.reg" />
+              <File Name="msdtc_pgxalib_tracing_README.txt" />
             </Component>
-          </Directory>
+          </Directory> -->
         </Directory>
       </Directory>
     </StandardDirectory>
-    <StandardDirectory Id="ProgramMenuFolder">
+    <!-- <StandardDirectory Id="ProgramMenuFolder">
       <Directory Id="SMDir" Name="$(PKGNAME)">
         <Component Id="smdir" Guid="$(CIDSMD)">
           <RegistryValue KeyPath="yes" Type="string" Root="HKCU" Key="Software\$(PKGNAME)\SMDir Created" Value="y" />
           <RemoveFolder Id="SMDir" On="uninstall" />
         </Component>
       </Directory>
-    </StandardDirectory>
+    </StandardDirectory> -->
 
 <!-- Features -->
 
@@ -92,10 +140,16 @@
         <MergeRef Id="awspsqlodbcm" />
       </Feature>
 
-      <Feature Id="docs" Title="Documentation" Level="4" Description="Documentation and release notes.">
+      <!-- <Feature Id="docs" Title="Documentation" Level="4" Description="Documentation and sample code.">
         <ComponentRef Id="smdir" />
         <ComponentRef Id="docs" />
-      </Feature>
+        <ComponentRef Id="buildandtest_files" />
+        <ComponentRef Id="img_files" />
+        <ComponentRef Id="usingawsdriver_files" />
+        <ComponentRef Id="auth_files" />
+        <ComponentRef Id="failover_files" />
+        <ComponentRef Id="limitless_files" />
+      </Feature> -->
 
     </Feature>
     <Media Id="1" EmbedCab="yes" Cabinet="awspsqlodbc.cab" CompressionLevel="high"/>

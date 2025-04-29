@@ -540,7 +540,7 @@ public class AuroraTestUtility {
     try {
       CreateSecretRequest secretRequest = CreateSecretRequest.builder()
           .name(secretName)
-          .description("Integration tests credentials for AWS MySQL ODBC Driver")
+          .description("Integration tests credentials for AWS PostgreSQL ODBC Driver")
           .secretString(secretValue)
           .build();
 

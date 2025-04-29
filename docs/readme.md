@@ -10,6 +10,6 @@
     - [Database Authentication](using-the-aws-driver/authentication/database_authentication.md)
     - [IAM Authentication](using-the-aws-driver/authentication/iam_authentication.md)
     - [Okta Authentication](using-the-aws-driver/authentication/okta_authentication.md)
-    - [Secret Manager Authentication](using-the-aws-driver/authentication/secret_manager_authentication.md)
+    - [Secrets Manager Authentication](using-the-aws-driver/authentication/secrets_manager_authentication.md)
   - [Failover](using-the-aws-driver/failover/failover.md)
   - [Limitless](using-the-aws-driver/limitless/limitless.md)

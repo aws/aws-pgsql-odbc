@@ -422,7 +422,7 @@ function Create-Db-Secrets {
     $jsonSecretValue = $secretValue | ConvertTo-Json
     $createSecretCommand = aws secretsmanager create-secret `
         --name $secretName `
-        --description "Secrets created by GH actions for DB auth" `
+        --description "Secrets created by GH actions for AWS PostgreSQL ODBC" `
         --secret-string $jsonSecretValue
 
     # Parse the ARN of the newly created secret from the output

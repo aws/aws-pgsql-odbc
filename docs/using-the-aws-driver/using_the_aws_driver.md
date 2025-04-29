@@ -9,8 +9,10 @@ This driver currently supports the following features:
 ## Logging
 
 Logs from the AWS ODBC Driver for PostgreSQL are automatically generated.
-By default, they are outputted to `C:\Users\<username>\AppData\Local\Temp\aws-rds-odbc\` on Windows or within the `/tmp/` or `/temp` directory on Linux and MacOS.
+By default, they are outputted to `C:\Users\<username>\AppData\Local\Temp\aws-rds-odbc\` on Windows or within the `/tmp/` or `/temp/` directory MacOS respectively.
+
 You can configure the driver to log to a specific directory by using the `LogDir` connection parameter.
+
 You can enable logging to the stderr using the `RdsLogThreshold` connection parameter.
 
 ### Logging parameter
