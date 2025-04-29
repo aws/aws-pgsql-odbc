@@ -1,0 +1,119 @@
+name: MacOS Debug
+run-name: aws-pgsql-odbc macOS Debug - ${{ github.event.head_commit.message }}
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '**'
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.jpg'
+      - '**/*.png'
+      - '**/README.*'
+      - '**/LICENSE.*'
+      - 'docs/**'
+      - 'ISSUE_TEMPLATE/**'
+      - '**/remove-old-artifacts.yml'
+      - '**/release.yml'
+
+env:
+  BUILD_CONFIGURATION: Release
+
+concurrency:
+  group: macos-debug-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  macos-debug:
+    name: MacOS Debug
+    runs-on: macos-15 # See https://github.com/actions/runner-images/blob/main/images/macos/macos-15-arm64-Readme.md
+    steps:
+      - name: Update Homebrew
+        run: brew update && brew upgrade && brew cleanup
+
+      - name: Install and configure prerequisites
+        run: |
+          brew install autoconf automake gflags grep libtool unixodbc zlib
+          ln -s /opt/homebrew/opt/libpq/bin/psql /opt/homebrew/bin/psql
+
+      - name: Install PostgreSQL
+        run: |
+          brew install postgresql@17
+          echo "/opt/homebrew/opt/postgresql@17/bin" >> $GITHUB_PATH
+
+      - name: Verify prerequisite installations
+        run: |
+          echo "Environment variables:"
+          set
+          echo "----------------------------------------"
+          echo "psql version:"
+          psql --version
+          echo "----------------------------------------"
+          echo "pg_config:"
+          pg_config
+          echo "----------------------------------------"
+          echo "xcode-select -p:"
+          xcode-select -p
+          echo "----------------------------------------"
+          echo "xcodebuild version:"
+          xcodebuild -version
+          echo "----------------------------------------"
+          echo "Xcode command line tools version:"
+          pkgutil --pkg-info=com.apple.pkg.CLTools_Executables
+          echo "----------------------------------------"
+
+      - name: Checkout aws-pgsql-odbc
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout aws-rds-odbc
+        uses: actions/checkout@v4
+        with:
+          repository: aws/aws-rds-odbc
+          ref: main
+          path: ./libs/aws-rds-odbc
+          token: ${{secrets.CLONE_PAT}}
+
+      - name: Initialize submodules
+        run: git submodule update --init --recursive
+
+      - name: Cache AWS SDK libraries
+        id: cache-dynamic-aws-sdk
+        uses: actions/cache@v4
+        with:
+          path: |
+            libs/aws-rds-odbc/aws_sdk
+          key: ${{ runner.os }}-aws-sdk-dynamic-lib
+
+      - name: Build the driver
+        run: ./macos/buildall ${{env.BUILD_CONFIGURATION}}
+          
+      - name: Verify the builds
+        run: |
+          dltest .libs/awspsqlodbca.so
+          dltest .libs/awspsqlodbcw.so
+
+      - name: Build Test
+        run: |
+          cmake -S test_integration -B build
+          cmake --build build --config Release
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: always()
+
+      - name: Archive log results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'integration-test-logs'
+          path: logs
+          retention-days: 3
