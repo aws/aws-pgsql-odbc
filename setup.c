@@ -466,6 +466,10 @@ ConfigDlgProc(HWND hdlg,
 
 // Case insensitive `strstr`
 bool stristr(const char* str, const char* substr) {
+    if (!str || !substr) {
+        return false;
+    }
+
 	// Duplicate and modify to lower
     char* str_cp = strdup(str);
     char* sub_cp = strdup(substr);
@@ -792,7 +796,7 @@ ChangeDriverName(HWND hwndParent, LPSETUPDLG lpsetupdlg, LPCSTR driver_name)
 	{
 		err = IDS_BADDSN;
 	}
-	else if (!driver_name || strnicmp(driver_name, "aws", 3) || !stristr(driver_name, "postgresql"))
+	else if (!driver_name || strnicmp(driver_name, "aws", 3) != 0 || !stristr(driver_name, "postgresql"))
 	{
 		err = IDS_BADDSN;
 	}
