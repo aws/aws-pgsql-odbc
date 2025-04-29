@@ -464,6 +464,26 @@ ConfigDlgProc(HWND hdlg,
 #define	SNTPRINTF		snprintf
 #endif	/* UNICODE_SUPPORT */
 
+// Case insensitive `strstr`
+bool stristr(const char* str, const char* substr) {
+    if (!str || !substr) {
+        return false;
+    }
+
+	// Duplicate and modify to lower
+    char* str_cp = strdup(str);
+    char* sub_cp = strdup(substr);
+    for (char* p = str_cp; *p; p++) *p = tolower(*p);
+    for (char* p = sub_cp; *p; p++) *p = tolower(*p);
+
+    bool is_in_str = strstr(str_cp, sub_cp) ? true : false;
+
+    free(str_cp);
+    free(sub_cp);
+
+    return is_in_str;
+}
+
 void
 test_connection(HANDLE hwnd, ConnInfo *ci, BOOL withDTC)
 {
@@ -776,7 +796,7 @@ ChangeDriverName(HWND hwndParent, LPSETUPDLG lpsetupdlg, LPCSTR driver_name)
 	{
 		err = IDS_BADDSN;
 	}
-	else if (!driver_name || strnicmp(driver_name, "postgresql", 10))
+	else if (!driver_name || strnicmp(driver_name, "aws", 3) != 0 || !stristr(driver_name, "postgresql"))
 	{
 		err = IDS_BADDSN;
 	}

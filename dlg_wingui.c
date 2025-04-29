@@ -1510,7 +1510,8 @@ makeDriversList(HWND lwnd, const ConnInfo *ci)
 						 drvatt, sizeof(drvatt), &drvacount);
 		if (SQL_SUCCESS != ret && SQL_SUCCESS_WITH_INFO != ret)
 			break;
-		if (strnicmp(drvname, "postgresql", 10) == 0)
+		// Load all AWS Drivers that are for PostgreSQL
+		if (strnicmp(drvname, "aws", 3) == 0 && stristr(drvname, "postgresql"))
 		{
 			iidx = SendMessage(lwnd, LB_ADDSTRING, 0, (LPARAM) drvname);
 			if (LB_ERR != iidx && stricmp(drvname, ci->drivername) == 0)
