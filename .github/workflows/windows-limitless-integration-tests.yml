@@ -53,8 +53,8 @@ jobs:
     steps:
       - name: Setup Cluster ID and Shard ID Env Variables
         run: |
-          echo "LIMITLESS_CLUSTER_ID=AWS-PGODBC-Win-Integ-Limitless-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "LIMITLESS_SHARD_ID=AWS-PGODBC-Win-Integ-Shard-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "LIMITLESS_CLUSTER_ID=AWS-PGODBC-Win-Limitless-${{github.run_id}}${{github.run_attempt}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "LIMITLESS_SHARD_ID=AWS-PGODBC-Win-Shard-${{github.run_id}}${{github.run_attempt}}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Cache Postgres build output
         uses: actions/cache@v4

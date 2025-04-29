@@ -53,7 +53,7 @@ jobs:
     steps:
       - name: Setup Cluster ID
         run: |
-          echo "AURORA_CLUSTER_ID=AWS-PGODBC-Win-Failover-${{github.run_id}}" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "AURORA_CLUSTER_ID=AWS-PGODBC-Win-Failover-${{github.run_id}}${{github.run_attempt}}" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Cache Postgres build output
         uses: actions/cache@v4
