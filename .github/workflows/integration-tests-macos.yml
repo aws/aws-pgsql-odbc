@@ -1,4 +1,5 @@
 name: MacOS Limitless Integration Tests
+run-name: aws-pgsql-odbc MacOS Limitless Integration Tests - ${{ github.event.head_commit.message }}
 
 on:
   workflow_dispatch:
@@ -24,8 +25,6 @@ env:
   BUILD_TYPE: Release
 
   # Test configuration
-  TEST_USERNAME: 'postgres'
-  TEST_PASSWORD: 'password'
   TEST_DATABASE: 'postgres_limitless'
   ENGINE: 'aurora-postgresql'
   ENGINE_VERSION: '16.4-limitless'
@@ -35,13 +34,13 @@ env:
   DRIVER_NAME_UNICODE: 'AWS Unicode ODBC Driver for PostgreSQL (x64)'
 
 concurrency:
-  group: environment-macos-integration-${{ github.ref }}
+  group: macos-integration-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  limitless-integration-tests-macos:
-    name: "Limitless Integration Tests MacOS"
-    runs-on: macos-14
+  macos-limitless-integration-tests:
+    name: "MacOS Limitless Integration Tests"
+    runs-on: macos-15
     steps:
       - name: Checkout aws-pgsql-odbc
         uses: actions/checkout@v4
@@ -81,9 +80,9 @@ jobs:
           echo "::add-mask::${creds[0]}"
           echo "::add-mask::${creds[1]}"
           echo "::add-mask::${creds[2]}"
-          echo "TEMP_AWS_ACCESS_KEY_ID=${creds[0]}" >> $GITHUB_ENV
-          echo "TEMP_AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
-          echo "TEMP_AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
+          echo "AWS_ACCESS_KEY_ID=${creds[0]}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
+          echo "AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
 
       - name: Setup Cluster Id and Shard Id Env Variables
         run: |
@@ -97,8 +96,8 @@ jobs:
         run: |
           . "./aws_rds_helper"
           create_limitless_rds_cluster \
-            ${{ env.TEST_USERNAME }} \
-            ${{ env.TEST_PASSWORD }} \
+            ${{ secrets.TEST_USERNAME }} \
+            ${{ secrets.TEST_PASSWORD }} \
             ${{ env.TEST_DATABASE }} \
             ${{ env.LIMITLESS_CLUSTER_ID }} \
             ${{ env.LIMITLESS_SHARD_ID }} \
@@ -125,10 +124,11 @@ jobs:
         run: |
             . "./aws_rds_helper"
             secretsArn=$(create_db_secrets \
-                ${{ env.TEST_USERNAME }} \
-                ${{ env.TEST_PASSWORD }} \
+                ${{ secrets.TEST_USERNAME }} \
+                ${{ secrets.TEST_PASSWORD }} \
                 ${{ env.ENGINE }} \
                 ${{ env.LIMITLESS_CLUSTER_ENDPOINT }})
+            echo "::add-mask::$secretsArn"
             echo "LIMITLESS_CLUSTER_SECRETS_ARN=$secretsArn" >> $GITHUB_ENV
 
       - name: Build driver
@@ -136,35 +136,58 @@ jobs:
         run: |
           ./macos/buildall ${{ env.BUILD_TYPE }}
 
-      - name: Build and Run Integration Tests
+      - name: Build and Run ANSI Integration Tests
         shell: bash
         if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
         run: |
           cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE
-          cmake --build build_ansi --config Release
-          TEST_DSN=${{ env.TEST_DSN_ANSI }} ./build_ansi/bin/integration
-
-          cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=TRUE -DBUILD_UNICODE=TRUE
-          cmake --build build_unicode --config Release
-          TEST_DSN=${{ env.TEST_DSN_UNICODE }} ./build_unicode/bin/integration
+          cmake --build build_ansi --config ${{ env.BUILD_TYPE }}
+          ./build_ansi/bin/integration
         env:
           TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
           TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
+          TEST_DSN: ${{ env.TEST_DSN_ANSI }}
           TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
           TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
           ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"
           ODBCINST: "${{ github.workspace }}/build/test/odbcinst.ini"
           ODBCSYSINI: "${{ github.workspace }}/build/test"
-          TEST_USERNAME: ${{ env.TEST_USERNAME }}
-          TEST_PASSWORD: ${{ env.TEST_PASSWORD }}
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
           POSTGRES_PORT: "5432"
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-          AWS_RDS_MONITORING_ROLE_ARN: ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          TEST_IAM_USER: ${{ secrets.TEST_IAM_USER }}
+          IAM_USER: ${{ secrets.TEST_IAM_USER }}
+          SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+
+      - name: Build and Run Unicode Integration Tests
+        shell: bash
+        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
+        run: |
+          cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=TRUE -DBUILD_UNICODE=TRUE
+          cmake --build build_unicode --config ${{ env.BUILD_TYPE }}
+          ./build_unicode/bin/integration
+        env:
+          TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
+          TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
+          TEST_DSN: ${{ env.TEST_DSN_UNICODE }}
+          TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
+          TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
+          ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"
+          ODBCINST: "${{ github.workspace }}/build/test/odbcinst.ini"
+          ODBCSYSINI: "${{ github.workspace }}/build/test"
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
+          POSTGRES_PORT: "5432"
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          IAM_USER: ${{ secrets.TEST_IAM_USER }}
           SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
 
       - name: Setup tmate session
@@ -209,3 +232,11 @@ jobs:
             --port 5432 \
             --cidr ${{ steps.ip.outputs.ipv4 }}/32 \
           2>&1 > /dev/null;
+
+      - name: 'Archive log results'
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'macos-integration-test-logs'
+          path: logs
+          retention-days: 3
