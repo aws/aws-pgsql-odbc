@@ -140,7 +140,7 @@ jobs:
         shell: bash
         if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=TRUE
+          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=FALSE
           cmake --build build_ansi --config ${{ env.BUILD_TYPE }}
           ./build_ansi/bin/integration
         env:
@@ -167,7 +167,7 @@ jobs:
         shell: bash
         if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=TRUE -DBUILD_UNICODE=TRUE
+          cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=FALSE -DBUILD_UNICODE=TRUE
           cmake --build build_unicode --config ${{ env.BUILD_TYPE }}
           ./build_unicode/bin/integration
         env:

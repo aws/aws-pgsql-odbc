@@ -76,16 +76,6 @@ if(SHOULD_BUILD_FAILOVER)
 endif()
 
 #-----------------------------------------------------
-# Google Flags (to link against aws-rds-odbc)
-# TODO(micahdbak): find alternative
-
-# Load installed gflags library for MacOS
-if (APPLE)
-  find_package(gflags REQUIRED)
-  set(WITH_GFLAGS ON)
-endif()
-
-#-----------------------------------------------------
 
 enable_testing()
 
@@ -165,10 +155,6 @@ set (EXTERNAL_LIBRARIES
 
 if(SHOULD_BUILD_FAILOVER)
     list(APPEND EXTERNAL_LIBRARIES ${AWSSDK_LINK_LIBRARIES})
-endif()
-
-if(APPLE)
-  list(APPEND EXTERNAL_LIBRARIES gflags)
 endif()
 
 target_link_libraries(

@@ -254,35 +254,16 @@ export -f create_limitless_rds_cluster
 function delete_dbshards {
     ShardId=$1
 
-    echo "Attempt $((attempt + 1)): Deleting DB shard $ShardId..."
-
     # AWS CLI command to delete a DB shard
     aws rds delete-db-shard-group --db-shard-group-identifier $ShardId
-
-    if [ $? -ne 0 ]; then
-        echo "Error deleting DB shard $ShardId. Attempt $((attempt + 1)) failed."
-        return $false
-    fi
-
-    echo "DB Shard $ShardId deleted successfully."
-    return $true
 } # delete_dbshards
 export -f delete_dbshards
 
 function delete_dbcluster {
     ClusterId=$1
-
-    echo "Attempt $((attempt + 1)): Deleting DB cluster $ClusterId..."
         
     # AWS CLI command to delete the DB cluster
     aws rds delete-db-cluster --db-cluster-identifier $ClusterId --skip-final-snapshot
-
-    if [ $? -ne 0 ]; then
-        echo "Error deleting DB cluster $ClusterId. Attempt $((attempt + 1)) failed."
-        return $false
-    fi
-
-    return $true
 } # delete_dbcluster
 export -f delete_dbcluster
 
@@ -328,18 +309,24 @@ function delete_limitless_db_cluster {
     # Retry logic for deleting DB shards
     while [[ $attempt -lt $maxRetries && $deleteShardsSuccessful -eq $false ]]
     do
-        deleteShardsSuccessful=$(delete_dbshards $ShardId)
+        delete_dbshards $ShardId
+        if [ $? -ne 0 ]; then
+            deleteShardsSuccessful=$false
+        else
+            deleteShardsSuccessful=$true
+        fi
         ((attempt++))
 
         if [ $deleteShardsSuccessful -ne $true ]; then
             if [ $attempt -lt $maxRetries ]; then
-                echo "Retrying DB shard deletion... ($((maxRetries - attempt)) retries left)"
+                attemptsLeft=$((maxRetries - attempt))
+                echo "Retrying DB shard deletion... ($attemptsLeft retries left)"
                 sleep 30  # Wait for 30 seconds before retrying
             fi
         fi
     done
 
-    if [ deleteShardsSuccessful -ne $true ]; then
+    if [ $deleteShardsSuccessful -ne $true ]; then
         echo "Failed to delete DB shard $ShardId after $maxRetries attempts."
         exit 1
     else
@@ -352,12 +339,18 @@ function delete_limitless_db_cluster {
     # Retry logic for deleting DB cluster
     while [[ $attempt -lt $maxRetries && $deleteClusterSuccessful -eq $false ]]
     do
-        deleteClusterSuccessful=$(delete_dbcluster $ClusterId)
+        delete_dbcluster $ClusterId
+        if [ $? -ne 0]; then
+            deleteClusterSuccessful=$false
+        else
+            deleteClusterSuccessful=$true
+        fi
         ((attempt++))
 
         if [ $deleteClusterSuccessful -ne $true ]; then
             if [ $attempt -lt $maxRetries ]; then
-                echo "Retrying DB cluster deletion... ($((maxRetries - attempt)) retries left)"
+                attemptsLeft=$((maxRetries - attempt))
+                echo "Retrying DB cluster deletion... ($attemptsLeft retries left)"
                 sleep 30  # Wait for 30 seconds before retrying
             fi
         fi
