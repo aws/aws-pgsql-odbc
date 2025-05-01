@@ -176,7 +176,6 @@ jobs:
         with:
           path: |
             d:\postgresql
-            d:\postgresql86
           key: postgresql-${{vars.POSTGRESQL_SOURCE_TAG}}_openssl-${{vars.OPENSSL_VERSION}}_pkgconfiglite-${{vars.PKGCONFIGLITE_VERSION}}_winflexbison-${{vars.WINFLEXBISON_VERSION}}_workflow-${{env.WORKFLOW_VERSION_POSTGRESQL}}
 
       - name: Cache PostgreSQL installer
