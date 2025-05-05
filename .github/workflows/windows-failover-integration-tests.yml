@@ -248,15 +248,8 @@ jobs:
       - name: Checkout aws-pgsql-odbc
         uses: actions/checkout@v4
         with:
+          submodules: true
           fetch-depth: 1
-
-      - name: Checkout aws-rds-odbc
-        uses: actions/checkout@v4
-        with:
-          repository: aws/aws-rds-odbc
-          ref: main
-          path: ./libs/aws-rds-odbc
-          token: ${{secrets.CLONE_PAT}}
 
       - name: Initialize submodules
         run: |
