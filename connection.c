@@ -1209,52 +1209,6 @@ void RDS_set_errormsg(ConnectionClass* self, const char* rds_err_msg) {
 	free(merged);
 }
 
-char *to_cstr(SQLTCHAR *sqlstr, SQLLEN strlen) {
-	char *cstr;
-	#ifdef UNICODE
-	cstr = ucs2_to_utf8(sqlstr, strlen, NULL, FALSE);
-	#else
-	cstr = strdup((char *)sqlstr);
-	#endif
-
-	return cstr;
-}
-
-char *RDS_MergeDiagRecs(HDBC hdbc, const char *custom_errmsg) {
-	char *errmsg = NULL;
-
-	SQLTCHAR    sqlstate[6];
-	SQLTCHAR    message[MEDIUM_REGISTRY_LEN];
-	SQLINTEGER  nativeerror;
-	SQLSMALLINT textlen;
-	SQLRETURN   ret;
-	SQLSMALLINT recno = 0;
-
-	// merge all error messages for the failed dbc
-	do {
-		recno++;
-		message[0] = '\0';
-		ret = SQLGetDiagRec(SQL_HANDLE_DBC, hdbc, recno, sqlstate, &nativeerror, message, sizeof(message), &textlen);
-		if (SQL_SUCCEEDED(ret)) {
-			char *next_errmsg = to_cstr(message, textlen);
-			char *new_errmsg = merge_cstr(errmsg, next_errmsg);
-			if (errmsg) {
-				free(errmsg);
-			}
-			if (next_errmsg) {
-				free(next_errmsg);
-			}
-			errmsg = new_errmsg;
-		}
-	} while (ret == SQL_SUCCESS);
-
-	char *merged_errmsg = merge_cstr(errmsg, custom_errmsg);
-	if (errmsg) {
-		free(errmsg);
-	}
-	return merged_errmsg;
-}
-
 // Get token for IAM, ADFS or OKTA authentication mode.
 TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	MYLOG(MIN_LOG_LEVEL, "entering...\n");
@@ -1316,34 +1270,39 @@ TokenResult GetTokenForIAM(ConnInfo* ci, BOOL useCache) {
 	return TR_GENERATED_TOKEN;
 }
 
-bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
+bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_size) {
 	MYLOG(MIN_LOG_LEVEL, "entering...limitless_enabled=%d\n", ci->limitless_enabled);
 	if (!ci->limitless_enabled) {
 		return true;
 	}
+
 	// Do regular connection first to check if cluster is limitlesss
 	ci->limitless_enabled = 0;
 
-	// Get connection string based on unicode
+	// Prepare connect_string according to ci (char * for ANSI, wchar_t * for Unicode)
 #ifdef UNICODE_SUPPORT
 	char connect_string_ansi[MAX_CONNECT_STRING];
-	wchar_t connect_string[MAX_CONNECT_STRING];
 	makeConnectString(connect_string_ansi, ci, MAX_CONNECT_STRING);
+
+	wchar_t connect_string[MAX_CONNECT_STRING];
 	utf8_to_ucs2(connect_string_ansi, sizeof(connect_string_ansi), connect_string, sizeof(connect_string));
 #else
-	char connect_string [MAX_CONNECT_STRING];
+	char connect_string[MAX_CONNECT_STRING];
 	makeConnectString(connect_string, ci, MAX_CONNECT_STRING);
 #endif
 
 	MYLOG(MIN_LOG_LEVEL, "entering CheckLimitlessCluster\n");
 
 	// Check if cluster is limitless
-	if (CheckLimitlessCluster(connect_string)) {
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - enabling limitless\n");
-		ci->limitless_enabled = 1;
+	if (CheckLimitlessCluster(connect_string, ERRMSG_LIMITLESS_CONNECTION_NOT_ESTABLISHED, limitless_err, limitless_err_size)) {
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - proceeding\n");
 	} else {
-		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - disabling limitless\n");
-		return;
+		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned false - aborting connection\n");
+		// if limitless_err is empty, then CheckLimitlessCluster failed because the cluster is not limitless
+		if (limitless_err[0] == '\0') {
+			strncpy(limitless_err, ERRMSG_LIMITLESS_NOT_LIMITLESS_CLUSTER, limitless_err_size);
+		}
+		return false;
 	}
 
 	// Get limitless instance
@@ -1363,7 +1322,6 @@ bool GetLimitlessServer(ConnInfo *ci, const char **limitless_err) {
 	}
 	free(db_instance.server);
 
-	*limitless_err = NULL;
 	return true;
 }
 
@@ -1373,7 +1331,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	ConnInfo *ci = &(self->connInfo);
 	CSTR		func = "CC_connect";
 	char		ret, *saverr = NULL, retsend;
-	const char	*errmsg = NULL, *limitless_err = NULL;
+	const char	*errmsg = NULL;
+	char		limitless_err[MEDIUM_REGISTRY_LEN];
 
 	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
@@ -1406,11 +1365,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		credentials.username = NULL;
 		credentials.password = NULL;
 
-		if (!GetLimitlessServer(ci, &limitless_err)) {
-			if (limitless_err) {
-				RDS_set_errormsg(self, limitless_err);
-				free(limitless_err);
-			}
+		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
+			RDS_set_errormsg(self, limitless_err);
 			CC_set_errornumber(self, CONN_BAD_LIMITLESS_CLUSTER);
 			return SQL_ERROR;
 		}
@@ -1422,11 +1378,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 	}
 	else if (stricmp(ci->authtype, DATABASE_MODE) != 0) {
 		TokenResult tr = GetTokenForIAM(ci, TRUE);
-		if (!GetLimitlessServer(ci, &limitless_err)) {
-			if (limitless_err) {
-				RDS_set_errormsg(self, limitless_err);
-				free(limitless_err);
-			}
+		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
+			RDS_set_errormsg(self, limitless_err);
 			CC_set_errornumber(self, CONN_BAD_LIMITLESS_CLUSTER);
 			return SQL_ERROR;
 		}
@@ -1451,11 +1404,8 @@ CC_connect(ConnectionClass *self, char *salt_para)
 		UpdateCachedToken(ci->server, ci->region, ci->port, ci->username, ci->password.name, ci->token_expiration);
 	}
 	else {
-		if (!GetLimitlessServer(ci, &limitless_err)) {
-			if (limitless_err) {
-				RDS_set_errormsg(self, limitless_err);
-				free(limitless_err);
-			}
+		if (!GetLimitlessServer(ci, limitless_err, sizeof(limitless_err))) {
+			RDS_set_errormsg(self, limitless_err);
 			CC_set_errornumber(self, CONN_BAD_LIMITLESS_CLUSTER);
 			return SQL_ERROR;
 		}
