@@ -1291,8 +1291,6 @@ bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_
 	makeConnectString(connect_string, ci, MAX_CONNECT_STRING);
 #endif
 
-	MYLOG(MIN_LOG_LEVEL, "entering CheckLimitlessCluster\n");
-
 	// Check if cluster is limitless
 	if (CheckLimitlessCluster(connect_string, ERRMSG_LIMITLESS_CONNECTION_NOT_ESTABLISHED, limitless_err, limitless_err_size)) {
 		MYLOG(MIN_LOG_LEVEL, "CheckLimitlessCluster returned true - proceeding\n");
@@ -1311,7 +1309,6 @@ bool GetLimitlessServer(ConnInfo *ci, char *limitless_err, size_t limitless_err_
 	db_instance.server_size = MEDIUM_REGISTRY_LEN;
 	int host_port = atoi(ci->port);
 
-	MYLOG(MIN_LOG_LEVEL, "before GetLimitlessInstance\n");
 	bool db_instance_ready = GetLimitlessInstance(connect_string, host_port, ci->limitless_service_id, MEDIUM_REGISTRY_LEN, &db_instance);
 
 	if (!db_instance_ready) {
