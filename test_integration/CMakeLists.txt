@@ -24,6 +24,11 @@ if(WIN32 AND NOT TEST_LIMITLESS)
     set(SHOULD_BUILD_FAILOVER TRUE)
 endif()
 
+# Set it to TRUE if conditions are met (APPLE and not TEST_LIMITLESS)
+if(APPLE AND NOT TEST_LIMITLESS)
+    set(SHOULD_BUILD_FAILOVER TRUE)
+endif()
+
 option(UNICODE_BUILD "Enable Unicode build" OFF)
 
 # add UNICODE definition to build so unicode ODBC functions are used

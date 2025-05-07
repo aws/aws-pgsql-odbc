@@ -62,7 +62,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install unixodbc autoconf automake gflags postgresql
+          brew install unixodbc autoconf automake gflags postgresql zlib
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
