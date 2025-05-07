@@ -1,5 +1,5 @@
-name: MacOS Limitless Integration Tests
-run-name: aws-pgsql-odbc MacOS Limitless Integration Tests - ${{ github.event.head_commit.message }}
+name: MacOS Failover Integration Tests
+run-name: aws-pgsql-odbc MacOS Failover Integration Tests - ${{ github.event.head_commit.message }}
 
 on:
   workflow_dispatch:
@@ -25,9 +25,10 @@ env:
   BUILD_TYPE: Release
 
   # Test configuration
-  TEST_DATABASE: 'postgres_limitless'
+  TEST_DATABASE: 'postgres'
   ENGINE: 'aurora-postgresql'
-  ENGINE_VERSION: '16.4-limitless'
+  ENGINE_VERSION: '16.4'
+  NUM_AURORA_INSTANCES: 5
   TEST_DSN_ANSI: 'AWSpsqlODBC_ansi'
   TEST_DSN_UNICODE: 'AWSpsqlODBC_unicode'
   DRIVER_NAME_ANSI: 'AWS ANSI ODBC Driver for PostgreSQL (x64)'
@@ -38,8 +39,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  macos-limitless-integration-tests:
-    name: "MacOS Limitless Integration Tests"
+  macos-failover-integration-tests:
+    name: "MacOS Failover Integration Tests"
     runs-on: macos-15
     steps:
       - name: Checkout aws-pgsql-odbc
@@ -86,39 +87,60 @@ jobs:
 
       - name: Setup Cluster Id and Shard Id Env Variables
         run: |
-          echo "LIMITLESS_CLUSTER_ID=AWS-PGODBC-MacOS-Integ-Limitless-${{github.run_id}}" >> $GITHUB_ENV
-          echo "LIMITLESS_SHARD_ID=AWS-PGODBC-MacOS-Integ-Shard-${{github.run_id}}" >> $GITHUB_ENV
+          echo "AURORA_CLUSTER_ID=AWS-PGODBC-MacOS-Integ-Failover-${{github.run_id}}" >> $GITHUB_ENV
 
-      - name: Create Limitless Cluster
-        id: limitlessClusterSetup
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: always()
+        env:
+          TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
+          TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
+          TEST_DSN: ${{ env.TEST_DSN_ANSI }}
+          TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
+          TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
+          ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"
+          ODBCINST: "${{ github.workspace }}/build/test/odbcinst.ini"
+          ODBCSYSINI: "${{ github.workspace }}/build/test"
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
+          POSTGRES_PORT: "5432"
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          IAM_USER: ${{ secrets.TEST_IAM_USER }}
+          SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
+
+      - name: Create Aurora Cluster
+        id: auroraClusterSetup
         shell: bash
         working-directory: macos
         run: |
           . "./aws_rds_helper"
-          create_limitless_rds_cluster \
+          create_aurora_rds_cluster \
             ${{ secrets.TEST_USERNAME }} \
             ${{ secrets.TEST_PASSWORD }} \
             ${{ env.TEST_DATABASE }} \
-            ${{ env.LIMITLESS_CLUSTER_ID }} \
-            ${{ env.LIMITLESS_SHARD_ID }} \
+            ${{ env.AURORA_CLUSTER_ID }} \
+            ${{ env.NUM_AURORA_INSTANCES }} \
             ${{ env.ENGINE }} \
             ${{ env.ENGINE_VERSION }} \
-            ${{ secrets.AWS_RDS_MONITORING_ROLE_ARN }} \
             ${{ secrets.AWS_DEFAULT_REGION }}
 
-      - name: Get Limitless Cluster endpoint
+      - name: Get Aurora Cluster endpoint
         shell: bash
         working-directory: macos
         run: |
           . "./aws_rds_helper"
-          endpoint=$(get_cluster_endpoint ${{ env.LIMITLESS_CLUSTER_ID }})
-          echo "LIMITLESS_CLUSTER_ENDPOINT=$endpoint" >> $GITHUB_ENV
+          endpoint=$(get_cluster_endpoint ${{ env.AURORA_CLUSTER_ID }})
+          echo "AURORA_CLUSTER_ENDPOINT=$endpoint" >> $GITHUB_ENV
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
-      - name: Create Limitless Cluster Secrets
+      - name: Create Aurora Cluster Secrets
         shell: bash
         working-directory: macos
         run: |
@@ -127,9 +149,9 @@ jobs:
                 ${{ secrets.TEST_USERNAME }} \
                 ${{ secrets.TEST_PASSWORD }} \
                 ${{ env.ENGINE }} \
-                ${{ env.LIMITLESS_CLUSTER_ENDPOINT }})
+                ${{ env.AURORA_CLUSTER_ENDPOINT }})
             echo "::add-mask::$secretsArn"
-            echo "LIMITLESS_CLUSTER_SECRETS_ARN=$secretsArn" >> $GITHUB_ENV
+            echo "AURORA_CLUSTER_SECRETS_ARN=$secretsArn" >> $GITHUB_ENV
 
       - name: Build driver
         shell: bash
@@ -138,9 +160,9 @@ jobs:
 
       - name: Build and Run ANSI Integration Tests
         shell: bash
-        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
+        if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=FALSE
+          cmake -S test_integration -B build_ansi -DBUILD_UNICODE=FALSE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
           cmake --build build_ansi --config ${{ env.BUILD_TYPE }}
           ./build_ansi/bin/integration
         env:
@@ -154,20 +176,20 @@ jobs:
           ODBCSYSINI: "${{ github.workspace }}/build/test"
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
+          TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
           POSTGRES_PORT: "5432"
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           IAM_USER: ${{ secrets.TEST_IAM_USER }}
-          SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+          SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
 
       - name: Build and Run Unicode Integration Tests
         shell: bash
-        if: ${{ !cancelled() && steps.limitlessClusterSetup.outcome == 'success'}}
+        if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_unicode -DTEST_LIMITLESS=FALSE -DBUILD_UNICODE=TRUE
+          cmake -S test_integration -B build_unicode -DBUILD_UNICODE=TRUE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
           cmake --build build_unicode --config ${{ env.BUILD_TYPE }}
           ./build_unicode/bin/integration
         env:
@@ -181,38 +203,34 @@ jobs:
           ODBCSYSINI: "${{ github.workspace }}/build/test"
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          TEST_SERVER: ${{ env.LIMITLESS_CLUSTER_ENDPOINT }}
+          TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
           POSTGRES_PORT: "5432"
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           IAM_USER: ${{ secrets.TEST_IAM_USER }}
-          SECRETS_ARN: ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+          SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: always()
-
-      - name: Delete Limitless Cluster
+      - name: Delete Aurora Cluster
         if: always()
         shell: bash
         working-directory: macos
         run: |
           . "./aws_rds_helper"
-          delete_limitless_db_cluster ${{ env.LIMITLESS_CLUSTER_ID }} ${{ env.LIMITLESS_SHARD_ID }} ${{ secrets.AWS_DEFAULT_REGION }}
+          delete_aurora_db_cluster ${{ env.AURORA_CLUSTER_ID }} ${{ secrets.AWS_DEFAULT_REGION }} ${{ env.NUM_AURORA_INSTANCES }}
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
-      - name: Delete Limitless Cluster Secrets
+      - name: Delete Aurora Cluster Secrets
         if: always()
         shell: bash
         working-directory: macos
         run: |
           . "./aws_rds_helper"
-          delete_secrets ${{ env.LIMITLESS_CLUSTER_SECRETS_ARN }}
+          delete_secrets ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
         env:
           AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
