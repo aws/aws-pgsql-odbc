@@ -89,29 +89,6 @@ jobs:
         run: |
           echo "AURORA_CLUSTER_ID=AWS-PGODBC-MacOS-Integ-Failover-${{github.run_id}}" >> $GITHUB_ENV
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: always()
-        env:
-          TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
-          TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
-          TEST_DSN: ${{ env.TEST_DSN_ANSI }}
-          TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
-          TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
-          ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"
-          ODBCINST: "${{ github.workspace }}/build/test/odbcinst.ini"
-          ODBCSYSINI: "${{ github.workspace }}/build/test"
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
-          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
-          POSTGRES_PORT: "5432"
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          IAM_USER: ${{ secrets.TEST_IAM_USER }}
-          SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
-
       - name: Create Aurora Cluster
         id: auroraClusterSetup
         shell: bash
@@ -153,15 +130,33 @@ jobs:
             echo "::add-mask::$secretsArn"
             echo "AURORA_CLUSTER_SECRETS_ARN=$secretsArn" >> $GITHUB_ENV
 
+      - name: Cache AWS SDK libraries
+        id: cache-static-aws-sdk
+        uses: actions/cache@v4
+        if: always() && steps.cache-static-aws-sdk.outputs.cache-hit != 'true'
+        with:
+          path: ./libs/aws-rds-odbc/aws_sdk
+          key: ${{ runner.os }}-aws-sdk-cache-lib
+
+      - name: Build and install AWS SDK C++
+        working-directory: ./libs/aws-rds-odbc/scripts
+        if: steps.cache-static-aws-sdk.outputs.cache-hit != 'true'
+        run: |
+          ./build_aws_sdk_macos Release
+
       - name: Build driver
         shell: bash
         run: |
-          ./macos/buildall ${{ env.BUILD_TYPE }}
+          ./macos/buildall ${{ env.BUILD_TYPE }} FALSE
 
       - name: Build and Run ANSI Integration Tests
         shell: bash
         if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
         run: |
+          export LDFLAGS="-L/opt/homebrew/opt/zlib/lib"
+          export CPPFLAGS="-I/opt/homebrew/opt/zlib/include"
+          export ZLIB_ROOT=/opt/homebrew/opt/zlib
+          export CMAKE_PREFIX_PATH=$ZLIB_ROOT:$CMAKE_PREFIX_PATH
           cmake -S test_integration -B build_ansi -DBUILD_UNICODE=FALSE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
           cmake --build build_ansi --config ${{ env.BUILD_TYPE }}
           ./build_ansi/bin/integration
@@ -189,6 +184,10 @@ jobs:
         shell: bash
         if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
         run: |
+          export LDFLAGS="-L/opt/homebrew/opt/zlib/lib"
+          export CPPFLAGS="-I/opt/homebrew/opt/zlib/include"
+          export ZLIB_ROOT=/opt/homebrew/opt/zlib
+          export CMAKE_PREFIX_PATH=$ZLIB_ROOT:$CMAKE_PREFIX_PATH
           cmake -S test_integration -B build_unicode -DBUILD_UNICODE=TRUE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
           cmake --build build_unicode --config ${{ env.BUILD_TYPE }}
           ./build_unicode/bin/integration
@@ -196,6 +195,29 @@ jobs:
           TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
           TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
           TEST_DSN: ${{ env.TEST_DSN_UNICODE }}
+          TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
+          TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
+          ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"
+          ODBCINST: "${{ github.workspace }}/build/test/odbcinst.ini"
+          ODBCSYSINI: "${{ github.workspace }}/build/test"
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
+          POSTGRES_PORT: "5432"
+          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
+          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          IAM_USER: ${{ secrets.TEST_IAM_USER }}
+          SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: always()
+        env:
+          TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
+          TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
+          TEST_DSN: ${{ env.TEST_DSN_ANSI }}
           TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
           TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
           ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"

@@ -389,7 +389,7 @@ jobs:
         shell: pwsh
         if: ${{steps.AuroraClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=FALSE
+          cmake -S test_integration -B build_ansi -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
           cmake --build build_ansi --config ${{env.BUILD_CONFIGURATION}}
           .\build_ansi\bin\${{env.BUILD_CONFIGURATION}}\integration.exe
         env:
@@ -408,7 +408,7 @@ jobs:
         shell: pwsh
         if: ${{steps.AuroraClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=FALSE
+          cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
           cmake --build build_unicode --config ${{env.BUILD_CONFIGURATION}}
           .\build_unicode\bin\${{env.BUILD_CONFIGURATION}}\integration.exe
         env:

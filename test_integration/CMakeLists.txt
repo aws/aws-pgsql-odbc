@@ -17,22 +17,33 @@
 cmake_minimum_required(VERSION 3.22 FATAL_ERROR)
 project("integration")
 set(CMAKE_CXX_STANDARD 20)
-set(SHOULD_BUILD_FAILOVER FALSE)
-
-# Set it to TRUE if conditions are met (WIN32 and not TEST_LIMITLESS)
-if(WIN32 AND NOT TEST_LIMITLESS)
-    set(SHOULD_BUILD_FAILOVER TRUE)
-endif()
-
-# Set it to TRUE if conditions are met (APPLE and not TEST_LIMITLESS)
-if(APPLE AND NOT TEST_LIMITLESS)
-    set(SHOULD_BUILD_FAILOVER TRUE)
-endif()
 
 option(UNICODE_BUILD "Enable Unicode build" OFF)
+option(TEST_LIMITLESS "Enable Limitless tests" OFF)
+option(SHOULD_BUILD_FAILOVER "Enable Failover tests" OFF)
 
-# add UNICODE definition to build so unicode ODBC functions are used
-if (UNICODE_BUILD)
+# Don't build Failover tests if Limitless tests are enabled
+if(TEST_LIMITLESS)
+  set(SHOULD_BUILD_FAILOVER FALSE)
+endif()
+
+# Don't build Limitless tests if Failover tests are enabled
+if(SHOULD_BUILD_FAILOVER)
+  set(TEST_LIMITLESS FALSE)
+endif()
+
+# If TEST_LIMITLESS is undefined, or another falsey value, ensure it is set to FALSE
+if (NOT TEST_LIMITLESS)
+  set(TEST_LIMITLESS FALSE)
+endif()
+
+# If SHOULD_BUILD_FAILOVER is undefined, or another falsey value, ensure it is set to FALSE
+if (NOT SHOULD_BUILD_FAILOVER)
+  set(SHOULD_BUILD_FAILOVER FALSE)
+endif()
+
+# Add UNICODE definition to build so unicode ODBC functions are used
+if(UNICODE_BUILD)
   add_definitions(-DUNICODE)
 endif()
 
