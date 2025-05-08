@@ -128,3 +128,6 @@ jobs:
         run: |
           cd test
           PGHOST=localhost PGUSER=$POSTGRESQL_USER make installcheck
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
