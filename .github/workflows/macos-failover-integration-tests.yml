@@ -153,11 +153,7 @@ jobs:
         shell: bash
         if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
         run: |
-          export LDFLAGS="-L/opt/homebrew/opt/zlib/lib"
-          export CPPFLAGS="-I/opt/homebrew/opt/zlib/include"
-          export ZLIB_ROOT=/opt/homebrew/opt/zlib
-          export CMAKE_PREFIX_PATH=$ZLIB_ROOT:$CMAKE_PREFIX_PATH
-          cmake -S test_integration -B build_ansi -DBUILD_UNICODE=FALSE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
+          cmake -S test_integration -B build_ansi -DUNICODE_BUILD=FALSE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
           cmake --build build_ansi --config ${{ env.BUILD_TYPE }}
           ./build_ansi/bin/integration
         env:
@@ -184,11 +180,7 @@ jobs:
         shell: bash
         if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
         run: |
-          export LDFLAGS="-L/opt/homebrew/opt/zlib/lib"
-          export CPPFLAGS="-I/opt/homebrew/opt/zlib/include"
-          export ZLIB_ROOT=/opt/homebrew/opt/zlib
-          export CMAKE_PREFIX_PATH=$ZLIB_ROOT:$CMAKE_PREFIX_PATH
-          cmake -S test_integration -B build_unicode -DBUILD_UNICODE=TRUE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
+          cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
           cmake --build build_unicode --config ${{ env.BUILD_TYPE }}
           ./build_unicode/bin/integration
         env:
