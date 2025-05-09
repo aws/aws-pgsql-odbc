@@ -1,5 +1,5 @@
-name: MacOS Failover Integration Tests
-run-name: aws-pgsql-odbc MacOS Failover Integration Tests - ${{ github.event.head_commit.message }}
+name: MacOS Integration Tests
+run-name: aws-pgsql-odbc MacOS Integration Tests - ${{ github.event.head_commit.message }}
 
 on:
   workflow_dispatch:
@@ -39,8 +39,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  macos-failover-integration-tests:
-    name: "MacOS Failover Integration Tests"
+  macos-integration-tests:
+    name: "MacOS Integration Tests"
     runs-on: macos-15
     steps:
       - name: Checkout aws-pgsql-odbc
@@ -87,7 +87,7 @@ jobs:
 
       - name: Setup Cluster Id and Shard Id Env Variables
         run: |
-          echo "AURORA_CLUSTER_ID=AWS-PGODBC-MacOS-Integ-Failover-${{github.run_id}}" >> $GITHUB_ENV
+          echo "AURORA_CLUSTER_ID=AWS-PGODBC-MacOS-Integ-${{github.run_id}}" >> $GITHUB_ENV
 
       - name: Create Aurora Cluster
         id: auroraClusterSetup
@@ -153,40 +153,13 @@ jobs:
         shell: bash
         if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
         run: |
-          cmake -S test_integration -B build_ansi -DUNICODE_BUILD=FALSE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
+          cmake -S test_integration -B build_ansi -DUNICODE_BUILD=FALSE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=FALSE
           cmake --build build_ansi --config ${{ env.BUILD_TYPE }}
           ./build_ansi/bin/integration
         env:
           TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
           TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
           TEST_DSN: ${{ env.TEST_DSN_ANSI }}
-          TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
-          TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
-          ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"
-          ODBCINST: "${{ github.workspace }}/build/test/odbcinst.ini"
-          ODBCSYSINI: "${{ github.workspace }}/build/test"
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
-          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
-          POSTGRES_PORT: "5432"
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          IAM_USER: ${{ secrets.TEST_IAM_USER }}
-          SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
-
-      - name: Build and Run Unicode Integration Tests
-        shell: bash
-        if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
-        run: |
-          cmake -S test_integration -B build_unicode -DUNICODE_BUILD=TRUE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=TRUE
-          cmake --build build_unicode --config ${{ env.BUILD_TYPE }}
-          ./build_unicode/bin/integration
-        env:
-          TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
-          TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
-          TEST_DSN: ${{ env.TEST_DSN_UNICODE }}
           TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
           TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
           ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"

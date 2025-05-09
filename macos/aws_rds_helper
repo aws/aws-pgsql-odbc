@@ -44,14 +44,7 @@ function add_ip_to_db_sg {
     cidrBlock="$localIp/32"
 
     # Allow inbound traffic from the local IP address to the DB security group using AWS CLI
-    aws ec2 authorize-security-group-ingress --group-id $securityGroupId --protocol tcp --cidr $cidrBlock --port 5432 --region $Region
-
-    # Check if the ingress rule was successfully added
-    if [ $? -eq 0 ]; then
-        echo "Inbound traffic allowed from IP $localIp to security group $securityGroupId on all ports."
-    else
-        echo "Failed to add inbound rule to security group $securityGroupId."
-    fi
+    aws ec2 authorize-security-group-ingress --group-id $securityGroupId --protocol tcp --cidr $cidrBlock --port 5432 --region $Region || true
 } # function add_ip_to_db_sg
 export -f add_ip_to_db_sg
 
