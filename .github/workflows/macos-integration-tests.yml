@@ -46,15 +46,8 @@ jobs:
       - name: Checkout aws-pgsql-odbc
         uses: actions/checkout@v4
         with:
+          submodules: true
           fetch-depth: 1
-
-      - name: Checkout aws-rds-odbc
-        uses: actions/checkout@v4
-        with:
-          repository: aws/aws-rds-odbc
-          ref: main
-          path: ./libs/aws-rds-odbc
-          token: ${{secrets.CLONE_PAT}}
 
       - name: Initialize submodules
         run: |
@@ -136,7 +129,7 @@ jobs:
         if: always() && steps.cache-static-aws-sdk.outputs.cache-hit != 'true'
         with:
           path: ./libs/aws-rds-odbc/aws_sdk
-          key: ${{ runner.os }}-aws-sdk-cache-lib
+          key: ${{ runner.os }}-aws-sdk-dynamic-lib
 
       - name: Build and install AWS SDK C++
         working-directory: ./libs/aws-rds-odbc/scripts
