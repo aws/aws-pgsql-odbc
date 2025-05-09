@@ -108,13 +108,6 @@ FetchContent_MakeAvailable(glog)
 include_directories(${glog_SOURCE_DIR})
 
 #-----------------------------------------------------
-# zlib
-
-if(APPLE)
-  find_package(ZLIB REQUIRED)
-endif()
-
-#-----------------------------------------------------
 
 enable_testing()
 
