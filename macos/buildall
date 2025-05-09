@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Must be either Debug or Release
-CONFIGURATION=$1
+CONFIGURATION=$1 # Must be either Debug or Release
+BUILD_AWS_SDK=$2 # Enter "FALSE" to skip building AWS SDK; all other values will build
 echo ${CONFIGURATION}
 if [ "${CONFIGURATION}" != "Debug" ] && [ "${CONFIGURATION}" != "Release" ]; then
   echo "Build configuration must be Debug or Release"
@@ -24,13 +24,17 @@ fi
 
 export ROOT_REPO_PATH=$(cd "$(dirname "$0")/.."; pwd -P)
 
+# Change path to aws-rds-odbc library
+cd ${ROOT_REPO_PATH}/libs/aws-rds-odbc
+
 # Build the AWS SDK
 echo "Building the AWS SDK"
-cd ${ROOT_REPO_PATH}/libs/aws-rds-odbc
-scripts/build_aws_sdk_macos Release
-if [ $? -ne 0 ]; then
-  echo "AWS SDK build failed"
-  exit 1
+if [ $BUILD_AWS_SDK != "FALSE" ]; then
+  scripts/build_aws_sdk_macos Release
+  if [ $? -ne 0 ]; then
+    echo "AWS SDK build failed"
+    exit 1
+  fi
 fi
 
 # Prep the aws-rds-odbc builds
