@@ -1,6 +1,8 @@
 ## Okta Authentication
 The driver supports authentication via an [Okta](https://www.okta.com/) federated identity and then database access via IAM.
 
+However, the driver does not support 2FA. To disable 2FA for specific users or a groups, please read [Okta's article](https://support.okta.com/help/s/article/Exclude-from-OKta-Verify-MFA-user-doesn-t-have-a-phone?language=en_US) on how to do so.
+
 ### What is Federated Identity
 Federated Identity allows users to use the same set of credentials to access multiple services or resources across different organizations. This works by having Identity Providers (IdP) that manage and authenticate user credentials, and Service Providers (SP) that are services or resources that can be internal, external, and/or belonging to various organizations. Multiple SPs can establish trust relationships with a single IdP.
 
