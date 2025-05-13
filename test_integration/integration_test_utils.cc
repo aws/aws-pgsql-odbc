@@ -27,6 +27,7 @@
 #endif  /* __STDC_WANT_LIB_EXT1__ */
 #endif
 
+#include <cmath> // std::round
 #include <cstdlib> // std::strtod
 
 #include "integration_test_utils.h"
