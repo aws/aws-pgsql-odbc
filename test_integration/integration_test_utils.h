@@ -18,19 +18,24 @@
 #include <gtest/gtest.h>
 
 #include "string_helper.h"
+#include "host_info.h"
+
 #include <sqlext.h>
 
-#define MAX_NAME_LEN 4096
-#define SQL_MAX_MESSAGE_LENGTH 512
+#define MAX_NAME_LEN            4096
+#define SQL_MAX_MESSAGE_LENGTH  512
 
 class INTEGRATION_TEST_UTILS {
 public:
     static char* get_env_var(const char* key, char* default_value);
     static int str_to_int(const char* str);
+    static double str_to_double(const char* str);
     static std::string host_to_IP(std::string hostname);
     static void print_errors(SQLHANDLE handle, int32_t handle_type);
     static SQLRETURN exec_query(SQLHSTMT stmt, char *query_buffer);
 	static void clear_memory(void* dest, size_t count);
+    static void odbc_cleanup(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt);
+    static std::vector<HostInfo> query_for_limitless_routers(SQLHDBC conn, int host_port_to_map);
 };
 
 #endif // INTEGRATIONTESTUTILS_H_

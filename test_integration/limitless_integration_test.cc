@@ -30,10 +30,7 @@
 #include "connection_string_builder.h"
 #include "integration_test_utils.h"
 
-// from aws-rds-odbc
 #include "round_robin_host_selector.h"
-#include "limitless_monitor_service.h"
-#include "limitless_query_helper.h"
 
 #define MONITOR_INTERVAL_MS 15000
 #define MONITOR_SERVICE_ID  "test_id"
@@ -58,7 +55,7 @@ public:
     ~RoundRobinHelper() = default;
 
     void UpdateHosts() {
-        this->hosts = LimitlessQueryHelper::QueryForLimitlessRouters(monitor_dbc, test_port);
+        this->hosts = INTEGRATION_TEST_UTILS::query_for_limitless_routers(monitor_dbc, test_port);
     }
 
     std::string GetRoundRobinHost() {

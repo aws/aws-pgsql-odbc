@@ -52,7 +52,7 @@ endif()
 
 if(APPLE)
   # Required to ensure unixodbc is found and used before iODBC
-  set(ODBC_INCLUDE_DIR /opt/homebrew/opt/unixodbc/include)
+  set(ODBC_INCLUDE_DIR /usr/local/opt/unixodbc/include)
 endif()
 
 find_package(ODBC REQUIRED)
@@ -77,59 +77,60 @@ enable_testing()
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 if(SHOULD_BUILD_FAILOVER)
-    #-----------------------------------------------------
-    # AWS SDK for C++
-    # The SDK is only required for failover integration tests, which are only ran on Windows
+  #-----------------------------------------------------
+  # AWS SDK for C++
+  # The SDK is only required for failover integration tests
 
-    # Paths to search when attempting to find the AWS SDK
-    set(AWS_SDK_DIR "${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/aws_sdk/install")
-    list(APPEND CMAKE_PREFIX_PATH ${AWS_SDK_DIR})
-    string(REPLACE ";" "/aws-cpp-sdk-all;" SYSTEM_MODULE_PATH "${CMAKE_SYSTEM_PREFIX_PATH}/aws-cpp-sdk-all")
-    list(APPEND CMAKE_PREFIX_PATH ${SYSTEM_MODULE_PATH})
+  # Paths to search when attempting to find the AWS SDK
+  set(AWS_SDK_DIR "${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/aws_sdk/install")
+  list(APPEND CMAKE_PREFIX_PATH ${AWS_SDK_DIR})
+  string(REPLACE ";" "/aws-cpp-sdk-all;" SYSTEM_MODULE_PATH "${CMAKE_SYSTEM_PREFIX_PATH}/aws-cpp-sdk-all")
+  list(APPEND CMAKE_PREFIX_PATH ${SYSTEM_MODULE_PATH})
 
-    find_package(AWSSDK REQUIRED COMPONENTS core rds sts)
-    include_directories(${AWSSDK_INCLUDE_DIR})
+  find_package(AWSSDK REQUIRED COMPONENTS core rds sts)
+  message(STATUS "AWSSDK_INCLUDE_DIRS: ${AWSSDK_INCLUDE_DIRS}")
+  message(STATUS "AWSSDK_LINK_LIBRARIES: ${AWSSDK_LINK_LIBRARIES}")
+  include_directories(${AWSSDK_INCLUDE_DIRS})
+
+  #-----------------------------------------------------
+  # macOS specific configuration
+
+  if(APPLE OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # ZLIB needs to be explicity required for AWS SDK
+    find_package(ZLIB REQUIRED)
+  endif()
 endif()
-
-#-----------------------------------------------------
-# Google logging library
-
-set("BUILD_TESTING" OFF CACHE INTERNAL "Skip GLOG Tests")
-FetchContent_Declare(
-    glog
-    GIT_REPOSITORY https://github.com/google/glog.git
-    GIT_TAG        v0.7.1
-)
-set(GLOG_BUILD_TESTS OFF) # Don't build tests
-set(GLOG_BUILD_BENCHMARKS OFF) # Don't build benchmarks
-set(GLOG_USE_CMAKE_INSTALL OFF) # Don't install glog
-set(BUILD_SHARED_LIBS OFF) # Force static linking.  Crucial for static glog
-FetchContent_MakeAvailable(glog)
-include_directories(${glog_SOURCE_DIR})
 
 #-----------------------------------------------------
 
 enable_testing()
 
 set(TEST_UTILITIES
-    connection_string_builder.h
-    integration_test_utils.cc
-    integration_test_utils.h
+  integration_test_utils.cc
+  library_utils/host_info.cc
+  library_utils/round_robin_host_selector.cc
+  library_utils/sliding_cache_map.cc
 )
 
 set(TEST_SUITE
-    connection_string_builder_test.cc
-    iam_authentication_integration_test.cc
-    secrets_manager_integration_test.cc
+  connection_string_builder_test.cc
+  iam_authentication_integration_test.cc
+  secrets_manager_integration_test.cc
 )
 
 if(SHOULD_BUILD_FAILOVER)
-    # Only build and run failover integration tests on Windows
-    list(APPEND TEST_SUITE base_failover_integration_test.cc failover_integration_test.cc)
+  list(APPEND TEST_SUITE base_failover_integration_test.cc failover_integration_test.cc)
+elseif(TEST_LIMITLESS)
+  list(APPEND TEST_SUITE limitless_integration_test.cc)
 endif()
 
-IF (TEST_LIMITLESS)
-    list(APPEND TEST_SUITE limitless_integration_test.cc)
+set(EXTERNAL_LIBRARIES
+  gtest_main
+  ${ODBC_LIBRARIES}
+)
+
+if(SHOULD_BUILD_FAILOVER)
+  list(APPEND EXTERNAL_LIBRARIES ${AWSSDK_LINK_LIBRARIES})
 endif()
 
 add_executable(
@@ -142,53 +143,13 @@ add_executable(
 
 include(GoogleTest)
 
-# aws-rds-odbc
-set(AWS_RDS_LIB_UNICODE_PATH ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_unicode)
-set(AWS_RDS_LIB_ANSI_PATH ${CMAKE_SOURCE_DIR}/../libs/aws-rds-odbc/build_ansi)
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(RDS_LIB_PATH "Debug")
-else()
-    set(RDS_LIB_PATH "Release")
-endif()
-
-if (UNICODE_BUILD)
-  if (WIN32)
-    set(libawsrdsodbc ${AWS_RDS_LIB_UNICODE_PATH}/${RDS_LIB_PATH}/aws-rds-odbc-w.lib)
-  elseif(APPLE)
-    set(libawsrdsodbc ${AWS_RDS_LIB_UNICODE_PATH}/libaws-rds-odbc-w.a)
-  else()
-    set(libawsrdsodbc ${AWS_RDS_LIB_UNICODE_PATH}/libaws-rds-odbc-w.so)
-  endif()
-else()
-  if (WIN32)
-    set(libawsrdsodbc ${AWS_RDS_LIB_ANSI_PATH}/${RDS_LIB_PATH}/aws-rds-odbc-a.lib)
-  elseif(APPLE)
-    set(libawsrdsodbc ${AWS_RDS_LIB_ANSI_PATH}/libaws-rds-odbc-a.a)
-  else()
-    set(libawsrdsodbc ${AWS_RDS_LIB_ANSI_PATH}/libaws-rds-odbc-a.so)
-  endif()
-endif()
-
 target_include_directories(
-  # Name
-  ${PROJECT_NAME} PRIVATE
+  ${PROJECT_NAME}
+  PRIVATE
 
-  # aws-rds-odbc
-  ../libs/aws-rds-odbc/src/host_selector
-  ../libs/aws-rds-odbc/src/limitless
-  ../libs/aws-rds-odbc/src/util
+  ${CMAKE_SOURCE_DIR}
+  ${CMAKE_SOURCE_DIR}/library_utils
 )
-
-set (EXTERNAL_LIBRARIES
-    gtest_main
-    ${ODBC_LIBRARIES}
-    glog::glog
-)
-
-if(SHOULD_BUILD_FAILOVER)
-    list(APPEND EXTERNAL_LIBRARIES ${AWSSDK_LINK_LIBRARIES})
-endif()
 
 target_link_libraries(
   # Name
@@ -196,9 +157,6 @@ target_link_libraries(
 
   # External Libaries
   ${EXTERNAL_LIBRARIES}
-
-  # aws-rds-odbc
-  ${libawsrdsodbc}
 )
 
 set_target_properties(
@@ -206,6 +164,9 @@ set_target_properties(
   PROPERTIES 
   RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin
 )
+
+#-----------------------------------------------------
+# Generate odbc.ini and odbcinst.ini
 
 # Set values to help generate odbc.ini and odbcinst.ini files for Dockerized tests
 SET(ODBC_PATH ${CMAKE_SOURCE_DIR}/../testframework/src/test/resources/)
