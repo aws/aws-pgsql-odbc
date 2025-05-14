@@ -169,28 +169,6 @@ jobs:
           IAM_USER: ${{ secrets.TEST_IAM_USER }}
           SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-        env:
-          TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
-          TEST_DSN_UNICODE: ${{ env.TEST_DSN_UNICODE }}
-          TEST_DSN: ${{ env.TEST_DSN_ANSI }}
-          TEST_DRIVER_ANSI: "${{ github.workspace }}/.libs/awspsqlodbca.so"
-          TEST_DRIVER_UNICODE: "${{ github.workspace }}/.libs/awspsqlodbcw.so"
-          ODBCINI: "${{ github.workspace }}/build/test/odbc.ini"
-          ODBCINST: "${{ github.workspace }}/build/test/odbcinst.ini"
-          ODBCSYSINI: "${{ github.workspace }}/build/test"
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
-          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          TEST_SERVER: ${{ env.AURORA_CLUSTER_ENDPOINT }}
-          POSTGRES_PORT: "5432"
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
-          RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-          IAM_USER: ${{ secrets.TEST_IAM_USER }}
-          SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
-
       - name: Delete Aurora Cluster
         if: always()
         shell: bash
