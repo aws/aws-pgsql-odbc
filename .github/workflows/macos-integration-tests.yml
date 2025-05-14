@@ -78,9 +78,9 @@ jobs:
           echo "AWS_SECRET_ACCESS_KEY=${creds[1]}" >> $GITHUB_ENV
           echo "AWS_SESSION_TOKEN=${creds[2]}" >> $GITHUB_ENV
 
-      - name: Setup Cluster Id and Shard Id Env Variables
+      - name: Setup Cluster ID
         run: |
-          echo "AURORA_CLUSTER_ID=AWS-PGODBC-MacOS-Integ-${{github.run_id}}" >> $GITHUB_ENV
+          echo "AURORA_CLUSTER_ID=AWS-PGODBC-MacOS-Integ-${{github.run_id}}${{github.run_attempt}}" >> $GITHUB_ENV
 
       - name: Create Aurora Cluster
         id: auroraClusterSetup
