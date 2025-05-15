@@ -125,8 +125,8 @@ std::vector<HostInfo> query_for_limitless_routers(SQLHDBC conn, int host_port_to
 
 std::vector<HostInfo> imitation_round_robin(const std::vector<HostInfo> &hosts) {
     std::vector<HostInfo> selection;
-    selection.reserve(hosts.size());
 
+    // only consider hosts that are writers and are up
     bool is_writer = true;
     std::copy_if(hosts.begin(), hosts.end(), std::back_inserter(selection), [&is_writer](const HostInfo& host) {
         return host.IsHostUp() && (is_writer ? host.IsHostWriter() : true);
@@ -136,6 +136,19 @@ std::vector<HostInfo> imitation_round_robin(const std::vector<HostInfo> &hosts) 
         throw std::runtime_error("No available hosts found in list");
     }
 
+    size_t unique_hosts = selection.size();
+
+    // repeat hosts according to their weights
+    for (size_t i = 0; i < unique_hosts; i++) {
+        uint64_t weight = selection[i].GetWeight();
+
+        // push back weight - 1 duplicate hosts
+        for (uint64_t j = 1; j < weight; j++) {
+            selection.push_back(selection[i]);
+        }
+    }
+
+    // sort the selections alphabetically
     struct {
         bool operator()(const HostInfo& a, const HostInfo& b) const {
             return a.GetHost() < b.GetHost();

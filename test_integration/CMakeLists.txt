@@ -52,7 +52,7 @@ endif()
 
 if(APPLE)
   # Required to ensure unixodbc is found and used before iODBC
-  set(ODBC_INCLUDE_DIR /usr/local/opt/unixodbc/include)
+  set(ODBC_INCLUDE_DIR /opt/homebrew/opt/unixodbc/include)
 endif()
 
 find_package(ODBC REQUIRED)
