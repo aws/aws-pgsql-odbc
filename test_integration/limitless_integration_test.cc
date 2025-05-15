@@ -124,39 +124,36 @@ std::vector<HostInfo> query_for_limitless_routers(SQLHDBC conn, int host_port_to
 }
 
 std::vector<HostInfo> imitation_round_robin(const std::vector<HostInfo> &hosts) {
-    std::vector<HostInfo> selection;
+    std::vector<HostInfo> available_hosts, round_robin_order;
 
     // only consider hosts that are writers and are up
     bool is_writer = true;
-    std::copy_if(hosts.begin(), hosts.end(), std::back_inserter(selection), [&is_writer](const HostInfo& host) {
+    std::copy_if(hosts.begin(), hosts.end(), std::back_inserter(available_hosts), [&is_writer](const HostInfo& host) {
         return host.IsHostUp() && (is_writer ? host.IsHostWriter() : true);
     });
 
-    if (selection.empty()) {
+    if (available_hosts.empty()) {
         throw std::runtime_error("No available hosts found in list");
     }
 
-    size_t unique_hosts = selection.size();
-
-    // repeat hosts according to their weights
-    for (size_t i = 0; i < unique_hosts; i++) {
-        uint64_t weight = selection[i].GetWeight();
-
-        // push back weight - 1 duplicate hosts
-        for (uint64_t j = 1; j < weight; j++) {
-            selection.push_back(selection[i]);
-        }
-    }
-
-    // sort the selections alphabetically
+    // sort
     struct {
         bool operator()(const HostInfo& a, const HostInfo& b) const {
             return a.GetHost() < b.GetHost();
         }
     } host_name_sort;
-    std::sort(selection.begin(), selection.end(), host_name_sort);
+    std::sort(available_hosts.begin(), available_hosts.end(), host_name_sort);
 
-    return selection;
+    // expand
+    for (int i = 0; i < available_hosts.size(); i++) {
+        uint64_t weight = available_hosts[i].GetWeight();
+
+        for (int j = 0; j < weight; j++) {
+            round_robin_order.push_back(available_hosts[i]);
+        }
+    }
+
+    return round_robin_order;
 }
 
 void load_thread(SQLTCHAR *conn_in) {
