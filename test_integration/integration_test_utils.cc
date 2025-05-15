@@ -32,14 +32,6 @@
 
 #include "integration_test_utils.h"
 
-#define ROUTER_ENDPOINT_LENGTH  2049
-#define LOAD_LENGTH             5
-#define WEIGHT_SCALING          10
-#define MAX_WEIGHT              10
-#define MIN_WEIGHT              1
-
-SQLTCHAR* limitless_router_endpoint_query = AS_SQLTCHAR(TEXT("SELECT router_endpoint, load FROM aurora_limitless_router_endpoints()"));
-
 char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) {
     char* value = std::getenv(key);
     if (value == nullptr || value == "") {
@@ -165,72 +157,4 @@ void INTEGRATION_TEST_UTILS::odbc_cleanup(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT h
         SQLFreeHandle(SQL_HANDLE_ENV, henv);
         henv = SQL_NULL_HENV;
     }
-}
-
-static HostInfo create_host(const SQLCHAR* load, const SQLCHAR* router_endpoint, const int host_port_to_map) {
-    int64_t weight = std::round(WEIGHT_SCALING - (INTEGRATION_TEST_UTILS::str_to_double(reinterpret_cast<const char *>(load)) * WEIGHT_SCALING));
-
-    if (weight < MIN_WEIGHT || weight > MAX_WEIGHT) {
-        weight = MIN_WEIGHT;
-        std::cerr << "Invalid router load of " << load << " for " << router_endpoint << std::endl;
-    }
-
-    std::string router_endpoint_str(reinterpret_cast<const char *>(router_endpoint));
-
-    return HostInfo(
-        router_endpoint_str,
-        host_port_to_map,
-        UP,
-        true,
-        nullptr,
-        weight
-    );
-}
-
-std::vector<HostInfo> INTEGRATION_TEST_UTILS::query_for_limitless_routers(SQLHDBC conn, int host_port_to_map) {
-    HSTMT hstmt = SQL_NULL_HSTMT;
-    SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_STMT, conn, &hstmt);
-    if (!SQL_SUCCEEDED(rc)) {
-        INTEGRATION_TEST_UTILS::print_errors(conn, SQL_HANDLE_DBC);
-        return std::vector<HostInfo>();
-    }
-
-    // Generally accepted URL endpoint max length + 1 for null terminator
-    SQLCHAR router_endpoint_value[ROUTER_ENDPOINT_LENGTH] = {0};
-    SQLLEN ind_router_endpoint_value = 0;
-
-    SQLCHAR load_value[LOAD_LENGTH] = {0};
-    SQLLEN ind_load_value = 0;
-
-    rc = SQLBindCol(hstmt, 1, SQL_C_CHAR, &router_endpoint_value, sizeof(router_endpoint_value), &ind_router_endpoint_value);
-    SQLRETURN rc2 = SQLBindCol(hstmt, 2, SQL_C_CHAR, &load_value, sizeof(load_value), &ind_load_value);
-    if (!SQL_SUCCEEDED(rc) || !SQL_SUCCEEDED(rc2)) {
-        INTEGRATION_TEST_UTILS::print_errors(hstmt, SQL_HANDLE_STMT);
-        INTEGRATION_TEST_UTILS::odbc_cleanup(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt);
-        return std::vector<HostInfo>();
-    }
-
-    rc = SQLExecDirect(hstmt, limitless_router_endpoint_query, SQL_NTS);
-    if (!SQL_SUCCEEDED(rc)) {
-        INTEGRATION_TEST_UTILS::print_errors(hstmt, SQL_HANDLE_STMT);
-        INTEGRATION_TEST_UTILS::odbc_cleanup(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt);
-        return std::vector<HostInfo>();
-    }
-
-    SQLLEN row_count = 0;
-    rc = SQLRowCount(hstmt, &row_count);
-    if (!SQL_SUCCEEDED(rc)) {
-        INTEGRATION_TEST_UTILS::print_errors(hstmt, SQL_HANDLE_STMT);
-        INTEGRATION_TEST_UTILS::odbc_cleanup(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt);
-        return std::vector<HostInfo>();
-    }
-    std::vector<HostInfo> limitless_routers;
-
-    while (SQL_SUCCEEDED(rc = SQLFetch(hstmt))) {
-        limitless_routers.push_back(create_host(load_value, router_endpoint_value, host_port_to_map));
-    }
-
-    INTEGRATION_TEST_UTILS::odbc_cleanup(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt);
-
-    return limitless_routers;
 }

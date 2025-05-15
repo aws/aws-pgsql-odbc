@@ -30,12 +30,18 @@
 #include "connection_string_builder.h"
 #include "integration_test_utils.h"
 
-#include "round_robin_host_selector.h"
+#define ROUTER_ENDPOINT_LENGTH  2049
+#define LOAD_LENGTH             5
+#define WEIGHT_SCALING          10
+#define MAX_WEIGHT              10
+#define MIN_WEIGHT              1
 
 #define MONITOR_INTERVAL_MS 15000
 #define MONITOR_SERVICE_ID  "test_id"
 
 #define NUM_CONNECTIONS_TO_OVERLOAD_ROUTER  20
+
+SQLTCHAR* limitless_router_endpoint_query = AS_SQLTCHAR(TEXT("SELECT router_endpoint, load FROM aurora_limitless_router_endpoints()"));
 
 // Connection string parameters
 static const char* test_dsn;
@@ -49,33 +55,96 @@ static std::string shardgrp_endpoint;
 SQLHENV env = nullptr;
 SQLHDBC monitor_dbc = nullptr;
 
-class RoundRobinHelper {
-public:
-    RoundRobinHelper() = default;
-    ~RoundRobinHelper() = default;
+HostInfo create_host(const SQLCHAR* load, const SQLCHAR* router_endpoint, const int host_port_to_map) {
+    int64_t weight = std::round(WEIGHT_SCALING - (INTEGRATION_TEST_UTILS::str_to_double(reinterpret_cast<const char *>(load)) * WEIGHT_SCALING));
 
-    void UpdateHosts() {
-        this->hosts = INTEGRATION_TEST_UTILS::query_for_limitless_routers(monitor_dbc, test_port);
+    if (weight < MIN_WEIGHT || weight > MAX_WEIGHT) {
+        weight = MIN_WEIGHT;
+        std::cerr << "Invalid router load of " << load << " for " << router_endpoint << std::endl;
     }
 
-    std::string GetRoundRobinHost() {
-        // return round robin host on pre-existing host list
-        std::unordered_map<std::string, std::string> properties;
-        RoundRobinHostSelector::SetRoundRobinWeight(this->hosts, properties);
-        HostInfo host = this->round_robin.GetHost(this->hosts, true, properties);
+    std::string router_endpoint_str(reinterpret_cast<const char *>(router_endpoint));
 
-        return host.GetHost();
+    return HostInfo(
+        router_endpoint_str,
+        host_port_to_map,
+        UP,
+        true,
+        nullptr,
+        weight
+    );
+}
+
+std::vector<HostInfo> query_for_limitless_routers(SQLHDBC conn, int host_port_to_map) {
+    HSTMT hstmt = SQL_NULL_HSTMT;
+    SQLRETURN rc = SQLAllocHandle(SQL_HANDLE_STMT, conn, &hstmt);
+    if (!SQL_SUCCEEDED(rc)) {
+        INTEGRATION_TEST_UTILS::print_errors(conn, SQL_HANDLE_DBC);
+        return std::vector<HostInfo>();
     }
 
-    // all round robin instances have a shared cache; this clears it, so that expected hosts can be checked against
-    void ClearCache() {
-        this->round_robin.ClearCache();
+    // Generally accepted URL endpoint max length + 1 for null terminator
+    SQLCHAR router_endpoint_value[ROUTER_ENDPOINT_LENGTH] = {0};
+    SQLLEN ind_router_endpoint_value = 0;
+
+    SQLCHAR load_value[LOAD_LENGTH] = {0};
+    SQLLEN ind_load_value = 0;
+
+    rc = SQLBindCol(hstmt, 1, SQL_C_CHAR, &router_endpoint_value, sizeof(router_endpoint_value), &ind_router_endpoint_value);
+    SQLRETURN rc2 = SQLBindCol(hstmt, 2, SQL_C_CHAR, &load_value, sizeof(load_value), &ind_load_value);
+    if (!SQL_SUCCEEDED(rc) || !SQL_SUCCEEDED(rc2)) {
+        INTEGRATION_TEST_UTILS::print_errors(hstmt, SQL_HANDLE_STMT);
+        INTEGRATION_TEST_UTILS::odbc_cleanup(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt);
+        return std::vector<HostInfo>();
     }
 
-private:
-    std::vector<HostInfo> hosts;
-    RoundRobinHostSelector round_robin;
-} round_robin_helper;
+    rc = SQLExecDirect(hstmt, limitless_router_endpoint_query, SQL_NTS);
+    if (!SQL_SUCCEEDED(rc)) {
+        INTEGRATION_TEST_UTILS::print_errors(hstmt, SQL_HANDLE_STMT);
+        INTEGRATION_TEST_UTILS::odbc_cleanup(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt);
+        return std::vector<HostInfo>();
+    }
+
+    SQLLEN row_count = 0;
+    rc = SQLRowCount(hstmt, &row_count);
+    if (!SQL_SUCCEEDED(rc)) {
+        INTEGRATION_TEST_UTILS::print_errors(hstmt, SQL_HANDLE_STMT);
+        INTEGRATION_TEST_UTILS::odbc_cleanup(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt);
+        return std::vector<HostInfo>();
+    }
+    std::vector<HostInfo> limitless_routers;
+
+    while (SQL_SUCCEEDED(rc = SQLFetch(hstmt))) {
+        limitless_routers.push_back(create_host(load_value, router_endpoint_value, host_port_to_map));
+    }
+
+    INTEGRATION_TEST_UTILS::odbc_cleanup(SQL_NULL_HENV, SQL_NULL_HDBC, hstmt);
+
+    return limitless_routers;
+}
+
+std::vector<HostInfo> imitation_round_robin(const std::vector<HostInfo> &hosts) {
+    std::vector<HostInfo> selection;
+    selection.reserve(hosts.size());
+
+    bool is_writer = true;
+    std::copy_if(hosts.begin(), hosts.end(), std::back_inserter(selection), [&is_writer](const HostInfo& host) {
+        return host.IsHostUp() && (is_writer ? host.IsHostWriter() : true);
+    });
+
+    if (selection.empty()) {
+        throw std::runtime_error("No available hosts found in list");
+    }
+
+    struct {
+        bool operator()(const HostInfo& a, const HostInfo& b) const {
+            return a.GetHost() < b.GetHost();
+        }
+    } host_name_sort;
+    std::sort(selection.begin(), selection.end(), host_name_sort);
+
+    return selection;
+}
 
 void load_thread(SQLTCHAR *conn_in) {
     SQLHDBC dbc;
@@ -154,9 +223,6 @@ protected:
 
     void SetUp() override {
         SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
-
-        // fresh slate per test
-        round_robin_helper.ClearCache();
     }
 
     void TearDown() override {
@@ -169,9 +235,9 @@ protected:
 
 TEST_F(LimitlessIntegrationTest, ImmediateConnectionToRoundRobinHost) {
     // get the current expected host
-    round_robin_helper.UpdateHosts();
-    std::string expected_host = round_robin_helper.GetRoundRobinHost();
-    round_robin_helper.ClearCache();
+    std::vector<HostInfo> limitless_hosts = query_for_limitless_routers(monitor_dbc, 5432);
+    std::vector<HostInfo> round_robin_hosts = imitation_round_robin(limitless_hosts);
+    std::string expected_host = round_robin_hosts[0].GetHost();
 
     auto connection_string = ConnectionStringBuilder(test_dsn, shardgrp_endpoint, test_port)
         .withUID(test_user)
@@ -196,7 +262,6 @@ TEST_F(LimitlessIntegrationTest, ImmediateConnectionToRoundRobinHost) {
 }
 
 TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
-
     auto connection_string = ConnectionStringBuilder(test_dsn, shardgrp_endpoint, test_port)
         .withUID(test_user)
         .withPWD(test_pwd)
@@ -219,9 +284,9 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
     std::this_thread::sleep_for(std::chrono::milliseconds(MONITOR_INTERVAL_MS));
 
     // get the current expected host
-    round_robin_helper.UpdateHosts();
-    std::string expected_host = round_robin_helper.GetRoundRobinHost();
-    round_robin_helper.ClearCache();
+    std::vector<HostInfo> limitless_hosts = query_for_limitless_routers(monitor_dbc, 5432);
+    std::vector<HostInfo> round_robin_hosts = imitation_round_robin(limitless_hosts);
+    std::string expected_host = round_robin_hosts[0].GetHost();
 
     // prepare a second connection
     SQLHDBC second_dbc;
@@ -240,10 +305,10 @@ TEST_F(LimitlessIntegrationTest, LazyConnectionToRoundRobinHost) {
 }
 
 TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
-    // get the currently preferred host from a fresh round robin selection
-    round_robin_helper.UpdateHosts();
-    std::string initial_host = round_robin_helper.GetRoundRobinHost();
-    round_robin_helper.ClearCache();
+    // get the current expected host
+    std::vector<HostInfo> limitless_hosts = query_for_limitless_routers(monitor_dbc, 5432);
+    std::vector<HostInfo> round_robin_hosts = imitation_round_robin(limitless_hosts);
+    std::string initial_host = round_robin_hosts[0].GetHost();
 
     auto load_conn_string = ConnectionStringBuilder(test_dsn, initial_host, test_port)
         .withUID(test_user)
@@ -264,12 +329,12 @@ TEST_F(LimitlessIntegrationTest, ConnectionSwitchDueToHighLoad) {
 
     // collect all three of the expected hosts before the limitless monitor service interacts with the round robin cache
     // the limitless monitor service's calls to its round robin host should be the exact same, so these expected hosts should match what is connected to
-    round_robin_helper.UpdateHosts();
+    limitless_hosts = query_for_limitless_routers(monitor_dbc, 5432);
+    round_robin_hosts = imitation_round_robin(limitless_hosts);
     std::vector<std::string> expected_hosts;
     for (int i = 0; i < 3; i++) {
-        expected_hosts.push_back(round_robin_helper.GetRoundRobinHost());
+        expected_hosts.push_back(round_robin_hosts[i].GetHost());
     }
-    round_robin_helper.ClearCache();
 
     // round robin follows alphabetical order; despite current load conditions, the first connection should be the same as the initial host
     ASSERT_EQ(expected_hosts[0], initial_host);

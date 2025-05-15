@@ -35,7 +35,6 @@ public:
     static SQLRETURN exec_query(SQLHSTMT stmt, char *query_buffer);
 	static void clear_memory(void* dest, size_t count);
     static void odbc_cleanup(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt);
-    static std::vector<HostInfo> query_for_limitless_routers(SQLHDBC conn, int host_port_to_map);
 };
 
 #endif // INTEGRATIONTESTUTILS_H_
