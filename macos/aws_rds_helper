@@ -19,8 +19,9 @@ false=0
 
 # ---------------- Security Group Operations ----------------------
 function add_ip_to_db_sg {
-    ClusterId=$1
-    Region=$2
+    LocalIp=$1
+    ClusterId=$2
+    Region=$3
 
     # Get the security group associated with the DB cluster using AWS CLI
     dbClusterInfo=$(aws rds describe-db-clusters --db-cluster-identifier $ClusterId --region $Region)
@@ -38,19 +39,19 @@ function add_ip_to_db_sg {
     fi
 
     securityGroupId=$(echo "$dbClusterInfo" | jq -r '.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId')
-
-    # Get the local IP address of the machine running the script
-    localIp=$(curl "http://checkip.amazonaws.com")
-    cidrBlock="$localIp/32"
+    cidrBlock="$LocalIp/32"
 
     # Allow inbound traffic from the local IP address to the DB security group using AWS CLI
     aws ec2 authorize-security-group-ingress --group-id $securityGroupId --protocol tcp --cidr $cidrBlock --port 5432 --region $Region || true
+    echo "Waiting 30 seconds for security group to update..."
+    sleep 30
 } # function add_ip_to_db_sg
 export -f add_ip_to_db_sg
 
 function remove_ip_from_db_sg {
-    ClusterId=$1
-    Region=$2
+    LocalIp=$1
+    ClusterId=$2
+    Region=$3
 
     # Get the security group associated with the DB cluster using AWS CLI
     dbClusterInfo=$(aws rds describe-db-clusters --db-cluster-identifier $ClusterId --region $Region)
@@ -70,20 +71,17 @@ function remove_ip_from_db_sg {
     # Extract the Security Group ID
     securityGroupId=$(echo "$dbClusterInfo" | jq -r '.DBClusters[0].VpcSecurityGroups[0].VpcSecurityGroupId')
 
-    # Get the local IP address of the machine running the script
-    localIp=$(curl "http://checkip.amazonaws.com")
-
     # Define the CIDR block for the local IP address (allowing all ports and all traffic)
-    cidrBlock="$localIp/32"
+    cidrBlock="$LocalIp/32"
 
     # Revoke Inbound traffic
-    aws ec2 revoke-security-group-ingress --group-id $securityGroupId --protocol tcp --cidr $cidrBlock --port 0-65535 --region $Region
+    aws ec2 revoke-security-group-ingress --group-id $securityGroupId --protocol tcp --cidr $cidrBlock --port 5432 --region $Region || true
 
     # Check if revoked successfully
     if [ $? -eq 0 ]; then
-        echo "Removed IP: $localIp from security group $securityGroupId."
+        echo "Removed IP: $LocalIp from security group $securityGroupId."
     else
-        echo "Failed to remove ip $localIp from security group $securityGroupId."
+        echo "Failed to remove ip $LocalIp from security group $securityGroupId."
     fi
 } # function remove_ip_from_db_sg
 export -f remove_ip_from_db_sg
@@ -144,8 +142,6 @@ function create_aurora_rds_cluster {
 
     aws rds wait db-instance-available\
         --filters "Name=db-cluster-id,Values=${ClusterId}"
-
-    add_ip_to_db_sg $ClusterId $Region
 } # function create_aurora_rds_cluster
 export -f create_aurora_rds_cluster
 
@@ -238,8 +234,6 @@ function create_limitless_rds_cluster {
     else
         echo "Successfully detected DB cluster availability."
     fi
-
-    add_ip_to_db_sg $ClusterId $Region
 } # function create_limitless_rds_cluster
 export -f create_limitless_rds_cluster
 
@@ -281,7 +275,6 @@ function delete_aurora_db_cluster {
     Region=$2
     NumInstances=$3
 
-    remove_ip_from_db_sg $ClusterId $Region
     delete_dbinstances $ClusterId $NumInstances
     delete_dbcluster $ClusterId
 } # delete_aurora_db_cluster
@@ -292,7 +285,6 @@ function delete_limitless_db_cluster {
     ShardId=$2
     Region=$3
 
-    remove_ip_from_db_sg $ClusterId $Region
     # Retry settings
     maxRetries=5
     attempt=0

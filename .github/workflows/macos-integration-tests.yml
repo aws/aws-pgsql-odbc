@@ -142,12 +142,19 @@ jobs:
         run: |
           ./macos/buildall ${{ env.BUILD_TYPE }} FALSE
 
+      - name: 'Get Github Action IP'
+        if: always()
+        id: ip
+        uses: haythem/public-ip@v1.3
+
       - name: Build and Run ANSI Integration Tests
         shell: bash
         if: ${{ !cancelled() && steps.auroraClusterSetup.outcome == 'success'}}
         run: |
           cmake -S test_integration -B build_ansi -DUNICODE_BUILD=FALSE -DTEST_LIMITLESS=FALSE -DSHOULD_BUILD_FAILOVER=FALSE
           cmake --build build_ansi --config ${{ env.BUILD_TYPE }}
+          . ./macos/aws_rds_helper
+          add_ip_to_db_sg ${{ steps.ip.outputs.ipv4 }} ${{ env.AURORA_CLUSTER_ID }} ${{ secrets.AWS_DEFAULT_REGION }}
           ./build_ansi/bin/integration
         env:
           TEST_DSN_ANSI: ${{ env.TEST_DSN_ANSI }}
@@ -193,20 +200,15 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
           AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
-      - name: 'Get Github Action IP'
-        if: always()
-        id: ip
-        uses: haythem/public-ip@v1.3
-
       - name: 'Remove Github Action IP'
+        working-directory: macos
         if: always()
         run: |
-          aws ec2 revoke-security-group-ingress \
-            --group-name default \
-            --protocol tcp \
-            --port 5432 \
-            --cidr ${{ steps.ip.outputs.ipv4 }}/32 \
-          2>&1 > /dev/null;
+          . "./aws_rds_helper"
+          remove_ip_from_db_sg \
+            ${{ steps.ip.outputs.ipv4 }} \
+            ${{ env.AURORA_CLUSTER_ID }} \
+            ${{ secrets.AWS_DEFAULT_REGION }}
 
       - name: 'Archive log results'
         if: always()
