@@ -93,10 +93,10 @@ if(SHOULD_BUILD_FAILOVER)
   include_directories(${AWSSDK_INCLUDE_DIRS})
 
   #-----------------------------------------------------
-  # macOS specific configuration
+  # macOS/Linux specific configuration
 
   if(APPLE OR CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    # ZLIB needs to be explicity required for AWS SDK
+    # ZLIB needs to be explicity required for AWS SDK on these platforms, or CMake will complain
     find_package(ZLIB REQUIRED)
   endif()
 endif()
