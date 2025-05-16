@@ -27,6 +27,9 @@
 #endif  /* __STDC_WANT_LIB_EXT1__ */
 #endif
 
+#include <cmath> // std::round
+#include <cstdlib> // std::strtod
+
 #include "integration_test_utils.h"
 
 char* INTEGRATION_TEST_UTILS::get_env_var(const char* key, char* default_value) {
@@ -43,6 +46,21 @@ int INTEGRATION_TEST_UTILS::str_to_int(const char* str) {
     assert(x <= INT_MAX);
     assert(x >= INT_MIN);
     return static_cast<int>(x);
+}
+
+double INTEGRATION_TEST_UTILS::str_to_double(const char* str) {
+    char* endptr;
+    errno = 0;
+
+    const double val = std::strtod(str, &endptr);
+    if (errno != 0) {
+        std::cerr << "Got the following error number from strtod: " << errno << std::endl;
+    }
+
+    if (*endptr != '\0') {
+        std::cerr << "There is a non-alphanumerical error passed in to strtod" << std::endl;
+    }
+    return val;
 }
 
 std::string INTEGRATION_TEST_UTILS::host_to_IP(std::string hostname) {
@@ -123,4 +141,20 @@ void INTEGRATION_TEST_UTILS::clear_memory(void* dest, size_t count) {
     #endif /* __STDC__LIB_EXT1__*/
     #endif /* _WIN32 */
 return;
+}
+
+void INTEGRATION_TEST_UTILS::odbc_cleanup(SQLHENV henv, SQLHDBC hdbc, SQLHSTMT hstmt) {
+    if (SQL_NULL_HANDLE != hstmt) {
+        SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
+        hstmt = SQL_NULL_HSTMT;
+    }
+    if (SQL_NULL_HANDLE != hdbc) {
+        SQLDisconnect(hdbc);
+        SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
+        hdbc = SQL_NULL_HDBC;
+    }
+    if (SQL_NULL_HANDLE != henv) {
+        SQLFreeHandle(SQL_HANDLE_ENV, henv);
+        henv = SQL_NULL_HENV;
+    }
 }
