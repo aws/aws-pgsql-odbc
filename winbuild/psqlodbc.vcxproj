@@ -147,7 +147,7 @@
     <ADD_DEFINES>$(ADD_DEFINES);_MIMALLOC_</ADD_DEFINES>
     <ADD_INC>$(ADD_INC);..\libs\mimalloc\include</ADD_INC>
     <ADD_LIBPATH>$(ADD_LIBPATH);..\libs\mimalloc\out\msvc-$(Platform)\$(Configuration)</ADD_LIBPATH>
-    <CALL_LIB>$(CALL_LIB);mimalloc-static.lib</CALL_LIB>
+    <CALL_LIB>$(CALL_LIB);mimalloc.lib</CALL_LIB>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
