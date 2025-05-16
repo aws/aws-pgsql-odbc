@@ -44,6 +44,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
+  id-token: write
   contents: read
 
 jobs:
@@ -283,25 +284,11 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-
-      - name: Set up Temp AWS Credentials
-        shell: pwsh
-        run: |
-          $creds = (aws sts get-session-token --duration-seconds 21600 --query 'Credentials.[AccessKeyId, SecretAccessKey, SessionToken]' --output text)
-          $credsArray = ($creds -split '\s+')
-          $credsArray | Measure-Object -Character
-          $access_key = $credsArray[0]
-          $secret_key = $credsArray[1]
-          $session_key = $credsArray[2]
-          echo "::add-mask::$access_key"
-          echo "::add-mask::$secret_key"
-          echo "::add-mask::$session_key"
-          echo "AWS_ACCESS_KEY_ID=$access_key" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "AWS_SECRET_ACCESS_KEY=$secret_key" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "AWS_SESSION_TOKEN=$session_key" | Out-File -FilePath $env:GITHUB_ENV -Append
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_DEPLOY_ROLE }}
+          role-session-name: pgodbc-windows-failover
+          role-duration-seconds: 21600
+          output-credentials: true
 
       - name: Create Failover RDS Cluster
         id: AuroraClusterSetup
@@ -325,12 +312,7 @@ jobs:
         run: |
           . ".\aws_rds_helper.ps1"
           $endpoint = (Get-Cluster-Endpoint -ClusterId ${{ env.AURORA_CLUSTER_ID }})
-          echo "::add-mask::$endpoint"
           echo "AURORA_CLUSTER_ENDPOINT=$endpoint" | Out-File -FilePath $env:GITHUB_ENV -Append
-        env:
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
       - name: Create Aurora Cluster Secrets
         shell: pwsh
@@ -389,9 +371,6 @@ jobs:
           TEST_DSN: ${{ env.TEST_DSN_ANSI }}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           IAM_USER: ${{ secrets.TEST_IAM_USER }}
           SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
@@ -408,9 +387,6 @@ jobs:
           TEST_DSN: ${{ env.TEST_DSN_UNICODE }}
           TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
           RDS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           IAM_USER: ${{ secrets.TEST_IAM_USER }}
           SECRETS_ARN: ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
@@ -423,10 +399,6 @@ jobs:
         run: |
           . ".\aws_rds_helper.ps1"
           Delete-Aurora-Db-Cluster -ClusterId ${{ env.AURORA_CLUSTER_ID }} -Region ${{ secrets.AWS_DEFAULT_REGION }} -NumInstances 5
-        env:
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
 
       - name: Delete Aurora Db Secrets
         if: always()
@@ -435,10 +407,6 @@ jobs:
         run: |
           . ".\aws_rds_helper.ps1"
           Delete-Secrets ${{ env.AURORA_CLUSTER_SECRETS_ARN }}
-        env:
-          AWS_ACCESS_KEY_ID: ${{ env.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ env.AWS_SECRET_ACCESS_KEY }}
-          AWS_SESSION_TOKEN: ${{ env.AWS_SESSION_TOKEN }}
     
        # Make sure IP is always deleted
       - name: Get Github Action IP
