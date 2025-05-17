@@ -7,6 +7,7 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
+  id-token: write
   actions: write
   contents: write
   deployments: write
@@ -381,17 +382,22 @@ jobs:
           copy .github\workflows\configuration.xml winbuild
           .\windows\buildall.ps1 ${{env.BUILD_CONFIGURATION}}
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials OIDC
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
           role-skip-session-tagging: true
-          aws-access-key-id: ${{ secrets.AWS_BUILD_KEY }}
-          aws-secret-access-key: ${{ secrets.AWS_BUILD_SECRET_KEY }}
-          aws-session-token: ${{ secrets.AWS_BUILD_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/${{ secrets.AWS_DEPLOY_ROLE }}
+          role-session-name: pgodbc-win-signer
+
+      - name: Configure AWS credentials Signer
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          role-skip-session-tagging: true
+          role-chaining: true
           aws-region: us-west-2
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           role-external-id: ${{ secrets.AWS_ROLE_EXTERNAL_ID }}
-          role-duration-seconds: 3600
 
       - name: Run signer script
         shell: pwsh
