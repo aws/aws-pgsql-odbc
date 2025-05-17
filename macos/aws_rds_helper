@@ -43,8 +43,6 @@ function add_ip_to_db_sg {
 
     # Allow inbound traffic from the local IP address to the DB security group using AWS CLI
     aws ec2 authorize-security-group-ingress --group-id $securityGroupId --protocol tcp --cidr $cidrBlock --port 5432 --region $Region || true
-    echo "Waiting 30 seconds for security group to update..."
-    sleep 30
 } # function add_ip_to_db_sg
 export -f add_ip_to_db_sg
 
