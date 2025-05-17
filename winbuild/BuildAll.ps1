@@ -120,7 +120,7 @@ function buildPlatform([xml]$configInfo, [string]$Platform)
 		}
 
 		# build mimalloc dependency
-		& ${msbuildexe} ..\libs\mimalloc\ide\$mimallocIdeDir\mimalloc.vcxproj /tv:$MSToolsV "/p:Platform=$Platform;Configuration=$Configuration;PlatformToolset=${Toolset}" /t:$target /p:VisualStudioVersion=${VCVersion}
+		& ${msbuildexe} ..\libs\mimalloc\ide\$mimallocIdeDir\mimalloc-lib.vcxproj /tv:$MSToolsV "/p:Platform=$Platform;Configuration=$Configuration;PlatformToolset=${Toolset}" /t:$target /p:VisualStudioVersion=${VCVersion}
 	}
 
 	# build psqlodbc

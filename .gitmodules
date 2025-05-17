@@ -1,7 +1,7 @@
 [submodule "libs/mimalloc"]
 	path = libs/mimalloc
 	url = https://github.com/microsoft/mimalloc
-	branch = master
+	branch = main
 [submodule "libs/aws-rds-odbc"]
 	path = libs/aws-rds-odbc
 	url = https://github.com/aws/aws-rds-odbc.git
