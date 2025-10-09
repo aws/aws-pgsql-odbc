@@ -242,7 +242,7 @@ jobs:
         shell: cmd
         run: |
           echo on
-          sc config "postgresql-x64-14" start= auto
+          sc config "postgresql-x64-16" start= auto
 
       - name: Checkout aws-pgsql-odbc
         uses: actions/checkout@v4
