@@ -196,7 +196,7 @@ jobs:
       - name: Install Win64OpenSSL
         if: ${{steps.cacheWin64OpenSSL.outputs.cache-hit != 'true' && steps.cachePostgres.outputs.cache-hit != 'true'}}
         shell: cmd
-        run: Win64OpenSSL.exe /sp /silent /dir=c:\OTHERBIN\openssl64
+        run: .\Win64OpenSSL.exe /sp /silent /dir=c:\OTHERBIN\openssl64
 
         # Choco Install winflexbison
         # BUT the "crazy-max/ghaction-chocolatey@v2" "install pkgconfiglite" file download often times-out
