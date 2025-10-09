@@ -29,7 +29,7 @@ cd ${ROOT_REPO_PATH}/libs/aws-rds-odbc
 
 # Build the AWS SDK
 echo "Building the AWS SDK"
-if [ $BUILD_AWS_SDK != "FALSE" ]; then
+if [ "$BUILD_AWS_SDK" != "FALSE" ]; then
   scripts/build_aws_sdk_macos Release
   if [ $? -ne 0 ]; then
     echo "AWS SDK build failed"
