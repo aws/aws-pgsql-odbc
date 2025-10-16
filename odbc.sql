@@ -21,25 +21,25 @@
 
 -- CHAR(code)
 CREATE OR REPLACE FUNCTION "char"(integer) RETURNS text AS '
-    SELECT chr($1);
+    SELECT pg_catalog.chr($1);
 ' LANGUAGE SQL;
 
 
 -- CONCAT(string1, string2)
 CREATE OR REPLACE FUNCTION concat(text, text) RETURNS text AS '
-    SELECT $1 || $2;
+    SELECT $1 operator(pg_catalog.||) $2;
 ' LANGUAGE SQL;
 
 
 -- INSERT(string1, start, len, string2)
 CREATE OR REPLACE FUNCTION insert(text, integer, integer, text) RETURNS text AS '
-    SELECT substring($1 from 1 for $2 - 1) || $4 || substring($1 from $2 + $3);
+    SELECT substring($1 from 1 for $2 operator(pg_catalog.-) 1) operator(pg_catalog.||) $4 operator(pg_catalog.||) substring($1 from $2 operator(pg_catalog.+) $3);
 ' LANGUAGE SQL;
 
 
 -- LCASE(string)
 CREATE OR REPLACE FUNCTION lcase(text) RETURNS text AS '
-    SELECT lower($1);
+    SELECT pg_catalog.lower($1);
 ' LANGUAGE SQL;
 
 
@@ -54,25 +54,25 @@ CREATE OR REPLACE FUNCTION locate(text, text) RETURNS integer AS '
     SELECT position($1 in $2);
 ' LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION locate(text, text, integer) RETURNS integer AS '
-    SELECT position($1 in substring($2 from $3)) + $3 - 1;
+    SELECT position($1 in substring($2 from $3)) operator(pg_catalog.+) $3 operator(pg_catalog.-) 1;
 ' LANGUAGE SQL;
 
 
 -- RIGHT(string, count)
 CREATE OR REPLACE FUNCTION right(text, integer) RETURNS text AS '
-    SELECT substring($1 from char_length($1) - $2 + 1);
+    SELECT substring($1 from pg_catalog.char_length($1) operator(pg_catalog.-) $2 operator(pg_catalog.+) 1);
 ' LANGUAGE SQL;
 
 
 -- SPACE(count)
 CREATE OR REPLACE FUNCTION space(integer) RETURNS text AS '
-    SELECT repeat('' '', $1);
+    SELECT pg_catalog.repeat('' '', $1);
 ' LANGUAGE SQL;
 
 
 -- UCASE(string)
 CREATE OR REPLACE FUNCTION ucase(text) RETURNS text AS '
-    SELECT upper($1);
+    SELECT pg_catalog.upper($1);
 ' LANGUAGE SQL;
 
 
@@ -86,43 +86,43 @@ CREATE OR REPLACE FUNCTION ucase(text) RETURNS text AS '
 
 -- CEILING(num)
 CREATE OR REPLACE FUNCTION ceiling(numeric) RETURNS numeric AS '
-    SELECT ceil($1);
+    SELECT pg_catalog.ceil($1);
 ' LANGUAGE SQL;
 
 
 -- LOG10(num)
 CREATE OR REPLACE FUNCTION log10(double precision) RETURNS double precision AS '
-    SELECT log($1);
+    SELECT pg_catalog.log($1);
 ' LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION log10(numeric) RETURNS numeric AS '
-    SELECT log($1);
+    SELECT pg_catalog.log($1);
 ' LANGUAGE SQL;
 
 
 -- POWER(num, num)
 CREATE OR REPLACE FUNCTION power(double precision, double precision)
   RETURNS double precision AS '
-    SELECT pow($1, $2);
+    SELECT pg_catalog.pow($1, $2);
 ' LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION power(numeric, numeric)
   RETURNS numeric AS '
-    SELECT pow($1, $2);
+    SELECT pg_catalog.pow($1, $2);
 ' LANGUAGE SQL;
 
 
 -- RAND([seed])
 CREATE OR REPLACE FUNCTION rand() RETURNS double precision AS '
-    SELECT random();
+    SELECT pg_catalog.random();
 ' LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION rand(double precision) RETURNS double precision AS '
-    SELECT setseed($1);
-    SELECT random();
+    SELECT pg_catalog.setseed($1);
+    SELECT pg_catalog.random();
 ' LANGUAGE SQL;
 
 
 -- TRUNCATE(num, places)
 CREATE OR REPLACE FUNCTION truncate(numeric, integer) RETURNS numeric AS '
-    SELECT trunc($1, $2);
+    SELECT pg_catalog.trunc($1, $2);
 ' LANGUAGE SQL;
 
 
@@ -146,7 +146,7 @@ CREATE OR REPLACE FUNCTION odbc_timestamp() RETURNS timestamp with time zone AS 
 ' LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION dayname(timestamp) RETURNS text AS '
-    SELECT to_char($1,''Day'');
+    SELECT pg_catalog.to_char($1,''Day'');
 ' LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION dayofmonth(timestamp) RETURNS integer AS '
@@ -154,7 +154,7 @@ CREATE OR REPLACE FUNCTION dayofmonth(timestamp) RETURNS integer AS '
 ' LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION dayofweek(timestamp) RETURNS integer AS '
-    SELECT CAST(EXTRACT(dow FROM $1) AS integer) + 1;
+    SELECT CAST(EXTRACT(dow FROM $1) AS integer) operator(pg_catalog.+) 1;
 ' LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION dayofyear(timestamp) RETURNS integer AS '
@@ -174,7 +174,7 @@ CREATE OR REPLACE FUNCTION month(timestamp) RETURNS integer AS '
 ' LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION monthname(timestamp) RETURNS text AS '
-    SELECT to_char($1, ''Month'');
+    SELECT pg_catalog.to_char($1, ''Month'');
 ' LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION quarter(timestamp) RETURNS integer AS '

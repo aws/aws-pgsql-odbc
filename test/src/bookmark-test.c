@@ -47,7 +47,7 @@ testBookmarks(HSTMT hstmt)
 	/*
 	 * Fetch a large result set.
 	 */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT 'foo' || g FROM generate_series(1, 3210) g", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT 'foo' operator(pg_catalog.||) g FROM pg_catalog.generate_series(1, 3210) g", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	/* Get a bookmark that points to the beginning of the result set */

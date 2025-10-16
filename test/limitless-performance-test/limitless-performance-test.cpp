@@ -93,7 +93,7 @@ void ExecuteQuery() {
     SQLHDBC hDbc = NULL;
     SQLHSTMT hStmt = NULL;
     SQLRETURN ret;
-    SQLWCHAR query[] = L"select aurora_db_instance_identifier()";
+    SQLWCHAR query[] = L"SELECT pg_catalog.aurora_db_instance_identifier()";
 
     // Allocate environment handle
     ret = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &hEnv);

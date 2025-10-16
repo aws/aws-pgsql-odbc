@@ -127,7 +127,7 @@ static void	escape_test(HSTMT hstmt)
 	executeQuery(hstmt);
 
 	/* SPACE */
-	prepareQuery(hstmt, "SELECT 'x' || {fn SPACE(10) } || 'x'");
+	prepareQuery(hstmt, "SELECT 'x' operator(pg_catalog.||) {fn SPACE(10) } operator(pg_catalog.||) 'x'");
 	executeQuery(hstmt);
 
 	/**** CALL escapes ****/

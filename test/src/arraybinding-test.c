@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 					 str_array, 30, str_ind_array);
 
 	/* Execute */
-	sql = "INSERT INTO tmptable VALUES (?, ?)";
+	sql = "INSERT INTO pg_temp.tmptable VALUES (?, ?)";
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
@@ -108,7 +108,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Check that all the rows were inserted */
-	sql = "SELECT COUNT(*) FROM tmptable";
+	sql = "SELECT COUNT(*) FROM pg_temp.tmptable";
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
 
 	/* Check the contents of a few rows */
-	sql = "SELECT * FROM tmptable WHERE i IN (0, 1, 100, 9999, 10000) ORDER BY i";
+	sql = "SELECT * FROM pg_temp.tmptable WHERE i IN (0, 1, 100, 9999, 10000) ORDER BY i";
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
 					 str_array2, 6, str_ind_array);
 
 	/* Execute */
-	sql = "DELETE FROM tmptable WHERE i = ? RETURNING (t)";
+	sql = "DELETE FROM pg_temp.tmptable WHERE i operator(pg_catalog.=) ? RETURNING (t)";
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
 
 	/* Check that all the rows were inserted */
 	printf("Number of rows in table:\n");
-	sql = "SELECT COUNT(*) FROM tmptable";
+	sql = "SELECT COUNT(*) FROM pg_temp.tmptable";
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
@@ -216,7 +216,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
 
 	/* Check the contents of a few rows */
-	sql = "SELECT * FROM tmptable WHERE i IN (0, 1, 100, 9999, 10000) ORDER BY i";
+	sql = "SELECT * FROM pg_temp.tmptable WHERE i IN (0, 1, 100, 9999, 10000) ORDER BY i";
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);

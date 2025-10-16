@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 		"'10 years'::interval AS intervalyears,\n"
 		"'11 months'::interval AS intervalmonths,\n"
 		"'12 days'::interval AS intervaldays,\n"
-		"'1 ' || repeat('evil_long_string',100) || ' 2 still_evil'::text AS evil_interval\n";
+		"'1 ' operator(pg_catalog.||) pg_catalog.repeat('evil_long_string',100) operator(pg_catalog.||) ' 2 still_evil'::text AS evil_interval\n";
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 

@@ -89,7 +89,7 @@ int main() {
 
 	// Execute
 	rc = SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
-	sprintf(reinterpret_cast<char*>(query_buffer), "SELECT aurora_db_instance_identifier()");
+	sprintf(reinterpret_cast<char*>(query_buffer), "SELECT pg_catalog.aurora_db_instance_identifier()");
 	rc = SQLExecDirect(stmt, query_buffer, SQL_NTS);
 	print_error(rc, nullptr, stmt);
 

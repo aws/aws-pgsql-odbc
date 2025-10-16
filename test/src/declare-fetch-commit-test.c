@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	/**** Start a cursor ****/
 
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT * FROM generate_series(1, 5) g ", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT * FROM pg_catalog.generate_series(1, 5) g ", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 	/* Execute */
