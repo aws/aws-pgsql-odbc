@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 	/*
 	 * The same, with a really long notice.
 	 */
-	sql = "SELECT raisenotice(repeat('foo', 100))";
+	sql = "SELECT raisenotice(pg_catalog.repeat('foo', 100))";
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
 	if (!SQL_SUCCEEDED(rc))
 	{

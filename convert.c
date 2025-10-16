@@ -83,11 +83,11 @@ static const struct
 	{"CHAR", "chr($*)" },
 	{"CONCAT", "concat($1::text, $2::text)" },
 /*	{ "DIFFERENCE", "difference" }, how to ? */
-	{"INSERT", "substring($1 from 1 for $2 - 1) || $4 || substring($1 from $2 + $3)" },
+	{"INSERT", "substring($1 from 1 for $2 operator(pg_catalog.-) 1) || $4 || substring($1 from $2 operator(pg_catalog.+) $3)" },
 	{"LCASE", "lower($*)" },
 /*	{"LEFT",		 "left"		  }, built_in */
 	{"%2LOCATE", "strpos($2,  $1)" },	/* 2 parameters */
-	{"%3LOCATE", "strpos(substring($2 from $3), $1) + $3 - 1" },	/* 3 parameters */
+	{"%3LOCATE", "strpos(substring($2 from $3), $1) operator(pg_catalog.+) $3 operator(pg_catalog.-) 1" },	/* 3 parameters */
 	{"LENGTH", "char_length($*)"},
 /*	{ "LTRIM",		 "ltrim"	  }, built_in */
 /*	{"RIGHT",		 "right"	  }, built_in */
@@ -117,7 +117,7 @@ static const struct
 /*	{"POWER", 		 "power"	  }, built_in */
 /*	{ "RADIANS",		 "radians"	  }, built_in */
 	{"%0RAND", "random()" },	/* 0 parameters */
-	{"%1RAND", "(setseed($1) * .0 + random())" },	/* 1 parameters */
+	{"%1RAND", "(setseed($1) operator(pg_catalog.*) .0 operator(pg_catalog.+) random())" },	/* 1 parameters */
 /*	{ "ROUND",		 "round"	  }, built_in */
 /*	{ "SIGN",		 "sign"		  }, built_in */
 /*	{ "SIN",		 "sin"		  }, built_in */
@@ -136,7 +136,7 @@ static const struct
 	{"CURTIME",	 "current_time" },
 	{"DAYNAME",	 "to_char($1, 'Day')" },
 	{"DAYOFMONTH",  "cast(extract(day from $1) as integer)" },
-	{"DAYOFWEEK",	 "(cast(extract(dow from $1) as integer) + 1)" },
+	{"DAYOFWEEK",	 "(cast(extract(dow from $1) as integer) operator(pg_catalog.+) 1)" },
 	{"DAYOFYEAR",	 "cast(extract(doy from $1) as integer)" },
 	{"HOUR",	 "cast(extract(hour from $1) as integer)" },
 	{"MINUTE",	"cast(extract(minute from $1) as integer)" },
@@ -148,14 +148,14 @@ static const struct
 	{"WEEK",	"cast(extract(week from $1) as integer)" },
 	{"YEAR",	"cast(extract(year from $1) as integer)" },
 	// TIMESTAMPADD()
-	{"TIMESTAMPADD(SQL_TSI_YEAR", "($3+make_interval(years := $2))" },
-	{"TIMESTAMPADD(SQL_TSI_MONTH", "($3+make_interval(months := $2))" },
-	{"TIMESTAMPADD(SQL_TSI_WEEK", "($3+make_interval(weeks := $2))" },
-	{"TIMESTAMPADD(SQL_TSI_DAY", "($3+make_interval(days := $2))" },
-	{"TIMESTAMPADD(SQL_TSI_HOUR", "($3+make_interval(hours := $2))" },
-	{"TIMESTAMPADD(SQL_TSI_MINUTE", "($3+make_interval(mins := $2))" },
-	{"TIMESTAMPADD(SQL_TSI_SECOND", "($3+make_interval(secs := $2))" },
-	{"TIMESTAMPADD(SQL_TSI_FRAC_SECOND", "($3+make_interval(secs := $2::float / 1000000))" },
+	{"TIMESTAMPADD(SQL_TSI_YEAR", "($3 operator(pg_catalog.+) make_interval(years := $2))" },
+	{"TIMESTAMPADD(SQL_TSI_MONTH", "($3 operator(pg_catalog.+) make_interval(months := $2))" },
+	{"TIMESTAMPADD(SQL_TSI_WEEK", "($3 operator(pg_catalog.+) make_interval(weeks := $2))" },
+	{"TIMESTAMPADD(SQL_TSI_DAY", "($3 operator(pg_catalog.+) make_interval(days := $2))" },
+	{"TIMESTAMPADD(SQL_TSI_HOUR", "($3 operator(pg_catalog.+) make_interval(hours := $2))" },
+	{"TIMESTAMPADD(SQL_TSI_MINUTE", "($3 operator(pg_catalog.+) make_interval(mins := $2))" },
+	{"TIMESTAMPADD(SQL_TSI_SECOND", "($3 operator(pg_catalog.+) make_interval(secs := $2))" },
+	{"TIMESTAMPADD(SQL_TSI_FRAC_SECOND", "($3 operator(pg_catalog.+) make_interval(secs := $2::float operator(pg_catalog./) 1000000))" },
 	// TIMESTAMPDIFF()
 /* doesn't work properly?
 {"TIMESTAMPDIFF(SQL_TSI_YEAR", "cast(extract(year from ($3 - $2)) as integer)" },
@@ -170,11 +170,11 @@ static const struct
 	{"TIMESTAMPDIFF(SQL_TSI_MINUTE", "cast(extract(minute from ($3 - $2)) as integer)" },
 	{"TIMESTAMPDIFF(SQL_TSI_SECOND", "cast(extract(second from ($3 - $2)) as integer)" },
 	*/
-	{"TIMESTAMPDIFF(SQL_TSI_DAY", "cast((extract(epoch from $3) - extract(epoch from $2)) / (24*60*60) as int)" },
-	{"TIMESTAMPDIFF(SQL_TSI_HOUR", "cast((extract(epoch from $3) - extract(epoch from $2)) / 3600 as int)" },
-	{"TIMESTAMPDIFF(SQL_TSI_MINUTE", "cast((extract(epoch from $3) - extract(epoch from $2)) / 60 as int)" },
-	{"TIMESTAMPDIFF(SQL_TSI_SECOND", "cast((extract(epoch from $3) - extract(epoch from $2)) as int)" },
-	{"TIMESTAMPDIFF(SQL_TSI_FRAC_SECOND", "mod(cast(extract(second from ($3 - $2)) as numeric), 1.0) * 1000000" },
+	{"TIMESTAMPDIFF(SQL_TSI_DAY", "cast((extract(epoch from $3) operator(pg_catalog.-) extract(epoch from $2)) operator(pg_catalog./) (24*60*60) as int)" },
+	{"TIMESTAMPDIFF(SQL_TSI_HOUR", "cast((extract(epoch from $3) operator(pg_catalog.-) extract(epoch from $2)) operator(pg_catalog./) 3600 as int)" },
+	{"TIMESTAMPDIFF(SQL_TSI_MINUTE", "cast((extract(epoch from $3) operator(pg_catalog.-) extract(epoch from $2)) operator(pg_catalog./) 60 as int)" },
+	{"TIMESTAMPDIFF(SQL_TSI_SECOND", "cast((extract(epoch from $3) operator(pg_catalog.-) extract(epoch from $2)) as int)" },
+	{"TIMESTAMPDIFF(SQL_TSI_FRAC_SECOND", "mod(cast(extract(second from ($3 operator(pg_catalog.-) $2)) as numeric), 1.0) operator(pg_catalog.*) 1000000" },
 
 /*	{ "EXTRACT",		 "extract"		  }, built_in */
 

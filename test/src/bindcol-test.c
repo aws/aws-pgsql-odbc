@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLBindCol failed", hstmt);
 
 	rc = SQLExecDirect(hstmt, (SQLCHAR *)
-					   "SELECT id, 'foo' || id FROM generate_series(1, 10) id", SQL_NTS);
+					   "SELECT id, 'foo' operator(pg_catalog.||) id FROM pg_catalog.generate_series(1, 10) id", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	printf("Result set:\n");

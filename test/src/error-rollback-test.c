@@ -71,7 +71,7 @@ error_rollback_exec_success(int arg)
 	printf("Executing query that will succeed\n");
 
 	/* Now execute the query */
-	snprintf(buf, sizeof(buf), "INSERT INTO errortab VALUES (%d)", arg);
+	snprintf(buf, sizeof(buf), "INSERT INTO pg_temp.errortab VALUES (%d)", arg);
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) buf, SQL_NTS);
 
 	/* Print error if any, but do not exit */
@@ -87,7 +87,7 @@ error_rollback_exec_failure(int arg)
 
 	printf("Executing query that will fail\n");
 
-	snprintf(buf, sizeof(buf), "INSERT INTO errortab VALUES ('fail%d')", arg);
+	snprintf(buf, sizeof(buf), "INSERT INTO pg_temp.errortab VALUES ('fail%d')", arg);
 
 	/* Now execute the query */
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) buf, SQL_NTS);
@@ -134,7 +134,7 @@ error_rollback_print(void)
 	SQLRETURN rc;
 
 	/* Create a table to use */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT i FROM errortab", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT i FROM pg_temp.errortab", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	/* Show results */

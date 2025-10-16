@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 	/* insert into a table */
 	for (i = 0; i < count; i++)
 	{
-		snprintf(query, sizeof(query), "insert into tmptable values (%d)", i);
+		snprintf(query, sizeof(query), "insert into pg_temp.tmptable values (%d)", i);
 		rc = SQLExecDirect(hstmt, (SQLCHAR *) query, SQL_NTS);
 		CHECK_STMT_RESULT(rc, "insert into table failed", hstmt);
 	}
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLSetStmtAttr ROWS_FETCHED_PTR failed", hstmt);
 	rc = SQLBindCol(hstmt, 1, SQL_C_SLONG, &id, 0, cbLen);
 	CHECK_STMT_RESULT(rc, "SQLBindCol failed", hstmt);
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "select * from tmptable", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "select * from pg_temp.tmptable", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "select failed", hstmt);
 	while (rc = SQLFetch(hstmt), SQL_SUCCEEDED(rc))
 	{
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLSetStmtAttr CURSOR_TYPE failed", hstmt);
 	rc = SQLSetStmtAttr(hstmt, SQL_ATTR_CONCURRENCY, (SQLPOINTER) SQL_CONCUR_ROWVER, 0);
 	CHECK_STMT_RESULT(rc, "SQLSetStmtAttr CONCURRENCY failed", hstmt);
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "select * from tmptable", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "select * from pg_temp.tmptable", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "select failed", hstmt);
 	for (i = 0; i < 2; i++)
 	{
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 	/*
 	 * When fetching a row "behind" the rowset by "fetch absolute" only the first ones of the result set can be fetched?
 	 */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "select * from tmptable", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "select * from pg_temp.tmptable", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "select failed", hstmt);
 	if (rc = SQLFetchScroll(hstmt, SQL_FETCH_ABSOLUTE, count + 1), !SQL_SUCCEEDED(rc))
 	{

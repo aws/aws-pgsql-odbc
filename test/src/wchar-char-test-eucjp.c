@@ -10,7 +10,7 @@ static int eucjp_test(HSTMT hstmt)
 	SQLWCHAR	wchar[100];
 	SQLCHAR		str[100];
 	SQLCHAR		chardt[100];
-	SQLTCHAR	query[200] = _T("select 'ª‰§œ' || ?::text || '§«§π°£µÆ ˝§œ' || ?::text || '§µ§Û§«§π§Õ°©'");
+	SQLTCHAR	query[200] = _T("select 'ÁßÅ„ÅØ' operator(pg_catalog.||) ?::text operator(pg_catalog.||) '„Åß„Åô„ÄÇË≤¥Êñπ„ÅØ' operator(pg_catalog.||) ?::text operator(pg_catalog.||) '„Åï„Çì„Åß„Åô„Å≠Ôºü'");
 
 	rc = SQLBindCol(hstmt, 1, SQL_C_CHAR, (SQLPOINTER) chardt, sizeof(chardt), &ind);
 	CHECK_STMT_RESULT(rc, "SQLBindCol to SQL_C_CHAR failed", hstmt);
@@ -28,13 +28,13 @@ static int eucjp_test(HSTMT hstmt)
 		&cbParam	/* StrLen_or_IndPtr */);
 	CHECK_STMT_RESULT(rc, "SQLBindParameter 1 failed", hstmt);
 	// cbParam2 = SQL_NTS;
-	strncpy((char *) str, "¿∆∆£π¿", sizeof(str));
+	strncpy((char *) str, "ÊñâËó§Êµ©", sizeof(str));
 	cbParam2 = strlen(str);
-	strcat((char *) str, "øÆ∏º");
+	strcat((char *) str, "‰ø°ÁéÑ");
 	rc = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, sizeof(str), 0, str, sizeof(str), &cbParam2);
 	CHECK_STMT_RESULT(rc, "SQLBindParameter 2 failed", hstmt);
 	cbQueryLen = (SQLINTEGER) strlen(query);
-	strcat((char *) query, "øÆ∏º");
+	strcat((char *) query, "‰ø°ÁéÑ");
 	rc = SQLExecDirect(hstmt, query, cbQueryLen);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed to return SQL_C_CHAR", hstmt);
 	while (SQL_SUCCEEDED(SQLFetch(hstmt)))

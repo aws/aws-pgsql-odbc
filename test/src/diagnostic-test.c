@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "select pg_terminate_backend(pg_backend_pid());select 1;select 1 ", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "select pg_catalog.pg_terminate_backend(pg_catalog.pg_backend_pid());select 1;select 1 ", SQL_NTS);
 	print_diag(NULL, SQL_HANDLE_STMT, hstmt);
 
 	/*

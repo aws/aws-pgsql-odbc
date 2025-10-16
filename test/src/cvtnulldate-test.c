@@ -41,11 +41,11 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLBindParameter failed", hstmt);
 
 	/* Execute */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "INSERT INTO nulldate VALUES (?)", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "INSERT INTO pg_temp.nulldate VALUES (?)", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	/* Check the resulting table */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT d IS NULL FROM nulldate", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT d IS NULL FROM pg_temp.nulldate", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
 
 	/* Check how the NULL comes out when we read it back */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT d FROM nulldate", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT d FROM pg_temp.nulldate", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
 

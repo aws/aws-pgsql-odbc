@@ -60,7 +60,7 @@ run_test()
 	for (i = 0; i < 100; i++)
 	{
 		/* Prepare a statement */
-		rc = SQLPrepare(hstmt, (SQLCHAR *) "INSERT INTO tmptable VALUES (1, ?) RETURNING (t)", SQL_NTS);
+		rc = SQLPrepare(hstmt, (SQLCHAR *) "INSERT INTO pg_temp.tmptable VALUES (1, ?) RETURNING (t)", SQL_NTS);
 		CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 		/* bind param  */
@@ -99,12 +99,12 @@ run_test()
 	}
 
 	/* Test for UPDATE returning */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "TRUNCATE TABLE tmptable", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "TRUNCATE TABLE pg_temp.tmptable", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed while truncating temp table", hstmt);
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "INSERT INTO tmptable values(3,'foo')", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "INSERT INTO pg_temp.tmptable values(3,'foo')", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed while nserting temp table", hstmt);
 	/* Prepare a UPDATE statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "UPDATE tmptable set t=? where i=? RETURNING (t)", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "UPDATE pg_temp.tmptable set t=? where i operator(pg_catalog.=) ? RETURNING (t)", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare for UPDATE failed", hstmt);
 	/* bind params  */
 	rc = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT,

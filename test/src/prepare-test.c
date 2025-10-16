@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SET intervalstyle=postgres_verbose", SQL_NTS);
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t::varchar(25) FROM testtab1 WHERE t = ?", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t::varchar(25) FROM testtab1 WHERE t operator(pg_catalog.=) ?", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 	/* bind param  */
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
 	/**** A query with an integer param ****/
 
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t FROM testtab1 WHERE id = ?", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t FROM testtab1 WHERE id operator(pg_catalog.=) ?", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 	/* bind param  */
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "INSERT INTO btest VALUES(?, ?)", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "INSERT INTO pg_temp.btest VALUES(?, ?)", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 	/* fill in test data */
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
 
 	/* Check the inserted data */
 	rc = SQLExecDirect(hstmt,
-					   (SQLCHAR *) "SELECT len, length(b) FROM btest",
+					   (SQLCHAR *) "SELECT len, pg_catalog.length(b) FROM pg_temp.btest",
 					   SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
@@ -162,7 +162,7 @@ int main(int argc, char **argv)
 	/**** A query with an interval param (SQL_C_INTERVAL_SECOND) ****/
 
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, iv, d FROM intervaltable WHERE iv < ?", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, iv, d FROM intervaltable WHERE iv operator(pg_catalog.<) ?", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 	/* bind param  */
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
 	 */
 
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t::varchar(25) FROM testtab1 WHERE id = ?", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t::varchar(25) FROM testtab1 WHERE id operator(pg_catalog.=) ?", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 	/* bind param  */

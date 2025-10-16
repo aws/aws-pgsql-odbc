@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 
 	rc = SQLExecDirect(hstmt, (SQLCHAR *)
 		"CREATE OR REPLACE FUNCTION insertfunc (t text) RETURNS text AS "
-		"$$ INSERT INTO premature_test VALUES ($1) RETURNING 'func insert'::text $$ "
+		"$$ INSERT INTO pg_temp.premature_test VALUES ($1) RETURNING 'func insert'::text $$ "
 		"LANGUAGE sql",
 					   SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
@@ -111,9 +111,9 @@ int main(int argc, char **argv)
 	 * in the backend.
 	 */
 	printf("\nPreparing an INSERT statement\n");
-	runtest("INSERT INTO premature_test VALUES (?) RETURNING 'plain insert'::text", "plain insert", NULL, 0);
+	runtest("INSERT INTO pg_temp.premature_test VALUES (?) RETURNING 'plain insert'::text", "plain insert", NULL, 0);
 	/* same with no parameter bound */
-	runtest("INSERT INTO premature_test VALUES (?) RETURNING 'plain insert'::text", NULL, NULL, 0);
+	runtest("INSERT INTO pg_temp.premature_test VALUES (?) RETURNING 'plain insert'::text", NULL, NULL, 0);
 
 	/*** Now, do the same with the function ***/
 	printf("\nPreparing an insert using a function\n");
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 	/*** Now check that the table contains only the last insertion  ***/
 
 	printf("\nChecking table contents. Should contain only one row.\n");
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM premature_test", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM pg_temp.premature_test", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
 

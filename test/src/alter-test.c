@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
 	/**** A simple query against the table, fetch column info ****/
 
-	rc = SQLExecDirect(hstmt, "SELECT * FROM testtbl", SQL_NTS);
+	rc = SQLExecDirect(hstmt, "SELECT * FROM pg_temp.testtbl", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	/* Get column metadata */
@@ -33,12 +33,12 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
 
 	/* Alter the table */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "ALTER TABLE testtbl ALTER COLUMN t TYPE varchar(80)", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "ALTER TABLE pg_temp.testtbl ALTER COLUMN t TYPE varchar(80)", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	/* Run the query again, check if the metadata was updated */
 
-	rc = SQLExecDirect(hstmt, "SELECT * FROM testtbl", SQL_NTS);
+	rc = SQLExecDirect(hstmt, "SELECT * FROM pg_temp.testtbl", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	/* Get column metadata */
