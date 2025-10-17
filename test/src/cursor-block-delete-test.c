@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 	/* insert into a table */
 	for (i = 0; i < count; i++)
 	{
-		snprintf(query, sizeof(query), "insert into tmptable values (%d)", i);
+		snprintf(query, sizeof(query), "insert into pg_temp.tmptable values (%d)", i);
 		rc = SQLExecDirect(hstmt, (SQLCHAR *) query, SQL_NTS);
 		CHECK_STMT_RESULT(rc, "insert into table failed", hstmt);
 	}

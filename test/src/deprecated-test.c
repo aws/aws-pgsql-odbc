@@ -255,7 +255,7 @@ main(int argc, char **argv)
 
 	/* Execute and fetch statuses */
 	rc = SQLExecDirect(hstmt,
-			(SQLCHAR *) "INSERT INTO tmptable VALUES (?, ?)",
+			(SQLCHAR *) "INSERT INTO pg_temp.tmptable VALUES (?, ?)",
 			SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	printf("Status of execution\n");

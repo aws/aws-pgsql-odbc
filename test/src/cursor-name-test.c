@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	/* first create a test table we can update */
 	rc = SQLExecDirect(hstmt,
 					   (SQLCHAR *) "create temporary table cursortesttbl as "
-					   "SELECT id, 'foo' || id as t FROM generate_series(1,10) id",
+					   "SELECT id, 'foo' operator(pg_catalog.||) id as t FROM pg_catalog.generate_series(1,10) id",
 					   SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 	 * Fetch a large result set without cursor (in Declare/fetch mode, it will
 	 * be fetched in chunks)
 	 */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM cursortesttbl WHERE id < 9", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM pg_temp.cursortesttbl WHERE id operator(pg_catalog.<) 9", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	/* Fetch until we find the row with id = 5 */
@@ -76,13 +76,13 @@ int main(int argc, char **argv)
 	 */
 #ifdef NOT_SUPPORTED
 	printf("Updating row with id=5...\n");
-	rc = SQLExecDirect(hstmt2, (SQLCHAR *) "UPDATE cursortesttbl SET t = 'updated' || id WHERE CURRENT OF my_test_cursor", SQL_NTS);
+	rc = SQLExecDirect(hstmt2, (SQLCHAR *) "UPDATE pg_temp.cursortesttbl SET t = 'updated' operator(pg_catalog.||) id WHERE CURRENT OF my_test_cursor", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt2);
 
 	rc = SQLFreeStmt(hstmt, SQL_CLOSE);
 	CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
 
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM cursortesttbl ORDER BY id FOR UPDATE", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM pg_temp.cursortesttbl ORDER BY id FOR UPDATE", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
 #endif
@@ -100,7 +100,7 @@ int main(int argc, char **argv)
 	rc = SQLSetCursorName(hstmt, (SQLCHAR *) "my nasty \"quoted\" cur'sor", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLSetCursorName failed", hstmt);
 
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM cursortesttbl WHERE id < 4", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM pg_temp.cursortesttbl WHERE id operator(pg_catalog.<) 4", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
 #endif

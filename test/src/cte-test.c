@@ -13,7 +13,7 @@ runTest(HSTMT hstmt)
 
 	/**** A simple WITH-query ****/
 
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "with recursive cte as (select g, 'foo' || g as foocol from generate_series(1,10) as g) select * from cte;", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "with recursive cte as (select g, 'foo' operator(pg_catalog.||) g as foocol from pg_catalog.generate_series(1, 10) as g) select * from cte;", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
 
@@ -23,7 +23,7 @@ runTest(HSTMT hstmt)
 	/**** Same with SQLPrepare/SQLExecute and an integer param ****/
 
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "with cte as (select g, 'foo' || g as foocol from generate_series(1,10) as g) select * from cte WHERE g < ?", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "with cte as (select g, 'foo' operator(pg_catalog.||) g as foocol from pg_catalog.generate_series(1,10) as g) select * from cte WHERE g operator(pg_catalog.<) ?", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 	/* bind param  */

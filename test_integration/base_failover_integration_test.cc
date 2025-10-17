@@ -86,7 +86,7 @@ class BaseFailoverIntegrationTest : public testing::Test {
     std::string reader_endpoint;
     std::string target_writer_id;
 
-    SQLSTR SERVER_ID_QUERY_STR = CONSTRUCT_SQLSTR("SELECT aurora_db_instance_identifier() as id");
+    SQLSTR SERVER_ID_QUERY_STR = CONSTRUCT_SQLSTR("SELECT pg_catalog.aurora_db_instance_identifier() as id");
 
     // Queries
     SQLTCHAR* SERVER_ID_QUERY = AS_SQLTCHAR(SERVER_ID_QUERY_STR.c_str());

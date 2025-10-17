@@ -70,7 +70,7 @@ int main(int argc, char **argv)
 	printf("Creating test table bulkoperations_test\n");
 	rc = SQLExecDirect(hstmt, (SQLCHAR *) "CREATE TEMPORARY TABLE bulkoperations_test(i int4, orig serial)", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "INSERT INTO bulkoperations_test SELECT g, g FROM generate_series(1, 10) g", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "INSERT INTO bulkoperations_test SELECT g, g FROM pg_catalog.generate_series(1, 10) g", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	rc = SQLFreeStmt(hstmt, SQL_CLOSE);

@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed while creating temp table", hstmt);
 
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT * FROM desctable", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT * FROM pg_temp.desctable", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
     /* Execute */

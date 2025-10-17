@@ -27,13 +27,13 @@ CREATE OR REPLACE FUNCTION "char"(integer) RETURNS text AS '
 
 -- CONCAT(string1, string2)
 CREATE OR REPLACE FUNCTION concat(text, text) RETURNS text AS '
-    SELECT $1 || $2;
+    SELECT $1 operator(pg_catalog.||) $2;
 ' LANGUAGE SQL;
 
 
 -- INSERT(string1, start, len, string2)
 CREATE OR REPLACE FUNCTION insert(text, integer, integer, text) RETURNS text AS '
-    SELECT substring($1 from 1 for $2 - 1) || $4 || substring($1 from $2 + $3);
+    SELECT substring($1 from 1 for $2 operator(pg_catalog.-) 1) operator(pg_catalog.||) $4 operator(pg_catalog.||) substring($1 from $2 operator(pg_catalog.+) $3);
 ' LANGUAGE SQL;
 
 
@@ -54,13 +54,13 @@ CREATE OR REPLACE FUNCTION locate(text, text) RETURNS integer AS '
     SELECT position($1 in $2);
 ' LANGUAGE SQL;
 CREATE OR REPLACE FUNCTION locate(text, text, integer) RETURNS integer AS '
-    SELECT position($1 in substring($2 from $3)) + $3 - 1;
+    SELECT position($1 in substring($2 from $3)) operator(pg_catalog.+) $3 operator(pg_catalog.-) 1;
 ' LANGUAGE SQL;
 
 
 -- RIGHT(string, count)
 CREATE OR REPLACE FUNCTION right(text, integer) RETURNS text AS '
-    SELECT substring($1 from char_length($1) - $2 + 1);
+    SELECT substring($1 from char_length($1) operator(pg_catalog.-) $2 operator(pg_catalog.+) 1);
 ' LANGUAGE SQL;
 
 
@@ -154,7 +154,7 @@ CREATE OR REPLACE FUNCTION dayofmonth(timestamp) RETURNS integer AS '
 ' LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION dayofweek(timestamp) RETURNS integer AS '
-    SELECT CAST(EXTRACT(dow FROM $1) AS integer) + 1;
+    SELECT CAST(EXTRACT(dow FROM $1) AS integer) operator(pg_catalog.+) 1;
 ' LANGUAGE SQL;
 
 CREATE OR REPLACE FUNCTION dayofyear(timestamp) RETURNS integer AS '

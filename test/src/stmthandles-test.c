@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 		{
 			sprintf(&sqlbuf[strlen(sqlbuf)], ", 'col %d'", j);
 		}
-		strcat(sqlbuf, " FROM generate_series(1, 3)");
+		strcat(sqlbuf, " FROM pg_catalog.generate_series(1, 3)");
 		rc = SQLPrepare(hstmt[i], (SQLCHAR *) sqlbuf, SQL_NTS);
 		CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt[i]);
 

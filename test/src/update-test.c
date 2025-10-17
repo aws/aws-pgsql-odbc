@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed while creating temp table", hstmt);
 
 	/* Insert some rows, using a prepared statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "INSERT INTO tmptable VALUES (?, 'foobar')", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "INSERT INTO pg_temp.tmptable VALUES (?, 'foobar')", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 	for (i = 1; i <= 5; i++)
 	{
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Update some rows */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "UPDATE tmptable SET t = 'updated ' || i WHERE i <= 3" , SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "UPDATE pg_temp.tmptable SET t = 'updated ' operator(pg_catalog.||) i WHERE i operator(pg_catalog.<=) 3" , SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	rc = SQLRowCount(hstmt, &rowcount);
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
 	CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
 
 	/* and delete some rows */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "DELETE FROM tmptable WHERE i = 4 OR i = 2" , SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "DELETE FROM pg_temp.tmptable WHERE i operator(pg_catalog.=) 4 OR i operator(pg_catalog.=) 2" , SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	rc = SQLRowCount(hstmt, &rowcount);
@@ -86,7 +86,7 @@ int main(int argc, char **argv)
 
 	/* Print the contents of the table after all the updates to verify */
 
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM tmptable", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT * FROM pg_temp.tmptable", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 	print_result(hstmt);
 

@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	/*
 	 * Begin executing a query
 	 */
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT g FROM generate_series(1,3) g", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "SELECT g FROM pg_catalog.generate_series(1,3) g", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	rc = SQLBindCol(hstmt, 1, SQL_C_CHAR, &charval, sizeof(charval), &len);

@@ -21,7 +21,7 @@
       <hashTree>
         <JDBCSampler guiclass="TestBeanGUI" testclass="JDBCSampler" testname="limitless_query">
           <stringProp name="dataSource">limitless_psqlODBC</stringProp>
-          <stringProp name="query">select aurora_db_instance_identifier()</stringProp>
+          <stringProp name="query">SELECT pg_catalog.aurora_db_instance_identifier()</stringProp>
           <stringProp name="queryArguments"></stringProp>
           <stringProp name="queryArgumentsTypes"></stringProp>
           <stringProp name="queryTimeout"></stringProp>

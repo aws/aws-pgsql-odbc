@@ -51,7 +51,7 @@ static SQLRETURN	BatchExecute(HDBC conn, int batch_size)
 	CHECK_STMT_RESULT(rc, "SQLBindParameter 1 failed", hstmt);
 	rc = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, sizeof(strs[0]), 0, strs, sizeof(strs[0]), NULL);
 	CHECK_STMT_RESULT(rc, "SQLBindParameter 2 failed", hstmt);
-	rc = SQLExecDirect(hstmt, "INSERT INTO test_batch VALUES (?, ?)"
+	rc = SQLExecDirect(hstmt, "INSERT INTO pg_temp.test_batch VALUES (?, ?)"
 		" ON CONFLICT (id) DO UPDATE SET dt=EXCLUDED.dt"
 		, SQL_NTS);
 	b_result(rc, hstmt, BATCHCNT, status);
@@ -62,7 +62,7 @@ static SQLRETURN	BatchExecute(HDBC conn, int batch_size)
 	SQLCloseCursor(hstmt);
 	**/
 	strncpy((SQLCHAR *) &strs[BATCHCNT - 3], "4-long", sizeof(strs[0]));
-	rc = SQLExecDirect(hstmt, "INSERT INTO test_batch VALUES (?, ?)"
+	rc = SQLExecDirect(hstmt, "INSERT INTO pg_temp.test_batch VALUES (?, ?)"
 		" ON CONFLICT (id) DO UPDATE SET dt=EXCLUDED.dt"
 		, SQL_NTS);
 	b_result(rc, hstmt, BATCHCNT, status);
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
 	/* Create trigger */
 	rc = SQLExecDirect(hstmt,
 		"CREATE TRIGGER batch_update_notice"
-		" BEFORE update on test_batch"
+		" BEFORE update on pg_temp.test_batch"
 		" FOR EACH ROW EXECUTE PROCEDURE batch_update_notice()"
 		, SQL_NTS);
 	CHECK_STMT_RESULT(rc, "create trigger failed", hstmt);
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
 	printf("one by one execution\n");
 	BatchExecute(conn, 1);
 	/* Truncate table */
-	rc = SQLExecDirect(hstmt, "truncate table test_batch", SQL_NTS);
+	rc = SQLExecDirect(hstmt, "truncate table pg_temp.test_batch", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "truncate table failed", hstmt);
 	/* batch executiton batch_size=2*/
 	printf("batch execution\n");

@@ -20,7 +20,7 @@ Param 2: this is a needle in an ol' haystack
 Result set:
 10
 
-Query: SELECT 'x' || {fn SPACE(10) } || 'x'
+Query: SELECT 'x' operator(pg_catalog.||) {fn SPACE(10) } operator(pg_catalog.||) 'x'
 Result set:
 x          x
 
@@ -111,7 +111,7 @@ Param 2: this is a needle in an ol' haystack
 Result set:
 10
 
-Query: SELECT 'x' || {fn SPACE(10) } || 'x'
+Query: SELECT 'x' operator(pg_catalog.||) {fn SPACE(10) } operator(pg_catalog.||) 'x'
 Result set:
 x          x
 

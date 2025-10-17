@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 	/**** Query with a bytea param ****/
 
 	/* Prepare a statement */
-	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t FROM byteatab WHERE t = ?", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t FROM byteatab WHERE t operator(pg_catalog.=) ?", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
 
 	/* bind param  */
@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 						  &cbParam1		/* StrLen_or_IndPtr */);
 	CHECK_STMT_RESULT(rc, "SQLBindParameter failed", hstmt);
 
-	rc = SQLExecDirect(hstmt, (SQLCHAR *) "INSERT INTO tmptable (i) values (1 + ?)", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR *) "INSERT INTO pg_temp.tmptable (i) values (1 operator(pg_catalog.+) ?)", SQL_NTS);
 	CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
 
 	rc = SQLFreeStmt(hstmt, SQL_CLOSE);
