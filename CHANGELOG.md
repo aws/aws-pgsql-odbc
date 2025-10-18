@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/#semantic-versioning-200).
 
+## [1.0.1] - 2025-10-17
+### :bug: Fixed
+- Fix and format Japanese resources ([PR #150](https://github.com/aws/aws-pgsql-odbc/pull/150)).
+
+### :crab: Changed
+- Refactor PG SQL queries to be fully qualified ([PR #153](https://github.com/aws/aws-pgsql-odbc/pull/153)).
+- Update documentation specifying authentication modes supported by different AWS database engines ([PR #151](https://github.com/aws/aws-pgsql-odbc/pull/151)).
+
 ## [1.0.0] - 2025-05-02
 The Amazon Web Services (AWS) ODBC Driver for PostgreSQL allows an application to take advantage of AWS authentication, failover feature of the Aurora databases, and provides support for Aurora Limitless databases.
 
@@ -14,4 +22,5 @@ The Amazon Web Services (AWS) ODBC Driver for PostgreSQL allows an application t
 - [Limitless Support](https://github.com/aws/aws-pgsql-odbc/blob/main/docs/using-the-aws-driver/limitless/limitless.md)
 - [Failover Support](https://github.com/aws/aws-pgsql-odbc/blob/main/docs/using-the-aws-driver/failover/failover.md)
 
-[1.0.0]: https://github.com/awslabs/aws-pgsql-odbc/releases/tag/1.0.0
+[1.0.1]: https://github.com/aws/aws-pgsql-odbc/releases/tag/1.0.1
+[1.0.0]: https://github.com/aws/aws-pgsql-odbc/releases/tag/1.0.0
