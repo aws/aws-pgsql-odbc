@@ -11,7 +11,7 @@
     - [Community Tests](#community-tests)
 
 ## Prerequisites
-Follow the instructions inside [Building the AWS ODBC Driver for PostgreSQL](./build) to build the driver.
+Follow the instructions inside [Building the AWS ODBC Driver for PostgreSQL](./build.md) to build the driver.
 
 ## Unit Tests
 
