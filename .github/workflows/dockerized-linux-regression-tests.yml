@@ -24,6 +24,9 @@ concurrency:
   group: linux-regression-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   linux-regression-tests:
     name: Linux Regression Tests
