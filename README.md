@@ -7,6 +7,9 @@ This driver is compatible with the following platforms:
 - Windows
 - MacOS (Silicon)
 
+## End of Support
+Support for this project will end on May 31st 2026 as per our [maintenance policy](./Maintenance.md). We recommend migrating to the new [AWS Advanced ODBC Wrapper](https://github.com/aws/aws-advanced-odbc-wrapper) for additional features and support.
+
 ## Table of Contents
 
 - [Amazon Web Services (AWS) ODBC Driver for PostgreSQL](#amazon-web-services-aws-odbc-driver-for-postgresql)
