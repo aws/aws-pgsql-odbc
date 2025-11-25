@@ -26,7 +26,7 @@ and log all changes in the changelog at the bottom of this page.
 
 # Maintenance Policy
 
-For `aws-pgsql-odbc` new features and active development always takes place against the newest version.
+New features will not be added for `aws-pgsql-odbc` going forward. New features and active development will take place in [aws-advanced-odbc-wrapper](https://github.com/aws/aws-advanced-odbc-wrapper).
 The `aws-pgsql-odbc` project follows the semantic versioning specification for assigning version numbers
 to releases, so you should be able to upgrade to the latest minor version of that same major version of the
 software without encountering incompatible changes (e.g., 1.1.0 → 1.3.x).
@@ -56,4 +56,4 @@ from the updated source after the PRs are merged.
 
 | Major Version | Latest Minor Version | Status      | Initial Release | Maintenance Window Start | Maintenance Window End |
 |---------------|----------------------|-------------|-----------------|--------------------------|------------------------|
-| 1             | 1.0.1                | Maintenance | May 2, 2025     | May 2, 2025              | N/A                    | 
+| 1             | 1.0.1                | Maintenance | May 2, 2025     | May 2, 2025              | May 31, 2026           | 
