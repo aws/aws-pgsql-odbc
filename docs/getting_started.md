@@ -41,8 +41,8 @@ To use the driver on MacOS, you need to create two files: `odbc.ini` and `odbcin
 #### odbc.ini
 ```bash
 [ODBC Data Sources]
-awspsqlodbca = AWS Unicode ODBC Driver for PostgreSQL
-awspsqlodbcw = AWS ANSI ODBC Driver for PostgreSQL
+awspsqlodbca = AWS ANSI ODBC Driver for PostgreSQL
+awspsqlodbcw = AWS Unicode ODBC Driver for PostgreSQL
 
 [awspsqlodbcw]
 Driver                           = AWS Unicode ODBC Driver for PostgreSQL
