@@ -690,6 +690,11 @@ CC_cleanup(ConnectionClass *self, BOOL keepCommunication)
 		StopLimitlessMonitorService(self->connInfo.limitless_service_id);
 	}
 
+	// Shutdown Logger if it was enabled
+	if (self->connInfo.rds_logging_enabled) {
+		ShutdownRdsLogger();
+	}
+
 	/* Cancel an ongoing transaction */
 	/* We are always in the middle of a transaction, */
 	/* even if we are in auto commit. */
@@ -1335,8 +1340,6 @@ CC_connect(ConnectionClass *self, char *salt_para)
 
 	if (ci->rds_logging_enabled) {
 		InitializeRdsLogger(ci->log_dir, ci->rds_log_threshold);
-	} else {
-		ShutdownRdsLogger(); // disable logs from the library
 	}
 
 	if (stricmp(ci->authtype, SECRET_MODE) == 0) {
