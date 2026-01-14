@@ -292,8 +292,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,1,0
- PRODUCTVERSION 1,0,1,0
+ FILEVERSION 1,0,2,0
+ PRODUCTVERSION 1,0,2,0
  FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -311,14 +311,14 @@ BEGIN
             VALUE "Comments", "AWS ANSI ODBC driver for PostgreSQL Japanese"
             VALUE "CompanyName", "Amazon.com Inc. or affiliates."
             VALUE "FileDescription", "AWS ANSI ODBC driver for PostgreSQL (Japanese)"
-            VALUE "FileVersion", "1.0.1.0"
+            VALUE "FileVersion", "1.0.2.0"
             VALUE "InternalName", "awspsqlodbca"
             VALUE "LegalCopyright", "Modifications Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
             VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoftƒ‡ is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
             VALUE "OriginalFilename", "awspsqlodbca.dll"
             VALUE "PrivateBuild", "for Japanese by Hiroshi Inoue & Hiroshi Saito"
             VALUE "ProductName", "AWSpsqlODBC"
-            VALUE "ProductVersion", "1.0.1.0"
+            VALUE "ProductVersion", "1.0.2.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -696,8 +696,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,1,0
- PRODUCTVERSION 1,0,1,0
+ FILEVERSION 1,0,2,0
+ PRODUCTVERSION 1,0,2,0
  FILEFLAGSMASK 0x3L
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -715,13 +715,13 @@ BEGIN
             VALUE "Comments", "AWS ANSI ODBC driver for PostgreSQL"
             VALUE "CompanyName", "Amazon.com Inc. or affiliates."
             VALUE "FileDescription", "AWS ANSI ODBC driver for PostgreSQL (English)"
-            VALUE "FileVersion", "1.0.1.0"
+            VALUE "FileVersion", "1.0.2.0"
             VALUE "InternalName", "awspsqlodbca"
             VALUE "LegalCopyright", "Modifications Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved."
             VALUE "LegalTrademarks", "ODBC(TM) is a trademark of Microsoft Corporation.  Microsoft? is a registered trademark of Microsoft Corporation. Windows(TM) is a trademark of Microsoft Corporation."
             VALUE "OriginalFilename", "awspsqlodbca.dll"
             VALUE "ProductName", "AWSpsqlODBC"
-            VALUE "ProductVersion", "1.0.1.0"
+            VALUE "ProductVersion", "1.0.2.0"
         END
     END
     BLOCK "VarFileInfo"

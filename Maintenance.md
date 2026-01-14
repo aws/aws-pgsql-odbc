@@ -4,6 +4,7 @@
 |------------------|---------------------------------------------------------------------------|
 | May 2, 2025      | [Release 1.0.0](https://github.com/aws/aws-pgsql-odbc/releases/tag/1.0.0) | 
 | October 17, 2025 | [Release 1.0.1](https://github.com/aws/aws-pgsql-odbc/releases/tag/1.0.1) | 
+| January 20, 2026 | [Release 1.0.2](https://github.com/aws/aws-pgsql-odbc/releases/tag/1.0.2) | 
 
 `aws-pgsql-odbc` [follows semver](https://semver.org/#semantic-versioning-200) which means we will only
 release breaking changes in major versions. Generally speaking patches will be released to fix existing problems without
@@ -56,4 +57,4 @@ from the updated source after the PRs are merged.
 
 | Major Version | Latest Minor Version | Status      | Initial Release | Maintenance Window Start | Maintenance Window End |
 |---------------|----------------------|-------------|-----------------|--------------------------|------------------------|
-| 1             | 1.0.1                | Maintenance | May 2, 2025     | May 2, 2025              | May 31, 2026           | 
+| 1             | 1.0.2                | Maintenance | May 2, 2025     | May 2, 2025              | May 31, 2026           | 
