@@ -1338,8 +1338,13 @@ CC_connect(ConnectionClass *self, char *salt_para)
 
 	MYLOG(MIN_LOG_LEVEL, "entering...sslmode=%s\n", self->connInfo.sslmode);
 
+	// Initialize logger based on whether logging is enabled
 	if (ci->rds_logging_enabled) {
 		InitializeRdsLogger(ci->log_dir, ci->rds_log_threshold);
+	} else if (!IsRdsLoggerInitialized()) {
+		// If logging is not enabled but glog hasn't been initialized yet,
+		// initialize it with minimal settings to suppress all output
+		InitializeRdsLoggerMinimal();
 	}
 
 	if (stricmp(ci->authtype, SECRET_MODE) == 0) {
